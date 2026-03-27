@@ -9,6 +9,7 @@ import { DividerFrame } from "@/components/ui/divider-frame";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { buildTypes, getFaqPreviewItems } from "@/lib/content";
 import { siteConfig } from "@/lib/site-config";
 
 const foundationCards = [
@@ -42,26 +43,11 @@ const routeShells: Route[] = [
   "/terms",
 ];
 
-const faqPreview = [
-  {
-    id: "scope",
-    title: "How is the drafting-inspired style handled without becoming decorative noise?",
-    content:
-      "The system keeps the references structural: measured linework, framed sections, restrained hatch accents, and a strict spacing rhythm. Decorative motifs stay attached to shared primitives rather than individual pages.",
-  },
-  {
-    id: "routing",
-    title: "Why add route shells before the content phase?",
-    content:
-      "The global header and footer should not point at dead pages. Placeholder route shells keep navigation honest while preserving the Phase 3 and Phase 4 boundary around real content implementation.",
-  },
-  {
-    id: "forms",
-    title: "What parts of the inquiry flow are covered by this phase?",
-    content:
-      "Only the visual and structural base is established here. The actual schema, validation, progress handling, persistence, and submission logic stay in Phase 5.",
-  },
-];
+const faqPreview = getFaqPreviewItems(3).map((item) => ({
+  id: item.id,
+  title: item.question,
+  content: item.answer,
+}));
 
 export default function Home() {
   return (
@@ -139,12 +125,10 @@ export default function Home() {
               <Select
                 label="Project Type"
                 placeholder="Select one"
-                options={[
-                  { value: "single-family", label: "Single Family" },
-                  { value: "multifamily", label: "Multifamily" },
-                  { value: "townhomes", label: "Townhomes" },
-                  { value: "commercial", label: "Commercial" },
-                ]}
+                options={buildTypes.map((buildType) => ({
+                  value: buildType.slug,
+                  label: buildType.title,
+                }))}
               />
               <Input label="Approx. Square Footage" placeholder="4,200" />
               <div className="sm:col-span-2">

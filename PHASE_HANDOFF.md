@@ -4,15 +4,15 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Overall Status
 
-- Current phase completed: Phase 2
-- Next phase: Phase 3
-- Build state: design system and shared layout are implemented; lint and local route runtime checks passed; `tsc --noEmit` and `next build` still need follow-up because they stall in the current local environment after successful route verification
+- Current phase completed: Phase 3
+- Next phase: Phase 4
+- Build state: design system, shared layout, and typed content modeling are implemented; local verification still needs follow-up because `eslint .`, `tsc --noEmit`, and `next build` currently stall in this environment after starting without diagnostics
 
 ## Master Checklist
 
 - [x] Phase 1 — Project Setup
 - [x] Phase 2 — Design System + Core Layout
-- [ ] Phase 3 — Content Models + Seed Content
+- [x] Phase 3 — Content Models + Seed Content
 - [ ] Phase 4 — Marketing Pages
 - [ ] Phase 5 — Inquiry Funnel
 - [ ] Phase 6 — Metadata, Analytics, Accessibility, and Hardening
@@ -82,33 +82,38 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 - Investigate why `npm run typecheck` and `npm run build` stall locally after route/runtime verification, even after TypeScript errors were resolved.
 - Replace temporary footer contact placeholders once final phone and email destinations are provided.
-- Move into Phase 3 by modeling finish levels, build types, FAQ content, and slug helpers against the new shell.
 
 ---
 
 ## Phase 3 — Content Models + Seed Content
 
-**Status:** Not started
+**Status:** Complete with verification follow-up
 
 **Accomplished**
 
-- Phase 1 created the `lib/content` and `types` directories where this content layer will live.
+- Added `types/content.ts` with forward-looking `FinishLevel`, `BuildType`, `FAQItem`, and related slug/image/group types to support Phase 4 page builds without reshaping the model later.
+- Added `lib/content/finish-levels.ts` with three seeded finish levels, stable slug helpers, comparison points, best-fit guidance, gallery metadata, and inquiry-prefill path helpers.
+- Added `lib/content/build-types.ts` with four seeded build categories, stable slug helpers, hero/gallery metadata, service mix notes, and finish-level cross-links.
+- Added `lib/content/faq.ts` with grouped FAQ metadata, ten seeded FAQ items, and helper utilities for grouped rendering and preview slices.
+- Added shared content utilities in `lib/content/image-paths.ts`, `lib/content/slug-helpers.ts`, and `lib/content/index.ts` so future routes can resolve slugs and image conventions consistently.
+- Established local image folder conventions under `public/images/finishes` and `public/images/build-types`.
+- Updated the current route placeholders and home-page preview controls to consume the new content layer rather than keeping those seeded values embedded inline.
 
 **Checklist**
 
-- [ ] Define `FinishLevel`, `BuildType`, and `FAQItem` types
-- [ ] Create typed local content files for finish levels
-- [ ] Create typed local content files for build types
-- [ ] Create typed local content files for FAQ content
-- [ ] Create slug lookup helpers
-- [ ] Add realistic seed content
-- [ ] Establish image path conventions
+- [x] Define `FinishLevel`, `BuildType`, and `FAQItem` types
+- [x] Create typed local content files for finish levels
+- [x] Create typed local content files for build types
+- [x] Create typed local content files for FAQ content
+- [x] Create slug lookup helpers
+- [x] Add realistic seed content
+- [x] Establish image path conventions
 
 **Left To Do**
 
-- Move all long-form marketing content into typed local data files.
-- Ensure future dynamic routes can resolve by stable slug.
-- Keep page components free of embedded content arrays and hardcoded detail content.
+- Consume the seeded content layer in the actual Phase 4 marketing pages and dynamic detail routes.
+- Replace placeholder image paths with real production assets while keeping the seeded folder conventions intact.
+- Resolve the local verification stall affecting `eslint .`, `tsc --noEmit`, and `next build`.
 
 ---
 
@@ -227,8 +232,8 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Immediate Next Action
 
-Proceed with Phase 2:
+Proceed with Phase 4:
 
-- replace the temporary Phase 1 landing shell with the actual shared site layout
-- build header, footer, section wrappers, and UI primitives
-- formalize the drafting-inspired visual system into reusable tokens and components
+- replace the remaining placeholder routes with the actual marketing pages
+- build the dynamic finish and build-type detail routes on top of the Phase 3 content layer
+- convert the current home page from a system preview into the real marketing homepage
