@@ -10,13 +10,16 @@ import {
   getFaqItemsByGroup,
   marketingPageContent,
 } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
-  title: "FAQ",
+export const metadata: Metadata = createPageMetadata({
+  title: "Frequently Asked Questions",
   description:
     "Read grouped answers about process, finish levels, project types, timeline expectations, and next steps.",
-};
+  path: "/faq",
+  eyebrow: "FAQ",
+});
 
 export default function FaqPage() {
   return (
@@ -27,8 +30,17 @@ export default function FaqPage() {
         description={marketingPageContent.faq.description}
         actions={
           <>
-            <ActionLink href="/inquire" label="Start a Project" />
-            <ActionLink href="/pricing" label="Review Finish Levels" variant="secondary" />
+            <ActionLink
+              href="/inquire"
+              label="Start a Project"
+              trackingLocation="faq-intro"
+            />
+            <ActionLink
+              href="/pricing"
+              label="Review Finish Levels"
+              variant="secondary"
+              trackingLocation="faq-intro"
+            />
           </>
         }
         detail={
@@ -75,11 +87,13 @@ export default function FaqPage() {
           primaryAction={{
             href: "/inquire",
             label: "Start a Project",
+            trackingLocation: "faq-band",
           }}
           secondaryAction={{
             href: siteConfig.contact.email.href,
             label: "Email HH",
             variant: "secondary",
+            trackingLocation: "faq-band",
           }}
           notes={[
             "FAQ content can reduce hesitation, but it is not a substitute for the project brief.",

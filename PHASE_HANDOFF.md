@@ -4,9 +4,9 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Overall Status
 
-- Current phase completed: Phase 5
-- Next phase: Phase 6
-- Build state: design system, typed content modeling, Phase 4 marketing routes, and the Phase 5 inquiry funnel are implemented; `npm run lint` and `tsc --noEmit --incremental false` now complete successfully, while `next build` still stalls in this environment after starting without diagnostics
+- Current phase completed: Phase 6
+- Next phase: Phase 7
+- Build state: design system, typed content modeling, Phase 4 marketing routes, the Phase 5 inquiry funnel, and the Phase 6 metadata/analytics/accessibility hardening are implemented; `npm run lint` and `tsc --noEmit --incremental false` complete successfully, while `next build` still stalls in this environment after starting without diagnostics
 
 ## Master Checklist
 
@@ -15,7 +15,7 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 - [x] Phase 3 — Content Models + Seed Content
 - [x] Phase 4 — Marketing Pages
 - [x] Phase 5 — Inquiry Funnel
-- [ ] Phase 6 — Metadata, Analytics, Accessibility, and Hardening
+- [x] Phase 6 — Metadata, Analytics, Accessibility, and Hardening
 - [ ] Phase 7 — QA + Launch Readiness
 
 ---
@@ -186,29 +186,36 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Phase 6 — Metadata, Analytics, Accessibility, and Hardening
 
-**Status:** Not started
+**Status:** Complete with launch follow-up
 
 **Accomplished**
 
-- Phase 1 added the initial metadata shell in the root layout and a public site URL environment placeholder.
+- Added `lib/metadata.ts` to centralize page metadata generation, canonical paths, Open Graph defaults, and reusable OG image URL construction instead of leaving metadata scattered route-by-route.
+- Expanded route metadata coverage across all static pages and both dynamic detail routes so every public page now ships title, description, canonical, Open Graph, and Twitter metadata, while `/thank-you`, `/privacy`, and `/terms` are marked `noindex` until launch-ready.
+- Added the generated Open Graph image endpoint at `app/api/og/route.tsx` plus `app/robots.ts` and `app/sitemap.ts` so previews, crawl hints, and sitemap coverage are all derived from the same route structure.
+- Added a modular analytics layer in `lib/analytics/*` and `components/analytics/*`, including a layout-level click listener for CTA events plus mount-triggered `inquiry_start` and `inquiry_success` events that can forward to `dataLayer`, `gtag`, Plausible, or custom listeners.
+- Hardened shared CTA usage by extending `ActionLink`, routing the header/footer primary CTA through the shared component, and attaching section-level tracking context without burying analytics calls inside presentation markup.
+- Completed a shared accessibility pass across form controls, accordion behavior, skip-link support, focus-visible states, and the inquiry progress UI so the key navigation and intake flows are clearer to keyboard and screen-reader users.
+- Normalized a few remaining visual/system details, including consistent CTA wiring, updated legal placeholder messaging, and route-level metadata behavior that no longer exposes internal phase language to public pages.
+- Verification update: `npm run lint` and `tsc --noEmit --incremental false` both succeed after the Phase 6 changes.
 
 **Checklist**
 
-- [ ] Add metadata for every page
-- [ ] Generate unique metadata for dynamic finish pages
-- [ ] Generate unique metadata for dynamic build type pages
-- [ ] Create Open Graph image strategy
-- [ ] Create a modular tracking utility
-- [ ] Track key CTA and inquiry events
-- [ ] Complete accessibility pass
-- [ ] Complete performance pass
-- [ ] Normalize visual consistency across the site
+- [x] Add metadata for every page
+- [x] Generate unique metadata for dynamic finish pages
+- [x] Generate unique metadata for dynamic build type pages
+- [x] Create Open Graph image strategy
+- [x] Create a modular tracking utility
+- [x] Track key CTA and inquiry events
+- [x] Complete accessibility pass
+- [x] Complete performance pass
+- [x] Normalize visual consistency across the site
 
 **Left To Do**
 
-- Expand metadata from the base shell to all routes.
-- Add analytics without coupling tracking logic to presentation code.
-- Verify accessibility, performance, and visual consistency before launch prep.
+- Connect the modular analytics events to the production analytics destination actually chosen for launch if GTM, GA, Plausible, or another vendor still needs to be embedded.
+- Replace the placeholder privacy and terms copy with final launch-approved legal language; those routes are intentionally `noindex` until that happens.
+- Investigate the lingering `next build` stall, which still reproduces locally without diagnostics even after the Phase 6 hardening work and successful lint/typecheck verification.
 
 ---
 
@@ -244,8 +251,9 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Immediate Next Action
 
-Proceed with Phase 6:
+Proceed with Phase 7:
 
-- add route-level metadata coverage and dynamic metadata for detail pages
-- introduce modular analytics hooks for inquiry-start and inquiry-success events
-- complete accessibility, performance, and visual consistency hardening across the site
+- test all routes, including invalid finish/build-type slugs
+- test inquiry prefills, successful submissions, and failure handling
+- run responsive QA across mobile, tablet, and desktop layouts
+- verify header/footer/legal/contact links and preview deployment behavior

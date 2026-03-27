@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { ActionLink } from "@/components/marketing/action-link";
 import { Container } from "@/components/layout/container";
-import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site-config";
 
 export function SiteHeader() {
@@ -37,9 +37,11 @@ export function SiteHeader() {
               </Link>
             ))}
           </nav>
-          <Link href={siteConfig.primaryCta.href} className={buttonVariants()}>
-            {siteConfig.primaryCta.label}
-          </Link>
+          <ActionLink
+            href={siteConfig.primaryCta.href}
+            label={siteConfig.primaryCta.label}
+            trackingLocation="site-header"
+          />
         </div>
       </Container>
     </header>

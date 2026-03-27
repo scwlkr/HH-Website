@@ -1,9 +1,8 @@
-import Link from "next/link";
 import type { Route } from "next";
 import type { ReactNode } from "react";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
-import { buttonVariants } from "@/components/ui/button";
+import { ActionLink } from "@/components/marketing/action-link";
 import { CardShell } from "@/components/ui/card-shell";
 
 type RoutePlaceholderProps = {
@@ -40,17 +39,19 @@ export function RoutePlaceholder({
         actions={
           <>
             {primaryAction ? (
-              <Link href={primaryAction.href} className={buttonVariants()}>
-                {primaryAction.label}
-              </Link>
+              <ActionLink
+                href={primaryAction.href}
+                label={primaryAction.label}
+                trackingLocation="legal-placeholder"
+              />
             ) : null}
             {secondaryAction ? (
-              <Link
+              <ActionLink
                 href={secondaryAction.href}
-                className={buttonVariants({ variant: "secondary" })}
-              >
-                {secondaryAction.label}
-              </Link>
+                label={secondaryAction.label}
+                variant="secondary"
+                trackingLocation="legal-placeholder"
+              />
             ) : null}
           </>
         }
@@ -59,7 +60,7 @@ export function RoutePlaceholder({
       <Section
         eyebrow="Route Shell"
         title="The shared frame is active here already."
-        description="This placeholder exists so navigation, footer links, and page-level composition can be exercised now without smearing unfinished page content across Phase 2."
+        description="This placeholder keeps navigation, footer links, and page-level composition live while final legal copy is still being prepared."
       >
         <div className="grid gap-6 lg:grid-cols-2">
           <CardShell>

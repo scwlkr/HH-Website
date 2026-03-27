@@ -10,9 +10,11 @@ import { CardShell } from "@/components/ui/card-shell";
 import {
   finishLevelSlugs,
   getFinishLevelBySlug,
+  getFinishLevelHref,
   getFinishLevelInquiryHref,
   getOtherFinishLevels,
 } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 
 type FinishDetailPageProps = {
   params: Promise<{
@@ -39,8 +41,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${finish.title} Finish Level`,
-    description: finish.detailSummary,
+    ...createPageMetadata({
+      title: `${finish.title} Finish Level`,
+      description: finish.detailSummary,
+      path: getFinishLevelHref(finish.slug),
+      eyebrow: "Finish Detail",
+      detail: finish.tagline,
+    }),
   };
 }
 
@@ -67,8 +74,14 @@ export default async function FinishDetailPage({
             <ActionLink
               href={getFinishLevelInquiryHref(finish.slug)}
               label="Start With This Finish"
+              trackingLocation="finish-detail-intro"
             />
-            <ActionLink href="/pricing" label="Back To Pricing" variant="secondary" />
+            <ActionLink
+              href="/pricing"
+              label="Back To Pricing"
+              variant="secondary"
+              trackingLocation="finish-detail-intro"
+            />
           </>
         }
         detail={
@@ -161,11 +174,13 @@ export default async function FinishDetailPage({
           primaryAction={{
             href: getFinishLevelInquiryHref(finish.slug),
             label: "Start With This Finish",
+            trackingLocation: "finish-detail-band",
           }}
           secondaryAction={{
             href: "/pricing",
             label: "Compare Finish Levels",
             variant: "secondary",
+            trackingLocation: "finish-detail-band",
           }}
           notes={[
             finish.tagline,

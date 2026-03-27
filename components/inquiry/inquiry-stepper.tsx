@@ -9,7 +9,7 @@ export function InquiryStepper({ currentStepIndex }: InquiryStepperProps) {
   const activeStep = inquiryProgressSteps[currentStepIndex];
 
   return (
-    <div>
+    <div aria-live="polite" aria-atomic="true">
       <DividerFrame
         label={`Step ${currentStepIndex + 1} / ${inquiryProgressSteps.length}`}
         detail="Project Brief"

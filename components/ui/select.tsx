@@ -25,7 +25,15 @@ export function Select({
   defaultValue = "",
   ...props
 }: SelectProps) {
-  const fieldId = id ?? label?.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const fieldId =
+    id ??
+    props.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-") ??
+    label?.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const describedById = error
+    ? `${fieldId}-error`
+    : helperText
+      ? `${fieldId}-help`
+      : undefined;
 
   return (
     <label className="flex flex-col gap-2">
@@ -38,6 +46,8 @@ export function Select({
         <select
           id={fieldId}
           defaultValue={defaultValue}
+          aria-describedby={describedById}
+          aria-invalid={Boolean(error)}
           className={cn(
             "min-h-12 w-full appearance-none rounded-[var(--hh-radius-input)] border border-line-strong bg-surface-raised px-4 pr-12 text-sm text-foreground outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft",
             className,
@@ -60,9 +70,13 @@ export function Select({
         </span>
       </div>
       {error ? (
-        <span className="text-xs text-accent-strong">{error}</span>
+        <span id={describedById} className="text-xs text-accent-strong">
+          {error}
+        </span>
       ) : helperText ? (
-        <span className="text-xs text-muted">{helperText}</span>
+        <span id={describedById} className="text-xs text-muted">
+          {helperText}
+        </span>
       ) : null}
     </label>
   );

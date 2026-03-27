@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AnalyticsEventTrigger } from "@/components/analytics/analytics-event-trigger";
 import { InquiryForm } from "@/components/inquiry/inquiry-form";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
@@ -7,13 +8,16 @@ import {
   getFinishLevelLabel,
   getProjectTypeLabel,
 } from "@/lib/inquiry/options";
+import { createPageMetadata } from "@/lib/metadata";
 import { createInquiryInitialValues } from "@/lib/validation/inquiry";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Start A Project",
   description:
     "Guided Howeth & Harp project brief intake covering contact details, project basics, site context, and priorities.",
-};
+  path: "/inquire",
+  eyebrow: "Project Brief",
+});
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -46,14 +50,34 @@ export default async function InquirePage({
 
   return (
     <>
+      <AnalyticsEventTrigger
+        name="inquiry_start"
+        payload={{
+          build_type_prefill: initialValues.projectType || undefined,
+          finish_level_prefill: initialValues.finishLevel || undefined,
+          utm_source: initialValues.utmSource || undefined,
+          utm_medium: initialValues.utmMedium || undefined,
+          utm_campaign: initialValues.utmCampaign || undefined,
+        }}
+      />
       <PageIntro
         eyebrow="Project Brief"
         title="Share the project in a way that gives HH something real to respond to."
         description="This intake is structured to move from contact basics into category, finish direction, site context, and priorities without turning the process into a cold generic form."
         actions={
           <>
-            <ActionLink href="/pricing" label="Review Finish Levels" variant="secondary" />
-            <ActionLink href="/catalog" label="Browse Project Types" variant="secondary" />
+            <ActionLink
+              href="/pricing"
+              label="Review Finish Levels"
+              variant="secondary"
+              trackingLocation="inquiry-intro"
+            />
+            <ActionLink
+              href="/catalog"
+              label="Browse Project Types"
+              variant="secondary"
+              trackingLocation="inquiry-intro"
+            />
           </>
         }
         detail={

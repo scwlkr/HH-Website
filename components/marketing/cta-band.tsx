@@ -5,6 +5,8 @@ type BandAction = {
   href: string;
   label: string;
   variant?: "primary" | "secondary" | "ghost";
+  trackingLocation?: string;
+  trackingContext?: string;
 };
 
 type CtaBandProps = {
@@ -40,12 +42,16 @@ export function CtaBand({
               href={primaryAction.href}
               label={primaryAction.label}
               variant={primaryAction.variant}
+              trackingLocation={primaryAction.trackingLocation}
+              trackingContext={primaryAction.trackingContext}
             />
             {secondaryAction ? (
               <ActionLink
                 href={secondaryAction.href}
                 label={secondaryAction.label}
                 variant={secondaryAction.variant ?? "secondary"}
+                trackingLocation={secondaryAction.trackingLocation}
+                trackingContext={secondaryAction.trackingContext}
               />
             ) : null}
           </div>

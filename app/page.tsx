@@ -14,13 +14,16 @@ import {
   getFaqPreviewItems,
   marketingPageContent,
 } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
-  title: "Home",
+export const metadata: Metadata = createPageMetadata({
+  title: "Architectural Design, Building, And Land Development",
   description:
     "Howeth & Harp provides architectural design, building, and land development with clear finish and project-type paths into inquiry.",
-};
+  path: "/",
+  eyebrow: "Howeth & Harp",
+});
 
 const faqPreview = getFaqPreviewItems(3).map((item) => ({
   id: item.id,
@@ -46,11 +49,13 @@ export default function Home() {
             <ActionLink
               href={siteConfig.primaryCta.href}
               label={siteConfig.primaryCta.label}
+              trackingLocation="home-hero"
             />
             <ActionLink
               href={directContactHref}
               label={directContactLabel}
               variant="secondary"
+              trackingLocation="home-hero"
             />
           </>
         }
@@ -91,7 +96,12 @@ export default function Home() {
         title="Three finish paths route visitors toward the right level of specification."
         description="Finish level is a framing tool for the kind of coordination, curation, and customization a project should carry. Each path leads into a dedicated page before inquiry."
         actions={
-          <ActionLink href="/pricing" label="View All Finish Levels" variant="secondary" />
+          <ActionLink
+            href="/pricing"
+            label="View All Finish Levels"
+            variant="secondary"
+            trackingLocation="home-finish-preview"
+          />
         }
       >
         <div className="grid gap-6 lg:grid-cols-3">
@@ -106,7 +116,12 @@ export default function Home() {
         title="Project categories stay visible from the home page so scope can be identified early."
         description="The catalog covers the major categories HH handles and gives each one a disciplined detail page instead of burying everything in one long overview."
         actions={
-          <ActionLink href="/catalog" label="Open Catalog" variant="secondary" />
+          <ActionLink
+            href="/catalog"
+            label="Open Catalog"
+            variant="secondary"
+            trackingLocation="home-build-preview"
+          />
         }
       >
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
@@ -132,10 +147,12 @@ export default function Home() {
           primaryAction={{
             href: "/inquire",
             label: "Start a Project",
+            trackingLocation: "home-inquiry-band",
           }}
           secondaryAction={{
             href: "/pricing",
             label: "Review Finish Levels",
+            trackingLocation: "home-inquiry-band",
           }}
           notes={marketingPageContent.home.inquirySteps}
         />
@@ -146,7 +163,12 @@ export default function Home() {
         title="A few common questions can be answered quickly before the conversation moves forward."
         description="The full FAQ groups the common process, pricing, category, and next-step questions into a scannable format."
         actions={
-          <ActionLink href="/faq" label="Open Full FAQ" variant="secondary" />
+          <ActionLink
+            href="/faq"
+            label="Open Full FAQ"
+            variant="secondary"
+            trackingLocation="home-faq-preview"
+          />
         }
       >
         <Accordion items={faqPreview} />
@@ -160,11 +182,13 @@ export default function Home() {
           primaryAction={{
             href: "/inquire",
             label: "Start a Project",
+            trackingLocation: "home-footer-band",
           }}
           secondaryAction={{
             href: directContactHref,
             label: directContactLabel,
             variant: "secondary",
+            trackingLocation: "home-footer-band",
           }}
           notes={[
             "Pricing explains finish direction before budget conversations become muddy.",

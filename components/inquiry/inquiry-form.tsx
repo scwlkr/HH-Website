@@ -104,8 +104,14 @@ function ChoiceGrid<TValue extends string>({
   defaultValue?: TValue | "";
   defaultValues?: TValue[];
 }) {
+  const describedById = error
+    ? `${name}-error`
+    : helperText
+      ? `${name}-help`
+      : undefined;
+
   return (
-    <fieldset>
+    <fieldset aria-describedby={describedById} aria-invalid={Boolean(error)}>
       <legend className="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted">
         {label}
       </legend>
@@ -130,7 +136,7 @@ function ChoiceGrid<TValue extends string>({
                 value={option.value}
                 defaultChecked={isCheckedByDefault}
               />
-              <span className="block rounded-[calc(var(--hh-radius-panel)-0.3rem)] border border-line-strong bg-surface-raised px-4 py-4 transition-colors peer-checked:border-accent peer-checked:bg-accent-soft/40 group-hover:border-accent">
+              <span className="block rounded-[calc(var(--hh-radius-panel)-0.3rem)] border border-line-strong bg-surface-raised px-4 py-4 transition-colors peer-checked:border-accent peer-checked:bg-accent-soft/40 peer-focus-visible:border-accent peer-focus-visible:ring-2 peer-focus-visible:ring-accent-soft group-hover:border-accent">
                 <span className="font-mono text-[0.72rem] uppercase tracking-[0.18em] text-foreground">
                   {option.label}
                 </span>
@@ -145,9 +151,13 @@ function ChoiceGrid<TValue extends string>({
         })}
       </div>
       {error ? (
-        <p className="mt-2 text-xs text-accent-strong">{error}</p>
+        <p id={describedById} className="mt-2 text-xs text-accent-strong">
+          {error}
+        </p>
       ) : helperText ? (
-        <p className="mt-2 text-xs text-muted">{helperText}</p>
+        <p id={describedById} className="mt-2 text-xs text-muted">
+          {helperText}
+        </p>
       ) : null}
     </fieldset>
   );
@@ -536,7 +546,12 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
             {siteConfig.contact.email.label}
           </a>
           <div className="mt-5">
-            <ActionLink href="/pricing" label="Review Finish Levels" variant="secondary" />
+            <ActionLink
+              href="/pricing"
+              label="Review Finish Levels"
+              variant="secondary"
+              trackingLocation="inquiry-side-panel"
+            />
           </div>
         </CardShell>
       </div>

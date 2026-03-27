@@ -113,6 +113,13 @@
     color: var(--hh-accent);
   }
 
+  .hh-link:focus-visible {
+    outline: none;
+    border-radius: 0.4rem;
+    box-shadow: 0 0 0 2px var(--hh-accent-soft);
+    color: var(--hh-accent);
+  }
+
   .hh-paper-panel {
     position: relative;
     overflow: hidden;

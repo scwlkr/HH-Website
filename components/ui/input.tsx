@@ -15,7 +15,15 @@ export function Input({
   id,
   ...props
 }: InputProps) {
-  const fieldId = id ?? label?.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const fieldId =
+    id ??
+    props.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-") ??
+    label?.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const describedById = error
+    ? `${fieldId}-error`
+    : helperText
+      ? `${fieldId}-help`
+      : undefined;
 
   return (
     <label className="flex flex-col gap-2">
@@ -26,6 +34,8 @@ export function Input({
       ) : null}
       <input
         id={fieldId}
+        aria-describedby={describedById}
+        aria-invalid={Boolean(error)}
         className={cn(
           "min-h-12 rounded-[var(--hh-radius-input)] border border-line-strong bg-surface-raised px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent-soft",
           className,
@@ -33,9 +43,13 @@ export function Input({
         {...props}
       />
       {error ? (
-        <span className="text-xs text-accent-strong">{error}</span>
+        <span id={describedById} className="text-xs text-accent-strong">
+          {error}
+        </span>
       ) : helperText ? (
-        <span className="text-xs text-muted">{helperText}</span>
+        <span id={describedById} className="text-xs text-muted">
+          {helperText}
+        </span>
       ) : null}
     </label>
   );

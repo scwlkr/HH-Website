@@ -6,12 +6,15 @@ import { BuildTypeCard } from "@/components/marketing/build-type-card";
 import { CtaBand } from "@/components/marketing/cta-band";
 import { DividerFrame } from "@/components/ui/divider-frame";
 import { buildTypes, marketingPageContent } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Catalog",
+export const metadata: Metadata = createPageMetadata({
+  title: "Project Catalog",
   description:
     "Review Howeth & Harp project categories across single-family, multifamily, townhomes, and commercial work.",
-};
+  path: "/catalog",
+  eyebrow: "Project Categories",
+});
 
 export default function CatalogPage() {
   return (
@@ -22,8 +25,17 @@ export default function CatalogPage() {
         description={marketingPageContent.catalog.description}
         actions={
           <>
-            <ActionLink href="/inquire" label="Start a Project" />
-            <ActionLink href="/pricing" label="Review Finish Levels" variant="secondary" />
+            <ActionLink
+              href="/inquire"
+              label="Start a Project"
+              trackingLocation="catalog-intro"
+            />
+            <ActionLink
+              href="/pricing"
+              label="Review Finish Levels"
+              variant="secondary"
+              trackingLocation="catalog-intro"
+            />
           </>
         }
         detail={
@@ -56,11 +68,13 @@ export default function CatalogPage() {
           primaryAction={{
             href: "/inquire",
             label: "Start a Project",
+            trackingLocation: "catalog-band",
           }}
           secondaryAction={{
             href: "/pricing",
             label: "Compare Finish Levels",
             variant: "secondary",
+            trackingLocation: "catalog-band",
           }}
           notes={[
             `${buildTypes.length} project categories are already modeled with stable slugs and finish-level cross-links.`,

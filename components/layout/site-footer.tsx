@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { ActionLink } from "@/components/marketing/action-link";
 import { Container } from "@/components/layout/container";
-import { buttonVariants } from "@/components/ui/button";
 import { DividerFrame } from "@/components/ui/divider-frame";
 import { siteConfig } from "@/lib/site-config";
 
@@ -61,12 +61,12 @@ export function SiteFooter() {
                   visible here without turning the footer into a second homepage.
                 </p>
               </div>
-              <Link
+              <ActionLink
                 href={siteConfig.primaryCta.href}
-                className={buttonVariants({ variant: "secondary" })}
-              >
-                {siteConfig.primaryCta.label}
-              </Link>
+                label={siteConfig.primaryCta.label}
+                variant="secondary"
+                trackingLocation="site-footer"
+              />
             </div>
 
             <div>

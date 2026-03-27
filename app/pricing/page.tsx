@@ -7,12 +7,15 @@ import { FinishCard } from "@/components/marketing/finish-card";
 import { FinishComparison } from "@/components/pricing/finish-comparison";
 import { DividerFrame } from "@/components/ui/divider-frame";
 import { finishLevels, marketingPageContent } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Pricing",
+export const metadata: Metadata = createPageMetadata({
+  title: "Finish Levels",
   description:
     "Review Howeth & Harp finish levels and compare Builder Grade, Builder+, and Custom before starting a project inquiry.",
-};
+  path: "/pricing",
+  eyebrow: "Finish Levels",
+});
 
 export default function PricingPage() {
   return (
@@ -23,8 +26,17 @@ export default function PricingPage() {
         description={marketingPageContent.pricing.description}
         actions={
           <>
-            <ActionLink href="/inquire" label="Start a Project" />
-            <ActionLink href="/catalog" label="Browse Build Types" variant="secondary" />
+            <ActionLink
+              href="/inquire"
+              label="Start a Project"
+              trackingLocation="pricing-intro"
+            />
+            <ActionLink
+              href="/catalog"
+              label="Browse Build Types"
+              variant="secondary"
+              trackingLocation="pricing-intro"
+            />
           </>
         }
         detail={
@@ -65,11 +77,13 @@ export default function PricingPage() {
           primaryAction={{
             href: "/inquire",
             label: "Start a Project",
+            trackingLocation: "pricing-band",
           }}
           secondaryAction={{
             href: "/catalog",
             label: "Review Build Types",
             variant: "secondary",
+            trackingLocation: "pricing-band",
           }}
           notes={[
             `${finishLevels.length} finish levels are structured to route users deeper before inquiry.`,

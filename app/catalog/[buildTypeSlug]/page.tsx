@@ -11,8 +11,10 @@ import {
   buildTypeSlugs,
   finishLevels,
   getBuildTypeBySlug,
+  getBuildTypeHref,
   getBuildTypeInquiryHref,
 } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 
 type BuildTypeDetailPageProps = {
   params: Promise<{
@@ -39,8 +41,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${buildType.title} Projects`,
-    description: buildType.detailSummary,
+    ...createPageMetadata({
+      title: `${buildType.title} Projects`,
+      description: buildType.detailSummary,
+      path: getBuildTypeHref(buildType.slug),
+      eyebrow: "Project Category",
+      detail: buildType.tagline,
+    }),
   };
 }
 
@@ -70,8 +77,14 @@ export default async function BuildTypeDetailPage({
             <ActionLink
               href={getBuildTypeInquiryHref(buildType.slug)}
               label="Start With This Category"
+              trackingLocation="build-type-detail-intro"
             />
-            <ActionLink href="/catalog" label="Back To Catalog" variant="secondary" />
+            <ActionLink
+              href="/catalog"
+              label="Back To Catalog"
+              variant="secondary"
+              trackingLocation="build-type-detail-intro"
+            />
           </>
         }
         detail={
@@ -174,11 +187,13 @@ export default async function BuildTypeDetailPage({
           primaryAction={{
             href: getBuildTypeInquiryHref(buildType.slug),
             label: "Start With This Category",
+            trackingLocation: "build-type-detail-band",
           }}
           secondaryAction={{
             href: "/pricing",
             label: "Review Finish Levels",
             variant: "secondary",
+            trackingLocation: "build-type-detail-band",
           }}
           notes={[
             buildType.tagline,

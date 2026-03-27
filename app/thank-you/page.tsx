@@ -1,28 +1,48 @@
 import type { Metadata } from "next";
+import { AnalyticsEventTrigger } from "@/components/analytics/analytics-event-trigger";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
 import { ActionLink } from "@/components/marketing/action-link";
 import { CardShell } from "@/components/ui/card-shell";
 import { marketingPageContent } from "@/lib/content";
+import { createPageMetadata } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Thank You",
   description:
     "Confirmation page for a submitted Howeth & Harp project inquiry, including next steps and direct contact fallback.",
-};
+  path: "/thank-you",
+  eyebrow: "Submission Received",
+  noIndex: true,
+});
 
 export default function ThankYouPage() {
   return (
     <>
+      <AnalyticsEventTrigger
+        name="inquiry_success"
+        payload={{
+          destination: "/thank-you",
+        }}
+      />
       <PageIntro
         eyebrow={marketingPageContent.thankYou.eyebrow}
         title={marketingPageContent.thankYou.title}
         description={marketingPageContent.thankYou.description}
         actions={
           <>
-            <ActionLink href="/" label="Back Home" variant="secondary" />
-            <ActionLink href="/inquire" label="Start Another Project" />
+            <ActionLink
+              href="/"
+              label="Back Home"
+              variant="secondary"
+              trackingLocation="thank-you-actions"
+            />
+            <ActionLink
+              href="/inquire"
+              label="Start Another Project"
+              trackingLocation="thank-you-actions"
+            />
           </>
         }
       />
