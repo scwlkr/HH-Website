@@ -10,12 +10,14 @@ type FinishCardProps = {
   finish: FinishLevel;
   variant?: "preview" | "detail";
   showInquiryAction?: boolean;
+  directionalPriceLabel?: string | null;
 };
 
 export function FinishCard({
   finish,
   variant = "detail",
   showInquiryAction = false,
+  directionalPriceLabel,
 }: FinishCardProps) {
   const bulletLimit = variant === "preview" ? 2 : 3;
 
@@ -28,6 +30,14 @@ export function FinishCard({
         <h3 className="text-2xl sm:text-[1.8rem]">{finish.title}</h3>
         <p className="mt-3 text-sm leading-7 text-muted">{finish.tagline}</p>
       </div>
+      {directionalPriceLabel ? (
+        <div className="mt-5 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised px-4 py-3">
+          <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
+            Directional Benchmark
+          </p>
+          <p className="mt-2 text-sm text-foreground">{directionalPriceLabel}</p>
+        </div>
+      ) : null}
       <p className="mt-5 text-sm leading-7 text-muted">{finish.cardSummary}</p>
       <ul className="mt-6 space-y-3 text-sm leading-7 text-muted">
         {finish.differentiators.slice(0, bulletLimit).map((point) => (

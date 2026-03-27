@@ -5,9 +5,13 @@ import { getFinishLevelHref } from "@/lib/content/finish-levels";
 
 type FinishComparisonProps = {
   finishLevels: ReadonlyArray<FinishLevel>;
+  pricingLabels?: Partial<Record<FinishLevel["slug"], string>>;
 };
 
-export function FinishComparison({ finishLevels }: FinishComparisonProps) {
+export function FinishComparison({
+  finishLevels,
+  pricingLabels,
+}: FinishComparisonProps) {
   const comparisonLabels = finishLevels[0]?.comparisonPoints.map(
     (point) => point.label,
   );
@@ -37,6 +41,11 @@ export function FinishComparison({ finishLevels }: FinishComparisonProps) {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <h3 className="text-xl">{finish.shortTitle}</h3>
+                      {pricingLabels?.[finish.slug] ? (
+                        <p className="mt-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-accent">
+                          {pricingLabels[finish.slug]}
+                        </p>
+                      ) : null}
                       <p className="mt-2 text-sm leading-7 text-muted">
                         {comparisonPoint?.value}
                       </p>

@@ -18,6 +18,7 @@ export const siteConfig = {
   nav: [
     { href: "/" as Route, label: "Home" },
     { href: "/pricing" as Route, label: "Pricing" },
+    { href: "/projects" as Route, label: "Projects" },
     { href: "/catalog" as Route, label: "Catalog" },
     { href: "/faq" as Route, label: "FAQ" },
   ] satisfies SiteLink[],

@@ -29,6 +29,12 @@ function readSiteUrl() {
   return fallbackSiteUrl;
 }
 
+function readSupabaseUrl() {
+  return normalizeAbsoluteUrl(
+    readOptionalEnv("NEXT_PUBLIC_SUPABASE_URL") ?? readOptionalEnv("SUPABASE_URL"),
+  );
+}
+
 function normalizePhoneHref(value: string | undefined) {
   if (!value) {
     return undefined;
@@ -51,6 +57,10 @@ const contactPhoneHref = normalizePhoneHref(
 const contactEmailAddress = normalizeEmailAddress(
   readOptionalEnv("HH_CONTACT_EMAIL"),
 );
+const supabaseUrl = readSupabaseUrl();
+const supabaseAnonKey =
+  readOptionalEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY") ??
+  readOptionalEnv("SUPABASE_ANON_KEY");
 
 export const env = {
   siteUrl: readSiteUrl(),
@@ -61,4 +71,7 @@ export const env = {
     ? readOptionalEnv("HH_CONTACT_PHONE_LABEL") ??
       contactPhoneHref.replace(/^tel:/, "")
     : undefined,
+  supabaseUrl,
+  supabaseAnonKey,
+  hasSupabasePublicEnv: Boolean(supabaseUrl && supabaseAnonKey),
 } as const;

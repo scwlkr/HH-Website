@@ -14,7 +14,12 @@ import {
   getFinishLevelInquiryHref,
   getOtherFinishLevels,
 } from "@/lib/content";
+import { getPublicPricingSettings } from "@/lib/db/operations";
 import { createPageMetadata } from "@/lib/metadata";
+import {
+  formatDirectionalPrice,
+  getDirectionalPriceForFinish,
+} from "@/lib/operations/format";
 
 type FinishDetailPageProps = {
   params: Promise<{
@@ -62,6 +67,10 @@ export default async function FinishDetailPage({
   }
 
   const otherFinishLevels = getOtherFinishLevels(finish.slug);
+  const pricingSettings = await getPublicPricingSettings();
+  const directionalPriceLabel = formatDirectionalPrice(
+    getDirectionalPriceForFinish(pricingSettings, finish.slug),
+  );
 
   return (
     <>
@@ -86,6 +95,17 @@ export default async function FinishDetailPage({
         }
         detail={
           <div className="space-y-4">
+            <div className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised px-4 py-4">
+              <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
+                Directional Benchmark
+              </p>
+              <p className="mt-2 text-base">{directionalPriceLabel}</p>
+              {pricingSettings.pricingNote ? (
+                <p className="mt-3 text-sm leading-7 text-muted">
+                  {pricingSettings.pricingNote}
+                </p>
+              ) : null}
+            </div>
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
               Positioning
             </p>
@@ -161,7 +181,14 @@ export default async function FinishDetailPage({
       >
         <div className="grid gap-6 lg:grid-cols-2">
           {otherFinishLevels.map((item) => (
-            <FinishCard key={item.slug} finish={item} variant="preview" />
+            <FinishCard
+              key={item.slug}
+              finish={item}
+              variant="preview"
+              directionalPriceLabel={formatDirectionalPrice(
+                getDirectionalPriceForFinish(pricingSettings, item.slug),
+              )}
+            />
           ))}
         </div>
       </Section>

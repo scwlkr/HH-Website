@@ -49,7 +49,7 @@ export const faqItems = [
     group: "pricing",
     question: "Are the finish levels fixed price packages?",
     answer:
-      "No. The finish levels are meant to explain the character and general scope of a project, not promise a fixed contract number. Final pricing always depends on scope, site conditions, systems, and the degree of customization involved.",
+      "No. The finish levels and any published square-foot benchmarks are meant to clarify direction, not promise a fixed contract number. Final pricing still depends on scope, site conditions, systems, and the degree of customization involved.",
   },
   {
     id: "pricing-upgrade-path",

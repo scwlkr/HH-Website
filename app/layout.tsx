@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AnalyticsProvider } from "@/components/analytics/analytics-provider";
+import { PathAwareShell } from "@/components/layout/path-aware-shell";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { buildOgImageUrl, metadataBase } from "@/lib/metadata";
@@ -53,24 +54,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full bg-background text-foreground">
-        <a
-          href="#main-content"
-          className="absolute left-4 top-4 z-[60] -translate-y-24 rounded-full border border-line-strong bg-surface-raised px-4 py-2 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-foreground transition-transform focus:translate-y-0 focus-visible:translate-y-0"
-        >
-          Skip to content
-        </a>
         <AnalyticsProvider />
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main
-            id="main-content"
-            className="flex-1 pb-16 pt-6 focus:outline-none sm:pb-24 sm:pt-8"
-            tabIndex={-1}
-          >
-            {children}
-          </main>
-          <SiteFooter />
-        </div>
+        <PathAwareShell
+          header={<SiteHeader />}
+          footer={<SiteFooter />}
+        >
+          {children}
+        </PathAwareShell>
       </body>
     </html>
   );
