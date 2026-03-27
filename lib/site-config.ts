@@ -27,7 +27,7 @@ export const siteConfig = {
   contact: {
     phone: {
       href: undefined,
-      label: "Final routing pending",
+      label: "Direct line pending final launch setup",
       title: "Phone",
     },
     email: {
@@ -35,6 +35,6 @@ export const siteConfig = {
       label: "hello@howethandharp.com",
       title: "Email",
     },
-    note: "Final phone and email destinations are open implementation inputs and can be swapped here later without touching the shell.",
+    note: "For new work, the structured project brief remains the clearest starting point.",
   },
 } as const;

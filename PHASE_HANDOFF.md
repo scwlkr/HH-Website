@@ -4,16 +4,16 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Overall Status
 
-- Current phase completed: Phase 3
-- Next phase: Phase 4
-- Build state: design system, shared layout, and typed content modeling are implemented; local verification still needs follow-up because `eslint .`, `tsc --noEmit`, and `next build` currently stall in this environment after starting without diagnostics
+- Current phase completed: Phase 4
+- Next phase: Phase 5
+- Build state: design system, typed content modeling, and all Phase 4 marketing routes are implemented; local verification still needs follow-up because `eslint .`, `tsc --noEmit`, and `next build` continue to stall in this environment after starting without diagnostics, even after clearing `.next` and retrying narrower verification commands
 
 ## Master Checklist
 
 - [x] Phase 1 — Project Setup
 - [x] Phase 2 — Design System + Core Layout
 - [x] Phase 3 — Content Models + Seed Content
-- [ ] Phase 4 — Marketing Pages
+- [x] Phase 4 — Marketing Pages
 - [ ] Phase 5 — Inquiry Funnel
 - [ ] Phase 6 — Metadata, Analytics, Accessibility, and Hardening
 - [ ] Phase 7 — QA + Launch Readiness
@@ -119,27 +119,34 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Phase 4 — Marketing Pages
 
-**Status:** Not started
+**Status:** Complete with verification follow-up
 
 **Accomplished**
 
-- Phase 1 created the required route directories for pricing, catalog, FAQ, inquire, and thank-you pages.
+- Replaced the Phase 2 system-preview home page with the actual marketing homepage built around HH capabilities, finish-level previews, build-type previews, FAQ preview, and repeated inquiry routing.
+- Replaced the pricing, catalog, FAQ, and thank-you placeholders with real server-rendered marketing pages using the shared Phase 2 layout primitives instead of one-off route markup.
+- Implemented the dynamic finish detail route in `app/pricing/[finishSlug]/page.tsx` with static params, per-page metadata, image gallery, included characteristics, best-fit guidance, cross-links, and inquiry-prefill CTA routing.
+- Implemented the dynamic build-type detail route in `app/catalog/[buildTypeSlug]/page.tsx` with static params, per-page metadata, category imagery, typical considerations, suggested finish levels, and inquiry-prefill CTA routing.
+- Added reusable Phase 4 marketing components for action links, CTA bands, finish/build cards, comparison rendering, and image grids so page structure remains composable rather than route-specific.
+- Added structured marketing copy in `lib/content/marketing.ts` so long-form homepage and page intro content is not embedded ad hoc in page JSX.
+- Added server-side content image fallback handling plus drafting-inspired SVG placeholders so the seeded galleries render cleanly before final production photography is available.
+- Removed internal placeholder messaging from the public footer while keeping the final phone-routing input isolated in site config.
 
 **Checklist**
 
-- [ ] Build the home page
-- [ ] Build pricing overview
-- [ ] Build finish detail route and pages
-- [ ] Build catalog overview
-- [ ] Build build type detail route and pages
-- [ ] Build FAQ page
-- [ ] Build thank-you page shell
+- [x] Build the home page
+- [x] Build pricing overview
+- [x] Build finish detail route and pages
+- [x] Build catalog overview
+- [x] Build build type detail route and pages
+- [x] Build FAQ page
+- [x] Build thank-you page shell
 
 **Left To Do**
 
-- Implement all required marketing routes from `ARCHITECTURE.md`.
-- Ensure the pages are server-rendered, structured, and clearly route users toward inquiry.
-- Reuse the Phase 2 design system and Phase 3 content layer instead of building pages ad hoc.
+- Complete Phase 5 inquiry implementation so the new inquiry CTAs route into a real guided intake rather than the current placeholder shell.
+- Replace the seeded placeholder gallery assets with final finish and category photography while preserving the same folder conventions and route structure.
+- Resolve the lingering local verification stall so lint, typecheck, and production build can be completed normally again.
 
 ---
 
@@ -232,8 +239,8 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Immediate Next Action
 
-Proceed with Phase 4:
+Proceed with Phase 5:
 
-- replace the remaining placeholder routes with the actual marketing pages
-- build the dynamic finish and build-type detail routes on top of the Phase 3 content layer
-- convert the current home page from a system preview into the real marketing homepage
+- define the inquiry schema, shared validation, and enum-like field normalization
+- replace the inquiry placeholder route with the guided intake experience
+- implement server-side submission handling, anti-spam protection, and redirect to `/thank-you`

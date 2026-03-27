@@ -1,24 +1,74 @@
-import { RoutePlaceholder } from "@/components/marketing/route-placeholder";
-import { buildTypes } from "@/lib/content";
+import type { Metadata } from "next";
+import { PageIntro } from "@/components/layout/page-intro";
+import { Section } from "@/components/layout/section";
+import { ActionLink } from "@/components/marketing/action-link";
+import { BuildTypeCard } from "@/components/marketing/build-type-card";
+import { CtaBand } from "@/components/marketing/cta-band";
+import { DividerFrame } from "@/components/ui/divider-frame";
+import { buildTypes, marketingPageContent } from "@/lib/content";
+
+export const metadata: Metadata = {
+  title: "Catalog",
+  description:
+    "Review Howeth & Harp project categories across single-family, multifamily, townhomes, and commercial work.",
+};
 
 export default function CatalogPage() {
   return (
-    <RoutePlaceholder
-      eyebrow="Catalog"
-      title="Build-type overview shell is established."
-      description="This route now inherits the shared HH composition system and already has structured build-type data available from the Phase 3 content layer."
-      primaryAction={{ href: "/inquire", label: "Start a Project" }}
-      secondaryAction={{ href: "/", label: "Back Home" }}
-      readyNow={[
-        "The route shell is live and aligned with the root layout.",
-        "Section framing and card patterns are consistent with pricing and FAQ.",
-        `${buildTypes.length} build types are seeded with stable slugs, hero/gallery image metadata, and finish-level cross-links.`,
-      ]}
-      nextUp={[
-        "Implement overview and detail category pages in Phase 4.",
-        "Support inquiry prefills from build-type pages in Phase 5.",
-        "Replace placeholder image paths with production assets while preserving the seeded folder structure.",
-      ]}
-    />
+    <>
+      <PageIntro
+        eyebrow={marketingPageContent.catalog.eyebrow}
+        title={marketingPageContent.catalog.title}
+        description={marketingPageContent.catalog.description}
+        actions={
+          <>
+            <ActionLink href="/inquire" label="Start a Project" />
+            <ActionLink href="/pricing" label="Review Finish Levels" variant="secondary" />
+          </>
+        }
+        detail={
+          <div className="space-y-5">
+            <DividerFrame label="Read This Page As" detail="Routing" />
+            <p className="text-sm leading-7 text-muted">
+              {marketingPageContent.catalog.detail}
+            </p>
+          </div>
+        }
+      />
+
+      <Section
+        eyebrow="Build Types"
+        title="Four category pages make the scope legible before inquiry."
+        description="Each category stays disciplined: clear summary, project considerations, relevant finish direction, and a direct route into the project brief."
+      >
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {buildTypes.map((buildType) => (
+            <BuildTypeCard key={buildType.slug} buildType={buildType} />
+          ))}
+        </div>
+      </Section>
+
+      <Section>
+        <CtaBand
+          eyebrow={marketingPageContent.catalog.cta.eyebrow}
+          title={marketingPageContent.catalog.cta.title}
+          description={marketingPageContent.catalog.cta.description}
+          primaryAction={{
+            href: "/inquire",
+            label: "Start a Project",
+          }}
+          secondaryAction={{
+            href: "/pricing",
+            label: "Compare Finish Levels",
+            variant: "secondary",
+          }}
+          notes={[
+            `${buildTypes.length} project categories are already modeled with stable slugs and finish-level cross-links.`,
+            "Category pages are meant to clarify scope, not replace the inquiry conversation.",
+            "Final imagery can be added later without touching the route structure.",
+          ]}
+        />
+      </Section>
+    </>
   );
 }

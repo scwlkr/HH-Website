@@ -1,6 +1,6 @@
 # Howeth & Harp Website
 
-Phase 1 foundation for the Howeth & Harp marketing website described in `ARCHITECTURE.md` and `PLAN.md`.
+Next.js App Router marketing site for Howeth & Harp, aligned to the architecture and phased implementation plan in `ARCHITECTURE.md` and `PLAN.md`.
 
 ## Stack
 
@@ -23,12 +23,13 @@ Copy `.env.example` to `.env.local` before adding local values.
 
 ## Current Status
 
-Phase 1 is complete:
+Phase 4 is implemented:
 
-- project scaffolded with App Router, TypeScript, and Tailwind
-- root folder structure aligned to the architecture document
-- starter template code and assets removed
-- environment scaffolding added for future Supabase and metadata work
+- drafting-inspired shared layout and reusable UI primitives are in place
+- typed content models back the finish levels, build types, FAQ, and shared marketing copy
+- home, pricing, catalog, FAQ, thank-you, and both dynamic detail route sets are implemented
+- inquiry persistence, validation, and success handling remain Phase 5 work
+- broad local verification commands still stall in this environment after starting without diagnostics
 
 ## Project Structure
 

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">Finish image placeholder</title>
+  <desc id="desc">Drafting-inspired placeholder for finish photography that has not been added yet.</desc>
+  <rect width="1600" height="1100" fill="#fbf7ef"/>
+  <rect x="70" y="70" width="1460" height="960" rx="30" fill="none" stroke="#11110f" stroke-opacity=".18"/>
+  <rect x="110" y="110" width="1380" height="880" rx="24" fill="none" stroke="#11110f" stroke-opacity=".1"/>
+  <g stroke="#11110f" stroke-opacity=".08">
+    <path d="M0 180h1600"/>
+    <path d="M0 360h1600"/>
+    <path d="M0 540h1600"/>
+    <path d="M0 720h1600"/>
+    <path d="M0 900h1600"/>
+    <path d="M240 0v1100"/>
+    <path d="M480 0v1100"/>
+    <path d="M720 0v1100"/>
+    <path d="M960 0v1100"/>
+    <path d="M1200 0v1100"/>
+    <path d="M1440 0v1100"/>
+  </g>
+  <g fill="none" stroke="#0f4d0f" stroke-width="6" stroke-opacity=".7">
+    <path d="M360 760l220-280 180 140 250-320 220 210"/>
+    <path d="M360 760h870"/>
+  </g>
+  <g fill="#11110f">
+    <text x="200" y="240" font-family="'IBM Plex Mono', monospace" font-size="36" letter-spacing="7" text-transform="uppercase">HOWETH &amp; HARP</text>
+    <text x="200" y="330" font-family="'IBM Plex Sans', sans-serif" font-size="96" font-weight="600">Finish Image Pending</text>
+    <text x="200" y="410" font-family="'IBM Plex Sans', sans-serif" font-size="34" fill-opacity=".68">Production photography can drop into the seeded folder structure without changing page code.</text>
+  </g>
+</svg>

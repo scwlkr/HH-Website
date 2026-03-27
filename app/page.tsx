@@ -1,47 +1,26 @@
-import Link from "next/link";
-import type { Route } from "next";
+import type { Metadata } from "next";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
+import { ActionLink } from "@/components/marketing/action-link";
+import { BuildTypeCard } from "@/components/marketing/build-type-card";
+import { CtaBand } from "@/components/marketing/cta-band";
+import { FinishCard } from "@/components/marketing/finish-card";
 import { Accordion } from "@/components/ui/accordion";
-import { Button, buttonVariants } from "@/components/ui/button";
 import { CardShell } from "@/components/ui/card-shell";
 import { DividerFrame } from "@/components/ui/divider-frame";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { buildTypes, getFaqPreviewItems } from "@/lib/content";
+import {
+  buildTypes,
+  finishLevels,
+  getFaqPreviewItems,
+  marketingPageContent,
+} from "@/lib/content";
 import { siteConfig } from "@/lib/site-config";
 
-const foundationCards = [
-  {
-    label: "Shared Shell",
-    title: "Header, footer, and page framing now live at the root layout.",
-    description:
-      "Every route inherits one drafting-inspired structure instead of collecting one-off wrappers and border treatments.",
-  },
-  {
-    label: "Section System",
-    title: "Containers, page intros, dividers, and card shells are defined once.",
-    description:
-      "Phase 3 and Phase 4 can focus on typed content and page hierarchy rather than re-solving composition.",
-  },
-  {
-    label: "Base Controls",
-    title: "CTA, field, and accordion primitives are ready for FAQ and inquiry work.",
-    description:
-      "Form styling, linework, spacing, and interaction states now come from reusable components instead of ad hoc page code.",
-  },
-];
-
-const routeShells: Route[] = [
-  "/pricing",
-  "/catalog",
-  "/faq",
-  "/inquire",
-  "/thank-you",
-  "/privacy",
-  "/terms",
-];
+export const metadata: Metadata = {
+  title: "Home",
+  description:
+    "Howeth & Harp provides architectural design, building, and land development with clear finish and project-type paths into inquiry.",
+};
 
 const faqPreview = getFaqPreviewItems(3).map((item) => ({
   id: item.id,
@@ -50,51 +29,57 @@ const faqPreview = getFaqPreviewItems(3).map((item) => ({
 }));
 
 export default function Home() {
+  const directContactHref =
+    siteConfig.contact.phone.href ?? siteConfig.contact.email.href;
+  const directContactLabel = siteConfig.contact.phone.href
+    ? "Call HH"
+    : "Email HH";
+
   return (
     <>
       <PageIntro
-        eyebrow="Phase 2 Foundation"
-        title="The HH site now has its shared architectural shell."
-        description="This pass establishes the design tokens, layout wrappers, navigation frame, and reusable UI primitives that later content and inquiry work will inherit."
+        eyebrow={marketingPageContent.home.hero.eyebrow}
+        title={marketingPageContent.home.hero.title}
+        description={marketingPageContent.home.hero.description}
         actions={
           <>
-            <Link href={siteConfig.primaryCta.href} className={buttonVariants()}>
-              {siteConfig.primaryCta.label}
-            </Link>
-            <Link
-              href="/pricing"
-              className={buttonVariants({ variant: "secondary" })}
-            >
-              Review Route Shells
-            </Link>
+            <ActionLink
+              href={siteConfig.primaryCta.href}
+              label={siteConfig.primaryCta.label}
+            />
+            <ActionLink
+              href={directContactHref}
+              label={directContactLabel}
+              variant="secondary"
+            />
           </>
         }
         detail={
           <div className="space-y-5">
-            <DividerFrame label="System Notes" detail="Shared once" />
-            <ul className="space-y-3 text-sm leading-6 text-muted">
-              <li>Measured spacing and linework now come from tokens.</li>
-              <li>Header and footer navigation targets now resolve.</li>
-              <li>FAQ and inquiry controls already share one visual language.</li>
+            <DividerFrame label="Primary Scope" detail="Current focus" />
+            <ul className="space-y-3 text-sm leading-7 text-muted">
+              <li>Architectural design aligned with project type and site context.</li>
+              <li>Building execution grounded in finish clarity and coordination.</li>
+              <li>Land development thinking introduced before scope drifts.</li>
             </ul>
           </div>
         }
       />
 
       <Section
-        eyebrow="Shared Foundation"
-        title="Phase 2 is implemented as a reusable system, not a decorative homepage pass."
-        description="These primitives are the contract for later phases. Pages can now plug into a consistent shell without scattering bespoke borders, grids, or CTA styles."
+        eyebrow="What HH Does"
+        title="Three core capabilities, presented without extra noise."
+        description="The work spans architectural design, building, and land development, with each project organized around the level of finish, coordination, and site response it actually needs."
       >
         <div className="grid gap-6 lg:grid-cols-3">
-          {foundationCards.map((card) => (
-            <CardShell key={card.title}>
+          {marketingPageContent.home.capabilities.map((capability) => (
+            <CardShell key={capability.title}>
               <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
-                {card.label}
+                Capability
               </p>
-              <h2 className="mt-4 text-2xl">{card.title}</h2>
+              <h2 className="mt-4 text-2xl">{capability.title}</h2>
               <p className="mt-4 text-sm leading-7 text-muted">
-                {card.description}
+                {capability.description}
               </p>
             </CardShell>
           ))}
@@ -102,87 +87,91 @@ export default function Home() {
       </Section>
 
       <Section
-        eyebrow="Base UI"
-        title="Inquiry and FAQ primitives are styled now, while the actual workflows stay in later phases."
-        description="The controls below are intentionally plainspoken and structured. They exist to carry real data and interaction states later, not to force generic SaaS form styling into the site."
+        eyebrow="Finish Levels"
+        title="Three finish paths route visitors toward the right level of specification."
+        description="Finish level is a framing tool for the kind of coordination, curation, and customization a project should carry. Each path leads into a dedicated page before inquiry."
+        actions={
+          <ActionLink href="/pricing" label="View All Finish Levels" variant="secondary" />
+        }
       >
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
-          <CardShell tone="accent">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
-                  Inquiry Preview
-                </p>
-                <h2 className="mt-2 text-2xl">Form controls</h2>
-              </div>
-              <span className="rounded-full border border-accent/30 bg-accent-soft px-3 py-1 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-accent">
-                Ready For Phase 5
-              </span>
-            </div>
-            <form className="mt-8 grid gap-5 sm:grid-cols-2">
-              <Input label="Name" placeholder="Project contact" />
-              <Input label="Email" placeholder="hello@howethandharp.com" />
-              <Select
-                label="Project Type"
-                placeholder="Select one"
-                options={buildTypes.map((buildType) => ({
-                  value: buildType.slug,
-                  label: buildType.title,
-                }))}
-              />
-              <Input label="Approx. Square Footage" placeholder="4,200" />
-              <div className="sm:col-span-2">
-                <Textarea
-                  label="Project Description"
-                  placeholder="Site, scope, and goals."
-                  rows={5}
-                />
-              </div>
-              <div className="sm:col-span-2 flex flex-wrap gap-3">
-                <Button>Submit Brief</Button>
-                <Link
-                  href="/inquire"
-                  className={buttonVariants({ variant: "secondary" })}
-                >
-                  Open Route Shell
-                </Link>
-              </div>
-            </form>
-          </CardShell>
-
-          <CardShell>
-            <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
-              FAQ Preview
-            </p>
-            <h2 className="mt-3 text-2xl">Accordion behavior</h2>
-            <p className="mt-4 text-sm leading-7 text-muted">
-              The FAQ route can now inherit an accessible, keyboard-friendly
-              accordion without needing client-side state just to open and close
-              answers.
-            </p>
-            <Accordion items={faqPreview} className="mt-8" />
-          </CardShell>
+        <div className="grid gap-6 lg:grid-cols-3">
+          {finishLevels.map((finish) => (
+            <FinishCard key={finish.slug} finish={finish} variant="preview" />
+          ))}
         </div>
       </Section>
 
       <Section
-        eyebrow="Route Coverage"
-        title="Primary navigation and legal links now resolve through shared route shells."
-        description="These are intentionally lightweight placeholders so the global shell can be exercised end to end before Phase 3 content modeling and Phase 4 page builds begin."
+        eyebrow="Build Types"
+        title="Project categories stay visible from the home page so scope can be identified early."
+        description="The catalog covers the major categories HH handles and gives each one a disciplined detail page instead of burying everything in one long overview."
+        actions={
+          <ActionLink href="/catalog" label="Open Catalog" variant="secondary" />
+        }
       >
-        <CardShell>
-          <div className="flex flex-wrap gap-3">
-            {routeShells.map((route) => (
-              <Link
-                key={route}
-                href={route}
-                className="rounded-full border border-line-strong bg-surface-raised px-4 py-2 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-muted transition-colors hover:border-accent hover:text-accent"
-              >
-                {route}
-              </Link>
-            ))}
-          </div>
-        </CardShell>
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {buildTypes.map((buildType) => (
+            <BuildTypeCard
+              key={buildType.slug}
+              buildType={buildType}
+              variant="preview"
+            />
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        eyebrow={marketingPageContent.home.inquirySection.eyebrow}
+        title={marketingPageContent.home.inquirySection.title}
+        description={marketingPageContent.home.inquirySection.description}
+      >
+        <CtaBand
+          eyebrow="Inquiry Flow"
+          title="A guided brief creates a better starting point than a cold call with no context."
+          description="The inquiry path is where HH can understand project type, size, finish direction, site context, and timeline in one pass."
+          primaryAction={{
+            href: "/inquire",
+            label: "Start a Project",
+          }}
+          secondaryAction={{
+            href: "/pricing",
+            label: "Review Finish Levels",
+          }}
+          notes={marketingPageContent.home.inquirySteps}
+        />
+      </Section>
+
+      <Section
+        eyebrow="FAQ Preview"
+        title="A few common questions can be answered quickly before the conversation moves forward."
+        description="The full FAQ groups the common process, pricing, category, and next-step questions into a scannable format."
+        actions={
+          <ActionLink href="/faq" label="Open Full FAQ" variant="secondary" />
+        }
+      >
+        <Accordion items={faqPreview} />
+      </Section>
+
+      <Section>
+        <CtaBand
+          eyebrow={marketingPageContent.home.footerCta.eyebrow}
+          title={marketingPageContent.home.footerCta.title}
+          description={marketingPageContent.home.footerCta.description}
+          primaryAction={{
+            href: "/inquire",
+            label: "Start a Project",
+          }}
+          secondaryAction={{
+            href: directContactHref,
+            label: directContactLabel,
+            variant: "secondary",
+          }}
+          notes={[
+            "Pricing explains finish direction before budget conversations become muddy.",
+            "Catalog pages separate project categories so users can self-identify quickly.",
+            "Inquiry remains the main route because it captures enough scope to be useful.",
+          ]}
+        />
       </Section>
     </>
   );
