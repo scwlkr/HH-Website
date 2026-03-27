@@ -1,27 +1,20 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { siteConfig } from "@/lib/site-config";
 import "../styles/tokens.css";
 import "./globals.css";
 
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-body",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-code",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-});
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Howeth & Harp",
-    template: "%s | Howeth & Harp",
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
   },
-  description: "Architectural design, building, and land development.",
-  applicationName: "Howeth & Harp",
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
   category: "business",
 };
 
@@ -31,11 +24,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full bg-background text-foreground">
+        <div className="flex min-h-screen flex-col">
+          <SiteHeader />
+          <main className="flex-1 pb-16 pt-6 sm:pb-24 sm:pt-8">{children}</main>
+          <SiteFooter />
+        </div>
+      </body>
     </html>
   );
 }

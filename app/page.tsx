@@ -1,91 +1,205 @@
-const phaseOneDeliverables = [
-  "Next.js App Router with TypeScript and Tailwind CSS",
-  "Architecture-aligned route, component, library, and asset folders",
-  "Environment scaffolding for site metadata and Supabase persistence",
+import Link from "next/link";
+import type { Route } from "next";
+import { PageIntro } from "@/components/layout/page-intro";
+import { Section } from "@/components/layout/section";
+import { Accordion } from "@/components/ui/accordion";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { CardShell } from "@/components/ui/card-shell";
+import { DividerFrame } from "@/components/ui/divider-frame";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { siteConfig } from "@/lib/site-config";
+
+const foundationCards = [
+  {
+    label: "Shared Shell",
+    title: "Header, footer, and page framing now live at the root layout.",
+    description:
+      "Every route inherits one drafting-inspired structure instead of collecting one-off wrappers and border treatments.",
+  },
+  {
+    label: "Section System",
+    title: "Containers, page intros, dividers, and card shells are defined once.",
+    description:
+      "Phase 3 and Phase 4 can focus on typed content and page hierarchy rather than re-solving composition.",
+  },
+  {
+    label: "Base Controls",
+    title: "CTA, field, and accordion primitives are ready for FAQ and inquiry work.",
+    description:
+      "Form styling, linework, spacing, and interaction states now come from reusable components instead of ad hoc page code.",
+  },
 ];
 
-const upcomingPhases = [
-  "Design system and shared layout primitives",
-  "Typed content models for finish levels, build types, and FAQ entries",
-  "Marketing pages and the guided project inquiry flow",
+const routeShells: Route[] = [
+  "/pricing",
+  "/catalog",
+  "/faq",
+  "/inquire",
+  "/thank-you",
+  "/privacy",
+  "/terms",
+];
+
+const faqPreview = [
+  {
+    id: "scope",
+    title: "How is the drafting-inspired style handled without becoming decorative noise?",
+    content:
+      "The system keeps the references structural: measured linework, framed sections, restrained hatch accents, and a strict spacing rhythm. Decorative motifs stay attached to shared primitives rather than individual pages.",
+  },
+  {
+    id: "routing",
+    title: "Why add route shells before the content phase?",
+    content:
+      "The global header and footer should not point at dead pages. Placeholder route shells keep navigation honest while preserving the Phase 3 and Phase 4 boundary around real content implementation.",
+  },
+  {
+    id: "forms",
+    title: "What parts of the inquiry flow are covered by this phase?",
+    content:
+      "Only the visual and structural base is established here. The actual schema, validation, progress handling, persistence, and submission logic stay in Phase 5.",
+  },
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex min-h-screen w-full max-w-[var(--hh-container-max)] flex-col gap-12 px-6 py-6 sm:px-10 sm:py-8 lg:px-16 lg:py-10">
-        <header className="flex flex-col gap-6 border-y border-line-strong py-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-4">
-            <p className="font-mono text-xs uppercase tracking-[0.36em] text-accent">
-              Howeth &amp; Harp
-            </p>
-            <div className="space-y-3">
-              <h1 className="max-w-4xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl lg:text-6xl">
-                Phase 1 foundation is in place for the HH website build.
-              </h1>
-              <p className="max-w-2xl text-base leading-7 text-muted sm:text-lg">
-                The project is now scaffolded as a server-rendered Next.js
-                application with the folder structure and baseline styling
-                needed to move into the design system and content-model phases.
-              </p>
-            </div>
+    <>
+      <PageIntro
+        eyebrow="Phase 2 Foundation"
+        title="The HH site now has its shared architectural shell."
+        description="This pass establishes the design tokens, layout wrappers, navigation frame, and reusable UI primitives that later content and inquiry work will inherit."
+        actions={
+          <>
+            <Link href={siteConfig.primaryCta.href} className={buttonVariants()}>
+              {siteConfig.primaryCta.label}
+            </Link>
+            <Link
+              href="/pricing"
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              Review Route Shells
+            </Link>
+          </>
+        }
+        detail={
+          <div className="space-y-5">
+            <DividerFrame label="System Notes" detail="Shared once" />
+            <ul className="space-y-3 text-sm leading-6 text-muted">
+              <li>Measured spacing and linework now come from tokens.</li>
+              <li>Header and footer navigation targets now resolve.</li>
+              <li>FAQ and inquiry controls already share one visual language.</li>
+            </ul>
           </div>
-          <p className="max-w-sm border-l border-line pl-5 font-mono text-xs uppercase tracking-[0.22em] text-muted">
-            Precision first. Restraint first. Structure before polish.
-          </p>
-        </header>
+        }
+      />
 
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.85fr)]">
-          <article className="rounded-[var(--hh-radius-panel)] border border-line bg-surface p-6 sm:p-8">
-            <div className="mb-8 flex items-center justify-between gap-4 border-b border-line pb-4">
+      <Section
+        eyebrow="Shared Foundation"
+        title="Phase 2 is implemented as a reusable system, not a decorative homepage pass."
+        description="These primitives are the contract for later phases. Pages can now plug into a consistent shell without scattering bespoke borders, grids, or CTA styles."
+      >
+        <div className="grid gap-6 lg:grid-cols-3">
+          {foundationCards.map((card) => (
+            <CardShell key={card.title}>
+              <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
+                {card.label}
+              </p>
+              <h2 className="mt-4 text-2xl">{card.title}</h2>
+              <p className="mt-4 text-sm leading-7 text-muted">
+                {card.description}
+              </p>
+            </CardShell>
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        eyebrow="Base UI"
+        title="Inquiry and FAQ primitives are styled now, while the actual workflows stay in later phases."
+        description="The controls below are intentionally plainspoken and structured. They exist to carry real data and interaction states later, not to force generic SaaS form styling into the site."
+      >
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+          <CardShell tone="accent">
+            <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.28em] text-muted">
-                  Current Scope
+                <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
+                  Inquiry Preview
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
-                  Phase 1 deliverables
-                </h2>
+                <h2 className="mt-2 text-2xl">Form controls</h2>
               </div>
-              <span className="rounded-full border border-line-strong px-3 py-1 font-mono text-xs uppercase tracking-[0.2em] text-accent">
-                Foundation
+              <span className="rounded-full border border-accent/30 bg-accent-soft px-3 py-1 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-accent">
+                Ready For Phase 5
               </span>
             </div>
-
-            <ul className="space-y-4">
-              {phaseOneDeliverables.map((item, index) => (
-                <li
-                  key={item}
-                  className="flex gap-4 border-b border-dashed border-line pb-4 last:border-b-0 last:pb-0"
+            <form className="mt-8 grid gap-5 sm:grid-cols-2">
+              <Input label="Name" placeholder="Project contact" />
+              <Input label="Email" placeholder="hello@howethandharp.com" />
+              <Select
+                label="Project Type"
+                placeholder="Select one"
+                options={[
+                  { value: "single-family", label: "Single Family" },
+                  { value: "multifamily", label: "Multifamily" },
+                  { value: "townhomes", label: "Townhomes" },
+                  { value: "commercial", label: "Commercial" },
+                ]}
+              />
+              <Input label="Approx. Square Footage" placeholder="4,200" />
+              <div className="sm:col-span-2">
+                <Textarea
+                  label="Project Description"
+                  placeholder="Site, scope, and goals."
+                  rows={5}
+                />
+              </div>
+              <div className="sm:col-span-2 flex flex-wrap gap-3">
+                <Button>Submit Brief</Button>
+                <Link
+                  href="/inquire"
+                  className={buttonVariants({ variant: "secondary" })}
                 >
-                  <span className="font-mono text-sm text-muted">
-                    0{index + 1}
-                  </span>
-                  <p className="text-base leading-7">{item}</p>
-                </li>
-              ))}
-            </ul>
-          </article>
+                  Open Route Shell
+                </Link>
+              </div>
+            </form>
+          </CardShell>
 
-          <aside className="rounded-[var(--hh-radius-panel)] border border-line bg-transparent p-6 sm:p-8">
-            <p className="font-mono text-xs uppercase tracking-[0.28em] text-muted">
-              Next Up
+          <CardShell>
+            <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
+              FAQ Preview
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
-              Planned follow-on work
-            </h2>
-            <ul className="mt-8 space-y-4">
-              {upcomingPhases.map((item) => (
-                <li
-                  key={item}
-                  className="border-l border-line pl-4 text-sm leading-6 text-muted"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </aside>
-        </section>
-      </div>
-    </main>
+            <h2 className="mt-3 text-2xl">Accordion behavior</h2>
+            <p className="mt-4 text-sm leading-7 text-muted">
+              The FAQ route can now inherit an accessible, keyboard-friendly
+              accordion without needing client-side state just to open and close
+              answers.
+            </p>
+            <Accordion items={faqPreview} className="mt-8" />
+          </CardShell>
+        </div>
+      </Section>
+
+      <Section
+        eyebrow="Route Coverage"
+        title="Primary navigation and legal links now resolve through shared route shells."
+        description="These are intentionally lightweight placeholders so the global shell can be exercised end to end before Phase 3 content modeling and Phase 4 page builds begin."
+      >
+        <CardShell>
+          <div className="flex flex-wrap gap-3">
+            {routeShells.map((route) => (
+              <Link
+                key={route}
+                href={route}
+                className="rounded-full border border-line-strong bg-surface-raised px-4 py-2 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-muted transition-colors hover:border-accent hover:text-accent"
+              >
+                {route}
+              </Link>
+            ))}
+          </div>
+        </CardShell>
+      </Section>
+    </>
   );
 }

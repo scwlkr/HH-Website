@@ -2,12 +2,18 @@
 
 @theme inline {
   --color-background: var(--hh-paper);
+  --color-background-deep: var(--hh-paper-deep);
   --color-foreground: var(--hh-ink);
   --color-surface: var(--hh-surface);
+  --color-surface-raised: var(--hh-surface-raised);
   --color-muted: var(--hh-muted);
+  --color-muted-strong: var(--hh-muted-strong);
   --color-line: var(--hh-line);
   --color-line-strong: var(--hh-line-strong);
+  --color-line-ink: var(--hh-line-ink);
   --color-accent: var(--hh-accent);
+  --color-accent-soft: var(--hh-accent-soft);
+  --color-accent-strong: var(--hh-accent-strong);
   --font-sans: var(--font-body);
   --font-mono: var(--font-code);
 }
@@ -22,16 +28,36 @@
   html {
     background-color: var(--hh-paper);
     color: var(--hh-ink);
+    scroll-behavior: smooth;
   }
 
   body {
     min-height: 100vh;
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 18%),
+      radial-gradient(circle at top left, rgba(15, 77, 15, 0.06) 0%, rgba(15, 77, 15, 0) 32%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 16%),
       var(--hh-paper);
     color: var(--hh-ink);
     font-family: var(--font-body), sans-serif;
     text-rendering: optimizeLegibility;
+  }
+
+  body::before {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(to right, rgba(17, 17, 15, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(17, 17, 15, 0.04) 1px, transparent 1px);
+    background-position: center;
+    background-size: var(--hh-grid-size) var(--hh-grid-size);
+    content: "";
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.24), transparent 84%);
+    pointer-events: none;
+  }
+
+  main {
+    position: relative;
   }
 
   a {
@@ -39,7 +65,116 @@
     text-decoration: none;
   }
 
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--hh-ink);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  summary {
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
   ::selection {
     background: rgba(15, 77, 15, 0.18);
+  }
+}
+
+@layer utilities {
+  .hh-link {
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .hh-link:hover {
+    color: var(--hh-accent);
+  }
+
+  .hh-paper-panel {
+    position: relative;
+    overflow: hidden;
+    border: var(--hh-line-hairline) solid var(--hh-line);
+    border-radius: var(--hh-radius-panel);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 100%),
+      var(--hh-surface);
+    box-shadow: var(--hh-shadow-card);
+  }
+
+  .hh-paper-panel::before {
+    position: absolute;
+    inset: 0.9rem;
+    border: var(--hh-line-hairline) solid rgba(17, 17, 15, 0.08);
+    border-radius: calc(var(--hh-radius-panel) - 0.45rem);
+    content: "";
+    pointer-events: none;
+  }
+
+  .hh-page-frame {
+    position: relative;
+    overflow: hidden;
+    border: var(--hh-line-hairline) solid var(--hh-line-strong);
+    border-radius: calc(var(--hh-radius-panel) + 0.15rem);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0) 100%),
+      var(--hh-surface);
+    box-shadow: var(--hh-shadow-panel);
+  }
+
+  .hh-page-frame::before {
+    position: absolute;
+    inset: 1rem;
+    border: var(--hh-line-hairline) solid rgba(17, 17, 15, 0.08);
+    border-radius: calc(var(--hh-radius-panel) - 0.2rem);
+    content: "";
+    pointer-events: none;
+  }
+
+  .hh-accent-hatch {
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgba(15, 77, 15, 0.1) 0,
+      rgba(15, 77, 15, 0.1) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
