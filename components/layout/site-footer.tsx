@@ -35,7 +35,9 @@ export function SiteFooter() {
     contactLinks.push({
       title: siteConfig.contact.phone.title,
       href: siteConfig.contact.phone.href,
-      label: siteConfig.contact.phone.label,
+      label:
+        siteConfig.contact.phone.label ??
+        siteConfig.contact.phone.href.replace(/^tel:/, ""),
     });
   }
 

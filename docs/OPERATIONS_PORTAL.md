@@ -113,11 +113,9 @@ Use a minimal interface with:
 * edit form for each home
 * basic settings page for pricing
 * image upload support
-* small-radius rounded corners only
+* no rounded corners
 
 ### UI Note
-
-All rounded corners in the portal should use a **very small radius** to keep the interface crisp and professional.
 
 Suggested styling direction:
 

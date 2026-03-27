@@ -1,4 +1,5 @@
 import type { Route } from "next";
+import { env } from "@/lib/env";
 
 export type SiteLink = {
   href: Route;
@@ -26,13 +27,13 @@ export const siteConfig = {
   ] satisfies SiteLink[],
   contact: {
     phone: {
-      href: undefined,
-      label: "Direct line pending final launch setup",
+      href: env.contactPhoneHref,
+      label: env.contactPhoneLabel,
       title: "Phone",
     },
     email: {
-      href: "mailto:hello@howethandharp.com",
-      label: "hello@howethandharp.com",
+      href: env.contactEmailHref,
+      label: env.contactEmailAddress,
       title: "Email",
     },
     note: "For new work, the structured project brief remains the clearest starting point.",

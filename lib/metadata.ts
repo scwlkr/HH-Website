@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
+import { env } from "@/lib/env";
 import { siteConfig } from "@/lib/site-config";
 
-const defaultSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
-export const metadataBase = new URL(defaultSiteUrl);
+export const metadataBase = new URL(env.siteUrl);
 
 type PageMetadataOptions = {
   title: string;

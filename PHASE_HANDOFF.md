@@ -6,7 +6,7 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 - Current phase completed: Phase 6
 - Next phase: Phase 7
-- Build state: design system, typed content modeling, Phase 4 marketing routes, the Phase 5 inquiry funnel, and the Phase 6 metadata/analytics/accessibility hardening are implemented; `npm run lint` and `tsc --noEmit --incremental false` complete successfully, while `next build` still stalls in this environment after starting without diagnostics
+- Build state: design system, typed content modeling, Phase 4 marketing routes, the Phase 5 inquiry funnel, and the Phase 6 metadata/analytics/accessibility hardening are implemented; `npm run lint`, `tsc --noEmit --incremental false`, and `next build` all complete successfully locally, and Phase 7 launch-readiness work is now in progress
 
 ## Master Checklist
 
@@ -214,38 +214,42 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 **Left To Do**
 
 - Connect the modular analytics events to the production analytics destination actually chosen for launch if GTM, GA, Plausible, or another vendor still needs to be embedded.
-- Replace the placeholder privacy and terms copy with final launch-approved legal language; those routes are intentionally `noindex` until that happens.
-- Investigate the lingering `next build` stall, which still reproduces locally without diagnostics even after the Phase 6 hardening work and successful lint/typecheck verification.
+- Confirm owner-reviewed legal approval before removing `noindex` from `/privacy` and `/terms`.
 
 ---
 
 ## Phase 7 — QA + Launch Readiness
 
-**Status:** Not started
+**Status:** In progress
 
 **Accomplished**
 
-- Phase 1 verified the project can boot locally and produce a successful production build.
+- Verified `npm run lint`, `npm run typecheck`, and `npm run build` all complete successfully, and confirmed the production server boots cleanly with `npm run start`.
+- Added repeatable smoke QA automation in `scripts/qa-smoke.mjs` with Playwright-driven route, prefill, submission, link, and responsive-overflow coverage against the production build.
+- Replaced the legal route placeholders with substantive privacy and terms content so footer legal navigation now resolves to real documents instead of internal handoff copy.
+- Added launch-oriented contact environment overrides for public phone/email configuration and documented the required environment inputs for preview and production validation.
+- Added `docs/LAUNCH_QA.md` to capture the local smoke run, real environment checklist, and preview/production verification gates.
 
 **Checklist**
 
-- [ ] Test all routes
-- [ ] Test invalid slug behavior
-- [ ] Test inquiry prefill parameters
-- [ ] Test successful submissions
-- [ ] Test failed submissions
-- [ ] Test mobile layouts
-- [ ] Test tablet and desktop layouts
-- [ ] Test header and footer links
-- [ ] Test call and email links
+- [x] Test all routes
+- [x] Test invalid slug behavior
+- [x] Test inquiry prefill parameters
+- [x] Test successful submissions
+- [x] Test failed submissions
+- [x] Test mobile layouts
+- [x] Test tablet and desktop layouts
+- [x] Test header and footer links
+- [x] Test call and email links
 - [ ] Verify environment handling in production
 - [ ] Deploy to Vercel preview
 - [ ] Verify production deployment
 
 **Left To Do**
 
-- Perform end-to-end route, form, and device QA once implementation is complete.
-- Validate production behavior on Vercel before considering the site launch-ready.
+- Set real preview/production values for `NEXT_PUBLIC_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `HH_CONTACT_PHONE_HREF`, and `HH_CONTACT_PHONE_LABEL`.
+- Apply the inquiry submission migration in the target Supabase project before preview or production testing.
+- Validate the smoke checklist against a real Vercel preview deployment and then again after production release.
 
 ---
 
@@ -253,7 +257,6 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 Proceed with Phase 7:
 
-- test all routes, including invalid finish/build-type slugs
-- test inquiry prefills, successful submissions, and failure handling
-- run responsive QA across mobile, tablet, and desktop layouts
-- verify header/footer/legal/contact links and preview deployment behavior
+- run `npm run qa:smoke`
+- populate real preview/production environment variables
+- deploy to Vercel preview and re-check inquiry persistence against the live Supabase project
