@@ -1,0 +1,13 @@
+:root {
+  --hh-paper: #f6f1e8;
+  --hh-surface: #fdfaf4;
+  --hh-ink: #101010;
+  --hh-muted: #5c564d;
+  --hh-line: rgba(16, 16, 16, 0.14);
+  --hh-line-strong: rgba(16, 16, 16, 0.34);
+  --hh-accent: #0f4d0f;
+  --hh-container-max: 76rem;
+  --hh-radius-panel: 1rem;
+  --hh-line-hairline: 1px;
+  --hh-line-emphasis: 2px;
+}

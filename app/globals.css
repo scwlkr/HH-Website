@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--hh-paper);
+  --color-foreground: var(--hh-ink);
+  --color-surface: var(--hh-surface);
+  --color-muted: var(--hh-muted);
+  --color-line: var(--hh-line);
+  --color-line-strong: var(--hh-line-strong);
+  --color-accent: var(--hh-accent);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--hh-line);
+  }
+
+  html {
+    background-color: var(--hh-paper);
+    color: var(--hh-ink);
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 18%),
+      var(--hh-paper);
+    color: var(--hh-ink);
+    font-family: var(--font-body), sans-serif;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    background: rgba(15, 77, 15, 0.18);
+  }
+}
