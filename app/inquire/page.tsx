@@ -1,23 +1,91 @@
-import { RoutePlaceholder } from "@/components/marketing/route-placeholder";
+import type { Metadata } from "next";
+import { InquiryForm } from "@/components/inquiry/inquiry-form";
+import { PageIntro } from "@/components/layout/page-intro";
+import { Section } from "@/components/layout/section";
+import { ActionLink } from "@/components/marketing/action-link";
+import {
+  getFinishLevelLabel,
+  getProjectTypeLabel,
+} from "@/lib/inquiry/options";
+import { createInquiryInitialValues } from "@/lib/validation/inquiry";
 
-export default function InquirePage() {
+export const metadata: Metadata = {
+  title: "Start A Project",
+  description:
+    "Guided Howeth & Harp project brief intake covering contact details, project basics, site context, and priorities.",
+};
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function readFirstValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function InquirePage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const initialValues = createInquiryInitialValues({
+    buildType: readFirstValue(resolvedSearchParams.buildType),
+    finish: readFirstValue(resolvedSearchParams.finish),
+    utmSource: readFirstValue(resolvedSearchParams.utm_source),
+    utmMedium: readFirstValue(resolvedSearchParams.utm_medium),
+    utmCampaign: readFirstValue(resolvedSearchParams.utm_campaign),
+  });
+
+  const detailLines = [
+    initialValues.projectType
+      ? `Project type preselected: ${getProjectTypeLabel(initialValues.projectType)}`
+      : null,
+    initialValues.finishLevel
+      ? `Finish direction preselected: ${getFinishLevelLabel(initialValues.finishLevel)}`
+      : null,
+  ].filter((detail): detail is string => Boolean(detail));
+
   return (
-    <RoutePlaceholder
-      eyebrow="Inquiry"
-      title="Inquiry route shell is established."
-      description="This page now inherits the final site frame and base field styling. The actual guided intake UX, validation, and persistence remain intentionally reserved for Phase 5."
-      primaryAction={{ href: "/", label: "Back Home" }}
-      secondaryAction={{ href: "/pricing", label: "Review Pricing" }}
-      readyNow={[
-        "Input, select, textarea, card, and button primitives are already defined.",
-        "The global shell makes this route feel continuous with the rest of the site.",
-        "The route exists now so CTA flows can point somewhere real during foundation work.",
-      ]}
-      nextUp={[
-        "Define the inquiry schema and shared validation types in Phase 5.",
-        "Build the guided multi-step or segmented intake experience in Phase 5.",
-        "Add Supabase persistence, anti-spam protections, and thank-you redirects in Phase 5.",
-      ]}
-    />
+    <>
+      <PageIntro
+        eyebrow="Project Brief"
+        title="Share the project in a way that gives HH something real to respond to."
+        description="This intake is structured to move from contact basics into category, finish direction, site context, and priorities without turning the process into a cold generic form."
+        actions={
+          <>
+            <ActionLink href="/pricing" label="Review Finish Levels" variant="secondary" />
+            <ActionLink href="/catalog" label="Browse Project Types" variant="secondary" />
+          </>
+        }
+        detail={
+          <div className="space-y-4">
+            <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
+              Intake Notes
+            </p>
+            <p className="text-sm leading-7 text-muted">
+              Five short steps, one usable project brief. Rough direction is enough;
+              the goal is clarity, not perfection.
+            </p>
+            {detailLines.length > 0 ? (
+              <ul className="space-y-3 text-sm leading-7 text-muted">
+                {detailLines.map((detail) => (
+                  <li key={detail} className="border-b border-line pb-3 last:border-b-0 last:pb-0">
+                    {detail}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        }
+      />
+
+      <Section
+        eyebrow="Inquiry Flow"
+        title="The brief stays lean, but it should still be useful."
+        description="Each section collects a small set of decisions so HH can review project type, finish direction, site realities, and timing as one coherent intake."
+        className="pt-0"
+      >
+        <InquiryForm initialValues={initialValues} />
+      </Section>
+    </>
   );
 }

@@ -13,7 +13,7 @@ type CtaBandProps = {
   description: string;
   primaryAction: BandAction;
   secondaryAction?: BandAction;
-  notes?: string[];
+  notes?: ReadonlyArray<string>;
 };
 
 export function CtaBand({

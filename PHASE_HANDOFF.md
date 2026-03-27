@@ -4,9 +4,9 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Overall Status
 
-- Current phase completed: Phase 4
-- Next phase: Phase 5
-- Build state: design system, typed content modeling, and all Phase 4 marketing routes are implemented; local verification still needs follow-up because `eslint .`, `tsc --noEmit`, and `next build` continue to stall in this environment after starting without diagnostics, even after clearing `.next` and retrying narrower verification commands
+- Current phase completed: Phase 5
+- Next phase: Phase 6
+- Build state: design system, typed content modeling, Phase 4 marketing routes, and the Phase 5 inquiry funnel are implemented; `npm run lint` and `tsc --noEmit --incremental false` now complete successfully, while `next build` still stalls in this environment after starting without diagnostics
 
 ## Master Checklist
 
@@ -14,7 +14,7 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 - [x] Phase 2 — Design System + Core Layout
 - [x] Phase 3 — Content Models + Seed Content
 - [x] Phase 4 — Marketing Pages
-- [ ] Phase 5 — Inquiry Funnel
+- [x] Phase 5 — Inquiry Funnel
 - [ ] Phase 6 — Metadata, Analytics, Accessibility, and Hardening
 - [ ] Phase 7 — QA + Launch Readiness
 
@@ -144,7 +144,6 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 **Left To Do**
 
-- Complete Phase 5 inquiry implementation so the new inquiry CTAs route into a real guided intake rather than the current placeholder shell.
 - Replace the seeded placeholder gallery assets with final finish and category photography while preserving the same folder conventions and route structure.
 - Resolve the lingering local verification stall so lint, typecheck, and production build can be completed normally again.
 
@@ -152,30 +151,36 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Phase 5 — Inquiry Funnel
 
-**Status:** Not started
+**Status:** Complete with deployment follow-up
 
 **Accomplished**
 
-- Phase 1 added environment scaffolding and route placeholders needed for future inquiry persistence.
+- Added `types/inquiry.ts` to define the shared inquiry domain model, field-error shape, submission payload, and step identifiers for the intake flow.
+- Added `lib/validation/inquiry.ts` with shared Zod validation, enum-like field normalization, text sanitization, step-level schemas, `FormData` extraction, and initial query-prefill helpers for `finish`, `buildType`, and UTM parameters.
+- Added `lib/inquiry/options.ts` and `lib/inquiry/rate-limit.ts` to centralize inquiry option metadata, display labels, progress-step copy, and the basic in-memory submission rate limiter.
+- Replaced the inquiry route placeholder with the actual guided multi-step intake experience in `app/inquire/page.tsx` and the new `components/inquiry/*` client/server component set, including progress UI, grouped step structure, step validation, review state, and direct email fallback.
+- Added `app/inquire/actions.ts`, `lib/db/client.ts`, and `lib/db/queries.ts` to keep submission validation, rate limiting, Supabase persistence, and success redirect logic on the server.
+- Added the Supabase SQL migration at `supabase/migrations/20260327120000_create_inquiry_submissions.sql` for the `inquiry_submissions` table with timestamps, array support for requested services, status defaults, indexes, and row-level security enabled.
+- Added anti-spam protections through a hidden honeypot field, rate limiting keyed by request IP, server-side validation, and safe failure messaging.
+- Updated verification status: `npm run lint` and `tsc --noEmit --incremental false` now succeed locally.
 
 **Checklist**
 
-- [ ] Define inquiry TypeScript types
-- [ ] Define the Zod validation schema
-- [ ] Normalize enum-like inquiry fields
-- [ ] Build the inquiry page UX
-- [ ] Add progress handling and grouped form structure
-- [ ] Support query param prefills for `finish` and `buildType`
-- [ ] Set up Supabase connection and server-side persistence
-- [ ] Create the `inquiry_submissions` table
-- [ ] Implement submission workflow and redirects
-- [ ] Add anti-spam protections
+- [x] Define inquiry TypeScript types
+- [x] Define the Zod validation schema
+- [x] Normalize enum-like inquiry fields
+- [x] Build the inquiry page UX
+- [x] Add progress handling and grouped form structure
+- [x] Support query param prefills for `finish` and `buildType`
+- [x] Set up Supabase connection and server-side persistence
+- [x] Create the `inquiry_submissions` table
+- [x] Implement submission workflow and redirects
+- [x] Add anti-spam protections
 
 **Left To Do**
 
-- Build the inquiry flow as the central structured intake system for the site.
-- Keep validation, sanitization, and secrets fully server-side.
-- Ensure the user experience feels guided rather than like a generic CRM form.
+- Apply the new Supabase migration in the target project and populate `SUPABASE_URL` plus `SUPABASE_SERVICE_ROLE_KEY` in local, preview, and production environments.
+- Investigate the remaining `next build` stall, which still reproduces locally without diagnostics even though lint and typecheck now pass.
 
 ---
 
@@ -239,8 +244,8 @@ This document tracks build status against `PLAN.md` and serves as the working ha
 
 ## Immediate Next Action
 
-Proceed with Phase 5:
+Proceed with Phase 6:
 
-- define the inquiry schema, shared validation, and enum-like field normalization
-- replace the inquiry placeholder route with the guided intake experience
-- implement server-side submission handling, anti-spam protection, and redirect to `/thank-you`
+- add route-level metadata coverage and dynamic metadata for detail pages
+- introduce modular analytics hooks for inquiry-start and inquiry-success events
+- complete accessibility, performance, and visual consistency hardening across the site

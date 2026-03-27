@@ -54,8 +54,9 @@ export default async function BuildTypeDetailPage({
     notFound();
   }
 
+  const recommendedFinishSlugs = new Set(buildType.recommendedFinishLevels);
   const recommendedFinishes = finishLevels.filter((finish) =>
-    buildType.recommendedFinishLevels.includes(finish.slug),
+    recommendedFinishSlugs.has(finish.slug),
   );
 
   return (
