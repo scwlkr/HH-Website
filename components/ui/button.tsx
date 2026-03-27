@@ -8,9 +8,9 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary:
     "border-accent bg-accent text-[#f9f6ef] hover:border-accent-strong hover:bg-accent-strong",
   secondary:
-    "border-line-strong bg-surface-raised text-foreground hover:border-accent hover:text-accent",
+    "border-line-strong bg-white text-foreground hover:border-accent hover:bg-background hover:text-accent",
   ghost:
-    "border-transparent bg-transparent text-foreground hover:border-line-strong hover:bg-surface-raised hover:text-accent",
+    "border-transparent bg-transparent text-foreground hover:border-line-strong hover:bg-background hover:text-accent",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -27,7 +27,7 @@ export function buttonVariants({
   size?: ButtonSize;
 } = {}) {
   return cn(
-    "inline-flex items-center justify-center gap-2 rounded-full border font-mono uppercase tracking-[0.22em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-[var(--hh-radius-pill)] border font-mono uppercase tracking-[0.22em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft disabled:pointer-events-none disabled:opacity-50",
     variantClasses[variant],
     sizeClasses[size],
   );

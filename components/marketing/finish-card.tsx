@@ -31,7 +31,7 @@ export function FinishCard({
         <p className="mt-3 text-sm leading-7 text-muted">{finish.tagline}</p>
       </div>
       {directionalPriceLabel ? (
-        <div className="mt-5 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised px-4 py-3">
+        <div className="mt-5 rounded-[var(--hh-radius-tight)] border border-line-strong bg-white px-4 py-3">
           <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
             Directional Benchmark
           </p>

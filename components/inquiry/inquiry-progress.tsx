@@ -43,12 +43,12 @@ export function InquiryProgress({ currentStepIndex }: InquiryProgressProps) {
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border font-mono text-[0.68rem] uppercase tracking-[0.18em]",
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--hh-radius-pill)] border font-mono text-[0.68rem] uppercase tracking-[0.18em]",
                       isCurrent
                         ? "border-accent bg-accent text-background"
                         : isComplete
                           ? "border-line-strong bg-surface-raised text-foreground"
-                          : "border-line bg-background text-muted",
+                          : "border-line bg-surface text-muted",
                     )}
                   >
                     {step.label}

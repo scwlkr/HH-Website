@@ -34,8 +34,8 @@
   body {
     min-height: 100vh;
     background:
-      radial-gradient(circle at top left, rgba(15, 77, 15, 0.06) 0%, rgba(15, 77, 15, 0) 32%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 16%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.54) 0%, rgba(255, 255, 255, 0) 18%),
+      radial-gradient(circle at top left, rgba(15, 77, 15, 0.04) 0%, rgba(15, 77, 15, 0) 34%),
       var(--hh-paper);
     color: var(--hh-ink);
     font-family: var(--font-body), sans-serif;
@@ -47,12 +47,12 @@
     inset: 0;
     z-index: -1;
     background-image:
-      linear-gradient(to right, rgba(17, 17, 15, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(17, 17, 15, 0.04) 1px, transparent 1px);
+      linear-gradient(to right, rgba(17, 17, 15, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(17, 17, 15, 0.03) 1px, transparent 1px);
     background-position: center;
     background-size: var(--hh-grid-size) var(--hh-grid-size);
     content: "";
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.24), transparent 84%);
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.18), transparent 80%);
     pointer-events: none;
   }
 
@@ -115,59 +115,87 @@
 
   .hh-link:focus-visible {
     outline: none;
-    border-radius: 0.4rem;
+    border-radius: var(--hh-radius-tight);
     box-shadow: 0 0 0 2px var(--hh-accent-soft);
     color: var(--hh-accent);
   }
 
   .hh-paper-panel {
     position: relative;
-    overflow: hidden;
+    isolation: isolate;
     border: var(--hh-line-hairline) solid var(--hh-line);
     border-radius: var(--hh-radius-panel);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 100%),
-      var(--hh-surface);
+    background: var(--hh-surface);
     box-shadow: var(--hh-shadow-card);
   }
 
   .hh-paper-panel::before {
     position: absolute;
-    inset: 0.9rem;
+    inset: 0.7rem;
     border: var(--hh-line-hairline) solid rgba(17, 17, 15, 0.08);
-    border-radius: calc(var(--hh-radius-panel) - 0.45rem);
+    border-radius: max(0px, calc(var(--hh-radius-panel) - 0.2rem));
     content: "";
     pointer-events: none;
   }
 
+  .hh-paper-panel::after {
+    position: absolute;
+    inset: auto 1rem -0.85rem 1rem;
+    height: 1.3rem;
+    border-radius: inherit;
+    background:
+      linear-gradient(180deg, rgba(17, 17, 15, 0) 0%, rgba(17, 17, 15, 0.16) 100%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(17, 17, 15, 0.12) 0,
+        rgba(17, 17, 15, 0.12) 1px,
+        transparent 1px,
+        transparent 8px
+      );
+    content: "";
+    mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.45) 42%, rgba(0, 0, 0, 1) 100%);
+    opacity: 0.13;
+    pointer-events: none;
+    z-index: -1;
+  }
+
   .hh-page-frame {
     position: relative;
-    overflow: hidden;
+    isolation: isolate;
     border: var(--hh-line-hairline) solid var(--hh-line-strong);
-    border-radius: calc(var(--hh-radius-panel) + 0.15rem);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0) 100%),
-      var(--hh-surface);
+    border-radius: calc(var(--hh-radius-panel) + 0.08rem);
+    background: var(--hh-surface);
     box-shadow: var(--hh-shadow-panel);
   }
 
   .hh-page-frame::before {
     position: absolute;
-    inset: 1rem;
+    inset: 0.9rem;
     border: var(--hh-line-hairline) solid rgba(17, 17, 15, 0.08);
-    border-radius: calc(var(--hh-radius-panel) - 0.2rem);
+    border-radius: max(0px, calc(var(--hh-radius-panel) - 0.08rem));
     content: "";
     pointer-events: none;
   }
 
-  .hh-accent-hatch {
-    background-image: repeating-linear-gradient(
-      135deg,
-      rgba(15, 77, 15, 0.1) 0,
-      rgba(15, 77, 15, 0.1) 1px,
-      transparent 1px,
-      transparent 10px
-    );
+  .hh-page-frame::after {
+    position: absolute;
+    inset: auto 1.2rem -1rem 1.2rem;
+    height: 1.6rem;
+    border-radius: inherit;
+    background:
+      linear-gradient(180deg, rgba(17, 17, 15, 0) 0%, rgba(17, 17, 15, 0.18) 100%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(17, 17, 15, 0.12) 0,
+        rgba(17, 17, 15, 0.12) 1px,
+        transparent 1px,
+        transparent 9px
+      );
+    content: "";
+    mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.45) 42%, rgba(0, 0, 0, 1) 100%);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: -1;
   }
 }
 

@@ -29,7 +29,7 @@ export function BuildTypeCard({
           unoptimized={resolvedHeroImage.isPlaceholder}
         />
         {resolvedHeroImage.isPlaceholder ? (
-          <span className="absolute left-4 top-4 rounded-full border border-line-strong bg-background/92 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
+          <span className="absolute left-4 top-4 rounded-[var(--hh-radius-pill)] border border-line-strong bg-white/94 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted shadow-[0_12px_18px_-22px_rgba(17,17,15,0.6)]">
             Seed Asset Pending
           </span>
         ) : null}
@@ -46,7 +46,7 @@ export function BuildTypeCard({
         {serviceMix.map((item) => (
           <span
             key={item}
-            className="rounded-full border border-line-strong bg-surface-raised px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
+            className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
           >
             {item}
           </span>

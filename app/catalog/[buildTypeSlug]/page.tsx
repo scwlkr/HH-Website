@@ -156,7 +156,7 @@ export default async function BuildTypeDetailPage({
                 return (
                   <span
                     key={slug}
-                    className="rounded-full border border-line-strong bg-surface-raised px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
+                    className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
                   >
                     {finish.shortTitle}
                   </span>

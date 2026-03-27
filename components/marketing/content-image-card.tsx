@@ -43,7 +43,7 @@ export function ContentImageCard({
           {image.caption ?? image.alt}
         </figcaption>
         {resolvedImage.isPlaceholder ? (
-          <span className="rounded-full border border-line-strong bg-surface-raised px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
+          <span className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
             Seed Asset Pending
           </span>
         ) : null}

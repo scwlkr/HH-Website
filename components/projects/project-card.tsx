@@ -44,7 +44,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <h3 className="mt-3 text-2xl sm:text-[1.8rem]">{project.title}</h3>
         </div>
         {project.featured ? (
-          <span className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
+          <span className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
             Featured
           </span>
         ) : null}

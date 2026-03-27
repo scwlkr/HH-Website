@@ -6,13 +6,13 @@ import { siteConfig } from "@/lib/site-config";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-line-strong bg-background/90 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-line-strong bg-white shadow-[0_18px_28px_-30px_rgba(17,17,15,0.5)]">
       <Container
         size="wide"
         className="flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between"
       >
         <Link href="/" className="flex items-start gap-4">
-          <span className="flex h-12 w-12 items-center justify-center rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised font-mono text-sm uppercase tracking-[0.28em] text-accent">
+          <span className="flex h-12 w-12 items-center justify-center rounded-[var(--hh-radius-pill)] border border-line-strong bg-white font-mono text-sm uppercase tracking-[0.28em] text-accent shadow-[0_14px_20px_-22px_rgba(17,17,15,0.45)]">
             HH
           </span>
           <div className="space-y-1">
@@ -31,7 +31,7 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href as Route}
-                className="hh-link rounded-full border border-transparent px-3 py-2 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-muted hover:border-line-strong hover:bg-surface-raised"
+                className="hh-link rounded-[var(--hh-radius-pill)] border border-transparent px-3 py-2 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-muted hover:border-line-strong hover:bg-background"
               >
                 {item.label}
               </Link>
