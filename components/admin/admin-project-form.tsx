@@ -60,6 +60,24 @@ const projectFieldOrder: ProjectFieldName[] = [
   "coverAltText",
 ];
 
+const projectFieldLabels: Record<ProjectFieldName, string> = {
+  title: "Project Title",
+  slug: "Slug",
+  status: "Status",
+  buildTypeSlug: "Build Type",
+  finishLevelSlug: "Finish Level",
+  squareFootage: "Square Footage",
+  location: "Location",
+  bedrooms: "Bedrooms",
+  bathrooms: "Bathrooms",
+  shortDescription: "Short Description",
+  fullDescription: "Full Description",
+  featured: "Featured",
+  coverImage: "Cover Image",
+  galleryImages: "Gallery Images",
+  coverAltText: "Cover Alt Text",
+};
+
 function createProjectFormValues(
   project: ProjectDetail | null,
   buildTypeOptions: Option[],
@@ -153,6 +171,19 @@ function AdminProjectFormFields({
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(
     initialSlugManuallyEdited,
   );
+  const fieldErrorEntries = projectFieldOrder.flatMap((fieldName) => {
+    const message = state.fieldErrors[fieldName];
+
+    return message
+      ? [
+          {
+            fieldName,
+            label: projectFieldLabels[fieldName],
+            message,
+          },
+        ]
+      : [];
+  });
 
   useEffect(() => {
     if (state.status !== "field-error") {
@@ -193,9 +224,20 @@ function AdminProjectFormFields({
 
       {state.message ? (
         <AdminNotice
-          tone={state.status === "server-error" ? "error" : "info"}
+          tone={state.status === "idle" ? "info" : "error"}
         >
-          {state.message}
+          <div className="space-y-3">
+            <p>{state.message}</p>
+            {fieldErrorEntries.length > 0 ? (
+              <ul className="space-y-1">
+                {fieldErrorEntries.map((entry) => (
+                  <li key={entry.fieldName}>
+                    <strong>{entry.label}:</strong> {entry.message}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         </AdminNotice>
       ) : null}
 
@@ -214,6 +256,8 @@ function AdminProjectFormFields({
           }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.title}
+          minLength={2}
+          maxLength={120}
           required
         />
 
@@ -232,6 +276,9 @@ function AdminProjectFormFields({
           className="rounded-[var(--hh-radius-tight)]"
           helperText="Public route: /projects/[slug]"
           error={state.fieldErrors.slug}
+          minLength={2}
+          maxLength={120}
+          pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
           required
         />
 
@@ -249,6 +296,7 @@ function AdminProjectFormFields({
           }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.status}
+          required
         />
 
         <div className="flex items-end">
@@ -284,6 +332,7 @@ function AdminProjectFormFields({
           }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.buildTypeSlug}
+          required
         />
 
         <Select
@@ -301,6 +350,7 @@ function AdminProjectFormFields({
           }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.finishLevelSlug}
+          required
         />
 
         <Input
@@ -332,6 +382,8 @@ function AdminProjectFormFields({
           }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.location}
+          minLength={2}
+          maxLength={160}
           required
         />
 
@@ -382,6 +434,8 @@ function AdminProjectFormFields({
         className="rounded-[var(--hh-radius-tight)]"
         helperText="Shown on the public projects grid."
         error={state.fieldErrors.shortDescription}
+        minLength={12}
+        maxLength={240}
         required
       />
 
@@ -399,6 +453,8 @@ function AdminProjectFormFields({
         className="rounded-[var(--hh-radius-tight)]"
         helperText="Shown on the public project detail page."
         error={state.fieldErrors.fullDescription}
+        minLength={24}
+        maxLength={4000}
         required
       />
 
@@ -415,6 +471,7 @@ function AdminProjectFormFields({
               : "Required for new projects. JPG, PNG, WebP, or AVIF up to 10 MB."
           }
           error={state.fieldErrors.coverImage}
+          required={!project}
         />
 
         <Input
@@ -443,6 +500,7 @@ function AdminProjectFormFields({
         className="rounded-[var(--hh-radius-tight)]"
         helperText="Optional override for the uploaded cover image."
         error={state.fieldErrors.coverAltText}
+        maxLength={160}
       />
 
       {orderedImages.length > 0 ? (

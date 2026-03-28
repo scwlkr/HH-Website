@@ -4,14 +4,17 @@ import { slugify } from "@/lib/utils/slugify";
 import { projectStatusValues } from "@/types/operations";
 import type {
   AdminLoginActionState,
+  AdminLoginFieldName,
   AdminLoginFieldErrors,
   AdminLoginValues,
   ExistingProjectImageFormInput,
   PricingActionState,
+  PricingFieldName,
   PricingFieldErrors,
   PricingFormValues,
   PricingWriteInput,
   ProjectActionState,
+  ProjectFieldName,
   ProjectFieldErrors,
   ProjectFormValues,
   ProjectWriteInput,
@@ -267,6 +270,21 @@ const adminLoginSchema = z.object({
   ),
 });
 
+function normalizeFieldErrors<TFieldName extends string>(
+  fieldErrors: Partial<Record<TFieldName, string[] | undefined>>,
+) {
+  return Object.fromEntries(
+    (
+      Object.entries(fieldErrors) as Array<
+        [TFieldName, string[] | undefined]
+      >
+    ).flatMap(([fieldName, messages]) => {
+      const firstMessage = messages?.find((message) => message.length > 0);
+      return firstMessage ? [[fieldName, firstMessage]] : [];
+    }),
+  ) as Partial<Record<TFieldName, string>>;
+}
+
 export function getProjectFormValues(formData: FormData): ProjectFormValues {
   return {
     title: String(formData.get("title") ?? ""),
@@ -290,7 +308,9 @@ export function validateProjectFormValues(values: ProjectFormValues) {
 }
 
 export function mapProjectFieldErrors(error: z.ZodError<ValidProjectFormValues>) {
-  return error.flatten().fieldErrors as ProjectFieldErrors;
+  return normalizeFieldErrors<ProjectFieldName>(
+    error.flatten().fieldErrors as Partial<Record<ProjectFieldName, string[] | undefined>>,
+  ) as ProjectFieldErrors;
 }
 
 export function toProjectWriteInput(values: ValidProjectFormValues): ProjectWriteInput {
@@ -340,7 +360,9 @@ export function validatePricingFormValues(values: PricingFormValues) {
 }
 
 export function mapPricingFieldErrors(error: z.ZodError<ValidPricingFormValues>) {
-  return error.flatten().fieldErrors as PricingFieldErrors;
+  return normalizeFieldErrors<PricingFieldName>(
+    error.flatten().fieldErrors as Partial<Record<PricingFieldName, string[] | undefined>>,
+  ) as PricingFieldErrors;
 }
 
 export function toPricingWriteInput(values: ValidPricingFormValues): PricingWriteInput {
@@ -378,7 +400,11 @@ export function validateAdminLoginValues(values: AdminLoginValues) {
 }
 
 export function mapAdminLoginFieldErrors(error: z.ZodError<AdminLoginValues>) {
-  return error.flatten().fieldErrors as AdminLoginFieldErrors;
+  return normalizeFieldErrors<AdminLoginFieldName>(
+    error.flatten().fieldErrors as Partial<
+      Record<AdminLoginFieldName, string[] | undefined>
+    >,
+  ) as AdminLoginFieldErrors;
 }
 
 export function parseExistingProjectImageInputs(formData: FormData) {

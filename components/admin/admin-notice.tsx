@@ -15,6 +15,8 @@ export function AdminNotice({
 }: AdminNoticeProps) {
   return (
     <div
+      role={tone === "error" ? "alert" : "status"}
+      aria-live={tone === "error" ? "assertive" : "polite"}
       className={`rounded-[var(--hh-radius-tight)] border px-4 py-3 text-sm ${toneClasses[tone]}`}
     >
       {children}

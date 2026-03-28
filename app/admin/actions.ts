@@ -65,10 +65,15 @@ export async function loginAdminAction(
   const validationResult = validateAdminLoginValues(values);
 
   if (!validationResult.success) {
+    const fieldErrors = mapAdminLoginFieldErrors(validationResult.error);
+    console.warn("Admin login validation failed", {
+      fieldErrors,
+    });
+
     return {
       status: "field-error",
       message: "Review the highlighted fields and try again.",
-      fieldErrors: mapAdminLoginFieldErrors(validationResult.error),
+      fieldErrors,
     };
   }
 
@@ -128,10 +133,15 @@ export async function saveProjectAction(
   const validationResult = validateProjectFormValues(values);
 
   if (!validationResult.success) {
+    const fieldErrors = mapProjectFieldErrors(validationResult.error);
+    console.warn("Project validation failed", {
+      fieldErrors,
+    });
+
     return {
       status: "field-error",
       message: "Review the project fields before saving.",
-      fieldErrors: mapProjectFieldErrors(validationResult.error),
+      fieldErrors,
       values,
     };
   }
@@ -143,6 +153,12 @@ export async function saveProjectAction(
   });
 
   if (uploadValidation) {
+    console.warn("Project upload validation failed", {
+      fieldErrors: uploadValidation.fieldErrors,
+      hasCoverImage: Boolean(uploads.coverImage),
+      galleryImageCount: uploads.galleryImages.length,
+    });
+
     return {
       status: "field-error",
       message: "Review the image uploads before saving.",
@@ -203,10 +219,15 @@ export async function savePricingSettingsAction(
   const validationResult = validatePricingFormValues(values);
 
   if (!validationResult.success) {
+    const fieldErrors = mapPricingFieldErrors(validationResult.error);
+    console.warn("Pricing validation failed", {
+      fieldErrors,
+    });
+
     return {
       status: "field-error",
       message: "Review the pricing fields before saving.",
-      fieldErrors: mapPricingFieldErrors(validationResult.error),
+      fieldErrors,
     };
   }
 
