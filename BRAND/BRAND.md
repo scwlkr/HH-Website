@@ -1,14 +1,10 @@
 # Brand Guidelines
 
 ## Typography
-- Panchang Light
-- Primary Display Font: Panchang
-- Helper UI / Body Font: IBM Plex Sans
-- Helper Label / Data Font: IBM Plex Mono
-- Panchang should be used for headlines, key brand moments, and larger display text.
-- IBM Plex Sans should be used for paragraph copy, navigation, forms, and dense small UI text.
-- IBM Plex Mono should be used for compact labels, metadata, utility text, and technical UI elements.
-- Do not use Panchang for dense paragraph text, small navigation clusters, or compact utility copy because it reads too large too quickly.
+- Brand font selection is being reconsidered.
+- Current website font stack: IBM Plex Sans
+- Current utility / label font stack: IBM Plex Mono
+- Do not reintroduce Panchang on the website unless the brand guide is intentionally updated again.
 
 
 ## BrandColors

@@ -28,7 +28,7 @@ export function PageIntro({
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(16rem,0.65fr)] lg:gap-10">
             <div>
               <DividerFrame label={eyebrow} detail={siteConfig.shortName} />
-              <h1 className="mt-7 max-w-4xl text-[2.9rem] sm:text-[3.5rem] lg:text-[3.85rem] lg:leading-[1.04]">
+              <h1 className="mt-7 max-w-4xl text-4xl sm:text-5xl lg:text-[4.25rem] lg:leading-[1.02]">
                 {title}
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-7 text-muted sm:text-lg">

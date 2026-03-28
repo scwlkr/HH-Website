@@ -14,8 +14,8 @@
   --color-accent: var(--hh-accent);
   --color-accent-soft: var(--hh-accent-soft);
   --color-accent-strong: var(--hh-accent-strong);
-  --font-sans: var(--hh-font-body);
-  --font-mono: var(--hh-font-code);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
 }
 
 @layer base {
@@ -38,8 +38,7 @@
       radial-gradient(circle at top left, rgba(0, 91, 65, 0.04) 0%, rgba(0, 91, 65, 0) 34%),
       var(--hh-paper);
     color: var(--hh-ink);
-    font-family: var(--hh-font-body), sans-serif;
-    font-weight: 400;
+    font-family: var(--font-body), sans-serif;
     text-rendering: optimizeLegibility;
   }
 
@@ -80,9 +79,8 @@
   h5,
   h6 {
     color: var(--hh-ink);
-    font-family: var(--hh-font-display), sans-serif;
-    font-weight: 400;
-    letter-spacing: -0.04em;
+    font-weight: 600;
+    letter-spacing: -0.05em;
     text-wrap: balance;
   }
 
