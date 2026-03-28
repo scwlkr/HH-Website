@@ -24,7 +24,7 @@ export function ContentImageCard({
     <figure className={cn("hh-paper-panel p-4", className)}>
       <div
         className={cn(
-          "relative overflow-hidden rounded-[calc(var(--hh-radius-panel)-0.2rem)] border border-line bg-surface-raised",
+          "hh-drafted-media relative overflow-hidden rounded-[calc(var(--hh-radius-panel)-0.2rem)] border border-line bg-surface-raised",
           aspectClassName,
         )}
       >
@@ -43,7 +43,7 @@ export function ContentImageCard({
           {image.caption ?? image.alt}
         </figcaption>
         {resolvedImage.isPlaceholder ? (
-          <span className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
+          <span className="hh-drafted-chip rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
             Seed Asset Pending
           </span>
         ) : null}

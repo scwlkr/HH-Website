@@ -14,6 +14,10 @@
   --hh-accent: #005b41;
   --hh-accent-soft: rgba(0, 91, 65, 0.12);
   --hh-accent-strong: #004331;
+  --hh-draft-ink: rgba(35, 45, 63, 0.16);
+  --hh-draft-ink-soft: rgba(35, 45, 63, 0.09);
+  --hh-draft-ink-faint: rgba(35, 45, 63, 0.045);
+  --hh-draft-paper: rgba(255, 255, 255, 0.52);
   --hh-container-narrow: 46rem;
   --hh-container-content: 72rem;
   --hh-container-max: 84rem;
@@ -32,6 +36,8 @@
   --hh-line-emphasis: 2px;
   --hh-line-heavy: 3px;
   --hh-grid-size: 1.5rem;
+  --hh-grid-size-fine: 0.75rem;
+  --hh-grid-size-room: 4.5rem;
   --hh-shadow-card:
     0 16px 28px -22px rgba(17, 17, 15, 0.34),
     0 1px 0 rgba(255, 255, 255, 0.82) inset;

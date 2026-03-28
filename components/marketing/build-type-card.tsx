@@ -20,7 +20,7 @@ export function BuildTypeCard({
   return (
     <CardShell className="h-full">
       <div className="flex h-full flex-col">
-        <div className="relative aspect-[16/11] overflow-hidden rounded-[calc(var(--hh-radius-panel)-0.2rem)] border border-line bg-surface-raised">
+        <div className="hh-drafted-media relative aspect-[16/11] overflow-hidden rounded-[calc(var(--hh-radius-panel)-0.2rem)] border border-line bg-surface-raised">
           <Image
             src={resolvedHeroImage.src}
             alt={resolvedHeroImage.alt}
@@ -30,7 +30,7 @@ export function BuildTypeCard({
             unoptimized={resolvedHeroImage.isPlaceholder}
           />
           {resolvedHeroImage.isPlaceholder ? (
-            <span className="absolute left-4 top-4 rounded-[var(--hh-radius-pill)] border border-line-strong bg-white/94 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted shadow-[0_12px_18px_-22px_rgba(17,17,15,0.6)]">
+            <span className="hh-drafted-chip absolute left-4 top-4 rounded-[var(--hh-radius-pill)] border border-line-strong bg-white/94 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted shadow-[0_12px_18px_-22px_rgba(17,17,15,0.6)]">
               Seed Asset Pending
             </span>
           ) : null}
@@ -47,7 +47,7 @@ export function BuildTypeCard({
           {serviceMix.map((item) => (
             <span
               key={item}
-              className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
+              className="hh-drafted-chip rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
             >
               {item}
             </span>

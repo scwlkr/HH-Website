@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { BrandMark, BrandWordmark } from "@/components/brand/brand-logo";
 import { ActionLink } from "@/components/marketing/action-link";
 import { Container } from "@/components/layout/container";
 import { DividerFrame } from "@/components/ui/divider-frame";
@@ -61,12 +62,28 @@ export function SiteFooter() {
   });
 
   return (
-    <footer className="relative mt-16 border-t border-line-strong bg-white">
+    <footer className="hh-drafted-band relative mt-16 border-t border-line-strong bg-white">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-14 bg-[linear-gradient(180deg,rgba(17,17,15,0.1)_0%,rgba(17,17,15,0)_78%),repeating-linear-gradient(135deg,rgba(17,17,15,0.12)_0,rgba(17,17,15,0.12)_1px,transparent_1px,transparent_9px)] opacity-[0.16]" />
       <Container size="wide" className="relative py-12 sm:py-14">
         <div className="grid gap-10 border-b border-line pb-10 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,0.5fr))] lg:gap-8">
           <div className="space-y-6 lg:pr-10">
-            <DividerFrame label={siteConfig.shortName} detail="Project routing" />
+            <div className="space-y-5">
+              <div className="flex items-center gap-4">
+                <div className="hh-drafted-chip flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--hh-radius-pill)] border border-line-strong bg-white shadow-[0_18px_24px_-24px_rgba(17,17,15,0.45)]">
+                  <BrandMark decorative sizes="40px" className="h-8 w-8" />
+                </div>
+                <div className="min-w-0 space-y-2">
+                  <BrandWordmark
+                    sizes="(max-width: 640px) 12rem, 15rem"
+                    className="h-8 w-[12rem] sm:h-9 sm:w-[15rem]"
+                  />
+                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+                    {siteConfig.descriptor}
+                  </p>
+                </div>
+              </div>
+              <DividerFrame label={siteConfig.shortName} detail="Project routing" />
+            </div>
             <div className="space-y-4">
               <h2 className="max-w-xl text-3xl sm:text-[2.35rem] sm:leading-[1.08]">
                 A cleaner route from first visit to first conversation.
@@ -145,7 +162,7 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-col gap-3 pt-4 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>{year} {siteConfig.name}. All rights reserved.</p>
+          <p>{year} {siteConfig.shortName}. All rights reserved.</p>
           <p>{siteConfig.descriptor}</p>
           <p className="font-mono uppercase tracking-[0.2em] text-muted-strong">
             Drafted For Clear Scope

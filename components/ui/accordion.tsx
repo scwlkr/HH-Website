@@ -24,7 +24,7 @@ export function Accordion({ items, className }: AccordionProps) {
           <details
             key={item.id}
             open={item.defaultOpen}
-            className="group rounded-[var(--hh-radius-input)] border border-line bg-surface-raised px-4 py-3"
+            className="hh-drafted-outline group rounded-[var(--hh-radius-input)] border border-line bg-surface-raised px-4 py-3"
           >
             <summary
               id={summaryId}

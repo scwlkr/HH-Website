@@ -17,7 +17,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <CardShell className="h-full">
       <div className="flex h-full flex-col">
-        <div className="relative aspect-[16/11] overflow-hidden rounded-[calc(var(--hh-radius-panel)-0.2rem)] border border-line bg-surface-raised">
+        <div className="hh-drafted-media relative aspect-[16/11] overflow-hidden rounded-[calc(var(--hh-radius-panel)-0.2rem)] border border-line bg-surface-raised">
           {project.coverImage ? (
             <Image
               src={project.coverImage.publicUrl}
@@ -45,7 +45,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             <h3 className="mt-3 text-2xl sm:text-[1.8rem]">{project.title}</h3>
           </div>
           {project.featured ? (
-            <span className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
+            <span className="hh-drafted-chip rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
               Featured
             </span>
           ) : null}

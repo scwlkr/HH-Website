@@ -9,7 +9,7 @@ type ProjectGalleryProps = {
 export function ProjectGallery({ images, title }: ProjectGalleryProps) {
   if (!images.length) {
     return (
-      <div className="rounded-[var(--hh-radius-panel)] border border-line bg-surface-raised px-6 py-12 text-center text-sm text-muted">
+      <div className="hh-drafted-outline rounded-[var(--hh-radius-panel)] border border-line bg-surface-raised px-6 py-12 text-center text-sm text-muted">
         Project imagery will appear here after uploads are added.
       </div>
     );
@@ -20,9 +20,9 @@ export function ProjectGallery({ images, title }: ProjectGalleryProps) {
       {images.map((image, index) => (
         <figure
           key={image.id}
-          className="overflow-hidden rounded-[var(--hh-radius-panel)] border border-line bg-surface-raised"
+          className="hh-drafted-outline overflow-hidden rounded-[var(--hh-radius-panel)] border border-line bg-surface-raised"
         >
-          <div className="relative aspect-[4/3]">
+          <div className="hh-drafted-media relative aspect-[4/3]">
             <Image
               src={image.publicUrl}
               alt={image.altText || `${title} image ${index + 1}`}

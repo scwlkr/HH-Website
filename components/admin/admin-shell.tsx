@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { BrandWordmark } from "@/components/brand/brand-logo";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
@@ -31,7 +32,15 @@ export function AdminShell({
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
               Operations Portal
             </p>
-            <h1 className="mt-2 text-2xl">Howeth and Harp Admin</h1>
+            <div className="mt-3 flex flex-wrap items-end gap-3">
+              <BrandWordmark
+                sizes="(max-width: 640px) 10.5rem, 12rem"
+                className="h-7 w-[10.5rem] sm:h-8 sm:w-[12rem]"
+              />
+              <h1 className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-muted-strong">
+                Admin
+              </h1>
+            </div>
             <p className="mt-1 text-sm text-muted">{userEmail}</p>
           </div>
 

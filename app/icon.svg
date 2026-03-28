@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="10" fill="#F6F1E8" />
-  <path d="M18 16V48" stroke="#101010" stroke-width="4" stroke-linecap="square" />
-  <path d="M30 16V48" stroke="#101010" stroke-width="4" stroke-linecap="square" />
-  <path d="M18 32H30" stroke="#101010" stroke-width="4" stroke-linecap="square" />
-  <path d="M38 16V48" stroke="#005B41" stroke-width="4" stroke-linecap="square" />
-  <path d="M50 16V48" stroke="#005B41" stroke-width="4" stroke-linecap="square" />
-  <path d="M38 32H50" stroke="#005B41" stroke-width="4" stroke-linecap="square" />
-</svg>
