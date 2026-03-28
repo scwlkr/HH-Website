@@ -22,6 +22,7 @@ export function Select({
   id,
   options,
   placeholder,
+  value,
   defaultValue = "",
   ...props
 }: SelectProps) {
@@ -45,7 +46,7 @@ export function Select({
       <div className="relative">
         <select
           id={fieldId}
-          defaultValue={defaultValue}
+          {...(value === undefined ? { defaultValue } : { value })}
           aria-describedby={describedById}
           aria-invalid={Boolean(error)}
           className={cn(

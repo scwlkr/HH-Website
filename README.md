@@ -56,6 +56,9 @@ The application requires various environment variables for production functional
 > [!CAUTION]
 > Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client. It must only be used in secure Server Actions or Route Handlers.
 
+> [!IMPORTANT]
+> Operations portal access now requires a Supabase user with `app_metadata.role = "admin"`. A valid session by itself is not enough to access `/admin`.
+
 ## Usage
 
 ### Local Development Commands

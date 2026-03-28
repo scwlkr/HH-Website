@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Route } from "next";
 import { redirect } from "next/navigation";
+import { isAuthorizedAdminUser } from "@/lib/supabase/admin-access";
 import { createSupabaseServerClient, isSupabaseAuthConfigured } from "@/lib/supabase/server";
 
 export async function getAuthenticatedAdminUser() {
@@ -15,7 +16,7 @@ export async function getAuthenticatedAdminUser() {
     error,
   } = await supabase.auth.getUser();
 
-  if (error) {
+  if (error || !isAuthorizedAdminUser(user)) {
     return null;
   }
 

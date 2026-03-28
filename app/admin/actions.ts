@@ -4,6 +4,7 @@ import { updateTag } from "next/cache";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient, isSupabaseAuthConfigured } from "@/lib/supabase/server";
+import { isAuthorizedAdminUser } from "@/lib/supabase/admin-access";
 import { requireAdminUser } from "@/lib/supabase/auth";
 import {
   getProjectSlugAvailability,
@@ -73,10 +74,20 @@ export async function loginAdminAction(
 
   try {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.signInWithPassword(validationResult.data);
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithPassword(validationResult.data);
 
     if (error) {
       return createAdminLoginServerErrorState(error.message);
+    }
+
+    if (!isAuthorizedAdminUser(user)) {
+      await supabase.auth.signOut();
+      return createAdminLoginServerErrorState(
+        "This account is not authorized to access the operations portal.",
+      );
     }
   } catch (error) {
     console.error("Admin login failed", error);
@@ -121,6 +132,7 @@ export async function saveProjectAction(
       status: "field-error",
       message: "Review the project fields before saving.",
       fieldErrors: mapProjectFieldErrors(validationResult.error),
+      values,
     };
   }
 
@@ -135,6 +147,7 @@ export async function saveProjectAction(
       status: "field-error",
       message: "Review the image uploads before saving.",
       fieldErrors: uploadValidation.fieldErrors,
+      values,
     };
   }
 
@@ -148,11 +161,14 @@ export async function saveProjectAction(
       fieldErrors: {
         slug: "That slug is already in use by another project.",
       },
+      values,
     };
   }
 
+  let savedProject: Awaited<ReturnType<typeof saveProject>>;
+
   try {
-    const savedProject = await saveProject({
+    savedProject = await saveProject({
       project: {
         ...projectInput,
         id: projectId,
@@ -161,17 +177,18 @@ export async function saveProjectAction(
       coverImage: uploads.coverImage,
       galleryImages: uploads.galleryImages,
     });
-
-    updateTag(projectCacheTag);
-    redirect(`/admin/projects/${savedProject.id}` as Route);
   } catch (error) {
     console.error("Project save failed", error);
     return createProjectServerErrorState(
       error instanceof Error
         ? error.message
         : "The project could not be saved right now.",
+      values,
     );
   }
+
+  updateTag(projectCacheTag);
+  redirect(`/admin/projects/${savedProject.id}` as Route);
 }
 
 export async function savePricingSettingsAction(
@@ -195,12 +212,13 @@ export async function savePricingSettingsAction(
 
   try {
     await upsertPricingSettings(toPricingWriteInput(validationResult.data));
-    updateTag(pricingSettingsCacheTag);
-    redirect("/admin/settings/pricing" as Route);
   } catch (error) {
     console.error("Pricing save failed", error);
     return createPricingServerErrorState(
       "The pricing settings could not be saved right now.",
     );
   }
+
+  updateTag(pricingSettingsCacheTag);
+  redirect("/admin/settings/pricing" as Route);
 }

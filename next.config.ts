@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const adminUploadBodySizeLimit = "64mb";
+
 function readSupabaseImagePattern() {
   const supabaseUrl =
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
@@ -34,6 +36,13 @@ const nextConfig: NextConfig = {
           >[number],
         ]
       : [],
+  },
+  experimental: {
+    // Admin project saves submit photos through a Server Action on a proxied route.
+    serverActions: {
+      bodySizeLimit: adminUploadBodySizeLimit,
+    },
+    proxyClientMaxBodySize: adminUploadBodySizeLimit,
   },
   turbopack: {
     root: process.cwd(),

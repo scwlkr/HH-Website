@@ -68,6 +68,22 @@ export type ProjectFormValues = {
   coverAltText: string;
 };
 
+export const emptyProjectFormValues: ProjectFormValues = {
+  title: "",
+  slug: "",
+  status: "",
+  buildTypeSlug: "",
+  finishLevelSlug: "",
+  squareFootage: "",
+  bedrooms: "",
+  bathrooms: "",
+  location: "",
+  shortDescription: "",
+  fullDescription: "",
+  featured: false,
+  coverAltText: "",
+};
+
 export type ProjectFieldName = keyof ProjectFormValues | "coverImage" | "galleryImages";
 
 export type ProjectFieldErrors = Partial<Record<ProjectFieldName, string>>;
@@ -93,6 +109,7 @@ export type ProjectActionState = {
   status: "idle" | "field-error" | "server-error";
   message?: string;
   fieldErrors: ProjectFieldErrors;
+  values?: ProjectFormValues;
 };
 
 export const projectActionInitialState: ProjectActionState = {

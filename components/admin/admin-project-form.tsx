@@ -1,15 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { slugify } from "@/lib/utils/slugify";
 import {
+  emptyProjectFormValues,
   projectActionInitialState,
   type ProjectDetail,
+  type ProjectFormValues,
 } from "@/types/operations";
 import { saveProjectAction } from "@/app/admin/actions";
 
@@ -29,17 +31,49 @@ const statusOptions: Option[] = [
   { label: "Sold", value: "sold" },
 ];
 
+function createProjectFormValues(
+  project: ProjectDetail | null,
+  buildTypeOptions: Option[],
+  finishLevelOptions: Option[],
+): ProjectFormValues {
+  return {
+    ...emptyProjectFormValues,
+    title: project?.title ?? "",
+    slug: project?.slug ?? "",
+    status: project?.status ?? "for-sale",
+    buildTypeSlug:
+      project?.buildTypeSlug ??
+      (buildTypeOptions[0]?.value as ProjectFormValues["buildTypeSlug"]) ??
+      "",
+    finishLevelSlug:
+      project?.finishLevelSlug ??
+      (finishLevelOptions[0]?.value as ProjectFormValues["finishLevelSlug"]) ??
+      "",
+    squareFootage: project ? project.squareFootage.toString() : "",
+    bedrooms: project ? project.bedrooms.toString() : "",
+    bathrooms: project ? project.bathrooms.toString() : "",
+    location: project?.location ?? "",
+    shortDescription: project?.shortDescription ?? "",
+    fullDescription: project?.fullDescription ?? "",
+    featured: project?.featured ?? false,
+    coverAltText: project?.coverImage?.altText ?? "",
+  };
+}
+
 export function AdminProjectForm({
   project,
   buildTypeOptions,
   finishLevelOptions,
 }: AdminProjectFormProps) {
+  const initialFormValues = useMemo(
+    () => createProjectFormValues(project, buildTypeOptions, finishLevelOptions),
+    [buildTypeOptions, finishLevelOptions, project],
+  );
   const [state, formAction, pending] = useActionState(
     saveProjectAction,
     projectActionInitialState,
   );
-  const [title, setTitle] = useState(project?.title ?? "");
-  const [slug, setSlug] = useState(project?.slug ?? "");
+  const [formValues, setFormValues] = useState(initialFormValues);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(project));
   const orderedImages = useMemo(
     () =>
@@ -53,6 +87,14 @@ export function AdminProjectForm({
     [project],
   );
 
+  useEffect(() => {
+    const nextValues = state.values ?? initialFormValues;
+    setFormValues(nextValues);
+    setSlugManuallyEdited(
+      Boolean(project) || nextValues.slug !== slugify(nextValues.title),
+    );
+  }, [initialFormValues, project, state.values]);
+
   return (
     <form action={formAction} className="space-y-8" encType="multipart/form-data">
       {project ? <input type="hidden" name="projectId" value={project.id} /> : null}
@@ -61,14 +103,14 @@ export function AdminProjectForm({
         <Input
           name="title"
           label="Project Title"
-          value={title}
+          value={formValues.title}
           onChange={(event) => {
             const nextTitle = event.currentTarget.value;
-            setTitle(nextTitle);
-
-            if (!slugManuallyEdited) {
-              setSlug(slugify(nextTitle));
-            }
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              title: nextTitle,
+              slug: slugManuallyEdited ? currentValues.slug : slugify(nextTitle),
+            }));
           }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.title}
@@ -78,10 +120,14 @@ export function AdminProjectForm({
         <Input
           name="slug"
           label="Slug"
-          value={slug}
+          value={formValues.slug}
           onChange={(event) => {
+            const nextSlug = slugify(event.currentTarget.value);
             setSlugManuallyEdited(true);
-            setSlug(slugify(event.currentTarget.value));
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              slug: nextSlug,
+            }));
           }}
           className="rounded-[var(--hh-radius-tight)]"
           helperText="Public route: /projects/[slug]"
@@ -93,14 +139,32 @@ export function AdminProjectForm({
           name="status"
           label="Status"
           options={statusOptions}
-          defaultValue={project?.status ?? "for-sale"}
+          value={formValues.status}
+          onChange={(event) => {
+            const nextStatus = event.currentTarget.value as ProjectFormValues["status"];
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              status: nextStatus,
+            }));
+          }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.status}
         />
 
         <div className="flex items-end">
           <label className="flex items-center gap-3 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised px-4 py-3 text-sm">
-            <input type="checkbox" name="featured" defaultChecked={project?.featured} />
+            <input
+              type="checkbox"
+              name="featured"
+              checked={formValues.featured}
+              onChange={(event) => {
+                const nextFeatured = event.currentTarget.checked;
+                setFormValues((currentValues) => ({
+                  ...currentValues,
+                  featured: nextFeatured,
+                }));
+              }}
+            />
             <span>Pin this home to the top of the public projects list</span>
           </label>
         </div>
@@ -109,7 +173,15 @@ export function AdminProjectForm({
           name="buildTypeSlug"
           label="Build Type"
           options={buildTypeOptions}
-          defaultValue={project?.buildTypeSlug ?? buildTypeOptions[0]?.value}
+          value={formValues.buildTypeSlug}
+          onChange={(event) => {
+            const nextBuildTypeSlug =
+              event.currentTarget.value as ProjectFormValues["buildTypeSlug"];
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              buildTypeSlug: nextBuildTypeSlug,
+            }));
+          }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.buildTypeSlug}
         />
@@ -118,7 +190,15 @@ export function AdminProjectForm({
           name="finishLevelSlug"
           label="Finish Level"
           options={finishLevelOptions}
-          defaultValue={project?.finishLevelSlug ?? finishLevelOptions[0]?.value}
+          value={formValues.finishLevelSlug}
+          onChange={(event) => {
+            const nextFinishLevelSlug =
+              event.currentTarget.value as ProjectFormValues["finishLevelSlug"];
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              finishLevelSlug: nextFinishLevelSlug,
+            }));
+          }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.finishLevelSlug}
         />
@@ -126,7 +206,14 @@ export function AdminProjectForm({
         <Input
           name="squareFootage"
           label="Square Footage"
-          defaultValue={project?.squareFootage.toString() ?? ""}
+          value={formValues.squareFootage}
+          onChange={(event) => {
+            const nextSquareFootage = event.currentTarget.value;
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              squareFootage: nextSquareFootage,
+            }));
+          }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.squareFootage}
           required
@@ -135,7 +222,14 @@ export function AdminProjectForm({
         <Input
           name="location"
           label="Location"
-          defaultValue={project?.location ?? ""}
+          value={formValues.location}
+          onChange={(event) => {
+            const nextLocation = event.currentTarget.value;
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              location: nextLocation,
+            }));
+          }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.location}
           required
@@ -144,7 +238,14 @@ export function AdminProjectForm({
         <Input
           name="bedrooms"
           label="Bedrooms"
-          defaultValue={project?.bedrooms.toString() ?? ""}
+          value={formValues.bedrooms}
+          onChange={(event) => {
+            const nextBedrooms = event.currentTarget.value;
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              bedrooms: nextBedrooms,
+            }));
+          }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.bedrooms}
           required
@@ -153,7 +254,14 @@ export function AdminProjectForm({
         <Input
           name="bathrooms"
           label="Bathrooms"
-          defaultValue={project?.bathrooms.toString() ?? ""}
+          value={formValues.bathrooms}
+          onChange={(event) => {
+            const nextBathrooms = event.currentTarget.value;
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              bathrooms: nextBathrooms,
+            }));
+          }}
           className="rounded-[var(--hh-radius-tight)]"
           error={state.fieldErrors.bathrooms}
           required
@@ -163,7 +271,14 @@ export function AdminProjectForm({
       <Textarea
         name="shortDescription"
         label="Short Description"
-        defaultValue={project?.shortDescription ?? ""}
+        value={formValues.shortDescription}
+        onChange={(event) => {
+          const nextShortDescription = event.currentTarget.value;
+          setFormValues((currentValues) => ({
+            ...currentValues,
+            shortDescription: nextShortDescription,
+          }));
+        }}
         className="rounded-[var(--hh-radius-tight)]"
         helperText="Shown on the public projects grid."
         error={state.fieldErrors.shortDescription}
@@ -173,7 +288,14 @@ export function AdminProjectForm({
       <Textarea
         name="fullDescription"
         label="Full Description"
-        defaultValue={project?.fullDescription ?? ""}
+        value={formValues.fullDescription}
+        onChange={(event) => {
+          const nextFullDescription = event.currentTarget.value;
+          setFormValues((currentValues) => ({
+            ...currentValues,
+            fullDescription: nextFullDescription,
+          }));
+        }}
         className="rounded-[var(--hh-radius-tight)]"
         helperText="Shown on the public project detail page."
         error={state.fieldErrors.fullDescription}
@@ -189,8 +311,8 @@ export function AdminProjectForm({
           className="rounded-[var(--hh-radius-tight)] file:mr-3 file:rounded-[var(--hh-radius-tight)] file:border-0 file:bg-accent file:px-3 file:py-2 file:font-mono file:text-[0.68rem] file:uppercase file:tracking-[0.18em] file:text-[#f9f6ef]"
           helperText={
             project
-              ? "Optional. Uploading a new cover image keeps older images unless removed below."
-              : "Required for new projects."
+              ? "Optional. JPG, PNG, WebP, or AVIF up to 10 MB. Uploading a new cover image keeps older images unless removed below."
+              : "Required for new projects. JPG, PNG, WebP, or AVIF up to 10 MB."
           }
           error={state.fieldErrors.coverImage}
         />
@@ -202,6 +324,7 @@ export function AdminProjectForm({
           multiple
           label="Add Gallery Images"
           className="rounded-[var(--hh-radius-tight)] file:mr-3 file:rounded-[var(--hh-radius-tight)] file:border-0 file:bg-surface-raised file:px-3 file:py-2 file:font-mono file:text-[0.68rem] file:uppercase file:tracking-[0.18em]"
+          helperText="Optional. Each image must be under 10 MB, and each save can upload up to 48 MB total."
           error={state.fieldErrors.galleryImages}
         />
       </div>
@@ -209,7 +332,14 @@ export function AdminProjectForm({
       <Input
         name="coverAltText"
         label="Cover Alt Text"
-        defaultValue={project?.coverImage?.altText ?? ""}
+        value={formValues.coverAltText}
+        onChange={(event) => {
+          const nextCoverAltText = event.currentTarget.value;
+          setFormValues((currentValues) => ({
+            ...currentValues,
+            coverAltText: nextCoverAltText,
+          }));
+        }}
         className="rounded-[var(--hh-radius-tight)]"
         helperText="Optional override for the uploaded cover image."
         error={state.fieldErrors.coverAltText}
@@ -311,9 +441,11 @@ export function AdminProjectForm({
           variant="secondary"
           className="rounded-[var(--hh-radius-tight)]"
           onClick={() => {
-            if (!slugManuallyEdited) {
-              setSlug(slugify(title));
-            }
+            setFormValues((currentValues) => ({
+              ...currentValues,
+              slug: slugify(currentValues.title),
+            }));
+            setSlugManuallyEdited(false);
           }}
         >
           Refresh Slug

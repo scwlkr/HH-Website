@@ -22,6 +22,7 @@ const finishLevelEnum = z.enum(finishLevelSlugs);
 const projectStatusEnum = z.enum(projectStatusValues);
 
 const maxProjectImageBytes = 10 * 1024 * 1024;
+const maxProjectUploadTotalBytes = 48 * 1024 * 1024;
 const allowedProjectImageTypes = new Set([
   "image/jpeg",
   "image/png",
@@ -487,14 +488,31 @@ export function validateProjectUploads(input: {
     };
   }
 
+  const totalUploadBytes =
+    (input.coverImage?.size ?? 0) +
+    input.galleryImages.reduce((totalBytes, file) => totalBytes + file.size, 0);
+
+  if (totalUploadBytes > maxProjectUploadTotalBytes) {
+    return {
+      fieldErrors: {
+        galleryImages:
+          "Combined cover and gallery uploads must stay under 48 MB per save.",
+      } satisfies ProjectFieldErrors,
+    };
+  }
+
   return null;
 }
 
-export function createProjectServerErrorState(message: string): ProjectActionState {
+export function createProjectServerErrorState(
+  message: string,
+  values?: ProjectFormValues,
+): ProjectActionState {
   return {
     status: "server-error",
     message,
     fieldErrors: {},
+    values,
   };
 }
 

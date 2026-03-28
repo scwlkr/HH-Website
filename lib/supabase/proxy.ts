@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/lib/env";
+import { isAuthorizedAdminUser } from "@/lib/supabase/admin-access";
 
 function copyCookies(
   source: NextResponse<unknown>,
@@ -44,9 +45,9 @@ export async function updateSession(request: NextRequest) {
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  const isAuthenticated = Boolean(user?.id) && !error;
+  const isAdminUser = !error && isAuthorizedAdminUser(user);
 
-  if (!isAuthenticated && !isLoginRoute) {
+  if (!isAdminUser && !isLoginRoute) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     loginUrl.searchParams.set("next", pathname);
@@ -56,7 +57,7 @@ export async function updateSession(request: NextRequest) {
     return redirectResponse;
   }
 
-  if (isAuthenticated && isLoginRoute) {
+  if (isAdminUser && isLoginRoute) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/admin/projects";
     dashboardUrl.searchParams.delete("next");
