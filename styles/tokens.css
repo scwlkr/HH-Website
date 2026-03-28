@@ -1,6 +1,7 @@
 :root {
-  --font-body: var(--font-panchang), "Avenir Next", "Segoe UI", sans-serif;
-  --font-code: var(--font-panchang), "Avenir Next", "Segoe UI", sans-serif;
+  --hh-font-display: var(--font-panchang), "Avenir Next", "Segoe UI", sans-serif;
+  --hh-font-body: var(--font-ibm-plex-sans), "Avenir Next", "Segoe UI", sans-serif;
+  --hh-font-code: var(--font-ibm-plex-mono), "SFMono-Regular", "Menlo", monospace;
   --hh-paper: #f4efe5;
   --hh-paper-deep: #ede5d6;
   --hh-surface: #ffffff;
