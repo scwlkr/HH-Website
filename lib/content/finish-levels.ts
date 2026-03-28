@@ -1,6 +1,9 @@
 import { createContentImage } from "@/lib/content/image-paths";
 import { createSlugLookup } from "@/lib/content/slug-helpers";
+import { siteConfig } from "@/lib/site-config";
 import type { FinishLevel, FinishLevelSlug } from "@/types/content";
+
+const shortName = siteConfig.shortName;
 
 const builderGradeGallery = [
   createContentImage({
@@ -101,7 +104,7 @@ export const finishLevels = [
     cardSummary:
       "A streamlined finish package built around durability, repeatability, and a clean architectural baseline.",
     detailSummary:
-      "Builder Grade is suited to projects that need HH planning discipline and a credible finished result without drifting into custom specification work. It prioritizes durable materials, efficient detailing, and controlled upgrade decisions.",
+      `Builder Grade is suited to projects that need ${shortName} planning discipline and a credible finished result without drifting into custom specification work. It prioritizes durable materials, efficient detailing, and controlled upgrade decisions.`,
     differentiators: [
       "Focused material palette with dependable, readily available selections.",
       "Repeatable trim, cabinet, and hardware strategies that support efficient construction.",

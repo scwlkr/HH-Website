@@ -1,4 +1,5 @@
 import { buildTypes, finishLevels } from "@/lib/content";
+import { siteConfig } from "@/lib/site-config";
 import type {
   InquiryBudgetRange,
   InquiryFinishLevel,
@@ -9,6 +10,8 @@ import type {
   InquiryStepId,
   InquiryTimeline,
 } from "@/types/inquiry";
+
+const shortName = siteConfig.shortName;
 
 export type InquiryOption<TValue extends string> = {
   value: TValue;
@@ -178,7 +181,7 @@ export const inquiryProgressSteps = [
     id: "contact",
     label: "01",
     title: "Contact",
-    description: "How HH should respond once the brief is reviewed.",
+    description: `How ${shortName} should respond once the brief is reviewed.`,
   },
   {
     id: "project-basics",

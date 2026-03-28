@@ -23,7 +23,7 @@ export async function generateMetadata({
 
   return createPageMetadata({
     title: project ? `Edit ${project.title}` : "Edit Project",
-    description: "Edit a completed home in the HH operations portal.",
+    description: "Edit a completed home in the H&H operations portal.",
     path: `/admin/projects/${id}`,
     noIndex: true,
   });

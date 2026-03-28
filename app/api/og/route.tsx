@@ -76,7 +76,7 @@ export function GET(request: Request) {
             position: "absolute",
             inset: 0,
             background:
-              "radial-gradient(circle at top left, rgba(15, 77, 15, 0.14) 0%, rgba(15, 77, 15, 0) 38%)",
+              "radial-gradient(circle at top left, rgba(0, 91, 65, 0.14) 0%, rgba(0, 91, 65, 0) 38%)",
           }}
         />
 
@@ -116,14 +116,13 @@ export function GET(request: Request) {
                   justifyContent: "center",
                   border: "2px solid rgba(17, 17, 15, 0.28)",
                   background: "#fffcf6",
-                  color: "#0f4d0f",
-                  fontSize: "26px",
-                  fontWeight: 700,
-                  letterSpacing: "0.28em",
-                  textTransform: "uppercase",
+                  color: "#005b41",
+                  fontSize: "21px",
+                  fontWeight: 600,
+                  letterSpacing: "0.08em",
                 }}
               >
-                HH
+                {siteConfig.shortName}
               </div>
               <div
                 style={{
@@ -137,7 +136,7 @@ export function GET(request: Request) {
                     fontSize: "18px",
                     letterSpacing: "0.32em",
                     textTransform: "uppercase",
-                    color: "#0f4d0f",
+                    color: "#005b41",
                   }}
                 >
                   {eyebrow}
@@ -239,7 +238,7 @@ export function GET(request: Request) {
                   fontSize: "16px",
                   letterSpacing: "0.26em",
                   textTransform: "uppercase",
-                  color: "#0f4d0f",
+                  color: "#005b41",
                 }}
               >
                 Core Scope

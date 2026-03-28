@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata: Metadata = createPageMetadata({
   title: "Privacy",
   description:
-    "Privacy policy for Howeth & Harp covering inquiry submissions, analytics usage, and website data handling.",
+    "Privacy policy for Howeth and Harp Advancement, LLC covering inquiry submissions, analytics usage, and website data handling.",
   path: "/privacy",
   eyebrow: "Privacy",
   noIndex: true,

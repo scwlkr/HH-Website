@@ -84,7 +84,7 @@ export function LegalDocumentPage({ document }: LegalDocumentProps) {
       <Section
         eyebrow="Questions"
         title="Direct contact still matters if a legal or project detail needs clarification."
-        description="The site is designed to route most project work through the brief, but questions about these pages can still go directly to HH."
+        description={`The site is designed to route most project work through the brief, but questions about these pages can still go directly to ${siteConfig.shortName}.`}
       >
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)]">
           <CardShell>

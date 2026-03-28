@@ -1,6 +1,6 @@
 :root {
-  --font-body: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
-  --font-code: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
+  --font-body: var(--font-panchang), "Avenir Next", "Segoe UI", sans-serif;
+  --font-code: var(--font-panchang), "Avenir Next", "Segoe UI", sans-serif;
   --hh-paper: #f4efe5;
   --hh-paper-deep: #ede5d6;
   --hh-surface: #ffffff;
@@ -11,9 +11,9 @@
   --hh-line: rgba(17, 17, 15, 0.16);
   --hh-line-strong: rgba(17, 17, 15, 0.38);
   --hh-line-ink: rgba(17, 17, 15, 0.58);
-  --hh-accent: #0f4d0f;
-  --hh-accent-soft: rgba(15, 77, 15, 0.12);
-  --hh-accent-strong: #0b390b;
+  --hh-accent: #005b41;
+  --hh-accent-soft: rgba(0, 91, 65, 0.12);
+  --hh-accent-strong: #004331;
   --hh-container-narrow: 46rem;
   --hh-container-content: 72rem;
   --hh-container-max: 84rem;

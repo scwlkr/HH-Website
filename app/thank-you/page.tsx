@@ -11,7 +11,7 @@ import { siteConfig } from "@/lib/site-config";
 export const metadata: Metadata = createPageMetadata({
   title: "Thank You",
   description:
-    "Confirmation page for a submitted Howeth & Harp project inquiry, including next steps and direct contact fallback.",
+    "Confirmation page for a submitted Howeth and Harp project inquiry, including next steps and direct contact fallback.",
   path: "/thank-you",
   eyebrow: "Submission Received",
   noIndex: true,

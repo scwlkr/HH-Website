@@ -9,12 +9,13 @@ import {
   getProjectTypeLabel,
 } from "@/lib/inquiry/options";
 import { createPageMetadata } from "@/lib/metadata";
+import { siteConfig } from "@/lib/site-config";
 import { createInquiryInitialValues } from "@/lib/validation/inquiry";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Start A Project",
   description:
-    "Guided Howeth & Harp project brief intake covering contact details, project basics, site context, and priorities.",
+    "Guided Howeth and Harp project brief intake covering contact details, project basics, site context, and priorities.",
   path: "/inquire",
   eyebrow: "Project Brief",
 });
@@ -62,7 +63,7 @@ export default async function InquirePage({
       />
       <PageIntro
         eyebrow="Project Brief"
-        title="Share the project in a way that gives HH something real to respond to."
+        title={`Share the project in a way that gives ${siteConfig.shortName} something real to respond to.`}
         description="This intake is structured to move from contact basics into category, finish direction, site context, and priorities without turning the process into a cold generic form."
         actions={
           <>
@@ -105,7 +106,7 @@ export default async function InquirePage({
       <Section
         eyebrow="Inquiry Flow"
         title="The brief stays lean, but it should still be useful."
-        description="Each section collects a small set of decisions so HH can review project type, finish direction, site realities, and timing as one coherent intake."
+        description={`Each section collects a small set of decisions so ${siteConfig.shortName} can review project type, finish direction, site realities, and timing as one coherent intake.`}
         className="pt-0"
       >
         <InquiryForm initialValues={initialValues} />

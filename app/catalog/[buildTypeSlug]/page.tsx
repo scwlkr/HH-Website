@@ -198,7 +198,7 @@ export default async function BuildTypeDetailPage({
           notes={[
             buildType.tagline,
             "Project category shapes planning, finish strategy, and the relevant service mix.",
-            "The brief is where HH can connect the category to site conditions, size, and timing.",
+            "The brief is where H&H can connect the category to site conditions, size, and timing.",
           ]}
         />
       </Section>

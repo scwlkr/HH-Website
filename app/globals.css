@@ -35,10 +35,11 @@
     min-height: 100vh;
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.54) 0%, rgba(255, 255, 255, 0) 18%),
-      radial-gradient(circle at top left, rgba(15, 77, 15, 0.04) 0%, rgba(15, 77, 15, 0) 34%),
+      radial-gradient(circle at top left, rgba(0, 91, 65, 0.04) 0%, rgba(0, 91, 65, 0) 34%),
       var(--hh-paper);
     color: var(--hh-ink);
     font-family: var(--font-body), sans-serif;
+    font-weight: 300;
     text-rendering: optimizeLegibility;
   }
 
@@ -79,7 +80,7 @@
   h5,
   h6 {
     color: var(--hh-ink);
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: -0.05em;
     text-wrap: balance;
   }
@@ -97,7 +98,7 @@
   }
 
   ::selection {
-    background: rgba(15, 77, 15, 0.18);
+    background: rgba(0, 91, 65, 0.18);
   }
 }
 

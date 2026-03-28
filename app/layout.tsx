@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import { AnalyticsProvider } from "@/components/analytics/analytics-provider";
 import { PathAwareShell } from "@/components/layout/path-aware-shell";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -7,6 +8,33 @@ import { buildOgImageUrl, metadataBase } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
 import "../styles/tokens.css";
 import "./globals.css";
+
+const panchang = localFont({
+  src: [
+    {
+      path: "../BRAND/Panchang_Complete/Fonts/WEB/fonts/Panchang-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../BRAND/Panchang_Complete/Fonts/WEB/fonts/Panchang-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../BRAND/Panchang_Complete/Fonts/WEB/fonts/Panchang-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../BRAND/Panchang_Complete/Fonts/WEB/fonts/Panchang-Semibold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+  ],
+  variable: "--font-panchang",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase,
@@ -52,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${panchang.variable} h-full antialiased`}>
       <body className="min-h-full bg-background text-foreground">
         <AnalyticsProvider />
         <PathAwareShell

@@ -36,8 +36,8 @@ export function SiteFooter() {
   const directContactHref =
     siteConfig.contact.phone.href ?? siteConfig.contact.email.href;
   const directContactLabel = siteConfig.contact.phone.href
-    ? "Call HH"
-    : "Email HH";
+    ? `Call ${siteConfig.shortName}`
+    : `Email ${siteConfig.shortName}`;
   const contactLinks: Array<{
     title: string;
     href: string;
@@ -66,7 +66,7 @@ export function SiteFooter() {
       <Container size="wide" className="relative py-12 sm:py-14">
         <div className="grid gap-10 border-b border-line pb-10 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,0.5fr))] lg:gap-8">
           <div className="space-y-6 lg:pr-10">
-            <DividerFrame label="Howeth & Harp" detail="Project routing" />
+            <DividerFrame label={siteConfig.shortName} detail="Project routing" />
             <div className="space-y-4">
               <h2 className="max-w-xl text-3xl sm:text-[2.35rem] sm:leading-[1.08]">
                 A cleaner route from first visit to first conversation.

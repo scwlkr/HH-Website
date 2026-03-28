@@ -11,7 +11,7 @@ import { createPageMetadata } from "@/lib/metadata";
 export const metadata: Metadata = createPageMetadata({
   title: "Project Catalog",
   description:
-    "Review Howeth & Harp project categories across single-family, multifamily, townhomes, and commercial work.",
+    "Review Howeth and Harp project categories across single-family, multifamily, townhomes, and commercial work.",
   path: "/catalog",
   eyebrow: "Project Categories",
 });

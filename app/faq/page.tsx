@@ -91,7 +91,7 @@ export default function FaqPage() {
           }}
           secondaryAction={{
             href: siteConfig.contact.email.href,
-            label: "Email HH",
+            label: `Email ${siteConfig.shortName}`,
             variant: "secondary",
             trackingLocation: "faq-band",
           }}

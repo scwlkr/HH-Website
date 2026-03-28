@@ -197,7 +197,7 @@ export default async function FinishDetailPage({
         <CtaBand
           eyebrow="Start The Project Brief"
           title={`Use ${finish.title} as the starting finish direction.`}
-          description="The inquiry path can carry this finish level forward so HH has a clearer read on your intended specification posture from the start."
+          description="The inquiry path can carry this finish level forward so H&H has a clearer read on your intended specification posture from the start."
           primaryAction={{
             href: getFinishLevelInquiryHref(finish.slug),
             label: "Start With This Finish",

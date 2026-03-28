@@ -20,9 +20,9 @@ import { siteConfig } from "@/lib/site-config";
 export const metadata: Metadata = createPageMetadata({
   title: "Architectural Design, Building, And Land Development",
   description:
-    "Howeth & Harp provides architectural design, building, and land development with clear finish and project-type paths into inquiry.",
+    "Howeth and Harp provides architectural design, building, and land development with clear finish and project-type paths into inquiry.",
   path: "/",
-  eyebrow: "Howeth & Harp",
+  eyebrow: "Howeth and Harp",
 });
 
 const faqPreview = getFaqPreviewItems(3).map((item) => ({
@@ -35,8 +35,8 @@ export default function Home() {
   const directContactHref =
     siteConfig.contact.phone.href ?? siteConfig.contact.email.href;
   const directContactLabel = siteConfig.contact.phone.href
-    ? "Call HH"
-    : "Email HH";
+    ? `Call ${siteConfig.shortName}`
+    : `Email ${siteConfig.shortName}`;
 
   return (
     <>
@@ -72,7 +72,7 @@ export default function Home() {
       />
 
       <Section
-        eyebrow="What HH Does"
+        eyebrow={`What ${siteConfig.shortName} Does`}
         title="Three core capabilities, presented without extra noise."
         description="The work spans architectural design, building, and land development, with each project organized around the level of finish, coordination, and site response it actually needs."
       >
@@ -114,7 +114,7 @@ export default function Home() {
       <Section
         eyebrow="Build Types"
         title="Project categories stay visible from the home page so scope can be identified early."
-        description="The catalog covers the major categories HH handles and gives each one a disciplined detail page instead of burying everything in one long overview."
+        description={`The catalog covers the major categories ${siteConfig.shortName} handles and gives each one a disciplined detail page instead of burying everything in one long overview.`}
         actions={
           <ActionLink
             href="/catalog"
@@ -143,7 +143,7 @@ export default function Home() {
         <CtaBand
           eyebrow="Inquiry Flow"
           title="A guided brief creates a better starting point than a cold call with no context."
-          description="The inquiry path is where HH can understand project type, size, finish direction, site context, and timeline in one pass."
+          description={`The inquiry path is where ${siteConfig.shortName} can understand project type, size, finish direction, site context, and timeline in one pass.`}
           primaryAction={{
             href: "/inquire",
             label: "Start a Project",

@@ -5,7 +5,7 @@ import { AdminProjectForm } from "@/components/admin/admin-project-form";
 
 export const metadata: Metadata = createPageMetadata({
   title: "New Project",
-  description: "Create a completed home in the HH operations portal.",
+  description: "Create a completed home in the H&H operations portal.",
   path: "/admin/projects/new",
   noIndex: true,
 });

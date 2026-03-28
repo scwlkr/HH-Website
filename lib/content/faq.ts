@@ -1,11 +1,15 @@
 import { createSlugLookup } from "@/lib/content/slug-helpers";
+import { siteConfig } from "@/lib/site-config";
 import type { FAQGroup, FAQGroupSlug, FAQItem } from "@/types/content";
+
+const publicName = siteConfig.name;
+const shortName = siteConfig.shortName;
 
 export const faqGroups = [
   {
     slug: "process",
     title: "Process",
-    description: "How HH structures early conversations, scope alignment, and the path into a real project.",
+    description: `How ${shortName} structures early conversations, scope alignment, and the path into a real project.`,
   },
   {
     slug: "pricing",
@@ -15,7 +19,7 @@ export const faqGroups = [
   {
     slug: "project-types",
     title: "Project Types",
-    description: "Which project categories fit HH best and how scope affects the recommendation.",
+    description: `Which project categories fit ${shortName} best and how scope affects the recommendation.`,
   },
   {
     slug: "timeline",
@@ -25,7 +29,7 @@ export const faqGroups = [
   {
     slug: "next-steps",
     title: "Contact & Next Steps",
-    description: "What to bring into the inquiry process and how HH follows up after an intake is submitted.",
+    description: `What to bring into the inquiry process and how ${shortName} follows up after an intake is submitted.`,
   },
 ] satisfies ReadonlyArray<FAQGroup>;
 
@@ -35,7 +39,7 @@ export const faqItems = [
     group: "process",
     question: "Do you handle both design and construction?",
     answer:
-      "HH is positioned around architectural design, building, and land development. The exact mix depends on the project, but the inquiry process is intended to identify whether you need one service or a coordinated combination.",
+      `${publicName} is positioned around architectural design, building, and land development. The exact mix depends on the project, but the inquiry process is intended to identify whether you need one service or a coordinated combination.`,
   },
   {
     id: "process-land-first",
@@ -63,7 +67,7 @@ export const faqItems = [
     group: "project-types",
     question: "Do you only work on custom homes?",
     answer:
-      "No. HH is intended to cover single-family, multifamily, townhome, and commercial work. Some projects will be highly custom, while others are better served by disciplined, repeatable solutions.",
+      `No. ${shortName} is intended to cover single-family, multifamily, townhome, and commercial work. Some projects will be highly custom, while others are better served by disciplined, repeatable solutions.`,
   },
   {
     id: "project-types-finish-fit",
@@ -91,7 +95,7 @@ export const faqItems = [
     group: "next-steps",
     question: "What happens after I submit an inquiry?",
     answer:
-      "The thank-you state will confirm receipt, and HH can follow up based on the preferred contact method and project details you provided. The goal is to move from general interest into a more structured project conversation without unnecessary back-and-forth.",
+      `The thank-you state will confirm receipt, and ${shortName} can follow up based on the preferred contact method and project details you provided. The goal is to move from general interest into a more structured project conversation without unnecessary back-and-forth.`,
   },
   {
     id: "next-steps-contact-method",

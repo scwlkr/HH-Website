@@ -31,18 +31,18 @@ export function AdminShell({
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
               Operations Portal
             </p>
-            <h1 className="mt-2 text-2xl">Howeth & Harp Admin</h1>
+            <h1 className="mt-2 text-2xl">Howeth and Harp Admin</h1>
             <p className="mt-1 text-sm text-muted">{userEmail}</p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <nav className="flex flex-wrap gap-2" aria-label="Admin">
               {adminNavItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href as Route}
-                    className={cn(
-                      "rounded-[var(--hh-radius-tight)] border border-line px-3 py-2 font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted transition-colors hover:border-accent hover:text-accent",
+                <Link
+                  key={item.href}
+                  href={item.href as Route}
+                  className={cn(
+                    "rounded-[var(--hh-radius-tight)] border border-line px-3 py-2 font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted transition-colors hover:border-accent hover:text-accent",
                   )}
                 >
                   {item.label}

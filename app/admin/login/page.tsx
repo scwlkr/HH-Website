@@ -7,7 +7,7 @@ import { isSupabaseAuthConfigured } from "@/lib/supabase/server";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Portal Login",
-  description: "Internal access for the Howeth & Harp operations portal.",
+  description: "Internal access for the Howeth and Harp operations portal.",
   path: "/admin/login",
   noIndex: true,
 });

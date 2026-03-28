@@ -1,6 +1,9 @@
 import { createContentImage } from "@/lib/content/image-paths";
 import { createSlugLookup } from "@/lib/content/slug-helpers";
+import { siteConfig } from "@/lib/site-config";
 import type { BuildType, BuildTypeSlug } from "@/types/content";
+
+const publicName = siteConfig.name;
 
 const singleFamilyHeroImage = createContentImage({
   collection: "build-types",
@@ -51,7 +54,7 @@ export const buildTypes = [
     cardSummary:
       "Single-family work ranges from efficient family homes to highly tailored residences, with planning, finish strategy, and site response scaled to the project.",
     detailSummary:
-      "Single-family projects give HH room to align architecture, construction, and finish level around how the home should actually live. Scope can range from disciplined baseline delivery to fully bespoke residential work, but the goal stays the same: a house that feels resolved and coherent rather than assembled from disconnected choices.",
+      `Single-family projects give ${publicName} room to align architecture, construction, and finish level around how the home should actually live. Scope can range from disciplined baseline delivery to fully bespoke residential work, but the goal stays the same: a house that feels resolved and coherent rather than assembled from disconnected choices.`,
     heroImage: singleFamilyHeroImage,
     gallery: [
       singleFamilyHeroImage,
@@ -95,7 +98,7 @@ export const buildTypes = [
     cardSummary:
       "Multifamily work emphasizes repeatability, operational efficiency, durable specifications, and a resident experience that still feels considered.",
     detailSummary:
-      "Multifamily projects require disciplined coordination between unit layouts, shared spaces, code requirements, and construction efficiency. HH approaches them as systems work with architectural consequences, where circulation, durability, market positioning, and finish strategy all need to align instead of competing with each other.",
+      `Multifamily projects require disciplined coordination between unit layouts, shared spaces, code requirements, and construction efficiency. ${publicName} approaches them as systems work with architectural consequences, where circulation, durability, market positioning, and finish strategy all need to align instead of competing with each other.`,
     heroImage: multifamilyHeroImage,
     gallery: [
       multifamilyHeroImage,
@@ -139,7 +142,7 @@ export const buildTypes = [
     cardSummary:
       "Townhome work sits between single-family and multifamily, requiring efficient block planning while still giving each unit a credible street presence.",
     detailSummary:
-      "Townhomes succeed when density, marketability, and constructability are handled as one design problem. HH focuses on frontage rhythm, unit efficiency, parking strategy, and finish calibration so the product feels coherent at both the block scale and the individual unit scale.",
+      `Townhomes succeed when density, marketability, and constructability are handled as one design problem. ${publicName} focuses on frontage rhythm, unit efficiency, parking strategy, and finish calibration so the product feels coherent at both the block scale and the individual unit scale.`,
     heroImage: townhomesHeroImage,
     gallery: [
       townhomesHeroImage,
@@ -183,7 +186,7 @@ export const buildTypes = [
     cardSummary:
       "Commercial projects need practical planning, durable materials, and a finish strategy that supports how the business should function and present itself.",
     detailSummary:
-      "Commercial work is driven by operations, code, customer experience, and brand clarity. HH approaches it with the same restrained architectural discipline as the residential categories while adapting the finish level and build strategy to fit staffing, maintenance, public-facing needs, and the pace of the business.",
+      `Commercial work is driven by operations, code, customer experience, and brand clarity. ${publicName} approaches it with the same restrained architectural discipline as the residential categories while adapting the finish level and build strategy to fit staffing, maintenance, public-facing needs, and the pace of the business.`,
     heroImage: commercialHeroImage,
     gallery: [
       commercialHeroImage,

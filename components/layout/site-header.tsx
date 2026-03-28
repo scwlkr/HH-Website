@@ -12,8 +12,8 @@ export function SiteHeader() {
         className="flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between"
       >
         <Link href="/" className="flex items-start gap-4">
-          <span className="flex h-12 w-12 items-center justify-center rounded-[var(--hh-radius-pill)] border border-line-strong bg-white font-mono text-sm uppercase tracking-[0.28em] text-accent shadow-[0_14px_20px_-22px_rgba(17,17,15,0.45)]">
-            HH
+          <span className="flex h-12 min-w-14 items-center justify-center rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 font-mono text-[0.68rem] tracking-[0.08em] text-accent shadow-[0_14px_20px_-22px_rgba(17,17,15,0.45)]">
+            {siteConfig.shortName}
           </span>
           <div className="space-y-1">
             <p className="text-lg font-semibold tracking-[-0.04em]">

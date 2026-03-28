@@ -340,7 +340,7 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
                   placeholder="Full name"
                   defaultValue={initialValues.name}
                   error={displayFieldErrors.name}
-                  helperText="The primary person HH should respond to."
+                  helperText={`The primary person ${siteConfig.shortName} should respond to.`}
                 />
                 <Input
                   name="phone"
@@ -416,7 +416,7 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
                   options={servicesNeededOptions}
                   defaultValues={initialValues.servicesNeeded}
                   error={displayFieldErrors.servicesNeeded}
-                  helperText="Select the work HH should expect to discuss."
+                  helperText={`Select the work ${siteConfig.shortName} should expect to discuss.`}
                 />
               </div>
             </fieldset>
@@ -438,7 +438,7 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
                   placeholder="Select lot status"
                   defaultValue={initialValues.lotStatus}
                   error={displayFieldErrors.lotStatus}
-                  helperText="This helps HH understand how settled the site context is."
+                  helperText={`This helps ${siteConfig.shortName} understand how settled the site context is.`}
                 />
               </div>
 
@@ -471,7 +471,7 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
                 placeholder="Share the project goals, the kind of work you expect, any known constraints, and what matters most right now."
                 defaultValue={initialValues.projectDescription}
                 error={displayFieldErrors.projectDescription}
-                helperText="A short, direct description is enough. HH mainly needs the scope and priorities in your own words."
+                helperText={`A short, direct description is enough. ${siteConfig.shortName} mainly needs the scope and priorities in your own words.`}
               />
             </fieldset>
 
@@ -528,8 +528,9 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
           </p>
           <ul className="mt-5 space-y-3 text-sm leading-7 text-muted">
             <li className="border-b border-line pb-3">
-              HH reviews the project category, finish direction, location, and timing
-              together instead of treating them as disconnected notes.
+              {siteConfig.shortName} reviews the project category, finish direction,
+              location, and timing together instead of treating them as disconnected
+              notes.
             </li>
             <li className="border-b border-line pb-3">
               The first follow-up uses the contact method selected in the brief.

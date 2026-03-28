@@ -11,7 +11,7 @@ import { getPublicProjects } from "@/lib/db/operations";
 export const metadata: Metadata = createPageMetadata({
   title: "Completed Homes",
   description:
-    "Review completed Howeth & Harp homes with live for-sale and sold status.",
+    "Review completed Howeth and Harp homes with live for-sale and sold status.",
   path: "/projects",
   eyebrow: "Completed Homes",
 });
@@ -76,7 +76,7 @@ export default async function ProjectsPage() {
         <CtaBand
           eyebrow="Inquiry Route"
           title="Finished work can inform direction, but inquiry still starts the real conversation."
-          description="If a project resembles what you have in mind, use the inquiry flow so HH can line up category, finish level, site conditions, and timing around actual scope."
+          description="If a project resembles what you have in mind, use the inquiry flow so H&H can line up category, finish level, site conditions, and timing around actual scope."
           primaryAction={{
             href: "/inquire",
             label: "Start a Project",

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils/cn";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Admin Projects",
-  description: "Manage completed homes in the HH operations portal.",
+  description: "Manage completed homes in the H&H operations portal.",
   path: "/admin/projects",
   noIndex: true,
 });

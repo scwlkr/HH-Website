@@ -3,7 +3,7 @@
   <path d="M18 16V48" stroke="#101010" stroke-width="4" stroke-linecap="square" />
   <path d="M30 16V48" stroke="#101010" stroke-width="4" stroke-linecap="square" />
   <path d="M18 32H30" stroke="#101010" stroke-width="4" stroke-linecap="square" />
-  <path d="M38 16V48" stroke="#0F4D0F" stroke-width="4" stroke-linecap="square" />
-  <path d="M50 16V48" stroke="#0F4D0F" stroke-width="4" stroke-linecap="square" />
-  <path d="M38 32H50" stroke="#0F4D0F" stroke-width="4" stroke-linecap="square" />
+  <path d="M38 16V48" stroke="#005B41" stroke-width="4" stroke-linecap="square" />
+  <path d="M50 16V48" stroke="#005B41" stroke-width="4" stroke-linecap="square" />
+  <path d="M38 32H50" stroke="#005B41" stroke-width="4" stroke-linecap="square" />
 </svg>

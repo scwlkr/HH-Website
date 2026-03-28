@@ -6,7 +6,7 @@ import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Pricing Settings",
-  description: "Manage square-foot pricing benchmarks in the HH operations portal.",
+  description: "Manage square-foot pricing benchmarks in the H&H operations portal.",
   path: "/admin/settings/pricing",
   noIndex: true,
 });

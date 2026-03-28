@@ -7,8 +7,10 @@ export type SiteLink = {
 };
 
 export const siteConfig = {
-  name: "Howeth & Harp",
-  shortName: "HH",
+  name: "Howeth and Harp",
+  shortName: "H&H",
+  legalName: "Howeth and Harp Advancement, LLC",
+  legalShortName: "H&H Advancement, LLC",
   description: "Architectural design, building, and land development.",
   descriptor: "Architectural design, building, and land development.",
   primaryCta: {

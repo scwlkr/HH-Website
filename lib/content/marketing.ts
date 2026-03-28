@@ -1,11 +1,16 @@
+import { siteConfig } from "@/lib/site-config";
+
+const publicName = siteConfig.name;
+const shortName = siteConfig.shortName;
+
 export const marketingPageContent = {
   home: {
     hero: {
-      eyebrow: "Howeth & Harp",
+      eyebrow: publicName,
       title:
         "Architectural design, building, and land development with measured discipline.",
       description:
-        "HH aligns project type, finish strategy, and site realities early so the work starts from a clear brief instead of a scatter of disconnected decisions.",
+        `${publicName} aligns project type, finish strategy, and site realities early so the work starts from a clear brief instead of a scatter of disconnected decisions.`,
     },
     capabilities: [
       {
@@ -33,7 +38,7 @@ export const marketingPageContent = {
       eyebrow: "Project Brief",
       title: "The primary conversion path is a structured inquiry, not a generic contact form.",
       description:
-        "The intake is meant to surface scope, site context, finish direction, and timing early so HH can respond from a more informed position.",
+        `The intake is meant to surface scope, site context, finish direction, and timing early so ${publicName} can respond from a more informed position.`,
     },
     footerCta: {
       eyebrow: "Start The Conversation",
@@ -60,14 +65,14 @@ export const marketingPageContent = {
       eyebrow: "Next Step",
       title: "When the finish direction is close enough to discuss, start the project brief.",
       description:
-        "The inquiry form is where HH can align finish level, build type, site conditions, and timing around the actual scope.",
+        `The inquiry form is where ${publicName} can align finish level, build type, site conditions, and timing around the actual scope.`,
     },
   },
   catalog: {
     eyebrow: "Project Categories",
-    title: "HH handles project types that need planning discipline, finish clarity, and credible execution.",
+    title: `${publicName} handles project types that need planning discipline, finish clarity, and credible execution.`,
     description:
-      "These categories show where HH works and how the work tends to organize. Each page explains the nature of the category and routes into the inquiry path.",
+      `These categories show where ${publicName} works and how the work tends to organize. Each page explains the nature of the category and routes into the inquiry path.`,
     detail:
       "Project type and finish level are related, but they are not locked together. The category pages help frame that relationship before inquiry.",
     cta: {
@@ -88,7 +93,7 @@ export const marketingPageContent = {
       eyebrow: "Ready To Proceed",
       title: "Use the inquiry form once the major questions are settled.",
       description:
-        "The project brief gives HH the context needed to respond intelligently on scope, finish direction, and next steps.",
+        `The project brief gives ${publicName} the context needed to respond intelligently on scope, finish direction, and next steps.`,
     },
   },
   thankYou: {
@@ -97,7 +102,7 @@ export const marketingPageContent = {
     description:
       "This page is the success destination for the inquiry flow. It confirms receipt, sets expectations for next steps, and keeps direct contact accessible if anything important needs to be added.",
     nextSteps: [
-      "HH reviews the project type, finish direction, site context, and timeline you submitted.",
+      `${shortName} reviews the project type, finish direction, site context, and timeline you submitted.`,
       "Follow-up can then happen through the contact method and details provided in the brief.",
       "If a time-sensitive detail was missed, direct email remains available as a fallback.",
     ],
