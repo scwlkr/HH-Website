@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -11,6 +12,8 @@ import {
   emptyProjectFormValues,
   projectActionInitialState,
   type ProjectDetail,
+  type ProjectActionState,
+  type ProjectFieldName,
   type ProjectFormValues,
 } from "@/types/operations";
 import { saveProjectAction } from "@/app/admin/actions";
@@ -26,9 +29,35 @@ type AdminProjectFormProps = {
   finishLevelOptions: Option[];
 };
 
+type AdminProjectFormFieldsProps = AdminProjectFormProps & {
+  initialFormValues: ProjectFormValues;
+  initialSlugManuallyEdited: boolean;
+  orderedImages: ProjectDetail["images"];
+  state: ProjectActionState;
+  pending: boolean;
+  formAction: React.ComponentProps<"form">["action"];
+};
+
 const statusOptions: Option[] = [
   { label: "For Sale", value: "for-sale" },
   { label: "Sold", value: "sold" },
+];
+
+const projectFieldOrder: ProjectFieldName[] = [
+  "title",
+  "slug",
+  "status",
+  "buildTypeSlug",
+  "finishLevelSlug",
+  "squareFootage",
+  "location",
+  "bedrooms",
+  "bathrooms",
+  "shortDescription",
+  "fullDescription",
+  "coverImage",
+  "galleryImages",
+  "coverAltText",
 ];
 
 function createProjectFormValues(
@@ -73,8 +102,6 @@ export function AdminProjectForm({
     saveProjectAction,
     projectActionInitialState,
   );
-  const [formValues, setFormValues] = useState(initialFormValues);
-  const [slugManuallyEdited, setSlugManuallyEdited] = useState(Boolean(project));
   const orderedImages = useMemo(
     () =>
       [...(project?.images ?? [])].sort((leftImage, rightImage) => {
@@ -86,18 +113,91 @@ export function AdminProjectForm({
       }),
     [project],
   );
-
-  useEffect(() => {
-    const nextValues = state.values ?? initialFormValues;
-    setFormValues(nextValues);
-    setSlugManuallyEdited(
-      Boolean(project) || nextValues.slug !== slugify(nextValues.title),
-    );
-  }, [initialFormValues, project, state.values]);
+  const nextFormValues = state.values ?? initialFormValues;
+  const formStateKey = JSON.stringify({
+    projectId: project?.id ?? "new",
+    values: nextFormValues,
+  });
+  const initialSlugManuallyEdited =
+    Boolean(project) || nextFormValues.slug !== slugify(nextFormValues.title);
 
   return (
-    <form action={formAction} className="space-y-8" encType="multipart/form-data">
+    <AdminProjectFormFields
+      key={formStateKey}
+      project={project}
+      buildTypeOptions={buildTypeOptions}
+      finishLevelOptions={finishLevelOptions}
+      initialFormValues={nextFormValues}
+      initialSlugManuallyEdited={initialSlugManuallyEdited}
+      orderedImages={orderedImages}
+      state={state}
+      pending={pending}
+      formAction={formAction}
+    />
+  );
+}
+
+function AdminProjectFormFields({
+  project,
+  buildTypeOptions,
+  finishLevelOptions,
+  initialFormValues,
+  initialSlugManuallyEdited,
+  orderedImages,
+  state,
+  pending,
+  formAction,
+}: AdminProjectFormFieldsProps) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [formValues, setFormValues] = useState(initialFormValues);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(
+    initialSlugManuallyEdited,
+  );
+
+  useEffect(() => {
+    if (state.status !== "field-error") {
+      return;
+    }
+
+    const firstErrorField = projectFieldOrder.find((fieldName) =>
+      Boolean(state.fieldErrors[fieldName]),
+    );
+
+    if (!firstErrorField) {
+      return;
+    }
+
+    const field = formRef.current?.querySelector<HTMLElement>(
+      `[name="${firstErrorField}"]`,
+    );
+
+    if (!field) {
+      return;
+    }
+
+    field.focus({ preventScroll: true });
+    field.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }, [state.fieldErrors, state.status]);
+
+  return (
+    <form
+      ref={formRef}
+      action={formAction}
+      className="space-y-8"
+      encType="multipart/form-data"
+    >
       {project ? <input type="hidden" name="projectId" value={project.id} /> : null}
+
+      {state.message ? (
+        <AdminNotice
+          tone={state.status === "server-error" ? "error" : "info"}
+        >
+          {state.message}
+        </AdminNotice>
+      ) : null}
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Input
@@ -416,10 +516,6 @@ export function AdminProjectForm({
             ))}
           </div>
         </div>
-      ) : null}
-
-      {state.message ? (
-        <p className="text-sm text-accent-strong">{state.message}</p>
       ) : null}
 
       <div className="flex flex-wrap gap-3">

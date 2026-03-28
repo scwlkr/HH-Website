@@ -188,7 +188,7 @@ export async function saveProjectAction(
   }
 
   updateTag(projectCacheTag);
-  redirect(`/admin/projects/${savedProject.id}` as Route);
+  redirect(`/admin/projects/${savedProject.id}?saved=1` as Route);
 }
 
 export async function savePricingSettingsAction(
@@ -220,5 +220,5 @@ export async function savePricingSettingsAction(
   }
 
   updateTag(pricingSettingsCacheTag);
-  redirect("/admin/settings/pricing" as Route);
+  redirect("/admin/settings/pricing?saved=1" as Route);
 }
