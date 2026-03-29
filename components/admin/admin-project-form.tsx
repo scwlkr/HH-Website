@@ -300,7 +300,7 @@ function AdminProjectFormFields({
         />
 
         <div className="flex items-end">
-          <label className="flex items-center gap-3 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised px-4 py-3 text-sm">
+          <label className="flex items-center gap-3 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised/90 px-4 py-3 text-sm">
             <input
               type="checkbox"
               name="featured"
@@ -480,7 +480,7 @@ function AdminProjectFormFields({
           accept="image/jpeg,image/png,image/webp,image/avif"
           multiple
           label="Add Gallery Images"
-          className="rounded-[var(--hh-radius-tight)] file:mr-3 file:rounded-[var(--hh-radius-tight)] file:border-0 file:bg-surface-raised file:px-3 file:py-2 file:font-mono file:text-[0.68rem] file:uppercase file:tracking-[0.18em]"
+          className="rounded-[var(--hh-radius-tight)] file:mr-3 file:rounded-[var(--hh-radius-tight)] file:border file:border-line-strong file:bg-background file:px-3 file:py-2 file:font-mono file:text-[0.68rem] file:uppercase file:tracking-[0.18em] file:text-muted-strong"
           helperText="Optional. Each image must be under 10 MB, and each save can upload up to 48 MB total."
           error={state.fieldErrors.galleryImages}
         />
@@ -518,9 +518,9 @@ function AdminProjectFormFields({
             {orderedImages.map((image) => (
               <div
                 key={image.id}
-                className="grid gap-4 rounded-[var(--hh-radius-tight)] border border-line bg-surface-raised p-4 lg:grid-cols-[9rem_minmax(0,1fr)_7rem_7rem]"
+                className="hh-admin-panel grid gap-4 rounded-[var(--hh-radius-panel)] p-4 lg:grid-cols-[9rem_minmax(0,1fr)_7rem_7rem]"
               >
-                <div className="overflow-hidden rounded-[var(--hh-radius-tight)] border border-line bg-background">
+                <div className="overflow-hidden rounded-[var(--hh-radius-tight)] border border-line bg-background/70">
                   <div className="relative aspect-[4/3]">
                     <Image
                       src={image.publicUrl}
@@ -555,7 +555,7 @@ function AdminProjectFormFields({
                 />
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 rounded-[var(--hh-radius-tight)] border border-line-strong bg-background px-3 py-3 text-sm">
+                  <label className="flex items-center gap-2 rounded-[var(--hh-radius-tight)] border border-line-strong bg-background/70 px-3 py-3 text-sm">
                     <input
                       type="radio"
                       name="coverImageId"
@@ -565,7 +565,7 @@ function AdminProjectFormFields({
                     <span>Cover</span>
                   </label>
 
-                  <label className="flex items-center gap-2 rounded-[var(--hh-radius-tight)] border border-line-strong bg-background px-3 py-3 text-sm">
+                  <label className="flex items-center gap-2 rounded-[var(--hh-radius-tight)] border border-line-strong bg-background/70 px-3 py-3 text-sm">
                     <input type="checkbox" name={`existingImageRemove:${image.id}`} />
                     <span>Remove</span>
                   </label>
@@ -579,7 +579,7 @@ function AdminProjectFormFields({
       <div className="flex flex-wrap gap-3">
         <Button
           type="submit"
-          className="rounded-[var(--hh-radius-tight)]"
+          className="hh-admin-button rounded-[var(--hh-radius-tight)]"
           disabled={pending}
         >
           {pending
@@ -593,7 +593,7 @@ function AdminProjectFormFields({
         <Button
           type="button"
           variant="secondary"
-          className="rounded-[var(--hh-radius-tight)]"
+          className="hh-admin-button hh-admin-button-secondary rounded-[var(--hh-radius-tight)]"
           onClick={() => {
             setFormValues((currentValues) => ({
               ...currentValues,

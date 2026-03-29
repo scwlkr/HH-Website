@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { ProjectStatusBadge } from "@/components/projects/project-status-badge";
 import { buttonVariants } from "@/components/ui/button";
+import { formatAdminPageTitle } from "@/lib/admin/branding";
 import { getBuildTypeBySlug, getFinishLevelBySlug } from "@/lib/content";
 import { createPageMetadata } from "@/lib/metadata";
 import { formatProjectBathrooms } from "@/lib/operations/format";
@@ -11,8 +12,8 @@ import { listAdminProjects } from "@/lib/db/operations";
 import { cn } from "@/lib/utils/cn";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Admin Projects",
-  description: "Manage completed homes in the H&H operations portal.",
+  title: formatAdminPageTitle("Projects"),
+  description: "Manage completed homes in HHQ, the Howeth and Harp admin workspace.",
   path: "/admin/projects",
   noIndex: true,
 });
@@ -34,7 +35,7 @@ export default async function AdminProjectsPage({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
-            Projects Manager
+            HHQ Projects
           </p>
           <h1 className="mt-3 text-4xl">Completed Homes</h1>
           <p className="mt-3 max-w-3xl text-base leading-7 text-muted">
@@ -47,7 +48,7 @@ export default async function AdminProjectsPage({
           href={"/admin/projects/new" as Route}
           className={cn(
             buttonVariants(),
-            "rounded-[var(--hh-radius-tight)]",
+            "hh-admin-button rounded-[var(--hh-radius-tight)]",
           )}
         >
           Add Project
@@ -58,10 +59,10 @@ export default async function AdminProjectsPage({
         <AdminNotice tone="success">Project changes were saved.</AdminNotice>
       ) : null}
 
-      <div className="overflow-hidden rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface">
+      <div className="hh-admin-panel overflow-hidden rounded-[var(--hh-radius-panel)]">
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-line-strong bg-surface-raised">
+            <thead className="border-b border-line-strong bg-background/60">
               <tr>
                 <th className="px-4 py-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
                   Project
@@ -87,7 +88,10 @@ export default async function AdminProjectsPage({
                   const finishLevel = getFinishLevelBySlug(project.finishLevelSlug);
 
                   return (
-                    <tr key={project.id} className="border-b border-line last:border-b-0">
+                    <tr
+                      key={project.id}
+                      className="border-b border-line transition-colors hover:bg-background/45 last:border-b-0"
+                    >
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <div>
@@ -95,7 +99,7 @@ export default async function AdminProjectsPage({
                             <p className="text-xs text-muted">{project.slug}</p>
                           </div>
                           {project.featured ? (
-                            <span className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-background px-2 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
+                            <span className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-background/70 px-2 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
                               Featured
                             </span>
                           ) : null}
@@ -120,7 +124,7 @@ export default async function AdminProjectsPage({
                               variant: "secondary",
                               size: "sm",
                             }),
-                            "rounded-[var(--hh-radius-tight)]",
+                            "hh-admin-button hh-admin-button-secondary rounded-[var(--hh-radius-tight)]",
                           )}
                         >
                           Edit

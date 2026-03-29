@@ -3,6 +3,7 @@ import type { Route } from "next";
 import { BrandWordmark } from "@/components/brand/brand-logo";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
+import { adminBrand } from "@/lib/admin/branding";
 import { cn } from "@/lib/utils/cn";
 
 type AdminShellProps = {
@@ -22,58 +23,74 @@ export function AdminShell({
   onSignOut,
 }: AdminShellProps) {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="border-b border-line-strong bg-background/92 backdrop-blur-sm">
-        <Container
-          size="wide"
-          className="flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between"
-        >
-          <div>
-            <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
-              Operations Portal
-            </p>
-            <div className="mt-3 flex flex-wrap items-end gap-3">
-              <BrandWordmark
-                sizes="(max-width: 640px) 10.5rem, 12rem"
-                className="h-7 w-[10.5rem] sm:h-8 sm:w-[12rem]"
-              />
-              <h1 className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-muted-strong">
-                Admin
-              </h1>
+    <div className="hh-admin-theme min-h-screen bg-background text-foreground">
+      <Container size="wide" className="py-5 sm:py-6 lg:py-8">
+        <div className="hh-admin-panel rounded-[var(--hh-radius-panel)] px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-background/80 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
+                  {adminBrand.name}
+                </span>
+                <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
+                  {adminBrand.descriptor}
+                </p>
+              </div>
+
+              <div>
+                <BrandWordmark
+                  tone="reversed"
+                  sizes="(max-width: 640px) 10.5rem, 12rem"
+                  className="h-7 w-[10.5rem] sm:h-8 sm:w-[12rem]"
+                />
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
+                  Internal workspace for completed homes, pricing controls, and live
+                  content updates.
+                </p>
+              </div>
             </div>
-            <p className="mt-1 text-sm text-muted">{userEmail}</p>
-          </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <nav className="flex flex-wrap gap-2" aria-label="Admin">
-              {adminNavItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href as Route}
-                  className={cn(
-                    "rounded-[var(--hh-radius-tight)] border border-line px-3 py-2 font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted transition-colors hover:border-accent hover:text-accent",
-                  )}
+            <div className="flex flex-col gap-4 xl:min-w-[22rem]">
+              <div className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-background/70 px-4 py-3">
+                <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
+                  Signed in as
+                </p>
+                <p className="mt-2 break-all text-sm text-muted-strong">{userEmail}</p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:flex-col xl:items-stretch">
+                <nav
+                  className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1"
+                  aria-label={`${adminBrand.name} navigation`}
                 >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+                  {adminNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href as Route}
+                      className={cn(
+                        "hh-admin-nav-link rounded-[var(--hh-radius-tight)] px-3 py-2.5 font-mono text-[0.72rem] uppercase tracking-[0.2em]",
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
 
-            <form action={onSignOut}>
-              <Button
-                type="submit"
-                variant="secondary"
-                className="rounded-[var(--hh-radius-tight)]"
-              >
-                Sign Out
-              </Button>
-            </form>
+                <form action={onSignOut}>
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    className="hh-admin-button hh-admin-button-secondary w-full rounded-[var(--hh-radius-tight)]"
+                  >
+                    Sign Out
+                  </Button>
+                </form>
+              </div>
+            </div>
           </div>
-        </Container>
-      </div>
+        </div>
 
-      <Container size="wide" className="py-8 sm:py-10">
-        {children}
+        <div className="py-6 sm:py-8">{children}</div>
       </Container>
     </div>
   );

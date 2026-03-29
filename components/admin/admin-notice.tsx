@@ -4,9 +4,9 @@ type AdminNoticeProps = {
 };
 
 const toneClasses = {
-  success: "border-accent/35 bg-accent-soft text-accent-strong",
-  error: "border-red-400/35 bg-red-50 text-red-700",
-  info: "border-line-strong bg-surface-raised text-muted-strong",
+  success: "border-emerald-400/25 bg-emerald-400/10 text-emerald-100",
+  error: "border-amber-300/30 bg-amber-300/10 text-amber-100",
+  info: "border-line-strong bg-background/70 text-muted-strong",
 } as const;
 
 export function AdminNotice({

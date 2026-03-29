@@ -7,6 +7,7 @@ type BrandAssetProps = {
   decorative?: boolean;
   priority?: boolean;
   sizes?: string;
+  tone?: "default" | "reversed";
 };
 
 const brandAssets = {
@@ -23,6 +24,7 @@ export function BrandMark({
   decorative = false,
   priority = false,
   sizes = "48px",
+  tone = "default",
 }: BrandAssetProps) {
   return (
     <span
@@ -36,7 +38,10 @@ export function BrandMark({
         priority={priority}
         sizes={sizes}
         unoptimized
-        className="object-contain scale-[1.55]"
+        className={cn(
+          "object-contain scale-[1.55]",
+          tone === "reversed" ? "brightness-0 invert opacity-95" : null,
+        )}
       />
     </span>
   );
@@ -47,6 +52,7 @@ export function BrandWordmark({
   decorative = false,
   priority = false,
   sizes = "(max-width: 640px) 11rem, 14rem",
+  tone = "default",
 }: BrandAssetProps) {
   return (
     <span
@@ -60,7 +66,10 @@ export function BrandWordmark({
         priority={priority}
         sizes={sizes}
         unoptimized
-        className="object-cover object-center"
+        className={cn(
+          "object-cover object-center",
+          tone === "reversed" ? "brightness-0 invert opacity-95" : null,
+        )}
       />
     </span>
   );

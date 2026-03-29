@@ -3,6 +3,7 @@
 import { updateTag } from "next/cache";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
+import { adminBrand } from "@/lib/admin/branding";
 import { createSupabaseServerClient, isSupabaseAuthConfigured } from "@/lib/supabase/server";
 import { isAuthorizedAdminUser } from "@/lib/supabase/admin-access";
 import { requireAdminUser } from "@/lib/supabase/auth";
@@ -57,7 +58,7 @@ export async function loginAdminAction(
 
   if (!isSupabaseAuthConfigured()) {
     return createAdminLoginServerErrorState(
-      "Supabase auth is not configured. Add the public Supabase URL and anon key before using the portal.",
+      `Supabase auth is not configured. Add the public Supabase URL and anon key before using ${adminBrand.name}.`,
     );
   }
 
@@ -91,13 +92,13 @@ export async function loginAdminAction(
     if (!isAuthorizedAdminUser(user)) {
       await supabase.auth.signOut();
       return createAdminLoginServerErrorState(
-        "This account is not authorized to access the operations portal.",
+        `This account is not authorized to access ${adminBrand.name}.`,
       );
     }
   } catch (error) {
     console.error("Admin login failed", error);
     return createAdminLoginServerErrorState(
-      "The portal login could not be completed right now.",
+      `${adminBrand.name} login could not be completed right now.`,
     );
   }
 

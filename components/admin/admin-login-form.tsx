@@ -46,7 +46,7 @@ export function AdminLoginForm({ nextPath }: AdminLoginFormProps) {
 
       <Button
         type="submit"
-        className="w-full rounded-[var(--hh-radius-tight)]"
+        className="hh-admin-button w-full rounded-[var(--hh-radius-tight)]"
         disabled={pending}
       >
         {pending ? "Signing In..." : "Sign In"}

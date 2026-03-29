@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { AdminProjectForm } from "@/components/admin/admin-project-form";
 import { buildTypes, finishLevels } from "@/lib/content";
+import { formatAdminPageTitle } from "@/lib/admin/branding";
 import { getAdminProjectById } from "@/lib/db/operations";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -22,8 +23,8 @@ export async function generateMetadata({
   const project = await getAdminProjectById(id);
 
   return createPageMetadata({
-    title: project ? `Edit ${project.title}` : "Edit Project",
-    description: "Edit a completed home in the H&H operations portal.",
+    title: formatAdminPageTitle(project ? `Edit ${project.title}` : "Edit Project"),
+    description: "Edit completed-home records in HHQ, the Howeth and Harp admin workspace.",
     path: `/admin/projects/${id}`,
     noIndex: true,
   });
@@ -45,7 +46,7 @@ export default async function EditProjectPage({
     <div className="space-y-6">
       <div>
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
-          Projects Manager
+          HHQ Projects
         </p>
         <h1 className="mt-3 text-4xl">Edit {project.title}</h1>
         <p className="mt-3 max-w-3xl text-base leading-7 text-muted">
@@ -57,7 +58,7 @@ export default async function EditProjectPage({
         <AdminNotice tone="success">Project changes were saved.</AdminNotice>
       ) : null}
 
-      <div className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface p-5 sm:p-6">
+      <div className="hh-admin-panel rounded-[var(--hh-radius-panel)] p-5 sm:p-6">
         <AdminProjectForm
           project={project}
           buildTypeOptions={buildTypes.map((buildType) => ({

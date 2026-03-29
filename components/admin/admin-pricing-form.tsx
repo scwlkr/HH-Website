@@ -69,7 +69,7 @@ export function AdminPricingForm({ pricingSettings }: AdminPricingFormProps) {
 
       <Button
         type="submit"
-        className="rounded-[var(--hh-radius-tight)]"
+        className="hh-admin-button rounded-[var(--hh-radius-tight)]"
         disabled={pending}
       >
         {pending ? "Saving..." : "Save Pricing"}
