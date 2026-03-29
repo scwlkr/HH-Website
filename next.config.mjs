@@ -1,5 +1,3 @@
-import type { NextConfig } from "next";
-
 const adminUploadBodySizeLimit = "64mb";
 
 function readSupabaseImagePattern() {
@@ -26,16 +24,10 @@ function readSupabaseImagePattern() {
 
 const supabaseImagePattern = readSupabaseImagePattern();
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   typedRoutes: true,
   images: {
-    remotePatterns: supabaseImagePattern
-      ? [
-          supabaseImagePattern as NonNullable<
-            NonNullable<NextConfig["images"]>["remotePatterns"]
-          >[number],
-        ]
-      : [],
+    remotePatterns: supabaseImagePattern ? [supabaseImagePattern] : [],
   },
   experimental: {
     // Admin project saves submit photos through a Server Action on a proxied route.
