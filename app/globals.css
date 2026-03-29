@@ -539,6 +539,99 @@
     pointer-events: none;
     z-index: -1;
   }
+
+  /* ─── Drafting Board Hero ──────────────────────────────── */
+
+  .hh-drafting-board {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid rgba(17, 17, 15, 0.22);
+    border-radius: var(--hh-radius-panel);
+    background:
+      linear-gradient(152deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 247, 241, 0.94) 100%);
+    box-shadow:
+      0 28px 56px -30px rgba(17, 17, 15, 0.28),
+      0 1px 0 rgba(255, 255, 255, 0.95) inset,
+      0 0 0 4px rgba(17, 17, 15, 0.03) inset;
+  }
+
+  /* Inner inset border — the "rebate" of a mounted sheet */
+  .hh-drafting-board::before {
+    position: absolute;
+    inset: 0.72rem;
+    border: 1px solid rgba(17, 17, 15, 0.09);
+    border-radius: max(0px, calc(var(--hh-radius-panel) - 0.15rem));
+    content: "";
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Drop-shadow beneath the board */
+  .hh-drafting-board::after {
+    position: absolute;
+    inset: auto 1.4rem -1.1rem 1.4rem;
+    height: 1.6rem;
+    border-radius: inherit;
+    background:
+      linear-gradient(180deg, rgba(17, 17, 15, 0) 0%, rgba(17, 17, 15, 0.14) 100%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(17, 17, 15, 0.1) 0,
+        rgba(17, 17, 15, 0.1) 1px,
+        transparent 1px,
+        transparent 9px
+      );
+    content: "";
+    mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.45) 42%, rgba(0, 0, 0, 1) 100%);
+    opacity: 0.14;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Corner registration marks */
+  .hh-corner {
+    position: absolute;
+    width: 0.85rem;
+    height: 0.85rem;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .hh-corner--tl {
+    top: 0.68rem;
+    left: 0.68rem;
+    border-top: 1px solid rgba(17, 17, 15, 0.28);
+    border-left: 1px solid rgba(17, 17, 15, 0.28);
+  }
+
+  .hh-corner--tr {
+    top: 0.68rem;
+    right: 0.68rem;
+    border-top: 1px solid rgba(17, 17, 15, 0.28);
+    border-right: 1px solid rgba(17, 17, 15, 0.28);
+  }
+
+  .hh-corner--bl {
+    bottom: 0.68rem;
+    left: 0.68rem;
+    border-bottom: 1px solid rgba(17, 17, 15, 0.28);
+    border-left: 1px solid rgba(17, 17, 15, 0.28);
+  }
+
+  .hh-corner--br {
+    bottom: 0.68rem;
+    right: 0.68rem;
+    border-bottom: 1px solid rgba(17, 17, 15, 0.28);
+    border-right: 1px solid rgba(17, 17, 15, 0.28);
+  }
+
+  /* Right-column instrument panel */
+  .hh-drafting-panel {
+    position: relative;
+    min-height: 22rem;
+    background:
+      linear-gradient(135deg, rgba(250, 247, 241, 0.7) 0%, rgba(245, 242, 236, 0.5) 100%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

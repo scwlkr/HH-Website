@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { PageIntro } from "@/components/layout/page-intro";
+import type { Route } from "next";
 import { Section } from "@/components/layout/section";
 import { ActionLink } from "@/components/marketing/action-link";
 import { BuildTypeCard } from "@/components/marketing/build-type-card";
 import { CtaBand } from "@/components/marketing/cta-band";
+import { DraftingHero } from "@/components/marketing/drafting-hero";
 import { FinishCard } from "@/components/marketing/finish-card";
 import { Accordion } from "@/components/ui/accordion";
 import { CardShell } from "@/components/ui/card-shell";
-import { DividerFrame } from "@/components/ui/divider-frame";
 import {
   buildTypes,
   finishLevels,
@@ -31,6 +31,12 @@ const faqPreview = getFaqPreviewItems(3).map((item) => ({
   content: item.answer,
 }));
 
+const heroCapabilities = [
+  { index: "01", title: "Architectural Design" },
+  { index: "02", title: "Building" },
+  { index: "03", title: "Land Development" },
+] as const;
+
 export default function Home() {
   const directContactHref =
     siteConfig.contact.phone.href ?? siteConfig.contact.email.href;
@@ -40,35 +46,12 @@ export default function Home() {
 
   return (
     <>
-      <PageIntro
-        eyebrow={marketingPageContent.home.hero.eyebrow}
-        title={marketingPageContent.home.hero.title}
-        description={marketingPageContent.home.hero.description}
-        actions={
-          <>
-            <ActionLink
-              href={siteConfig.primaryCta.href}
-              label={siteConfig.primaryCta.label}
-              trackingLocation="home-hero"
-            />
-            <ActionLink
-              href={directContactHref}
-              label={directContactLabel}
-              variant="secondary"
-              trackingLocation="home-hero"
-            />
-          </>
-        }
-        detail={
-          <div className="space-y-5">
-            <DividerFrame label="Primary Scope" detail="Current focus" />
-            <ul className="space-y-3 text-sm leading-7 text-muted">
-              <li>Architectural design aligned with project type and site context.</li>
-              <li>Building execution grounded in finish clarity and coordination.</li>
-              <li>Land development thinking introduced before scope drifts.</li>
-            </ul>
-          </div>
-        }
+      <DraftingHero
+        headline="Design, building, and land development. Coordinated from the start."
+        subhead={`${siteConfig.name} aligns project type, finish direction, and site context before scope becomes expensive to correct.`}
+        capabilities={heroCapabilities}
+        primaryCta={siteConfig.primaryCta}
+        secondaryCta={{ href: "/catalog" as Route, label: "View Catalog" }}
       />
 
       <Section
@@ -200,3 +183,4 @@ export default function Home() {
     </>
   );
 }
+
