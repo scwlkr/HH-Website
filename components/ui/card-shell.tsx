@@ -22,7 +22,7 @@ export function CardShell({
       className={cn("hh-paper-panel px-6 py-6 sm:px-7 sm:py-7", toneClasses[tone], className)}
       {...props}
     >
-      <div className="relative">{children}</div>
+      <div className="relative h-full">{children}</div>
     </div>
   );
 }
