@@ -8,29 +8,29 @@ import { useEffect, useRef } from "react";
 /* ────────────────────────────────────────────────────────── */
 const SEGMENTS: [number, number][][] = [
   // Foundation
-  [[135, 370], [365, 370]],
+  [[135, 310], [365, 310]],
   // Left wall
-  [[165, 370], [165, 250]],
+  [[165, 310], [165, 190]],
   // Roof left slope
-  [[165, 250], [255, 190]],
+  [[165, 190], [255, 130]],
   // Roof right slope
-  [[255, 190], [345, 250]],
+  [[255, 130], [345, 190]],
   // Right wall
-  [[345, 250], [345, 370]],
+  [[345, 190], [345, 310]],
   // Door
-  [[230, 370], [230, 310], [280, 310], [280, 370]],
+  [[230, 310], [230, 250], [280, 250], [280, 310]],
   // Left window
-  [[182, 268], [218, 268], [218, 305], [182, 305], [182, 268]],
+  [[182, 208], [218, 208], [218, 245], [182, 245], [182, 208]],
   // Left window cross (vertical)
-  [[200, 268], [200, 305]],
+  [[200, 208], [200, 245]],
   // Left window cross (horizontal)
-  [[182, 286], [218, 286]],
+  [[182, 226], [218, 226]],
   // Right window
-  [[292, 268], [328, 268], [328, 305], [292, 305], [292, 268]],
+  [[292, 208], [328, 208], [328, 245], [292, 245], [292, 208]],
   // Right window cross (vertical)
-  [[310, 268], [310, 305]],
+  [[310, 208], [310, 245]],
   // Right window cross (horizontal)
-  [[292, 286], [328, 286]],
+  [[292, 226], [328, 226]],
 ];
 
 /* ── Geometry helpers ── */
@@ -156,7 +156,7 @@ export function DraftingArmAnimated() {
     const RESET_MS = 1200;
     const CYCLE = DRAW_MS + HOLD_MS + FADE_MS + RESET_MS;
 
-    const restTip = { x: 280, y: 290 };
+    const restTip = { x: 280, y: 230 };
     let start: number | null = null;
 
     function setAttr(key: string, attrs: Record<string, string>) {
