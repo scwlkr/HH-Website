@@ -5,8 +5,15 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { buildOgImageUrl, metadataBase } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
+import { Architects_Daughter } from "next/font/google";
 import "../styles/tokens.css";
 import "./globals.css";
+
+const architectsDaughter = Architects_Daughter({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-handwritten",
+});
 
 export const metadata: Metadata = {
   metadataBase,
@@ -53,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full bg-background text-foreground">
+      <body className={`min-h-full bg-background text-foreground ${architectsDaughter.variable}`}>
         <AnalyticsProvider />
         <PathAwareShell
           header={<SiteHeader />}

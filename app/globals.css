@@ -399,6 +399,47 @@
     pointer-events: none;
   }
 
+  .hh-banner {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: var(--hh-paper);
+    border: 1px solid var(--hh-line-strong);
+    padding: 0.35rem 0.8rem;
+    margin-bottom: 0.35rem; /* account for dropped tail */
+    z-index: 1;
+    box-shadow: 2px 2px 0px rgba(17, 17, 15, 0.05); /* subtle drafting depth */
+    
+    font-family: var(--font-handwritten, cursive);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hh-banner::before,
+  .hh-banner::after {
+    content: "";
+    position: absolute;
+    bottom: -0.35rem; /* drop down tail */
+    width: 0.8rem;
+    height: 100%;
+    background: var(--hh-surface-raised);
+    border: 1px solid var(--hh-line-strong);
+    z-index: -1;
+  }
+
+  .hh-banner::before {
+    left: -0.6rem;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0.3rem 50%);
+  }
+
+  .hh-banner::after {
+    right: -0.6rem;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 0.3rem) 50%, 100% 100%, 0 100%);
+  }
+
   .hh-drafted-outline {
     position: relative;
     isolation: isolate;

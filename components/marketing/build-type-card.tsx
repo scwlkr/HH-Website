@@ -43,11 +43,11 @@ export function BuildTypeCard({
           <p className="mt-3 text-sm leading-7 text-muted">{buildType.tagline}</p>
         </div>
         <p className="mt-5 text-sm leading-7 text-muted">{buildType.cardSummary}</p>
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-col gap-y-3">
           {serviceMix.map((item) => (
             <span
               key={item}
-              className="hh-drafted-chip rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
+              className="hh-banner text-muted-strong"
             >
               {item}
             </span>
