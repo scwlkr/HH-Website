@@ -33,11 +33,7 @@
 
   body {
     min-height: 100vh;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.54) 0%, rgba(255, 255, 255, 0) 18%),
-      radial-gradient(circle at top left, rgba(0, 91, 65, 0.04) 0%, rgba(0, 91, 65, 0) 34%),
-      radial-gradient(circle at 78% 8%, rgba(35, 45, 63, 0.035) 0%, rgba(35, 45, 63, 0) 28%),
-      var(--hh-paper);
+    background: var(--hh-paper);
     color: var(--hh-ink);
     font-family: var(--font-body), sans-serif;
     text-rendering: optimizeLegibility;
@@ -588,8 +584,7 @@
     isolation: isolate;
     border: 1px solid rgba(17, 17, 15, 0.22);
     border-radius: var(--hh-radius-panel);
-    background:
-      linear-gradient(152deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 247, 241, 0.94) 100%);
+    background: var(--hh-surface);
     box-shadow:
       0 28px 56px -30px rgba(17, 17, 15, 0.28),
       0 1px 0 rgba(255, 255, 255, 0.95) inset,
@@ -670,8 +665,7 @@
   .hh-drafting-panel {
     position: relative;
     min-height: 22rem;
-    background:
-      linear-gradient(135deg, rgba(250, 247, 241, 0.7) 0%, rgba(245, 242, 236, 0.5) 100%);
+    background: var(--hh-surface);
   }
 }
 
