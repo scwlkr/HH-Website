@@ -153,6 +153,20 @@ function mapPricingSettings(row: PricingSettingsRow | null): PricingSettings {
   };
 }
 
+function formatPublicDataError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return String(error);
+}
+
+function logPublicDataFallback(resource: string, error: unknown) {
+  console.warn(
+    `[public-data-fallback] Returning a safe default for ${resource}: ${formatPublicDataError(error)}`,
+  );
+}
+
 function sortProjectSummaries(projects: ProjectSummary[]) {
   return [...projects].sort((leftProject, rightProject) => {
     if (leftProject.featured !== rightProject.featured) {
@@ -232,21 +246,50 @@ async function queryPricingSettings() {
   return mapPricingSettings((data as PricingSettingsRow | null) ?? null);
 }
 
-const getCachedPublicProjects = unstable_cache(queryPublicProjects, ["public-projects"], {
-  tags: [projectCacheTag],
-});
+const getCachedPublicProjects = unstable_cache(
+  async () => {
+    try {
+      return await queryPublicProjects();
+    } catch (error) {
+      logPublicDataFallback("projects", error);
+      return [] as ProjectSummary[];
+    }
+  },
+  ["public-projects"],
+  {
+    tags: [projectCacheTag],
+  },
+);
 
 const getCachedPublicProjectBySlug = unstable_cache(
-  queryPublicProjectBySlug,
+  async (projectSlug: string) => {
+    try {
+      return await queryPublicProjectBySlug(projectSlug);
+    } catch (error) {
+      logPublicDataFallback(`project "${projectSlug}"`, error);
+      return null;
+    }
+  },
   ["public-project-by-slug"],
   {
     tags: [projectCacheTag],
   },
 );
 
-const getCachedPricingSettings = unstable_cache(queryPricingSettings, ["pricing-settings"], {
-  tags: [pricingSettingsCacheTag],
-});
+const getCachedPricingSettings = unstable_cache(
+  async () => {
+    try {
+      return await queryPricingSettings();
+    } catch (error) {
+      logPublicDataFallback("pricing settings", error);
+      return mapPricingSettings(null);
+    }
+  },
+  ["pricing-settings"],
+  {
+    tags: [pricingSettingsCacheTag],
+  },
+);
 
 export async function getPublicProjects() {
   return getCachedPublicProjects();
