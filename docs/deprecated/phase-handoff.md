@@ -1,3 +1,11 @@
+# Deprecated: Phase Handoff
+
+Original path: `docs/PHASE_HANDOFF.md`
+
+Replacement: [Architecture](../architecture.md), [Launch QA](../launch-qa.md), and [Operations portal](../operations-portal.md)
+
+Reason: this handoff records historical phase status. Current system facts now live in the active manual path.
+
 # HOWETH & HARP — PHASE HANDOFF
 
 This document tracks build status against `PLAN.md` and serves as the working handoff between implementation phases.

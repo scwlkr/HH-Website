@@ -1,3 +1,11 @@
+# Deprecated: Implementation Plan
+
+Original path: `docs/PLAN.md`
+
+Replacement: [Architecture](../architecture.md), [Launch QA](../launch-qa.md), and [Operations portal](../operations-portal.md)
+
+Reason: this phase plan records historical build sequencing. Current behavior now lives in the active manual path.
+
 # HOWETH & HARP — IMPLEMENTATION PLAN
 
 ## 1. Purpose

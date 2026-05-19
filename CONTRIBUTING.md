@@ -1,57 +1,36 @@
-# Contributing to Howeth & Harp
+# Contributing to Howeth and Harp
 
-Thank you for your interest in contributing to the **Howeth & Harp** codebase. This project maintains a strict architectural vision, and every technical decision should trace back to the principles established in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+This project keeps code and docs in lockstep. If a change alters routes, data flow, environment variables, admin behavior, content ownership, or launch steps, update the matching doc before calling the work complete.
 
-As a contributor, you are an architect of both the code and the documentation. This guide outlines the minimal standards for pull requests, bug fixes, and feature additions.
+## Working Rules
 
-## The "Docs-First" Standard
+1. Read [docs/README.md](docs/README.md) before changing behavior.
+2. Keep architectural decisions aligned with [docs/architecture.md](docs/architecture.md).
+3. Use the language in [docs/glossary.md](docs/glossary.md).
+4. Keep docs style consistent with [docs/style-guide.md](docs/style-guide.md).
+5. Do not expose secrets, token values, private client details, or private operational URLs.
 
-At Howeth & Harp, bad documentation is a product bug—we treat it as such. A feature is incomplete until its documentation is written.
+## Branches
 
-### 1. Code Examples Must Run
+| Branch pattern | Use |
+| --- | --- |
+| `docs/[topic]` | Documentation-only changes. |
+| `feat/[topic]` | New behavior, pages, data surfaces, or workflows. |
+| `fix/[topic]` | Bug fixes and regressions. |
 
-Any code snippet added to a README or an inline documentation block must be verified before the PR is merged. We do not tolerate "pseudocode" that breaks when copied and pasted.
+`main` is the canonical production branch.
 
-### 2. No Assumption of Context
+## Pull Request Checklist
 
-Every document must either stand alone or explicitly link to the prerequisite context. We write for clarity and empathy. Use the second person ("you"), present tense, and active voice.
+Before opening a PR:
 
-### 3. Version Everything
+- Run `npm run lint`.
+- Run `npm run typecheck`.
+- Run `npm run qa:smoke` when the change touches routes, forms, admin surfaces, metadata, links, or layout behavior.
+- Update the relevant docs in `docs/`.
+- Confirm public copy uses "Howeth and Harp" or "H&H", not disallowed variants.
+- Confirm any new environment variable appears in `.env.example` and docs by name only.
 
-If your change deprecates an old pattern, update the related documentation or include a migration guide. Do not silently delete content if it alters the user experience.
+## Documentation Standard
 
-### 4. One Concept per Section
-
-Do not blend installation, configuration, and conceptual explanations into a wall of text. Structure is non-negotiable.
-
-## Branching Strategy
-
-Our branches should tell a clear story of intent.
-
-- **`main`**: The canonical production state. Protected branch; no direct commits.
-- **`feat/[ticket]-descriptive-name`**: For substantive additions to the UI, data layer, or APIs.
-- **`fix/[ticket]-descriptive-name`**: For addressing identified bugs or regressions.
-- **`docs/[ticket]-descriptive-name`**: Exclusively for documentation updates.
-
-## Pull Request Lifecycle
-
-Before submitting a PR, verify the following:
-
-1. **Linting and Types passed**: Ensure `npm run lint` and `npm run typecheck` run clearly on your branch.
-2. **Smoke Test Passed**: Run `npm run qa:smoke` and confirm Playwright tests successfully validate core routes and the inquiry flow.
-3. **Drafting Aesthetic Checked**: Does the proposed component align with the drafting board aesthetic in the Architecture doc? Have you verified it avoids glossy textures and overly rounded corners?
-
-## Filing Bugs & Opening Issues
-
-When reporting an issue, use this checklist:
-
-1. **What you're trying to do**: The intended user goal.
-2. **What actually happened**: Include error messages, network payloads, or specific misbehavior.
-3. **What you expected to happen**: The correct operational state.
-4. **Environment**: Did this happen locally or in preview? What branch?
-
-## The 5-Second Test
-
-Every PR covering a new component or major file should pass the 5-second test: if another dev looks at your code and documentation, do they immediately know what it is, why it matters, and how to start using it?
-
-If not, revise it before creating a Pull Request.
+Good docs are part of the product. Keep them concrete, present-tense, and source-grounded. If a plan or handoff document stops describing current behavior, move it to `docs/deprecated/` and link to the current replacement instead of leaving it in the active reader path.

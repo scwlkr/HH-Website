@@ -1,119 +1,103 @@
-# Howeth & Harp Website
+# Howeth and Harp Website
 
-> The fully server-rendered, architecturally-inspired marketing site and project inquiry portal for Howeth & Harp.
+> Drafting-board public site, project brief funnel, and HHQ operations workspace for Howeth and Harp.
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![React](https://img.shields.io/badge/React-19.2.4-149ECA?style=flat&logo=react&logoColor=white)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/Node-24.x-5FA04E?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 
-## Why This Exists
+## Field Notes
 
-This repository houses the primary web presence for **Howeth & Harp**, an architectural design, building, and land development company. More than just a brochure, this application serves as the authoritative entry point for client project intake. It is designed to reflect an architectural drafting aesthetic—calm, restrained, and precise—while securely and dependably routing structured leads into the company's Supabase backend without relying on heavy client-side JavaScript.
+This repo powers the Howeth and Harp marketing site, project brief intake flow, completed-home project pages, and internal HHQ admin workspace. The public experience is server-rendered by default and uses a restrained architectural drafting system: crisp linework, measured spacing, simple geometry, and no fake blueprint cosplay.
+
+| Surface | Purpose |
+| --- | --- |
+| Public site | Explain services, finish levels, build categories, FAQ, and legal pages. |
+| Project brief | Collect structured client project details at `/inquire`. |
+| Projects | Show completed homes and live `for-sale` / `sold` status from Supabase. |
+| HHQ | Protected admin workspace for projects and square-foot pricing. |
 
 ## Quick Start
 
-Get the project running locally in under 60 seconds.
-
 ```bash
-# 1. Clone & install
 npm install
-
-# 2. Set up environment variables
 cp .env.example .env.local
-
-# 3. Start development server
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to view the site.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Installation
+For local smoke QA, install Chromium once:
 
-**Prerequisites**: Node.js 20+, npm 9+ 
+```bash
+npx playwright install chromium
+npm run qa:smoke
+```
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-2. **Setup Playwright (For QA Smoke Tests):**
-   ```bash
-   npx playwright install chromium
-   ```
+## Commands
+
+| Command | Use |
+| --- | --- |
+| `npm run dev` | Start the local Next.js dev server. |
+| `npm run build` | Create a production build. |
+| `npm run start` | Serve a built production app. |
+| `npm run lint` | Run ESLint. |
+| `npm run typecheck` | Run TypeScript without emitting files. |
+| `npm run qa:smoke` | Build and smoke-test the production app with a fake Supabase endpoint. |
 
 ## Configuration
 
-The application requires various environment variables for production functionality. Configure these in your `.env.local` file:
+Use `.env.example` for names only. Do not commit real values.
 
-| Option | Type | Required | Description |
-|--------|------|----------|-------------|
-| `NEXT_PUBLIC_SITE_URL` | `string` | Yes | The canonical URL of the deployment (e.g., `https://howethandharp.com`) |
-| `SUPABASE_URL` | `string` | Yes | Supabase Project URL for the database connection |
-| `SUPABASE_SERVICE_ROLE_KEY` | `string` | Yes | Supabase Service Role Key for server-side inserts |
-| `HH_CONTACT_PHONE_HREF` | `string` | No | `tel:` link for the public call CTA |
-| `HH_CONTACT_PHONE_LABEL` | `string` | No | Formatted phone number display string |
-| `HH_CONTACT_EMAIL_ADDRESS`| `string` | No | Public-facing email address |
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL for metadata and absolute links. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes for auth/admin | Browser-safe Supabase URL for auth/session handling. |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes for auth/admin | Browser-safe Supabase anon key. |
+| `SUPABASE_URL` | Yes for writes/admin data | Server-side Supabase URL, with fallback to `NEXT_PUBLIC_SUPABASE_URL`. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes for writes/admin data | Server-only key for inquiry writes, public data reads, and HHQ writes. |
+| `HH_CONTACT_PHONE_HREF` | Optional | Public `tel:` link. Must include the `tel:` prefix to render. |
+| `HH_CONTACT_PHONE_LABEL` | Optional | Human-readable phone label. |
+| `HH_CONTACT_EMAIL` | Optional | Public contact email. Defaults to `hello@howethandharp.com`. |
+| `INQUIRY_NOTIFICATION_EMAIL` | Optional | Reserved future notification target. |
+| `CRON_SECRET` | Optional | Reserved cron authorization secret. |
 
-> [!CAUTION]
-> Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client. It must only be used in secure Server Actions or Route Handlers.
+HHQ access requires a Supabase user whose `app_metadata.role` is `admin`. A valid Supabase session without that role is not enough.
 
-> [!IMPORTANT]
-> Operations portal access now requires a Supabase user with `app_metadata.role = "admin"`. A valid session by itself is not enough to access `/admin`.
+## Documentation Path
 
-## Usage
+Start with [docs/README.md](docs/README.md), then use the focused docs:
 
-### Local Development Commands
+- [Architecture](docs/architecture.md)
+- [Inquiry flow](docs/inquiry-flow.md)
+- [Operations portal](docs/operations-portal.md)
+- [Launch QA](docs/launch-qa.md)
+- [Glossary](docs/glossary.md)
+- [Style guide](docs/style-guide.md)
 
-| Command | Action |
-|---------|--------|
-| `npm run dev` | Starts the Next.js local development server with Turbopack |
-| `npm run build` | Creates the production-optimized build |
-| `npm run start` | Runs the production server (requires a prior build) |
-| `npm run lint` | Runs the ESLint suite |
-| `npm run typecheck` | Runs the TypeScript compiler without emitting files |
-| `npm run qa:smoke` | Builds the app and runs Playwright smoke tests against the local production server |
+Historical build-plan artifacts live in [docs/deprecated/](docs/deprecated/).
 
-### Project Structure Overview
+## Project Shape
 
 ```txt
-app/
-  ├── api/             # Route handlers (if needed)
-  ├── catalog/         # Build type routing and dynamic project details
-  ├── faq/             # Frequently asked questions
-  ├── inquire/         # The critical multi-step project inquiry flow and server actions
-  ├── pricing/         # Finish-level descriptions and details
-  └── thank-you/       # Post-submission confirmation route
-components/
-  ├── catalog/         # Reusable catalog UI primitives
-  ├── inquiry/         # Form components and validation wrappers
-  ├── layout/          # Global navigation, footers, and page shells
-  └── ui/              # Shared low-level primitives (buttons, inputs)
-lib/
-  ├── db/              # Supabase queries and connection layers
-  └── validation/      # Zod schemas for form data
+app/          Next.js App Router routes, server actions, metadata, and sitemap
+components/   Shared layout, marketing, inquiry, project, admin, and UI components
+lib/          Content, Supabase, validation, metadata, analytics, and formatting helpers
+scripts/      Local QA and demo-content utilities
+supabase/     Database migrations for inquiries, projects, images, and pricing
+public/       Brand assets and image placeholders
+docs/         Current manual path and deprecated historical docs
 ```
 
-## Advanced Usage
+## Launch State
 
-### Launch & Deployment Checklist
-
-When preparing for a production launch on Vercel, ensure the following steps are handled:
-
-1. **Environment Setup**: Vercel environment variables must mirror your `.env.local` mapping for `NEXT_PUBLIC_SITE_URL`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`.
-2. **Contact Links**: Configure `HH_CONTACT_PHONE_HREF`, `HH_CONTACT_PHONE_LABEL`, and `HH_CONTACT_EMAIL_ADDRESS` if public contact options should be exposed.
-3. **Database Migrations**: Ensure the Supabase instance has the `inquiry_submissions` table provisioned according to the schema expected by `lib/db/queries`.
-
-For an exhaustive checklist, refer to the internal `docs/LAUNCH_QA.md`.
-
-## System Architecture
-
-For a deep dive into the technical decisions, branding guidelines, and precise routing schemas, please read the [Architecture Document](docs/ARCHITECTURE.md).
-
-If you need to understand how site content is managed via the internal dashboard, review the [Operations Portal Document](docs/OPERATIONS_PORTAL.md).
+The core public routes, structured inquiry flow, Supabase-backed projects/pricing path, protected HHQ admin surface, and smoke test script are present. Launch still depends on real environment values, applied Supabase migrations, owner-approved legal content, final contact details, final production imagery, and the selected analytics destination.
 
 ## Contributing
 
-Please review [CONTRIBUTING.md](CONTRIBUTING.md) for branch naming conventions, documentation standards, and pull request guidelines. All code changes require updated documentation.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Every behavior change should update the relevant doc in [docs/README.md](docs/README.md).
 
 ## License
 
-Copyright © Howeth & Harp. All rights reserved.
+Copyright (c) Howeth and Harp. All rights reserved.
