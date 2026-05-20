@@ -4,7 +4,6 @@ import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
 import { ActionLink } from "@/components/marketing/action-link";
 import { ContentImageGrid } from "@/components/marketing/content-image-grid";
-import { CtaBand } from "@/components/marketing/cta-band";
 import { FinishCard } from "@/components/marketing/finish-card";
 import { CardShell } from "@/components/ui/card-shell";
 import {
@@ -83,6 +82,7 @@ export default async function FinishDetailPage({
             <ActionLink
               href={getFinishLevelInquiryHref(finish.slug)}
               label="Start With This Finish"
+              variant="ghost"
               trackingLocation="finish-detail-intro"
             />
             <ActionLink
@@ -129,7 +129,7 @@ export default async function FinishDetailPage({
       <Section
         eyebrow="Gallery"
         title="A visual read on the character of this finish level."
-        description="Final production imagery can replace the seeded placeholders later without changing the route or layout structure."
+        description="Imagery supports a directional read on material posture and finish character."
       >
         <ContentImageGrid images={finish.gallery} />
       </Section>
@@ -191,30 +191,6 @@ export default async function FinishDetailPage({
             />
           ))}
         </div>
-      </Section>
-
-      <Section>
-        <CtaBand
-          eyebrow="Start The Project Brief"
-          title={`Use ${finish.title} as the starting finish direction.`}
-          description="The inquiry path can carry this finish level forward so H&H has a clearer read on your intended specification posture from the start."
-          primaryAction={{
-            href: getFinishLevelInquiryHref(finish.slug),
-            label: "Start With This Finish",
-            trackingLocation: "finish-detail-band",
-          }}
-          secondaryAction={{
-            href: "/pricing",
-            label: "Compare Finish Levels",
-            variant: "secondary",
-            trackingLocation: "finish-detail-band",
-          }}
-          notes={[
-            finish.tagline,
-            "The inquiry path is where finish direction gets tested against scope, site, and timing.",
-            "You can still adjust the finish level later if the project brief points somewhere else.",
-          ]}
-        />
       </Section>
     </>
   );

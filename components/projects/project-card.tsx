@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { ActionLink } from "@/components/marketing/action-link";
-import { CardShell } from "@/components/ui/card-shell";
+import Link from "next/link";
+import type { Route } from "next";
 import { formatProjectBathrooms } from "@/lib/operations/format";
 import { getBuildTypeBySlug, getFinishLevelBySlug } from "@/lib/content";
 import type { ProjectSummary } from "@/types/operations";
@@ -10,14 +10,29 @@ type ProjectCardProps = {
   project: ProjectSummary;
 };
 
+function ProjectCoverPlaceholder({ title }: { title: string }) {
+  return (
+    <div className="relative h-full bg-white" role="img" aria-label={`${title} abstract project image`}>
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(35,45,63,0.052)_0_1px,transparent_1px_38%),linear-gradient(90deg,rgba(17,17,15,0.032)_1px,transparent_1px),linear-gradient(180deg,rgba(17,17,15,0.026)_1px,transparent_1px)] bg-[length:100%_100%,1.15rem_1.15rem,1.15rem_1.15rem]" />
+      <div className="absolute inset-x-7 bottom-7 top-9 border border-line" />
+      <div className="absolute bottom-11 left-10 h-px w-1/2 bg-line-strong" />
+      <div className="absolute bottom-[3.75rem] left-10 h-px w-1/3 bg-line" />
+    </div>
+  );
+}
+
 export function ProjectCard({ project }: ProjectCardProps) {
   const buildType = getBuildTypeBySlug(project.buildTypeSlug);
   const finishLevel = getFinishLevelBySlug(project.finishLevelSlug);
 
   return (
-    <CardShell className="h-full">
-      <div className="flex h-full flex-col">
-        <div className="hh-drafted-media relative aspect-[16/11] overflow-hidden rounded-[calc(var(--hh-radius-panel)-0.2rem)] border border-line bg-surface-raised">
+    <Link
+      href={`/projects/${project.slug}` as Route}
+      className="group block h-full rounded-[var(--hh-radius-panel)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      aria-label={`View ${project.title}`}
+    >
+      <article className="flex h-full flex-col border-t border-line pt-4">
+        <div className="relative aspect-[16/11] overflow-hidden rounded-[var(--hh-radius-panel)] border border-line bg-surface-raised">
           {project.coverImage ? (
             <Image
               src={project.coverImage.publicUrl}
@@ -27,9 +42,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full items-center justify-center bg-surface-raised px-6 text-center text-sm text-muted">
-              Cover image pending
-            </div>
+            <ProjectCoverPlaceholder title={project.title} />
           )}
           <ProjectStatusBadge
             status={project.status}
@@ -39,13 +52,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
         <div className="mt-5 flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-accent">
-              Completed Home
+            <p className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-accent">
+              {project.location}
             </p>
-            <h3 className="mt-3 text-2xl sm:text-[1.8rem]">{project.title}</h3>
+            <h3 className="mt-3 text-2xl transition-colors group-hover:text-accent sm:text-[1.8rem]">
+              {project.title}
+            </h3>
           </div>
           {project.featured ? (
-            <span className="hh-drafted-chip rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
+            <span className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-white px-2.5 py-1 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted-strong">
               Featured
             </span>
           ) : null}
@@ -53,46 +68,24 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
         <p className="mt-3 text-sm leading-7 text-muted">{project.shortDescription}</p>
 
-        <dl className="mt-5 grid gap-3 text-sm text-muted sm:grid-cols-2">
-          <div className="border-b border-line pb-3">
-            <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
-              Location
-            </dt>
-            <dd className="mt-1">{project.location}</dd>
-          </div>
-          <div className="border-b border-line pb-3">
-            <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
-              Specs
-            </dt>
-            <dd className="mt-1">
+        <dl className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-4 text-sm text-muted">
+          <div>
+            <dt className="sr-only">Specs</dt>
+            <dd>
               {project.squareFootage.toLocaleString("en-US")} sq ft • {project.bedrooms} bd •{" "}
               {formatProjectBathrooms(project.bathrooms)} ba
             </dd>
           </div>
-          <div className="border-b border-line pb-3 sm:border-b-0 sm:pb-0">
-            <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
-              Build Type
-            </dt>
-            <dd className="mt-1">{buildType?.shortTitle ?? project.buildTypeSlug}</dd>
+          <div>
+            <dt className="sr-only">Build Type</dt>
+            <dd>{buildType?.shortTitle ?? project.buildTypeSlug}</dd>
           </div>
           <div>
-            <dt className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
-              Finish Level
-            </dt>
-            <dd className="mt-1">{finishLevel?.shortTitle ?? project.finishLevelSlug}</dd>
+            <dt className="sr-only">Finish Level</dt>
+            <dd>{finishLevel?.shortTitle ?? project.finishLevelSlug}</dd>
           </div>
         </dl>
-
-        <div className="mt-auto flex flex-wrap gap-3 pt-8">
-          <ActionLink
-            href={`/projects/${project.slug}`}
-            label="View Project Details"
-            variant="secondary"
-            trackingLocation="projects-grid"
-            trackingContext={project.slug}
-          />
-        </div>
-      </div>
-    </CardShell>
+      </article>
+    </Link>
   );
 }

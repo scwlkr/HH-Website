@@ -234,8 +234,8 @@ async function verifyLinkCoverage(page, baseUrl) {
 
   const selectors = [
     'header a[href="/"]',
+    'header a[href="/projects"]',
     'header a[href="/pricing"]',
-    'header a[href="/catalog"]',
     'header a[href="/faq"]',
     'header a[href="/inquire"]',
     'footer a[href="/privacy"]',
@@ -251,7 +251,20 @@ async function verifyLinkCoverage(page, baseUrl) {
     );
   }
 
+  assert(
+    (await page.locator('header a[href="/catalog"]').count()) === 0,
+    "Catalog should be hidden from the public header.",
+  );
+  assert(
+    (await page.locator('footer a[href="/catalog"]').count()) === 0,
+    "Catalog should be hidden from the public footer.",
+  );
+
   const homeHtml = await page.content();
+  assert(
+    !homeHtml.includes("Open Catalog") && !homeHtml.includes("View Catalog"),
+    "Catalog should be hidden from the home page.",
+  );
   assert(
     !homeHtml.includes("Legal route shell is established."),
     "Home page should no longer reference legal placeholder copy.",
@@ -419,7 +432,7 @@ async function verifyInquiryFailureState(browser, baseUrl, fakeSupabase) {
     await submitButton.click();
     await page
       .getByText(
-        "The project brief could not be sent right now. Please try again in a moment or email HH directly.",
+        "The project brief could not be sent right now. Please try again in a moment or email H&H directly.",
       )
       .waitFor();
   } finally {

@@ -44,7 +44,7 @@ export function ContentImageCard({
         </figcaption>
         {resolvedImage.isPlaceholder ? (
           <span className="hh-drafted-chip rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
-            Seed Asset Pending
+            Reference Study
           </span>
         ) : null}
       </div>

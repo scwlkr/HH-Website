@@ -86,9 +86,9 @@ export const marketingPageContent = {
     eyebrow: "FAQ",
     title: "Common questions, grouped to reduce hesitation without turning the page into a wall of text.",
     description:
-      "The questions stay short, the answers stay direct, and the page ends by routing people back into inquiry once they have enough clarity to move.",
+      "The questions stay short, the answers stay direct, and the page keeps practical objections from becoming a wall of copy.",
     detail:
-      "If the scope is already taking shape, the structured project brief is more useful than stretching the FAQ further.",
+      "If the scope is already taking shape, the structured project brief is available from the header.",
     cta: {
       eyebrow: "Ready To Proceed",
       title: "Use the inquiry form once the major questions are settled.",

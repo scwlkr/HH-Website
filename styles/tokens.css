@@ -21,7 +21,7 @@
   --hh-container-narrow: 46rem;
   --hh-container-content: 72rem;
   --hh-container-max: 84rem;
-  --hh-radius-panel: 0.6rem;
+  --hh-radius-panel: 0.45rem;
   --hh-radius-input: 0.45rem;
   --hh-radius-tight: 0.28rem;
   --hh-radius-pill: 0.38rem;
@@ -39,9 +39,8 @@
   --hh-grid-size-fine: 0.75rem;
   --hh-grid-size-room: 4.5rem;
   --hh-shadow-card:
-    0 16px 28px -22px rgba(17, 17, 15, 0.34),
-    0 1px 0 rgba(255, 255, 255, 0.82) inset;
+    0 1px 0 rgba(255, 255, 255, 0.78) inset;
   --hh-shadow-panel:
-    0 24px 44px -28px rgba(17, 17, 15, 0.42),
-    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+    0 18px 34px -30px rgba(17, 17, 15, 0.26),
+    0 1px 0 rgba(255, 255, 255, 0.84) inset;
 }

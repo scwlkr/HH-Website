@@ -27,7 +27,7 @@ export function buttonVariants({
   size?: ButtonSize;
 } = {}) {
   return cn(
-    "hh-drafted-button inline-flex items-center justify-center gap-2 rounded-[var(--hh-radius-pill)] border font-mono uppercase tracking-[0.22em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft disabled:pointer-events-none disabled:opacity-50",
+    "hh-drafted-button inline-flex items-center justify-center gap-2 rounded-[var(--hh-radius-pill)] border font-mono uppercase tracking-[0.1em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50",
     variantClasses[variant],
     sizeClasses[size],
   );

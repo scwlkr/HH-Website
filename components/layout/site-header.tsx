@@ -22,7 +22,7 @@ function PrimaryNav({ mobile = false }: { mobile?: boolean }) {
           key={item.href}
           href={item.href as Route}
           className={cn(
-            "hh-link shrink-0 rounded-[var(--hh-radius-pill)] font-mono uppercase tracking-[0.22em]",
+            "hh-link shrink-0 rounded-[var(--hh-radius-pill)] font-mono uppercase tracking-[0.1em]",
             mobile
               ? "border border-line bg-white px-4 py-3 text-[0.72rem] text-foreground hover:border-accent hover:bg-background"
               : "border border-transparent px-3 py-2 text-[0.72rem] text-muted hover:border-line-strong hover:bg-background",

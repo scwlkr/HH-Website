@@ -194,7 +194,7 @@ export function GET(request: Request) {
                     fontSize: "64px",
                     lineHeight: 1.02,
                     fontWeight: 700,
-                    letterSpacing: "-0.06em",
+                    letterSpacing: 0,
                   }}
                 >
                   {title}

@@ -66,20 +66,12 @@ export default async function InquirePage({
         title={`Share the project in a way that gives ${siteConfig.shortName} something real to respond to.`}
         description="This intake is structured to move from contact basics into category, finish direction, site context, and priorities without turning the process into a cold generic form."
         actions={
-          <>
-            <ActionLink
-              href="/pricing"
-              label="Review Finish Levels"
-              variant="secondary"
-              trackingLocation="inquiry-intro"
-            />
-            <ActionLink
-              href="/catalog"
-              label="Browse Project Types"
-              variant="secondary"
-              trackingLocation="inquiry-intro"
-            />
-          </>
+          <ActionLink
+            href="/pricing"
+            label="Review Finish Levels"
+            variant="secondary"
+            trackingLocation="inquiry-intro"
+          />
         }
         detail={
           <div className="space-y-4">

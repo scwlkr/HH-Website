@@ -1,8 +1,6 @@
 import type { MetadataRoute } from "next";
 import {
-  buildTypes,
   finishLevels,
-  getBuildTypeHref,
   getFinishLevelHref,
 } from "@/lib/content";
 import { getPublicProjects } from "@/lib/db/operations";
@@ -12,7 +10,6 @@ const staticRoutes = [
   { path: "/", priority: 1, changeFrequency: "weekly" },
   { path: "/pricing", priority: 0.9, changeFrequency: "weekly" },
   { path: "/projects", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/catalog", priority: 0.9, changeFrequency: "weekly" },
   { path: "/faq", priority: 0.7, changeFrequency: "monthly" },
   { path: "/inquire", priority: 0.8, changeFrequency: "monthly" },
 ] as const satisfies ReadonlyArray<{
@@ -34,12 +31,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...finishLevels.map((finish) => ({
       url: absoluteUrl(getFinishLevelHref(finish.slug)).toString(),
-      lastModified,
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    })),
-    ...buildTypes.map((buildType) => ({
-      url: absoluteUrl(getBuildTypeHref(buildType.slug)).toString(),
       lastModified,
       changeFrequency: "monthly" as const,
       priority: 0.8,

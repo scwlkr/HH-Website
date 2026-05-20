@@ -12,7 +12,7 @@ type DraftingHeroProps = {
   subhead: string;
   capabilities: ReadonlyArray<{ title: string; index: string }>;
   primaryCta: { href: Route; label: string };
-  secondaryCta: { href: Route; label: string };
+  secondaryCta?: { href: Route; label: string };
 };
 
 export function DraftingHero({
@@ -23,40 +23,34 @@ export function DraftingHero({
   secondaryCta,
 }: DraftingHeroProps) {
   return (
-    <section className="hh-drafting-hero-section pb-10 pt-2 sm:pb-12">
+    <section className="hh-drafting-hero-section pb-12 pt-2 sm:pb-16">
       <Container size="wide">
-        {/* Outer mounted-sheet frame */}
         <div className="hh-drafting-board relative overflow-hidden">
-          {/* Corner registration marks */}
           <div className="hh-corner hh-corner--tl" aria-hidden="true" />
           <div className="hh-corner hh-corner--tr" aria-hidden="true" />
           <div className="hh-corner hh-corner--bl" aria-hidden="true" />
           <div className="hh-corner hh-corner--br" aria-hidden="true" />
 
           <div className="grid lg:grid-cols-[minmax(0,1.18fr)_minmax(18rem,0.62fr)]">
-            {/* ── LEFT: Message column ── */}
             <div className="flex flex-col justify-between gap-8 px-6 py-8 sm:px-9 sm:py-10 lg:px-10 lg:py-12">
-              {/* Eyebrow / sheet label */}
               <DividerFrame
                 label={siteConfig.name}
                 detail={siteConfig.shortName}
               />
 
-              {/* Headline block */}
               <div className="flex flex-1 flex-col justify-center gap-7">
-                <h1 className="max-w-xl text-4xl font-semibold leading-[1.05] tracking-[-0.05em] sm:text-[2.9rem] lg:text-[3.4rem] lg:leading-[1.03]">
+                <h1 className="max-w-2xl text-4xl font-semibold leading-[1.05] tracking-normal sm:text-[2.9rem] lg:text-[3.6rem] lg:leading-[1.04]">
                   {headline}
                 </h1>
 
-                <p className="max-w-md text-[0.92rem] leading-[1.72] text-muted">
+                <p className="max-w-xl text-[0.95rem] leading-[1.78] text-muted">
                   {subhead}
                 </p>
 
-                {/* CTA row */}
                 <div className="flex flex-wrap items-center gap-3">
                   <Link
                     href={primaryCta.href}
-                    className={buttonVariants({ variant: "primary", size: "lg" })}
+                    className={buttonVariants({ variant: "secondary", size: "lg" })}
                     {...getCtaAnalyticsAttributes({
                       label: primaryCta.label,
                       destination: primaryCta.href,
@@ -65,21 +59,22 @@ export function DraftingHero({
                   >
                     {primaryCta.label}
                   </Link>
-                  <Link
-                    href={secondaryCta.href}
-                    className={buttonVariants({ variant: "secondary", size: "lg" })}
-                    {...getCtaAnalyticsAttributes({
-                      label: secondaryCta.label,
-                      destination: secondaryCta.href,
-                      location: "home-drafting-hero",
-                    })}
-                  >
-                    {secondaryCta.label}
-                  </Link>
+                  {secondaryCta ? (
+                    <Link
+                      href={secondaryCta.href}
+                      className={buttonVariants({ variant: "secondary", size: "lg" })}
+                      {...getCtaAnalyticsAttributes({
+                        label: secondaryCta.label,
+                        destination: secondaryCta.href,
+                        location: "home-drafting-hero",
+                      })}
+                    >
+                      {secondaryCta.label}
+                    </Link>
+                  ) : null}
                 </div>
               </div>
 
-              {/* Footer annotation row */}
               <div className="flex items-center gap-4 border-t border-line pt-5">
                 <span className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-muted">
                   Sheet&nbsp;01
@@ -91,15 +86,12 @@ export function DraftingHero({
               </div>
             </div>
 
-            {/* ── RIGHT: Drafting instrument panel ── */}
             <aside
               className="hh-drafting-panel relative flex flex-col overflow-hidden border-t border-line lg:border-l lg:border-t-0"
               aria-label="Core capabilities"
             >
-              {/* SVG drafting arm geometry (animated) */}
               <DraftingArmAnimated />
 
-              {/* Indexed capability summary */}
               <div className="relative z-10 mt-auto border-t border-line bg-white/60 px-6 py-6 backdrop-blur-[2px] sm:px-7 sm:py-7">
                 <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-accent">
                   Primary Scope
@@ -113,7 +105,7 @@ export function DraftingHero({
                       <span className="shrink-0 font-mono text-[0.6rem] tracking-[0.2em] text-line-ink">
                         {cap.index}
                       </span>
-                      <span className="text-[0.82rem] font-medium leading-snug tracking-[-0.02em] text-foreground">
+                      <span className="text-[0.82rem] font-medium leading-snug tracking-normal text-foreground">
                         {cap.title}
                       </span>
                     </li>
@@ -127,6 +119,5 @@ export function DraftingHero({
     </section>
   );
 }
-
 
 
