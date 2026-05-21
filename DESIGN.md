@@ -1,202 +1,314 @@
+---
+version: alpha
+name: Howeth and Harp Design System
+description: Restrained architectural drafting system for the Howeth and Harp public site, inquiry flow, project proof surfaces, and HHQ workspace.
+colors:
+  primary: "#005B41"
+  on-primary: "#F9F6EF"
+  primary-strong: "#004331"
+  secondary: "#EDE5D6"
+  on-secondary: "#11110F"
+  tertiary: "#232D3F"
+  on-tertiary: "#FFFFFF"
+  neutral: "#F4EFE5"
+  surface: "#FFFFFF"
+  surface-strong: "#FAF7F0"
+  on-surface: "#11110F"
+  muted: "#5D564B"
+  muted-strong: "#40392F"
+  error: "#004331"
+  on-error: "#FFFFFF"
+  admin-background: "#090D12"
+  admin-surface: "#111821"
+  admin-on-surface: "#EFF4F7"
+  admin-muted: "#93A2AD"
+  admin-accent: "#7F96A7"
+typography:
+  headline-display:
+    fontFamily: "IBM Plex Sans"
+    fontSize: 58px
+    fontWeight: 600
+    lineHeight: 1.04
+    letterSpacing: 0em
+  headline-lg:
+    fontFamily: "IBM Plex Sans"
+    fontSize: 40px
+    fontWeight: 600
+    lineHeight: 1.12
+    letterSpacing: 0em
+  headline-md:
+    fontFamily: "IBM Plex Sans"
+    fontSize: 30px
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: 0em
+  body-lg:
+    fontFamily: "IBM Plex Sans"
+    fontSize: 16px
+    fontWeight: 400
+    lineHeight: 1.78
+    letterSpacing: 0em
+  body-md:
+    fontFamily: "IBM Plex Sans"
+    fontSize: 16px
+    fontWeight: 400
+    lineHeight: 1.6
+    letterSpacing: 0em
+  body-sm:
+    fontFamily: "IBM Plex Sans"
+    fontSize: 14px
+    fontWeight: 400
+    lineHeight: 1.7
+    letterSpacing: 0em
+  label-md:
+    fontFamily: "IBM Plex Mono"
+    fontSize: 12px
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: 0.1em
+  label-sm:
+    fontFamily: "IBM Plex Mono"
+    fontSize: 10px
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: 0.28em
+rounded:
+  none: 0px
+  sm: 4px
+  md: 6px
+  lg: 7px
+  xl: 10px
+  full: 9999px
+spacing:
+  "2xs": 8px
+  xs: 12px
+  sm: 16px
+  md: 24px
+  lg: 40px
+  xl: 64px
+  "2xl": 96px
+components:
+  page-shell:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.on-surface}"
+  public-header:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.none}"
+    height: 76px
+  nav-link:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.muted}"
+    typography: "{typography.label-md}"
+    rounded: "{rounded.md}"
+    padding: "8px 12px"
+  nav-link-hover:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.primary}"
+  button-primary:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.label-md}"
+    rounded: "{rounded.md}"
+    padding: "0 18px"
+    height: 44px
+  button-primary-hover:
+    backgroundColor: "{colors.primary-strong}"
+    textColor: "{colors.on-primary}"
+  button-secondary:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    typography: "{typography.label-md}"
+    rounded: "{rounded.md}"
+    padding: "0 18px"
+    height: 44px
+  button-secondary-hover:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.primary}"
+  input-field:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    typography: "{typography.body-sm}"
+    rounded: "{rounded.lg}"
+    padding: "0 16px"
+    height: 48px
+  input-field-focus:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+  field-error:
+    textColor: "{colors.error}"
+    typography: "{typography.body-sm}"
+  badge-error:
+    backgroundColor: "{colors.error}"
+    textColor: "{colors.on-error}"
+    typography: "{typography.label-sm}"
+    rounded: "{rounded.sm}"
+    padding: "4px 10px"
+  card-surface:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.md}"
+  paper-band:
+    backgroundColor: "{colors.secondary}"
+    textColor: "{colors.on-secondary}"
+    rounded: "{rounded.none}"
+    padding: "{spacing.lg}"
+  visualizer-panel:
+    backgroundColor: "{colors.surface-strong}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.md}"
+  drafting-mark:
+    backgroundColor: "{colors.tertiary}"
+    textColor: "{colors.on-tertiary}"
+    rounded: "{rounded.sm}"
+    width: 1px
+    height: 72px
+  drafting-board:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.lg}"
+  project-card:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.sm}"
+  status-badge:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.muted-strong}"
+    typography: "{typography.label-sm}"
+    rounded: "{rounded.sm}"
+    padding: "4px 10px"
+  admin-panel:
+    backgroundColor: "{colors.admin-surface}"
+    textColor: "{colors.admin-on-surface}"
+    rounded: "{rounded.lg}"
+    padding: "{spacing.md}"
+  admin-shell:
+    backgroundColor: "{colors.admin-background}"
+    textColor: "{colors.admin-on-surface}"
+  admin-nav-link:
+    backgroundColor: "{colors.admin-surface}"
+    textColor: "{colors.admin-muted}"
+    typography: "{typography.label-md}"
+    rounded: "{rounded.md}"
+    padding: "8px 12px"
+  admin-nav-link-active:
+    backgroundColor: "{colors.admin-accent}"
+    textColor: "{colors.admin-background}"
+---
+
 # Howeth and Harp Design
 
-## Design Vision
+## Overview
 
-Howeth and Harp should feel like a restrained, premium architectural website: calm, credible, precise, and low-pressure. The public experience exists to establish business credibility, show completed work, explain what the company does, and give serious project leads a clear path forward. The design should keep its drafting and architectural feel, but those cues must be subtle structural devices rather than a loud blueprint theme or a stack of decorative cards.
+Howeth and Harp should feel like a restrained, premium architectural website: calm, credible, precise, and low-pressure. The public experience exists to establish business credibility, show completed work, explain what the company does, and give serious project leads a clear path forward. Drafting and architectural cues are part of the identity, but they must behave as subtle structural devices rather than a loud blueprint theme or a stack of decorative cards.
 
-## Audience and Jobs
+The primary audience is high-intent property owners, developers, and serious project leads evaluating whether Howeth and Harp is credible and relevant for their work. The secondary audience is credibility-checking visitors who need to understand the business, review completed work, and see a polished public presence before contacting the company.
 
-- Primary audience: high-intent property owners, developers, and serious project leads evaluating whether Howeth and Harp is credible and relevant for their work.
-- Secondary audience: credibility-checking visitors who need to understand the business, review completed work, and see a polished public presence before contacting the company.
-- Core user jobs:
-  - Understand that Howeth and Harp provides architectural design, building, and land development.
-  - See that completed work exists through the Projects surface.
-  - Review finish/pricing posture without reading a commodity rate sheet.
-  - Start a project brief only when ready.
-- Non-goals:
-  - Do not make the site feel like an inspiration blog, lifestyle portfolio, or generic contractor lead funnel.
-  - Do not use generic stock imagery or fake-looking lifestyle visuals.
-  - Do not fill pages with repeated CTA bands, sales copy, or "dream home" language.
+Core public jobs are to explain that Howeth and Harp provides architectural design, building, and land development; show completed work through Projects; explain finish and pricing posture without becoming a commodity rate sheet; and let ready visitors start a project brief. The site must not become an inspiration blog, lifestyle portfolio, generic contractor lead funnel, or stock-image marketing page.
 
-## Product Shape
+The active public surfaces are the homepage, Projects, Pricing, FAQ, Inquiry, and legal pages. HHQ/admin is a separate, denser operational surface. The active public header is Home, Projects, Pricing, FAQ, and Start a Project. Catalog remains in the codebase but is dormant public IA until intentionally revisited.
 
-- Primary surfaces:
-  - Homepage as a clean front door.
-  - Projects as the primary proof surface.
-  - Pricing as restrained finish-level explanation.
-  - FAQ as compact objection-removal and support.
-  - Inquiry as a functional project brief flow.
-  - HHQ/admin as a denser operational surface.
-- Main workflows:
-  - Visitor lands on the homepage, understands the business, and can view Projects.
-  - Visitor reviews completed work on Projects and project detail pages.
-  - Visitor reviews Pricing/finish levels if scope or finish posture needs clarification.
-  - Serious visitor starts the project brief through the header action or contextual links.
-- Information architecture:
-  - Active public header: Home, Projects, Pricing, FAQ, Start a Project.
-  - Catalog remains in the codebase but is dormant public IA for now.
-  - Catalog should be hidden from public header, homepage, and footer until intentionally revisited.
-  - Projects is visible even during the design/build preview phase with refined placeholder imagery while final media is gathered.
-- Navigation model:
-  - The header carries most navigation.
-  - The content should not constantly re-sell navigation with large CTA sections.
-  - Footer navigation should be minimal and only include necessary page links, contact, and legal links.
-- Content hierarchy:
-  - Homepage includes only the landing section, "What Howeth and Harp Does", and a compact FAQ.
-  - Homepage hero headline: "Advancing design, building, and land development."
-  - Homepage hero subhead: "Howeth and Harp delivers architectural design, building, and land development with a disciplined eye for scope, site, and finish."
-  - Homepage hero has one understated action: View Projects.
-  - "What Howeth and Harp Does" remains three concise capability blocks: Architectural Design, Building, and Land Development.
-  - Homepage FAQ should be compact, about four high-value questions, with no CTA band.
+The homepage stays lean: landing section, "What Howeth and Harp Does", and a compact FAQ. The hero headline is "Advancing design, building, and land development." The hero subhead is "Howeth and Harp delivers architectural design, building, and land development with a disciplined eye for scope, site, and finish." The hero has one understated action: View Projects.
 
-## Visual System
+## Colors
 
-- Overall tone:
-  - Premium, architectural, clean, calm, credible, and low-pressure.
-  - Drafting-inspired, but not playful, busy, or blueprint-themed.
-- Layout rules:
-  - Prefer open page rhythm, alignment, columns, dividers, and bands over repeated isolated cards.
-  - Avoid the feeling that content blocks were copy-pasted onto the page.
-  - The hero may keep a drafting-sheet identity, but it should be lighter, flatter, and more integrated with the page background.
-  - Below the hero, structure should come from spacing, alignment, and subtle rules rather than heavy card containment.
-- Color direction:
-  - Keep warm architectural paper, near-black ink, muted text, clean white surfaces, and deep green accent.
-  - Tighten color usage so green is reserved for primary emphasis and key labels.
-  - Beige should feel clean and architectural, not sepia, aged, or muddy.
-  - White surfaces should keep the system crisp.
-- Typography direction:
-  - Keep IBM Plex Sans as the website body/display font.
-  - Keep IBM Plex Mono for labels, technical texture, and utilities.
-  - Do not reintroduce Panchang unless the brand guide is intentionally updated again.
-  - Tiny all-caps mono labels should remain secondary texture only.
-  - Primary navigation, buttons, headings, and important content should prioritize readability over extreme letter spacing.
-- Icon, image, and media direction:
-  - Use real project imagery, brand assets, or subtle abstract drafting geometry.
-  - Do not use generic stock/lifestyle imagery.
-  - Project placeholders should be premium stand-ins with consistent crop, tone, and aspect ratio, not gray boxes or loud "image pending" badges.
-  - The animated drafting arm stays as a signature detail, but it should feel integrated, subtle, and architectural.
-- Density and spacing:
-  - Public pages should feel open and flowing without becoming sparse or empty.
-  - Project and detail surfaces should be image-led and quiet.
-  - HHQ/admin should remain denser and more operational than the public site.
+The color system uses warm architectural paper, near-black ink, clean white surfaces, muted text, deep green emphasis, and restrained drafting ink. Beige must feel clean and architectural, not sepia, aged, or muddy. White surfaces keep the system crisp.
 
-## Interaction Model
-
-- Primary actions:
-  - Header retains a restrained Start a Project action.
-  - Homepage hero uses one understated View Projects action.
-  - Avoid repeated funnel CTAs and bottom-page CTA bands unless a context-specific link genuinely helps.
-- Controls:
-  - Buttons should stay small-radius, rectangular, and architectural.
-  - Avoid pill-heavy, soft SaaS styling.
-  - Forms should remain functional, readable, and hard to misuse.
-- Feedback:
-  - Default states should be subtle.
-  - Hover, focus, active, error, and disabled states should become unmistakable when the user interacts.
-  - Accessibility and clarity win without making the styling loud.
-- Loading, empty, and error states:
-  - Projects can be visible during build with refined placeholders while final project media is pending.
-  - A public-facing "0 completed homes" state is not the desired design surface.
-  - Empty and fallback states should look intentional and premium during previews.
-- Motion:
-  - Motion is limited to subtle architectural behavior.
-  - The drafting arm may animate slowly and quietly.
-  - Use light hover/focus transitions only.
-  - No scroll theatrics, parallax, reveal animations, or attention-seeking movement.
-- Keyboard and pointer behavior:
-  - Keep visible focus states and full keyboard access.
-  - Mobile targets must be comfortably tappable.
-  - Whole project cards can link to detail pages; avoid repeated card CTA buttons.
-
-## Responsive and Accessibility Requirements
-
-- Mobile behavior:
-  - Preserve the same premium restraint with clean stacking and reduced decoration.
-  - Do not force the full desktop drafting-board composition into mobile.
-  - The drafting arm can remain only if it does not create awkward vertical space.
-- Tablet behavior:
-  - Preserve columns where they remain readable.
-  - Collapse framed elements before they feel cramped.
-- Desktop behavior:
-  - Let the layout breathe through generous alignment, linework, and image proportion.
-  - Avoid heavy nested cards and repeated page frames.
-- Keyboard access:
-  - Header, footer, FAQ rows, project links, forms, and controls must be keyboard reachable.
-  - Focus states must be visible and refined.
-- Contrast and readability:
-  - Subtle styling must not become faint or fragile.
-  - Body copy, form labels, nav, buttons, and FAQ rows need comfortable contrast.
-- Screen-reader considerations:
-  - Decorative drafting marks and abstract geometry should be hidden from assistive tech.
-  - Real project imagery needs useful alt text.
-  - Inquiry progress must remain understandable to screen readers.
-
-## Technical and Product Constraints
-
-- Existing code constraints:
-  - The app is a Next.js App Router project using React, TypeScript, and Tailwind CSS v4.
-  - Current public tokens live in `styles/tokens.css`.
-  - Shared public components include site header, footer, hero, sections, cards, buttons, project cards, and inquiry components.
-  - Existing brand guide locks naming and says not to reintroduce Panchang unless intentionally updated.
-- Framework/design-system constraints:
-  - Keep using the current IBM Plex Sans / IBM Plex Mono direction.
-  - Keep small-radius architectural geometry.
-  - Reduce overuse of boxed panels and decorative drafting details.
-  - Production public site remains light-only for now.
-  - `DESIGN.html` includes a light/dark visualizer only because the design-refine artifact requires that toggle.
-- Data and integration constraints:
-  - Projects are backed by managed data and should become the proof surface.
-  - Final media is pending; placeholders are acceptable for design/build preview.
-  - Do not expose private project data, private operational URLs, client data, credentials, or secret values.
-- Performance constraints:
-  - Keep the public site fast, server-rendered, and low on unnecessary runtime behavior.
-  - Do not add heavy animation libraries or production dark-mode complexity for this direction.
-- Launch or scope constraints:
-  - The current design vision does not require deleting Catalog, only hiding it from active public IA.
-  - Projects must be polished with intentional placeholder behavior until real media is available.
-  - The footer should be minimal, light, and necessary only.
-
-## Decision Log
-
-| Decision | Rationale | Rejected Alternatives |
+| Token | Value | Use |
 | --- | --- | --- |
-| Optimize for high-intent leads and credibility-checking visitors. | The site is for business credibility and serious project evaluation. | Casual inspiration-browsing homepage, lifestyle-first positioning. |
-| Homepage includes only hero, What Howeth and Harp Does, and compact FAQ. | Keeps the site lean, premium, and low-pressure. | Finish previews, build-type previews, inquiry bands, proof grids, long homepage. |
-| Projects stays visible; Catalog is dormant public IA. | Completed work is stronger proof than an educational category catalog. | Hiding Projects, renaming Catalog into a proof archive, deleting Catalog now. |
-| Header shows Home, Projects, Pricing, FAQ, and Start a Project. | Lean navigation supports a sleek premium feel. | Keeping Catalog in nav, adding more public sections. |
-| Keep Pricing label for now. | User explicitly chose not to change the nav label. | Renaming Pricing to Finish Levels now. |
-| Hero headline changes to "Advancing design, building, and land development." | Shorter, premium, aligned with the business. | Keeping the current longer coordination headline. |
-| Hero subhead becomes credibility-first. | Supports the new shorter headline without overexplaining the funnel. | Operational process-heavy subhead. |
-| Hero uses one understated View Projects action. | Proof-first and lower pressure than repeated Start a Project CTAs. | Two-button hero, no hero action, sales-first action. |
-| Keep drafting architectural feel, but make it subtle and premium. | The current identity is good but needs tighter restraint. | Blueprint cosplay, playful drafting theme, decorative overload. |
-| Keep the animated drafting arm, but integrate it more subtly. | It can be a signature detail if not loud. | Removing it entirely, making it the dominant hero gimmick. |
-| Keep IBM Plex Sans and IBM Plex Mono. | Already fits the technical/premium direction and brand guide. | Font hunt, Panchang return. |
-| Tighten the warm paper / ink / green palette. | The palette works if green and beige are disciplined. | Sepia-heavy pages, decorative green everywhere. |
-| Reduce the isolated-card-stack feeling. | Premium flow should come from rhythm, alignment, and subtle section structure. | Heavy repeated boxed panels. |
-| Use only real project imagery, brand assets, or subtle drafting geometry. | Fake imagery damages credibility. | Generic stock/lifestyle imagery. |
-| Projects is image-led, quiet, and archival. | Proof should feel controlled and premium, not like another funnel page. | Heavy CTA bands, salesy card buttons, operational empty states. |
-| Public copy stays precise, calm, and confident. | Matches the premium, low-pressure visual system. | Dream-home language, clever taglines, overexplained process copy. |
-| Footer is minimal and link-focused, with no CTA block. | The site should end with confidence, not another pitch. | Large footer headline, CTA buttons, newsletter-like clutter. |
-| Inquiry remains functional and form-first. | Users do work there, so clarity matters more than editorial spaciousness. | Making forms too sparse or atmospheric. |
-| Accessibility is subtle by default and unmistakable on interaction. | Premium can still be clear and usable. | Faint inaccessible styling, loud generic states. |
-| Production public site stays light-only for now. | The warm architectural paper system is the brand feel. | Adding production dark mode now. |
+| `colors.neutral` | `#F4EFE5` | Public page background and warm paper field. |
+| `colors.secondary` | `#EDE5D6` | Deeper paper tone for quiet secondary surfaces. |
+| `colors.surface` | `#FFFFFF` | Primary content surfaces, cards, header, menus, and form controls. |
+| `colors.surface-strong` | `#FAF7F0` | Slightly warm raised surface in the visualizer and secondary panels. |
+| `colors.on-surface` | `#11110F` | Main ink color for body text, headings, and key UI. |
+| `colors.muted` | `#5D564B` | Supporting copy, metadata, and lower-emphasis navigation. |
+| `colors.muted-strong` | `#40392F` | Higher-contrast secondary text and compact tags. |
+| `colors.primary` | `#005B41` | Green accent for primary emphasis, key labels, links, and focus states. |
+| `colors.primary-strong` | `#004331` | Hover emphasis and current form error text behavior. |
+| `colors.tertiary` | `#232D3F` | Drafting ink and deep technical accent. |
+| `colors.admin-background` | `#090D12` | HHQ/admin workspace background. |
+| `colors.admin-surface` | `#111821` | HHQ/admin panel surface. |
 
-## Open Questions
+Green is reserved for real emphasis and key labels. It should not become a decorative wash across the page. Drafting ink appears as faint linework, grid detail, or technical accents rather than large color blocks. The production public site remains light-only for now; the `DESIGN.html` light/dark toggle exists only for the visual audit artifact.
 
-| Question | Why It Matters | Status |
-| --- | --- | --- |
-| What final project imagery will replace placeholders? | Projects is the main proof surface, so real images will heavily affect design quality. | Pending media collection. |
-| Which project metadata should be public on cards and detail pages? | The design calls for minimal useful facts, but exact fields depend on available records. | Pending project content review. |
-| Should dormant Catalog eventually be removed, renamed, or rebuilt? | It remains hidden for now, but future public IA may need a category/service surface. | Parked. |
-| Which four homepage FAQ questions should be canonical? | The homepage FAQ should be compact and high-value. | Pending content pass. |
+No separate red error palette has been established in the current implementation. The `error` token records the current accent-strong behavior so existing form styling stays documented, but destructive or high-risk workflows should revisit this token instead of silently expanding green as an error color.
 
-## DESIGN.html Sync Notes
+## Typography
 
-The paired `DESIGN.html` is a fixed static mock website visualizer, not a production-page preview, documentation page, or editable color tool.
+IBM Plex Sans is the website body and display font. IBM Plex Mono is reserved for labels, technical texture, utilities, small metadata, and drafting-sheet cues. Panchang must not be reintroduced on the website unless the brand guide is intentionally updated again.
 
-- It uses a token layer for fonts, colors, radius, spacing, shadows, and component styling.
-- It includes only one runtime control: a top-right round lightbulb switch for light/dark mode.
-- It keeps the `DESIGN-FORMAT.html` mock website section order, section purposes, labels, placeholder copy, and generic pricing/testimonials/FAQ/articles content.
-- The fixed sections are stable visual stress tests, not claims about Howeth and Harp's actual product model.
-- Howeth and Harp design choices are expressed through tokens and styling across the fixed UI examples.
-- The real project language and product decisions live in this `DESIGN.md`.
+Headings use IBM Plex Sans with moderate weight, zero letter spacing, and tight-but-readable line height. The hero display treatment is large and calm, not decorative. Body text uses generous line height for credibility and scanning. Tiny all-caps mono labels remain secondary texture only; primary navigation, buttons, headings, and important content prioritize readability over extreme letter spacing.
+
+Use `typography.headline-display` for first-viewport hero hierarchy, `typography.headline-lg` for major section titles, `typography.headline-md` for card and subsection headings, `typography.body-md` or `typography.body-lg` for explanatory copy, and mono label tokens only for short UI labels, metadata, dividers, and tags.
+
+## Layout & Spacing
+
+The layout should feel open and flowing without becoming sparse. Structure comes from alignment, columns, dividers, measured bands, image proportion, and subtle rules instead of repeated isolated cards. The system should avoid the feeling that content blocks were copy-pasted onto the page.
+
+Container widths mirror the implementation: narrow content around `46rem`, content pages around `72rem`, and wide layouts around `84rem`. Page gutters use responsive padding so content remains comfortably readable on mobile, tablet, and desktop. Public sections use calm vertical rhythm: compact internal spacing for operational controls, more generous spacing for public proof and explanation.
+
+The homepage is intentionally short. Projects is the primary proof surface and should be image-led, quiet, and archival. Pricing explains finish levels without reading like a rate sheet. FAQ is compact objection-removal. Inquiry is a functional project brief flow where clarity beats editorial spaciousness. HHQ/admin stays denser and more operational than the public site.
+
+On mobile, preserve premium restraint with clean stacking and reduced decoration. Do not force the full desktop drafting-board composition into mobile. On tablet, preserve columns only while they remain readable. On desktop, let the layout breathe through linework, image ratio, and horizontal alignment, not heavy nested frames.
+
+## Elevation & Depth
+
+Depth is quiet. Use hairline borders, tonal stacking, subtle inset highlights, low shadows, and occasional backdrop blur for sticky or floating surfaces. Avoid large soft SaaS shadows, glossy depth, and repeated panel-on-panel stacking.
+
+Public pages should usually prefer a flat architectural sheet feel. Cards and panels may lift just enough to separate interactive or repeated items, but hierarchy should mostly come from spacing, linework, contrast, and typography. The header can use a light sticky treatment and a restrained bottom rule. HHQ/admin may use stronger dark-surface layering because it is an operational workspace.
+
+Loading, empty, and fallback states should look intentional and premium during previews. Projects can be visible during build with refined placeholders while final project media is pending; a public-facing "0 completed homes" feeling is not the desired surface.
+
+## Shapes
+
+Shapes are small-radius, rectangular, and architectural. Use `rounded.sm`, `rounded.md`, and `rounded.lg` for most interface atoms. Avoid pill-heavy, soft SaaS styling. The only `rounded.full` use should be for true circular controls or rare utility affordances such as the `DESIGN.html` lightbulb toggle.
+
+Images and project placeholders should use consistent crops, quiet borders, and controlled aspect ratios. Project placeholders need to feel like premium stand-ins with architectural linework, not gray boxes or loud "image pending" badges.
+
+Icons, marks, and decorative geometry should feel drafted, precise, and understated. Decorative drafting marks and abstract geometry are hidden from assistive tech. Real project imagery needs useful alt text.
+
+## Components
+
+Buttons stay compact, mono-labeled, small-radius, and rectangular. Primary buttons use green only when the action needs real emphasis. Secondary buttons are white or paper-toned with restrained borders. Hover and focus states must be visible, but not loud. Disabled states reduce opacity and block pointer interaction.
+
+Navigation is lean and header-led. The header carries most navigation. Content should not constantly re-sell navigation through large CTA sections. Footer navigation is minimal and includes necessary page links, contact, and legal links.
+
+Forms are functional, readable, and hard to misuse. Inputs use white or raised surfaces, clear labels, strong enough contrast, and visible focus rings. Inquiry progress must remain understandable to screen readers.
+
+Project cards link as whole cards to detail pages and avoid repeated card CTA buttons. Projects should be image-led, quiet, and proof-oriented. Badges and metadata stay compact and secondary.
+
+The animated drafting arm remains a signature detail only if it is integrated, subtle, and architectural. Motion is limited to subtle architectural behavior, light hover/focus transitions, and slow quiet signature movement. Do not add scroll theatrics, parallax, reveal animations, or attention-seeking movement.
+
+The paired `DESIGN.html` is a fixed static mock website visualizer, not a production-page preview, documentation page, or editable color tool. It uses the same token direction to stress test fonts, colors, hierarchy, buttons, cards, sections, and states.
+
+## Do's and Don'ts
+
+Do keep the site calm, precise, premium, architectural, and low-pressure.
+
+Do use real project imagery, brand assets, or subtle abstract drafting geometry.
+
+Do keep Projects visible as the main proof surface while final media is gathered.
+
+Do keep the Pricing label for now.
+
+Do keep public copy precise, confident, and free of "dream home" language.
+
+Do make accessibility states visible and refined: focus, hover, active, error, and disabled states must be unmistakable during interaction.
+
+Do keep the footer minimal, light, and necessary.
+
+Don't turn the drafting direction into blueprint cosplay, playful illustration, or decorative overload.
+
+Don't use generic stock imagery, fake lifestyle visuals, or loud placeholder badges.
+
+Don't reintroduce Panchang unless the brand guide changes intentionally.
+
+Don't add repeated funnel CTAs, bottom-page CTA bands, newsletter-style footer clutter, or sales-heavy card buttons.
+
+Don't bring Catalog back into public navigation, homepage, or footer until that surface is intentionally revisited.
+
+Don't add production dark-mode complexity just because the design visualizer has a dark-mode switch.
