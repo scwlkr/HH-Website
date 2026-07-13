@@ -116,11 +116,12 @@ The existing eight-zone route remains a good working hypothesis. Research sugges
 
 This is a conversation starter, not an approved flow.
 
-1. **Welcome** — Confirm the single-family new-home scope and explain what the customer will produce.
-2. **Walk through the home** — Follow the fixed illustrated room sequence using visual choices, lists, checkboxes, and short answers.
-3. **Set priorities and add inspiration** — Separate must-haves from preferences, then upload plans or images and add useful links.
-4. **Review the brief** — See the home program, selections, references, and unanswered items in one editable summary.
-5. **Introduce yourself and submit** — Provide contact details, consent to follow-up, and send the project brief to H&H.
+1. **Personalized welcome** — Ask only for the customer's name, then type it onto the illustrated home's address plaque or nameplate so the walkthrough immediately feels like their home.
+2. **Home basics** — Complete the first room's broad home questions without another identity form.
+3. **Save progress** — Ask for email and phone after the first room, explain that they can now resume later, and sync the first backend draft.
+4. **Walk through the home** — Continue through the fixed illustrated room sequence using visual choices, lists, checkboxes, and short answers, syncing after every room.
+5. **Set priorities and add inspiration** — Separate must-haves from preferences, then upload plans or images and add useful links.
+6. **Review and submit** — See one editable summary, confirm follow-up preferences and consent, and send the project brief to H&H.
 
 ## Fixed Walkthrough
 
@@ -152,6 +153,8 @@ This is a working inventory, not approved public copy. It contains 35 short ques
 Most answers should use visual cards, checkboxes, ranges, or steppers that appear as part of the active room scene. Free text is reserved for details that structured choices cannot capture.
 
 ### Welcome And Project Frame
+
+Before the numbered planning questions, ask **Customer name** only. As the customer types, render the name onto the illustrated home's address plaque or nameplate. This is personalization, not a full lead gate.
 
 | # | Working question | Likely response |
 | --- | --- | --- |
@@ -234,7 +237,11 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 35 | Who should H&H follow up with, and how? | Name, email, phone, preferred contact method, and consent |
+| 35 | How should H&H follow up once you submit this project brief? | Preferred contact method and consent; name, email, and phone are already present |
+
+### Save-Progress Checkpoint
+
+After **Living Room and Home Basics**, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** When completed, sync the customer's name, first-room answers, and contact details as the first identifiable backend draft. This checkpoint is separate from the 35 planning decisions above.
 
 ### Question-Design Rules
 
@@ -311,7 +318,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 4. Final room-zone set and sequence.
 5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
 6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-7. Draft retention, expiration, deletion, identity timing, and resume-link delivery details.
+7. Draft retention, expiration, deletion, and resume-link delivery details.
 8. H&H review: incomplete drafts, submitted answers, generated summary, visual home map, lead scoring, and follow-up workflow.
 9. Animation implementation technique, chosen later based on assets, performance, and maintainability.
 10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
@@ -428,7 +435,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Show the unfinished draft, completed rooms, current position, answers so far, and last activity time in H&H's backend.
 - On the same device, resume the exact prompt from local progress; on another device, resume immediately after the last room synced to the server.
 - Keep **draft** and **submitted inquiry** as distinct statuses; completing a room does not imply that the customer submitted the project brief.
-- A lightweight customer-identity checkpoint is required before H&H can associate the draft or offer reliable cross-device resume; its exact placement is the current decision.
+- Create the first identifiable server draft after the customer completes the first room and provides email and phone at the save-progress checkpoint.
 
 ### 2026-07-13 — Budget is planning context only
 
@@ -439,20 +446,29 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Do not hide, disable, or discourage features based on the selected range.
 - Let the customer describe the home they want; H&H will align the design and budget during a later in-person meeting.
 
+### 2026-07-13 — Personalized welcome and earned contact checkpoint
+
+- Ask only for **Customer name** on the welcome screen.
+- Animate the entered name onto the illustrated home's address plaque or nameplate so the home immediately feels personal.
+- Keep progress local while the customer completes the first room.
+- After **Living Room and Home Basics**, ask for email and phone with a clear **Save your progress and resume later** explanation.
+- Once contact details are provided, sync the name, first-room answers, and contact details as the first identifiable backend draft; sync again after each later room.
+- Collect follow-up preference and consent at final submission rather than placing a full contact form at the entrance.
+
 ## Current Question
 
-When should the draft become identifiable?
+What should happen if an identifiable draft remains unfinished?
 
-### A. Quick identity at the welcome — recommended
+### A. Send one resume reminder — recommended
 
-Before the first room, ask only for a name and either email or mobile number so the draft can be saved, resumed, and shown meaningfully to H&H. Collect any remaining contact details and follow-up preferences at final submission.
+Clearly disclose at the save-progress checkpoint that H&H will send one reminder with the resume link after a reasonable delay. Do not begin manual sales follow-up until the customer submits the brief.
 
-### B. After the first room
+### B. Save silently
 
-Let the customer complete one room anonymously, then ask for a name and email or mobile number to save it. This proves the experience's value first, but customers who leave during room one remain unidentified.
+Keep the draft visible to H&H and available to the customer, but send nothing unless the customer explicitly requests a resume link or submits the brief.
 
-### C. Full contact form at the welcome
+### C. Allow manual H&H follow-up
 
-Collect name, email, phone, and contact preference before starting. Every draft is complete from a lead-management perspective, but the walkthrough begins with the conventional form experience this concept is meant to avoid.
+Let H&H contact customers who stop after providing email and phone. This may recover more leads, but the save checkpoint must clearly disclose that the details may be used for follow-up rather than only saving progress.
 
-The recommendation is **A**. It supports H&H's draft visibility and reliable resume behavior with the smallest practical upfront request.
+The recommendation is **A**. One expected, disclosed reminder helps customers return without turning a progress-saving feature into an unexpected sales follow-up.
