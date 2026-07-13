@@ -12,6 +12,8 @@ Evolve the existing `/inquire` project brief into a visual journey through a rep
 
 The illustrated home is an engaging way to navigate a long questionnaire. It does not generate or reconfigure a floor plan from the customer's answers. The experience should feel closer to walking through and describing a future home than filling out a conventional form.
 
+The customer-facing experience is called **Plan Your Home**. The structured result sent to H&H remains a **project brief**.
+
 ## Desired Outcome
 
 At the end of the experience:
@@ -117,16 +119,15 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 ## Decisions To Resolve
 
-1. Customer promise: project brief, home planner, design consultation starter, or another framing.
-2. Fixed room set and sequence.
-3. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
-4. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
-5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Fixed room navigation, set, and sequence.
+2. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
+3. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
+4. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+5. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+7. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+8. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+9. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -148,20 +149,26 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 - A home may be fully custom or based on a more repeatable plan.
 - The choice is provisional until planning is complete; townhome and multifamily projects remain outside the walkthrough unless deliberately added later.
 
+### 2026-07-13 — Plan Your Home
+
+- Use **Plan Your Home** as the customer-facing experience name and call to action.
+- Describe the result as a **project brief** in supporting copy, the review screen, and H&H's internal workflow.
+- Avoid language implying that the website produces final designs, specifications, or pricing.
+
 ## Current Question
 
-What should the customer-facing experience be called?
+How should customers move through the fixed rooms?
 
-### A. Plan Your Home — recommended
+### A. Linear guided tour
 
-Use **Plan Your Home** as the inviting title or call to action, with supporting copy such as: “Walk room by room and create a project brief for Howeth and Harp.” Internally and in the final summary, the result remains a **project brief**.
+Customers use **Previous** and **Next** to follow one required room order. This is simple and focused, but makes revisiting a distant room tedious.
 
-### B. Design Your Home
+### B. Free-roam house map
 
-This feels more creative and ambitious, but it may imply the website is producing an actual home design.
+Customers choose rooms from a visual overview in any order. This feels exploratory, but makes progress and completion requirements less obvious.
 
-### C. Start Your Project Brief
+### C. Guided tour with an overview map — recommended
 
-This is accurate and consistent with the existing website language, but it sounds more like paperwork and weakens the experiential idea.
+The experience recommends a natural room order with **Previous** and **Next**, while a persistent house map shows progress and lets customers revisit any room. On mobile or for assistive technology, the map can become a clear room list.
 
-The recommendation is **A**. It makes the experience feel active without promising drawings, specifications, or pricing. The supporting copy can explain exactly what H&H receives.
+The recommendation is **C**. It preserves the feeling of a walkthrough without trapping customers in a long wizard or making them guess what remains unfinished.
