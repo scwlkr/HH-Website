@@ -300,6 +300,10 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 - internal H&H review summary
 - unanswered or contradictory selections worth discussing
 
+### HHQ Review
+
+Add a simple inquiry list to HHQ with customer name, contact details, **draft** or **submitted** status, progress, and last activity. Opening a record shows every answer in the same basic order the customer encountered it, followed by uploaded files and clickable reference links. Keep the view clean and literal: no visual house recreation, generated narrative, lead score, or elaborate dashboard is required.
+
 ## Product Guardrails To Test
 
 - Keep it useful when a customer has only rough ideas.
@@ -327,9 +331,8 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 4. Final room-zone set and sequence.
 5. Inspiration: final file types, upload limits, link security, ownership language, and privacy.
 6. Draft retention, expiration, deletion, and resume-link delivery details.
-7. H&H review: incomplete drafts, submitted answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-8. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-9. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+7. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+8. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -488,20 +491,28 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 - Keep all inspiration optional; a customer with no files or links should continue without friction.
 - Set exact formats, file sizes, item counts, storage rules, and link-security behavior during implementation planning.
 
+### 2026-07-13 — Plain HHQ inquiry records
+
+- Add a basic HHQ inquiry list for both unfinished drafts and submitted project briefs.
+- Show customer name, contact information, status, progress, and last activity in a clean scannable list.
+- Open each inquiry as a plain record containing all customer answers in walkthrough order.
+- Make uploaded files directly openable and website references clickable from the record.
+- Do not add a customer-facing house visualization, AI-generated summary, lead scoring, or complex analytics to the HHQ review screen.
+
 ## Current Question
 
-How should H&H review drafts and submitted project briefs inside HHQ?
+Should customers be allowed to silently skip planning questions?
 
-### A. Inquiry queue plus organized detail view — recommended
+### A. Require an answer or an uncertainty choice — recommended
 
-Add an inquiry queue showing draft/submitted status, customer, progress, last activity, square footage, finish level, and location. Opening one shows a concise summary organized by room, contact information, priorities, inspiration, unanswered items, and the raw answers when needed.
+Each structured prompt needs a response before continuing, but appropriate questions include **Not sure yet**, **None**, or **Not applicable**. Optional notes and inspiration remain optional. This distinguishes genuine uncertainty from an accidentally missed question.
 
-### B. Visual house map as the primary review
+### B. Allow every question to be skipped
 
-Open each inquiry as the same illustrated house with completed rooms and selections highlighted. This mirrors the customer experience, but it is slower for staff who need to scan and compare leads efficiently.
+Keep a visible **Skip** action on all planning prompts. This minimizes friction, but H&H cannot tell whether a blank means uncertainty, irrelevance, or accidental omission.
 
-### C. Email or PDF brief only
+### C. Require only the core home basics
 
-Send H&H a generated brief without building a dedicated HHQ inquiry area. This is simpler initially, but unfinished drafts, statuses, follow-up notes, and searching become difficult to manage.
+Require square footage, stories, bedroom and bathroom counts, finish level, location, and contact details. Let customers silently skip the remaining lifestyle and room-feature prompts.
 
-The recommendation is **A**. HHQ is an operational tool, so a fast queue and readable structured brief are more useful than reproducing the customer-facing walkthrough internally.
+The recommendation is **A**. Quick uncertainty choices keep the walkthrough complete without forcing customers to pretend they have decisions they have not made.
