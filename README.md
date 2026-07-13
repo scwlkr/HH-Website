@@ -15,7 +15,7 @@ This repo powers the Howeth and Harp marketing site, project brief intake flow, 
 | --- | --- |
 | Public site | Explain services, finish levels, build categories, FAQ, and legal pages. |
 | Project brief | Collect structured client project details at `/inquire`. |
-| Projects | Show completed homes and live `for-sale` / `sold` status from Supabase. |
+| Projects | Show completed homes and live `for-sale` / `sold` status from Firestore. |
 | HHQ | Protected admin workspace for projects and square-foot pricing. |
 
 ## Quick Start
@@ -44,7 +44,7 @@ npm run qa:smoke
 | `npm run start` | Serve a built production app. |
 | `npm run lint` | Run ESLint. |
 | `npm run typecheck` | Run TypeScript without emitting files. |
-| `npm run qa:smoke` | Build and smoke-test the production app with a fake Supabase endpoint. |
+| `npm run qa:smoke` | Build and smoke-test the production app against local Firebase emulators. |
 
 ## Configuration
 
@@ -53,17 +53,25 @@ Use `.env.example` for names only. Do not commit real values.
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL for metadata and absolute links. |
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes for auth/admin | Browser-safe Supabase URL for auth/session handling. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes for auth/admin | Browser-safe Supabase anon key. |
-| `SUPABASE_URL` | Yes for writes/admin data | Server-side Supabase URL, with fallback to `NEXT_PUBLIC_SUPABASE_URL`. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes for writes/admin data | Server-only key for inquiry writes, public data reads, and HHQ writes. |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes for HHQ | Browser-safe Firebase web API key. |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Yes for HHQ | Firebase Auth domain. |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Yes | Firebase project ID. |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Yes | Firebase Storage bucket name. |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Yes for HHQ | Firebase web app sender ID. |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Yes for HHQ | Firebase web app ID. |
+| `FIREBASE_PROJECT_ID` | Yes for server access | Server-side Firebase project ID. |
+| `FIREBASE_STORAGE_BUCKET` | Yes for project images | Server-side Firebase Storage bucket name. |
+| `GCP_PROJECT_ID`, `GCP_PROJECT_NUMBER` | Yes on Vercel | Google Cloud project identity for OIDC. |
+| `GCP_SERVICE_ACCOUNT_EMAIL` | Yes on Vercel | Keyless service account impersonated through OIDC. |
+| `GCP_WORKLOAD_IDENTITY_POOL_ID`, `GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID` | Yes on Vercel | Workload Identity Federation pool and provider. |
 | `HH_CONTACT_PHONE_HREF` | Optional | Public `tel:` link. Must include the `tel:` prefix to render. |
 | `HH_CONTACT_PHONE_LABEL` | Optional | Human-readable phone label. |
 | `HH_CONTACT_EMAIL` | Optional | Public contact email. Defaults to `hello@howethandharp.com`. |
 | `INQUIRY_NOTIFICATION_EMAIL` | Optional | Reserved future notification target. |
-| `CRON_SECRET` | Optional | Reserved cron authorization secret. |
 
-HHQ access requires a Supabase user whose `app_metadata.role` is `admin`. A valid Supabase session without that role is not enough.
+HHQ access requires a Firebase Auth user with the custom claim `role: "admin"`. A valid Firebase session without that claim is not enough.
+
+Local server access uses Google Application Default Credentials. Run `gcloud auth application-default login`; do not create or upload a service-account key. Production on Vercel uses Workload Identity Federation and Vercel OIDC.
 
 ## Documentation Path
 
@@ -83,16 +91,18 @@ Historical build-plan artifacts live in [docs/deprecated/](docs/deprecated/).
 ```txt
 app/          Next.js App Router routes, server actions, metadata, and sitemap
 components/   Shared layout, marketing, inquiry, project, admin, and UI components
-lib/          Content, Supabase, validation, metadata, analytics, and formatting helpers
+lib/          Content, Firebase, validation, metadata, analytics, and formatting helpers
 scripts/      Local QA and demo-content utilities
-supabase/     Database migrations for inquiries, projects, images, and pricing
+firebase.json Firebase Emulator Suite and deploy configuration
+firestore.*   Firestore rules and indexes
+storage.rules Firebase Storage rules
 public/       Brand assets and image placeholders
 docs/         Current manual path and deprecated historical docs
 ```
 
 ## Launch State
 
-The core public routes, structured inquiry flow, Supabase-backed projects/pricing path, protected HHQ admin surface, and smoke test script are present. Launch still depends on real environment values, applied Supabase migrations, owner-approved legal content, final contact details, final production imagery, and the selected analytics destination.
+The core public routes, structured inquiry flow, Firebase-backed projects/pricing path, protected HHQ admin surface, and smoke test script are present. Launch still depends on production environment values, Firebase Auth and Storage readiness, owner-approved legal content, final contact details, final production imagery, and the selected analytics destination.
 
 ## Contributing
 

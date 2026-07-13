@@ -35,6 +35,11 @@ function getVercelOidcClient(): BaseExternalAccountClient | null {
     return vercelOidcClient;
   }
 
+  if (!readOptionalEnv("VERCEL_OIDC_TOKEN")) {
+    vercelOidcClient = null;
+    return vercelOidcClient;
+  }
+
   const config = {
     projectId: readOptionalEnv("GCP_PROJECT_ID"),
     projectNumber: readOptionalEnv("GCP_PROJECT_NUMBER"),
@@ -44,13 +49,6 @@ function getVercelOidcClient(): BaseExternalAccountClient | null {
       "GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID",
     ),
   };
-  const hasOidcConfig = Object.values(config).some(Boolean);
-
-  if (!hasOidcConfig) {
-    vercelOidcClient = null;
-    return vercelOidcClient;
-  }
-
   if (Object.values(config).some((value) => !value)) {
     throw new Error(
       "Vercel OIDC requires GCP_PROJECT_ID, GCP_PROJECT_NUMBER, GCP_SERVICE_ACCOUNT_EMAIL, GCP_WORKLOAD_IDENTITY_POOL_ID, and GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID.",

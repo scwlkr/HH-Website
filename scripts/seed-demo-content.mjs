@@ -2,9 +2,14 @@
 
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { createClient } from "@supabase/supabase-js";
+import {
+  applicationDefault,
+  getApps,
+  initializeApp,
+} from "firebase-admin/app";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
-const projectImagesBucket = "project-images";
 const assetRoot = path.join(process.cwd(), "public", "images");
 
 const assetSpecs = [
@@ -150,7 +155,7 @@ const sampleProjects = [
     shortDescription:
       "A hill-country single-family spec home with warm material layering, flexible family space, and a quieter backyard sequence.",
     fullDescription:
-      "Ridgeview Residence is seeded as a demo listing for the operations portal. It represents a finished single-family home with a Builder+ interior package, a stronger arrival sequence, and a covered rear patio that extends the primary living spaces outdoors. The record exists to verify that the public projects grid, detail route, status badge, and Supabase image relationships all update cleanly from the admin workflow.",
+      "Ridgeview Residence is seeded as a demo listing for the operations portal. It represents a finished single-family home with a Builder+ interior package, a stronger arrival sequence, and a covered rear patio that extends the primary living spaces outdoors. The record exists to verify that the public projects grid, detail route, status badge, and Firebase image metadata all update cleanly from the admin workflow.",
     featured: true,
     coverAltText: "Ridgeview Residence exterior placeholder image",
     imagePaths: [
@@ -183,22 +188,28 @@ const sampleProjects = [
   },
 ];
 
-function getSupabaseConfig() {
-  const supabaseUrl =
-    process.env.SUPABASE_URL?.trim() ??
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+function readOptionalEnv(name) {
+  const value = process.env[name]?.trim();
+  return value && value.length > 0 ? value : undefined;
+}
 
-  if (!supabaseUrl || !serviceRoleKey) {
+function getFirebaseConfig() {
+  const projectId =
+    readOptionalEnv("FIREBASE_PROJECT_ID") ??
+    readOptionalEnv("GOOGLE_CLOUD_PROJECT") ??
+    readOptionalEnv("GCLOUD_PROJECT") ??
+    readOptionalEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+  const storageBucket =
+    readOptionalEnv("FIREBASE_STORAGE_BUCKET") ??
+    readOptionalEnv("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET");
+
+  if (!projectId || !storageBucket) {
     throw new Error(
-      "SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY are required.",
+      "FIREBASE_PROJECT_ID and FIREBASE_STORAGE_BUCKET are required.",
     );
   }
 
-  return {
-    supabaseUrl,
-    serviceRoleKey,
-  };
+  return { projectId, storageBucket };
 }
 
 function createPlaceholderUrl({
@@ -228,192 +239,186 @@ async function ensureCatalogAssets() {
   }
 }
 
-function createSupabaseAdminClient() {
-  const { supabaseUrl, serviceRoleKey } = getSupabaseConfig();
+function createFirebaseAdminServices() {
+  const { projectId, storageBucket } = getFirebaseConfig();
+  const app =
+    getApps()[0] ??
+    initializeApp({
+      credential: applicationDefault(),
+      projectId,
+      storageBucket,
+    });
 
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  return {
+    database: getFirestore(app),
+    bucket: getStorage(app).bucket(storageBucket),
+  };
 }
 
 async function readAssetBuffer(relativeImagePath) {
   return readFile(path.join(assetRoot, relativeImagePath));
 }
 
-async function removeStorageFiles(supabase, storagePaths) {
+async function removeStorageFiles(bucket, storagePaths) {
   if (!storagePaths.length) {
     return;
   }
 
-  const { error } = await supabase.storage
-    .from(projectImagesBucket)
-    .remove(storagePaths);
-
-  if (error) {
-    throw new Error(`Failed to remove storage files: ${error.message}`);
-  }
+  await Promise.all(
+    storagePaths.map((storagePath) =>
+      bucket.file(storagePath).delete({ ignoreNotFound: true }),
+    ),
+  );
 }
 
-async function deleteProjects(supabase, slugs) {
+async function deleteProjects(database, bucket, slugs) {
   if (!slugs.length) {
     return;
   }
 
-  const { data: existingProjects, error: fetchError } = await supabase
-    .from("projects")
-    .select("id, slug, project_images(storage_path)")
-    .in("slug", slugs);
+  const projectsSnapshot = await database
+    .collection("projects")
+    .where("slug", "in", slugs)
+    .get();
+  const storagePaths = projectsSnapshot.docs.flatMap((projectSnapshot) => {
+    const images = projectSnapshot.get("images");
+    return Array.isArray(images)
+      ? images
+          .map((image) => image?.storagePath)
+          .filter((storagePath) => typeof storagePath === "string")
+      : [];
+  });
 
-  if (fetchError) {
-    throw new Error(`Failed to look up projects for deletion: ${fetchError.message}`);
+  await removeStorageFiles(bucket, storagePaths);
+
+  const batch = database.batch();
+
+  for (const projectSnapshot of projectsSnapshot.docs) {
+    batch.delete(projectSnapshot.ref);
   }
 
-  const storagePaths = (existingProjects ?? []).flatMap((project) =>
-    (project.project_images ?? []).map((image) => image.storage_path),
-  );
-
-  await removeStorageFiles(supabase, storagePaths);
-
-  const projectIds = (existingProjects ?? []).map((project) => project.id);
-
-  if (projectIds.length) {
-    const { error } = await supabase.from("projects").delete().in("id", projectIds);
-
-    if (error) {
-      throw new Error(`Failed to delete existing projects: ${error.message}`);
-    }
+  for (const slug of slugs) {
+    batch.delete(database.collection("projectSlugs").doc(slug));
   }
+
+  await batch.commit();
 }
 
 async function uploadProjectImage({
-  supabase,
+  bucket,
   projectId,
   fileName,
   buffer,
 }) {
   const storagePath = `projects/${projectId}/${fileName}`;
-  const { error } = await supabase.storage
-    .from(projectImagesBucket)
-    .upload(storagePath, buffer, {
-      upsert: true,
+  const downloadToken = crypto.randomUUID();
+
+  await bucket.file(storagePath).save(buffer, {
+    resumable: false,
+    validation: "crc32c",
+    metadata: {
       contentType: "image/jpeg",
-      cacheControl: "3600",
-    });
-
-  if (error) {
-    throw new Error(`Failed to upload ${storagePath}: ${error.message}`);
-  }
-
-  return storagePath;
-}
-
-async function upsertSampleProject(supabase, project) {
-  const { data: existingProject, error: existingProjectError } = await supabase
-    .from("projects")
-    .select("id, project_images(id, storage_path)")
-    .eq("slug", project.slug)
-    .maybeSingle();
-
-  if (existingProjectError) {
-    throw new Error(
-      `Failed to look up project ${project.slug}: ${existingProjectError.message}`,
-    );
-  }
-
-  const projectId = existingProject?.id ?? crypto.randomUUID();
-  const existingStoragePaths = (existingProject?.project_images ?? []).map(
-    (image) => image.storage_path,
-  );
-
-  if (existingStoragePaths.length) {
-    await removeStorageFiles(supabase, existingStoragePaths);
-  }
-
-  const { error: upsertProjectError } = await supabase.from("projects").upsert({
-    id: projectId,
-    slug: project.slug,
-    title: project.title,
-    status: project.status,
-    build_type_slug: project.buildTypeSlug,
-    finish_level_slug: project.finishLevelSlug,
-    square_footage: project.squareFootage,
-    bedrooms: project.bedrooms,
-    bathrooms: project.bathrooms,
-    location: project.location,
-    short_description: project.shortDescription,
-    full_description: project.fullDescription,
-    featured: project.featured,
+      cacheControl: "public,max-age=3600",
+      metadata: {
+        firebaseStorageDownloadTokens: downloadToken,
+      },
+    },
   });
 
-  if (upsertProjectError) {
-    throw new Error(`Failed to upsert project ${project.slug}: ${upsertProjectError.message}`);
-  }
+  const storageEmulatorHost = readOptionalEnv(
+    "FIREBASE_STORAGE_EMULATOR_HOST",
+  );
+  const storageApiOrigin = storageEmulatorHost
+    ? storageEmulatorHost.startsWith("http://") ||
+      storageEmulatorHost.startsWith("https://")
+      ? storageEmulatorHost.replace(/\/$/, "")
+      : `http://${storageEmulatorHost}`
+    : "https://firebasestorage.googleapis.com";
 
-  const { error: deleteImagesError } = await supabase
-    .from("project_images")
-    .delete()
-    .eq("project_id", projectId);
+  return {
+    storagePath,
+    downloadToken,
+    publicUrl:
+      `${storageApiOrigin}/v0/b/${encodeURIComponent(bucket.name)}` +
+      `/o/${encodeURIComponent(storagePath)}?alt=media&token=${encodeURIComponent(downloadToken)}`,
+  };
+}
 
-  if (deleteImagesError) {
-    throw new Error(
-      `Failed to clear prior images for ${project.slug}: ${deleteImagesError.message}`,
-    );
-  }
+async function seedSampleProject(database, bucket, project) {
+  const projectId = crypto.randomUUID();
+  const uploadedStoragePaths = [];
 
-  const uploadedImageRows = [];
+  try {
+    const images = [];
 
-  for (const [index, relativeImagePath] of project.imagePaths.entries()) {
-    const imageBuffer = await readAssetBuffer(relativeImagePath);
-    const storagePath = await uploadProjectImage({
-      supabase,
+    for (const [index, relativeImagePath] of project.imagePaths.entries()) {
+      const imageBuffer = await readAssetBuffer(relativeImagePath);
+      const uploadedImage = await uploadProjectImage({
+        bucket,
+        projectId,
+        fileName: `${project.slug}-${index + 1}.jpg`,
+        buffer: imageBuffer,
+      });
+      uploadedStoragePaths.push(uploadedImage.storagePath);
+      images.push({
+        id: crypto.randomUUID(),
+        ...uploadedImage,
+        altText:
+          index === 0
+            ? project.coverAltText
+            : `${project.title} gallery image ${index + 1}`,
+        sortOrder: index,
+        isCover: index === 0,
+      });
+    }
+
+    const now = Timestamp.now();
+    const batch = database.batch();
+    batch.set(database.collection("projects").doc(projectId), {
+      id: projectId,
+      slug: project.slug,
+      title: project.title,
+      status: project.status,
+      buildTypeSlug: project.buildTypeSlug,
+      finishLevelSlug: project.finishLevelSlug,
+      squareFootage: project.squareFootage,
+      bedrooms: project.bedrooms,
+      bathrooms: project.bathrooms,
+      location: project.location,
+      shortDescription: project.shortDescription,
+      fullDescription: project.fullDescription,
+      featured: project.featured,
+      createdAt: now,
+      updatedAt: now,
+      images,
+    });
+    batch.set(database.collection("projectSlugs").doc(project.slug), {
       projectId,
-      fileName: `${project.slug}-${index + 1}.jpg`,
-      buffer: imageBuffer,
     });
-
-    uploadedImageRows.push({
-      id: crypto.randomUUID(),
-      project_id: projectId,
-      storage_path: storagePath,
-      alt_text:
-        index === 0
-          ? project.coverAltText
-          : `${project.title} gallery image ${index}`,
-      sort_order: index,
-      is_cover: index === 0,
-    });
-  }
-
-  const { error: insertImagesError } = await supabase
-    .from("project_images")
-    .insert(uploadedImageRows);
-
-  if (insertImagesError) {
-    throw new Error(
-      `Failed to insert images for ${project.slug}: ${insertImagesError.message}`,
-    );
+    await batch.commit();
+  } catch (error) {
+    await removeStorageFiles(bucket, uploadedStoragePaths);
+    throw error;
   }
 }
 
 async function seedProjects() {
-  const supabase = createSupabaseAdminClient();
+  const { database, bucket } = createFirebaseAdminServices();
   const debugProjectSlugs = [
     "debug-1774661380531",
     "playwright-1774661718607",
   ];
 
   await deleteProjects(
-    supabase,
+    database,
+    bucket,
     debugProjectSlugs.concat(
       sampleProjects.map((project) => project.slug),
     ),
   );
 
   for (const project of sampleProjects) {
-    await upsertSampleProject(supabase, project);
+    await seedSampleProject(database, bucket, project);
   }
 }
 

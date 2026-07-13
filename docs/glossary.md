@@ -10,13 +10,15 @@ Use this language across active docs and public-facing repo copy.
 | H&H Advancement, LLC | Short legal name. Use only where legal context is needed. |
 | HHQ | Internal admin workspace name. |
 | Project brief | The structured client intake flow at `/inquire`. Prefer this over generic "contact form". |
-| Inquiry submission | The persisted Supabase record created from a submitted project brief. |
+| Inquiry submission | The persisted Firestore document created from a submitted project brief. |
 | Projects | Completed-home records shown at `/projects` and `/projects/[projectSlug]`. |
 | Catalog | Build-type education pages under `/catalog`. Do not use this word for completed homes. |
 | Finish level | One of Builder Grade, Builder+, or Custom. |
 | Pricing settings | Central square-foot pricing values managed in HHQ. |
 | `for-sale` / `sold` | Stored project status values. Display copy may use "For Sale" and "Sold". |
-| Supabase service role key | Server-only key used for writes and managed data access. Never expose the value. |
+| Firebase custom claim | Trusted Firebase Auth metadata used to grant the `admin` role. |
+| Application Default Credentials (ADC) | Keyless local Google credentials used by Firebase Admin. |
+| Vercel OIDC | Keyless production identity used to access Google Cloud through Workload Identity Federation. |
 
 ## Do Not Use
 

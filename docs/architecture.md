@@ -7,9 +7,9 @@ This document describes the current Howeth and Harp website system as it exists 
 | Surface | Routes | Source |
 | --- | --- | --- |
 | Marketing site | `/`, `/pricing`, `/pricing/[finishSlug]`, `/catalog`, `/catalog/[buildTypeSlug]`, `/faq`, `/privacy`, `/terms`, `/thank-you` | Local typed content and route components. |
-| Project brief | `/inquire` | Server action, Zod validation, rate limiting, and Supabase persistence. |
-| Projects | `/projects`, `/projects/[projectSlug]` | Supabase `projects`, `project_images`, and public storage URLs. |
-| HHQ | `/admin/login`, `/admin/projects`, `/admin/projects/new`, `/admin/projects/[id]`, `/admin/settings/pricing` | Supabase auth, role check, server actions, and service-role data access. |
+| Project brief | `/inquire` | Server action, Zod validation, rate limiting, and Firestore persistence. |
+| Projects | `/projects`, `/projects/[projectSlug]` | Firestore project documents with embedded image metadata and Firebase Storage URLs. |
+| HHQ | `/admin/login`, `/admin/projects`, `/admin/projects/new`, `/admin/projects/[id]`, `/admin/settings/pricing` | Firebase Auth, custom-claim role check, server actions, and Firebase Admin access. |
 | Metadata | `/robots.txt`, `/sitemap.xml`, `/api/og` | App Router metadata helpers and generated route handlers. |
 
 ## Stack
@@ -20,7 +20,7 @@ This document describes the current Howeth and Harp website system as it exists 
 | UI | React 19, TypeScript, Tailwind CSS v4 |
 | Runtime | Node 24.x |
 | Hosting target | Vercel |
-| Database and auth | Supabase |
+| Database, auth, and files | Cloud Firestore, Firebase Auth, and Firebase Storage |
 | Validation | Zod |
 | Smoke QA | Playwright through `scripts/qa-smoke.mjs` |
 
@@ -29,9 +29,11 @@ This document describes the current Howeth and Harp website system as it exists 
 ```txt
 app/          Routes, layouts, server actions, metadata, sitemap, robots, and OG endpoint
 components/   Admin, analytics, inquiry, layout, legal, marketing, pricing, projects, and UI primitives
-lib/          Content, database access, Supabase auth, validation, analytics, metadata, and formatting helpers
+lib/          Content, database access, Firebase auth, validation, analytics, metadata, and formatting helpers
 scripts/      Local QA and demo-content utilities
-supabase/     SQL migrations for inquiry submissions and HHQ-managed content
+firebase.json Firebase Emulator Suite and deploy configuration
+firestore.*   Firestore rules and indexes
+storage.rules Firebase Storage rules
 types/        Shared TypeScript domain types
 public/       Brand assets, placeholders, and image folders
 docs/         Active manual path and deprecated historical docs
@@ -60,40 +62,51 @@ Marketing content for finish levels, build types, FAQ, legal copy, and route met
 2. Admin writes go through `lib/db/operations.ts`.
 3. Public reads for `/projects`, project detail pages, and pricing settings use cached helpers in `lib/db/operations.ts`.
 4. `updateTag(projectCacheTag)` and `updateTag(pricingSettingsCacheTag)` refresh public data after admin saves.
-5. If Supabase server credentials are missing, public project reads fall back to empty project data and pricing reads fall back to null pricing values.
+5. If Firebase Admin is unavailable, public project reads fall back to empty project data and pricing reads fall back to null pricing values.
 
 ### Admin Access
 
 Admin access requires both:
 
-1. a valid Supabase-authenticated session
-2. `user.app_metadata.role === "admin"`
+1. a valid Firebase session cookie
+2. a verified Firebase custom claim where `role === "admin"`
 
-The shared rule lives in `lib/supabase/admin-access.ts`. It is used by `lib/supabase/auth.ts`, `lib/supabase/proxy.ts`, and `app/admin/actions.ts`.
+The shared rule lives in `lib/firebase/admin-access.ts`. It is used by `lib/firebase/auth.ts`, `lib/firebase/proxy.ts`, and `app/admin/actions.ts`.
 
-## Supabase Shape
+## Firebase Shape
 
-| Migration | Tables or resources |
+| Resource | Contract |
 | --- | --- |
-| `20260327120000_create_inquiry_submissions.sql` | `inquiry_submissions` with RLS enabled. |
-| `20260327153000_create_operations_portal_tables.sql` | `projects`, `project_images`, `pricing_settings`, `project-images` storage bucket, public read policies. |
+| `inquirySubmissions/{id}` | Validated project brief, `status`, and Firestore `createdAt` timestamp. |
+| `projects/{id}` | Project fields plus the embedded `images` array. |
+| `projectSlugs/{slug}` | Stable slug-to-project-ID lookup. |
+| `settings/pricing` | Shared square-foot pricing fields and `updatedAt`. |
+| Firebase Storage | Image objects at `projects/{projectId}/{file}` with download-token URLs. |
 
-The app uses the Supabase service-role key only on the server. Do not expose `SUPABASE_SERVICE_ROLE_KEY` to client code or public docs.
+Firestore and Storage rules deny direct client access. Server reads and writes use Firebase Admin. Local development uses Application Default Credentials; Vercel uses OIDC and Workload Identity Federation without a service-account key.
 
 ## Environment Variables
 
 See [.env.example](../.env.example) and the root [README](../README.md). The active names are:
 
 - `NEXT_PUBLIC_SITE_URL`
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_STORAGE_BUCKET`
+- `GCP_PROJECT_ID`
+- `GCP_PROJECT_NUMBER`
+- `GCP_SERVICE_ACCOUNT_EMAIL`
+- `GCP_WORKLOAD_IDENTITY_POOL_ID`
+- `GCP_WORKLOAD_IDENTITY_POOL_PROVIDER_ID`
 - `HH_CONTACT_PHONE_HREF`
 - `HH_CONTACT_PHONE_LABEL`
 - `HH_CONTACT_EMAIL`
 - `INQUIRY_NOTIFICATION_EMAIL`
-- `CRON_SECRET`
 
 ## Visual System
 
@@ -103,7 +116,9 @@ HHQ is intentionally more utilitarian than the public site. It should stay fast,
 
 ## Known Launch Gaps
 
-- Apply both Supabase migrations in the target project.
+- Enable Firebase Auth email/password sign-in, Firestore, and Firebase Storage.
+- Upgrade Firebase to Blaze before provisioning Storage.
+- Configure Vercel OIDC and Workload Identity Federation.
 - Set preview and production environment variables.
 - Replace placeholder gallery assets with final production imagery.
 - Confirm final public phone and email details.

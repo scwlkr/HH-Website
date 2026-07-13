@@ -6,7 +6,7 @@ HHQ is the internal operations workspace for managed website content. It control
 
 | Route | Purpose |
 | --- | --- |
-| `/admin/login` | Supabase email/password login for HHQ. |
+| `/admin/login` | Firebase email/password login for HHQ. |
 | `/admin/projects` | Project list and management entry point. |
 | `/admin/projects/new` | Create a completed-home record. |
 | `/admin/projects/[id]` | Edit an existing project. |
@@ -16,12 +16,12 @@ HHQ is the internal operations workspace for managed website content. It control
 
 HHQ requires both:
 
-1. a valid Supabase-authenticated session
-2. `user.app_metadata.role === "admin"`
+1. a valid Firebase session cookie
+2. a verified Firebase custom claim where `role === "admin"`
 
-The shared authorization helper is `lib/supabase/admin-access.ts`. Do not duplicate a separate admin rule in route files, server actions, or components.
+The shared authorization helper is `lib/firebase/admin-access.ts`. Do not duplicate a separate admin rule in route files, server actions, or components.
 
-To grant access, set the user's Supabase `app_metadata.role` value to `admin`. Use `app_metadata`, not `user_metadata`.
+To grant access, set the Firebase Auth user's custom claim to `{ "role": "admin" }` with trusted admin tooling. Never accept role data from the browser.
 
 To remove access, remove that role or change it to another value. The user may need to sign out and back in after role changes.
 
@@ -66,21 +66,36 @@ Public pricing surfaces should read from the shared settings instead of duplicat
 
 | Public route | Managed source |
 | --- | --- |
-| `/projects` | Supabase `projects` plus cover image data. |
-| `/projects/[projectSlug]` | Supabase project detail and gallery data. |
-| Pricing surfaces | Supabase `pricing_settings`. |
+| `/projects` | Firestore `projects` with embedded image metadata. |
+| `/projects/[projectSlug]` | Firestore `projectSlugs` lookup plus its project document. |
+| Pricing surfaces | Firestore `settings/pricing`. |
 
 Public data helpers live in `lib/db/operations.ts`. They use cache tags so admin saves can refresh project and pricing reads.
 
 ## Storage
 
-Project image files use the `project-images` Supabase storage bucket. Public URLs are built from the configured Supabase URL, the bucket name, and stored image paths.
+Project image files use Firebase Storage at `projects/{projectId}/{file}`. Each Firestore project document embeds image IDs, paths, alt text, sort order, cover status, and download-token URLs.
+
+Firebase Storage provisioning requires the Blaze plan. Direct Firebase SDK reads and writes stay disabled; Firebase Admin owns writes and issues download-token URLs for public image display.
+
+## Demo Seed
+
+The demo utility uses the same embedded-image contract as HHQ. Authenticate with ADC, then run:
+
+```bash
+gcloud auth application-default login
+FIREBASE_PROJECT_ID=howeth-and-harp \
+FIREBASE_STORAGE_BUCKET=howeth-and-harp.firebasestorage.app \
+node scripts/seed-demo-content.mjs
+```
+
+The utility replaces its two known demo projects and their Storage objects. Set the emulator variables from `.env.example` first when seeding locally.
 
 ## Guardrails
 
 - Keep HHQ functional and dense. It is an internal tool, not a marketing page.
 - Keep admin writes in server actions.
-- Keep authorization centralized in `lib/supabase/admin-access.ts`.
+- Keep authorization centralized in `lib/firebase/admin-access.ts`.
 - Do not allow "logged in" alone to mean "admin".
 - Do not store admin authority in form data, query params, or client-controlled metadata.
-- Do not expose service-role values in UI, docs, or client bundles.
+- Do not expose service-account credentials in UI, docs, or client bundles. Use ADC locally and Vercel OIDC in production.
