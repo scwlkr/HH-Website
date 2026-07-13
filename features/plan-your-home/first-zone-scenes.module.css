@@ -55,8 +55,8 @@
 
 .addressPlaque {
   position: absolute;
+  top: 33%;
   left: 50%;
-  bottom: 14%;
   display: grid;
   min-width: min(18rem, 72vw);
   translate: -50% 0;
@@ -191,7 +191,7 @@
 }
 
 @media (max-width: 40rem) {
-  .addressPlaque { bottom: 12%; }
+  .addressPlaque { top: 42%; }
   .sceneDisclaimer { display: none; }
   .sceneCaption { left: 5%; bottom: 7%; }
 }

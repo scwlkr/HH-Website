@@ -71,6 +71,11 @@ export type {
   PlanHomeLocalSnapshotDependencies,
   StorageLike,
 } from "./local-snapshot";
+export {
+  createPlanHomeClientDraftAdapter,
+  PLAN_HOME_CLIENT_DRAFT_KEY,
+} from "./client-draft-state";
+export type { PlanHomeClientDraftState } from "./client-draft-state";
 export { PlanYourHomeShell } from "./plan-your-home-shell";
 export { NeutralDevelopmentScene } from "./neutral-development-scene";
 export {

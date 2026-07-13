@@ -101,6 +101,10 @@ export function SceneStage({
   const describedBy = [helperId, errorId].filter(Boolean).join(" ") || undefined;
 
   useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  useEffect(() => {
     if (previousQuestionId.current === question.id) {
       return;
     }

@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useRef,
   useState,
   type FormEvent,
   type ReactNode,
@@ -311,7 +312,11 @@ function ContactCheckpoint({
   onChange: (fields: ContactFields) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const errorId = error ? "plan-home-contact-error" : undefined;
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
   return (
     <section className={styles.moment} data-tour-beat="contact-checkpoint">
       <div className={styles.momentScene}>
@@ -323,7 +328,9 @@ function ContactCheckpoint({
         onSubmit={onSubmit}
       >
         <p className={styles.eyebrow}>A good place to pause</p>
-        <h1 id="plan-home-contact-heading">Save your progress and resume later.</h1>
+        <h1 ref={headingRef} id="plan-home-contact-heading" tabIndex={-1}>
+          Save your progress and resume later.
+        </h1>
         <p className={styles.momentCopy}>
           We’ll attach these first six answers to {name.trim()} and keep your
           place in the walkthrough.
@@ -389,6 +396,10 @@ function ContactCheckpoint({
 }
 
 function ZoneBoundary({ onBack }: Readonly<{ onBack: () => void }>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
   return (
     <section className={styles.moment} data-tour-beat="living-to-kitchen">
       <div className={styles.momentScene}>
@@ -396,7 +407,9 @@ function ZoneBoundary({ onBack }: Readonly<{ onBack: () => void }>) {
       </div>
       <div className={styles.momentSheet}>
         <p className={styles.eyebrow}>Project frame saved</p>
-        <h1>The kitchen is through the opening.</h1>
+        <h1 ref={headingRef} tabIndex={-1}>
+          The kitchen is through the opening.
+        </h1>
         <p className={styles.momentCopy}>
           Your welcome, project frame, and Living Room answers are saved. The
           next room continues from this threshold.
@@ -690,31 +703,41 @@ export function PlanYourHomeShell({
     const question = activeQuestion;
     if (!question) throw new Error("The active Plan Your Home question is missing.");
     content = (
-      <SceneStage
-        question={question}
-        zone={PROJECT_AND_LIVING_ZONE}
-        totalQuestions={planHomeQuestions.length}
-        scene={sceneForQuestion(question)}
-        prompt={renderQuestionPrompt(
-          question,
-          draftAnswers[question.id],
-          (answer) => {
-            setDraftAnswers((current) => ({ ...current, [question.id]: answer }));
-            setError(null);
-          },
-        )}
-        cameraFrame={CAMERA_FRAMES[question.cameraKey] ?? {
-          xPercent: 0,
-          yPercent: 0,
-          scale: 1,
-        }}
-        onBack={backFromQuestion}
-        onNext={() => nextFromQuestion(question)}
-        canGoBack
-        nextLabel={question.number === FIRST_ZONE_LAST_QUESTION ? "Save room" : "Next"}
-        error={error}
-        reducedMotion={reducedMotion}
-      />
+      <div
+        className={styles.sceneBeat}
+        data-tour-beat={question.number === 1 ? "front-door" : "in-room"}
+      >
+        <SceneStage
+          question={question}
+          zone={PROJECT_AND_LIVING_ZONE}
+          totalQuestions={planHomeQuestions.length}
+          scene={sceneForQuestion(question)}
+          prompt={renderQuestionPrompt(
+            question,
+            draftAnswers[question.id],
+            (answer) => {
+              setDraftAnswers((current) => ({
+                ...current,
+                [question.id]: answer,
+              }));
+              setError(null);
+            },
+          )}
+          cameraFrame={CAMERA_FRAMES[question.cameraKey] ?? {
+            xPercent: 0,
+            yPercent: 0,
+            scale: 1,
+          }}
+          onBack={backFromQuestion}
+          onNext={() => nextFromQuestion(question)}
+          canGoBack
+          nextLabel={
+            question.number === FIRST_ZONE_LAST_QUESTION ? "Save room" : "Next"
+          }
+          error={error}
+          reducedMotion={reducedMotion}
+        />
+      </div>
     );
   } else {
     content = <ZoneBoundary onBack={backFromBoundary} />;
