@@ -509,53 +509,31 @@
     display: none;
   }
 
-  .hh-page-frame {
+  .hh-route-intro {
     position: relative;
-    isolation: isolate;
-    border: var(--hh-line-hairline) solid var(--hh-line-strong);
-    border-radius: calc(var(--hh-radius-panel) + 0.08rem);
-    background:
-      linear-gradient(138deg, rgba(35, 45, 63, 0.022) 0%, rgba(35, 45, 63, 0) 21%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 248, 244, 0.88) 100%);
-    box-shadow: var(--hh-shadow-panel);
+    overflow: clip;
+    background: color-mix(in srgb, var(--hh-surface) 67%, var(--hh-paper));
   }
 
-  .hh-page-frame::before {
+  .hh-route-intro::before {
     position: absolute;
-    inset: 0.9rem;
-    border: var(--hh-line-hairline) solid rgba(17, 17, 15, 0.08);
-    border-radius: max(0px, calc(var(--hh-radius-panel) - 0.06rem));
-    background:
-      repeating-linear-gradient(
-        135deg,
-        rgba(35, 45, 63, 0.026) 0,
-        rgba(35, 45, 63, 0.026) 1px,
-        transparent 1px,
-        transparent 10px
-      ) right 1.35rem top 1.3rem / 6.4rem 3.8rem no-repeat;
+    inset: 0;
+    background-image: linear-gradient(
+      to right,
+      rgba(35, 45, 63, 0.038) 1px,
+      transparent 1px
+    );
+    background-position: center;
+    background-size: var(--hh-grid-size-room) 100%;
     content: "";
+    mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+    opacity: 0.4;
     pointer-events: none;
   }
 
-  .hh-page-frame::after {
-    position: absolute;
-    inset: auto 1.2rem -1rem 1.2rem;
-    height: 1.6rem;
-    border-radius: inherit;
-    background:
-      linear-gradient(180deg, rgba(17, 17, 15, 0) 0%, rgba(17, 17, 15, 0.18) 100%),
-      repeating-linear-gradient(
-        135deg,
-        rgba(17, 17, 15, 0.12) 0,
-        rgba(17, 17, 15, 0.12) 1px,
-        transparent 1px,
-        transparent 9px
-      );
-    content: "";
-    mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.45) 42%, rgba(0, 0, 0, 1) 100%);
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: -1;
+  .hh-route-intro > * {
+    position: relative;
+    z-index: 1;
   }
 
   /* ─── Open landing-page drafting field ─────────────────── */

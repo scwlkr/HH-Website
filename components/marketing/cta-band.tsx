@@ -1,4 +1,3 @@
-import { CardShell } from "@/components/ui/card-shell";
 import { ActionLink } from "@/components/marketing/action-link";
 
 type BandAction = {
@@ -27,7 +26,7 @@ export function CtaBand({
   notes,
 }: CtaBandProps) {
   return (
-    <CardShell tone="accent" className="px-6 py-7 sm:px-8 sm:py-8">
+    <div className="border-y border-line-strong bg-white/35 py-8 sm:py-10">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,0.55fr)] lg:gap-10">
         <div>
           <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
@@ -75,6 +74,6 @@ export function CtaBand({
           </div>
         ) : null}
       </div>
-    </CardShell>
+    </div>
   );
 }
