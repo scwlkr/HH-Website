@@ -54,7 +54,7 @@ This is a conversation starter, not an approved flow.
 
 ## Fixed Walkthrough
 
-The exact rooms and order are unresolved, but the walkthrough itself will not change based on the customer's answers.
+The exact rooms and order are unresolved, but the walkthrough itself will not change based on the customer's answers. Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections.
 
 - site and exterior
 - entry and living areas
@@ -119,7 +119,7 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 ## Decisions To Resolve
 
-1. Fixed room navigation, set, and sequence.
+1. Fixed room count, set, and sequence.
 2. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
 3. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
 4. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
@@ -155,20 +155,27 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 - Describe the result as a **project brief** in supporting copy, the review screen, and H&H's internal workflow.
 - Avoid language implying that the website produces final designs, specifications, or pricing.
 
+### 2026-07-13 — Linear navigation
+
+- Lead customers through one fixed room order with one obvious **Next** action.
+- Keep **Back** available so answers can be corrected.
+- Show clear progress and the current room so customers always know where they are.
+- Do not use a free-roam house map during the questionnaire.
+
 ## Current Question
 
-How should customers move through the fixed rooms?
+How granular should the fixed walkthrough be?
 
-### A. Linear guided tour
+### A. Compact: 6 to 8 combined zones
 
-Customers use **Previous** and **Next** to follow one required room order. This is simple and focused, but makes revisiting a distant room tedious.
+Group related spaces together, such as the primary bedroom and bathroom or the garage and utility areas. This is fastest, but may weaken the room-by-room feeling and crowd each stop with more questions.
 
-### B. Free-roam house map
+### B. Balanced: 9 to 12 room stops — recommended
 
-Customers choose rooms from a visual overview in any order. This feels exploratory, but makes progress and completion requirements less obvious.
+Give major rooms their own short stop with roughly two to five questions each. This keeps each screen simple while preserving the feeling of moving through a complete home.
 
-### C. Guided tour with an overview map — recommended
+### C. Detailed: 13 to 18 room stops
 
-The experience recommends a natural room order with **Previous** and **Next**, while a persistent house map shows progress and lets customers revisit any room. On mobile or for assistive technology, the map can become a clear room list.
+Represent most individual spaces separately, including secondary bathrooms, pantry, office, mudroom, and storage. This gathers more detail but raises completion time and abandonment risk.
 
-The recommendation is **C**. It preserves the feeling of a walkthrough without trapping customers in a long wizard or making them guess what remains unfinished.
+The recommendation is **B**. A linear tour stays intuitive when each stop has one clear purpose and only a handful of questions; nine to twelve stops is detailed enough to feel like a home without becoming exhausting.
