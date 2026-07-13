@@ -122,7 +122,11 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "924a96c654f1e79f2f76dd4a76979f8b1da9e5d8231f5f76c6d10a709a173332",
+      "e247fae877364d96c6854a8f7c69a35eee596d795c8bb04d64a5356370a9c361",
+    );
+    assert.equal(
+      question("home.systems").helper,
+      "Choose up to 6 broad planning priorities. These choices guide a conversation; they are not engineering, equipment specifications, feasibility decisions, or pricing.",
     );
   });
 
