@@ -139,7 +139,7 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 The room scenes use dimensional architectural illustration: believable perspective and depth, restrained material cues, architectural linework, warm paper tones, and limited green emphasis. They should feel spatial and polished without becoming photorealistic promises or game-like 3D environments.
 
-Questions and answer controls are integrated into the illustrated room rather than placed in a permanent form panel. A prompt can attach to a relevant object, fixture, surface, or area and expand in place when active. The room itself is the interface; it should not look like a decorative image sitting beside a form.
+Questions and answer controls are integrated into the illustrated room rather than placed in a permanent form panel. One prompt at a time attaches to a relevant object, fixture, surface, or area and expands in place when active. After the answer is recorded, attention moves to the next integrated prompt. The room itself is the interface; it should not look like a decorative image sitting beside a form.
 
 ## Research-Informed Draft Question Inventory
 
@@ -236,6 +236,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 
 - Keep all eight zones visible even when a conditional detail is not applicable.
 - Integrate prompts with relevant room objects or areas instead of exposing a separate form column.
+- Guide customers through one active prompt at a time; do not display a field of competing hotspots.
 - Offer **not sure yet** wherever a customer may reasonably need H&H's guidance.
 - Allow optional notes without making customers type after every choice.
 - Ask for requirements and preferences, not final specifications.
@@ -295,18 +296,17 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 
 ## Decisions To Resolve
 
-1. Integrated-prompt choreography: one at a time, all visible, or free exploration.
-2. Mobile and assistive-technology presentation for room-integrated controls.
-3. Transition storyboards and the illustrated asset plan.
-4. Refine and approve the exact question inventory.
-5. Final room-zone set and sequence.
-6. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-7. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-8. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-9. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-10. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-11. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-12. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Mobile and assistive-technology presentation for room-integrated controls.
+2. Transition storyboards and the illustrated asset plan.
+3. Refine and approve the exact question inventory.
+4. Final room-zone set and sequence.
+5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+10. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+11. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -390,20 +390,27 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Do not use a permanent split-screen question panel.
 - Preserve semantic controls, readable labels, keyboard order, and screen-reader access underneath the visual treatment.
 
+### 2026-07-13 — One guided prompt at a time
+
+- Show and emphasize only the current integrated prompt.
+- After an answer is recorded, move attention to the next object or area in a predetermined order.
+- Keep progress explicit so customers know how much remains in the room and the overall walkthrough.
+- Do not show every hotspot at once or require customers to discover hidden interactions.
+
 ## Current Question
 
-How many integrated prompts should be active at once?
+How should the room-integrated interaction adapt to a phone?
 
-### A. One guided prompt at a time — recommended
+### A. Automatically frame the active area — recommended
 
-Highlight one object or area, open its question, accept the answer, then guide attention to the next point in the room. This preserves the simple linear flow and makes it difficult to get lost.
+Pan or zoom the illustration to the relevant object, then open a touch-sized question treatment on or beside that object. After the answer, move to the next area. The customer always sees a meaningful portion of the room instead of a tiny full-room image.
 
-### B. Show every room hotspot at once
+### B. Keep the entire room visible
 
-Display every interactive marker as soon as the room loads. Customers can answer in any order, but the illustration may become visually busy and progress becomes less obvious.
+Scale the complete scene to the phone and place the active prompt within it. The overall room remains visible, but objects, labels, and answer targets may become too small.
 
-### C. Hide prompts for free exploration
+### C. Require landscape orientation
 
-Let customers inspect the room and discover interactive areas themselves. This feels exploratory, but creates the greatest risk of missed questions and confusion.
+Ask customers to rotate their phone so the room has more horizontal space. This preserves more of the desktop composition but interrupts the experience and may be impractical or inaccessible.
 
-The recommendation is **A**. It combines the integrated-room idea with the earlier decision that the walkthrough must remain linear, simple, and intuitive.
+The recommendation is **A**. It keeps the questions inside the room while ensuring the active object and controls remain large enough to understand and touch.
