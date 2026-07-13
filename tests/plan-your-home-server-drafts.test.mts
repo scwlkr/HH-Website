@@ -19,6 +19,7 @@ import {
 
 const signingSecret = "a-test-only-signing-secret-with-32-characters";
 const sessionHash = "a".repeat(64);
+const localDraftId = "f47ac10b-58cc-4372-a567-0e02b2c3d479";
 
 function answersThrough(questionNumber: number) {
   return Object.fromEntries(
@@ -30,7 +31,7 @@ function answersThrough(questionNumber: number) {
 
 function validCreateInput() {
   return {
-    idempotencyKey: "local-draft-123:plan-home-v1:contact-gate",
+    idempotencyKey: `${localDraftId}:plan-home-v1:contact-gate`,
     welcomeName: "  Taylor   Homeowner  ",
     contact: {
       email: "Taylor@Example.COM",
@@ -80,6 +81,16 @@ describe("Plan Your Home server draft contract", () => {
             ...validCreateInput().contact,
             manualFollowUpDisclosureAccepted: false,
           },
+        },
+        sessionHash,
+      ),
+      PlanHomeDraftValidationError,
+    );
+    await assert.rejects(
+      repository.createDraft(
+        {
+          ...validCreateInput(),
+          idempotencyKey: "plan-home-v1:contact-gate",
         },
         sessionHash,
       ),

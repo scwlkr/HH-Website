@@ -158,8 +158,23 @@ function readStoredDraft(value: unknown): StoredPlanHomeDraft {
 function assertAuthorized(
   document: StoredPlanHomeDraft,
   sessionTokenHash: string,
+  checkedAt: Date,
 ) {
   if (!hashesMatch(document.draftSession.tokenHash, sessionTokenHash)) {
+    throw new PlanHomeDraftAuthorizationError();
+  }
+
+  const expiresAt = document.expiresAt as unknown;
+  const expiresAtMillis =
+    expiresAt instanceof Date
+      ? expiresAt.getTime()
+      : expiresAt &&
+          typeof expiresAt === "object" &&
+          "toMillis" in expiresAt &&
+          typeof expiresAt.toMillis === "function"
+        ? expiresAt.toMillis()
+        : Number.NaN;
+  if (!Number.isFinite(expiresAtMillis) || expiresAtMillis <= checkedAt.getTime()) {
     throw new PlanHomeDraftAuthorizationError();
   }
 }
@@ -298,7 +313,8 @@ export function createPlanHomeDraftRepository(
         }
 
         const existing = readStoredDraft(snapshot.data());
-        assertAuthorized(existing, sessionTokenHash);
+        const writtenAt = now();
+        assertAuthorized(existing, sessionTokenHash, writtenAt);
 
         const idempotentResult =
           existing.checkpointIdempotency[idempotencyKeyHash];
@@ -340,7 +356,6 @@ export function createPlanHomeDraftRepository(
           ...existing.answers,
           ...parsed.answers,
         } satisfies PlanHomeAnswerMap;
-        const writtenAt = now();
         const revision = existing.revision + 1;
         const derived = createPlanHomeDraftDerived(existing.contact, answers);
         const idempotencyResult: StoredIdempotencyResult = {

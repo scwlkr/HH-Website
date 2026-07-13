@@ -14,6 +14,8 @@ import {
 } from "./registry.ts";
 
 const contactGateAnswerCount = 6;
+const uuidV4Pattern =
+  /(?:^|[:_-])[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?=[:_-]|$)/i;
 
 const idempotencyKeySchema = z
   .string()
@@ -23,6 +25,10 @@ const idempotencyKeySchema = z
   .regex(
     /^[A-Za-z0-9:_-]+$/,
     "Idempotency keys may only contain letters, numbers, colons, underscores, and hyphens.",
+  )
+  .refine(
+    (value) => uuidV4Pattern.test(value),
+    "Idempotency keys must include a random UUID v4 segment.",
   );
 
 const draftIdSchema = z
