@@ -239,6 +239,8 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 | 33 | What are your must-haves, nice-to-haves, and deal-breakers? | Ranked or grouped priorities |
 | 34 | What home-design-and-construction budget range and timing are you currently planning around? | Stepped budget range plus timing choice |
 
+Use this final illustrated zone as the single reference workspace. Accept house-plan PDFs, phone images, and repeatable website links, with a short optional note on each item explaining what the customer likes. Do not place upload controls throughout the earlier rooms.
+
 ### Review And Contact
 
 | # | Working question | Likely response |
@@ -323,7 +325,7 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 2. Transition storyboards and the illustrated asset plan.
 3. Refine and approve the exact question inventory.
 4. Final room-zone set and sequence.
-5. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+5. Inspiration: final file types, upload limits, link security, ownership language, and privacy.
 6. Draft retention, expiration, deletion, and resume-link delivery details.
 7. H&H review: incomplete drafts, submitted answers, generated summary, visual home map, lead scoring, and follow-up workflow.
 8. Animation implementation technique, chosen later based on assets, performance, and maintainability.
@@ -477,20 +479,29 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 - Present the choice as a simple stepped mobile control with a clearly displayed selected range; retain an equivalent semantic form control for accessibility.
 - Treat the answer as directional planning context, not a generated floor plan or constraint on later feature choices.
 
+### 2026-07-13 — One Design Desk for inspiration
+
+- Collect all plans, photos, and website references in the illustrated **Design Desk and Inspiration** zone near the end.
+- Accept house-plan PDFs, phone images, and repeatable website links as the working content types.
+- Allow a short optional note on each reference so H&H knows what the customer likes or wants to discuss.
+- Do not interrupt earlier rooms with upload controls.
+- Keep all inspiration optional; a customer with no files or links should continue without friction.
+- Set exact formats, file sizes, item counts, storage rules, and link-security behavior during implementation planning.
+
 ## Current Question
 
-Where should customers add plans, photos, and website links?
+How should H&H review drafts and submitted project briefs inside HHQ?
 
-### A. One Design Desk near the end — recommended
+### A. Inquiry queue plus organized detail view — recommended
 
-Keep the walkthrough moving, then gather PDFs, phone images, and repeatable website links in the final illustrated Design Desk zone. Each item can include a short optional note explaining what the customer likes.
+Add an inquiry queue showing draft/submitted status, customer, progress, last activity, square footage, finish level, and location. Opening one shows a concise summary organized by room, contact information, priorities, inspiration, unanswered items, and the raw answers when needed.
 
-### B. Upload within each relevant room
+### B. Visual house map as the primary review
 
-Let customers attach kitchen inspiration in the kitchen, bathroom inspiration in the suite, and so on. Context is stronger, but upload controls interrupt several rooms and may feel repetitive.
+Open each inquiry as the same illustrated house with completed rooms and selections highlighted. This mirrors the customer experience, but it is slower for staff who need to scan and compare leads efficiently.
 
-### C. Both room uploads and a Design Desk
+### C. Email or PDF brief only
 
-Allow attachments throughout the walkthrough and provide a final place to organize them. This is flexible but adds the most interface and data-management complexity.
+Send H&H a generated brief without building a dedicated HHQ inquiry area. This is simpler initially, but unfinished drafts, statuses, follow-up notes, and searching become difficult to manage.
 
-The recommendation is **A**. One dedicated visual workspace keeps the room flow simple while still collecting all reference material in a structured place.
+The recommendation is **A**. HHQ is an operational tool, so a fast queue and readable structured brief are more useful than reproducing the customer-facing walkthrough internally.
