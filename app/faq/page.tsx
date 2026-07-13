@@ -36,24 +36,29 @@ export default function FaqPage() {
         title="The page is organized around the questions most likely to block a next step."
         description="Each group stays compact so visitors can scan the relevant section and move on."
       >
-        <div className="grid gap-x-10 gap-y-8 xl:grid-cols-2">
-          {faqGroups.map((group) => {
+        <div className="border-t border-line-strong">
+          {faqGroups.map((group, groupIndex) => {
             const items = getFaqItemsByGroup(group.slug).map((item, index) => ({
               id: item.id,
               title: item.question,
               content: item.answer,
-              defaultOpen: index === 0,
+              defaultOpen: groupIndex === 0 && index === 0,
             }));
 
             return (
-              <article key={group.slug} className="border-t border-line pt-5">
-                <p className="font-mono text-[0.72rem] uppercase tracking-[0.14em] text-accent">
-                  {group.title}
-                </p>
-                <p className="mt-4 text-sm leading-7 text-muted">
-                  {group.description}
-                </p>
-                <Accordion items={items} className="mt-6" />
+              <article
+                key={group.slug}
+                className="grid gap-7 border-b border-line py-7 lg:grid-cols-[minmax(14rem,0.48fr)_minmax(0,1.52fr)] lg:gap-12 lg:py-9"
+              >
+                <header>
+                  <p className="font-mono text-[0.72rem] uppercase tracking-[0.14em] text-accent">
+                    {group.title}
+                  </p>
+                  <p className="mt-4 max-w-sm text-sm leading-7 text-muted">
+                    {group.description}
+                  </p>
+                </header>
+                <Accordion items={items} />
               </article>
             );
           })}

@@ -1,4 +1,3 @@
-import { CardShell } from "@/components/ui/card-shell";
 import {
   getBudgetRangeLabel,
   getFinishLevelLabel,
@@ -56,8 +55,8 @@ export function InquiryReview({ values }: InquiryReviewProps) {
     .join(", ");
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
-      <CardShell>
+    <div className="grid border-y border-line-strong xl:grid-cols-2">
+      <section className="border-b border-line py-6 xl:border-r xl:px-7 xl:first:pl-0">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Contact
         </p>
@@ -70,9 +69,9 @@ export function InquiryReview({ values }: InquiryReviewProps) {
             value={getPreferredContactMethodLabel(values.preferredContactMethod)}
           />
         </div>
-      </CardShell>
+      </section>
 
-      <CardShell>
+      <section className="border-b border-line py-6 xl:px-7 xl:last:pr-0">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Project Basics
         </p>
@@ -94,9 +93,9 @@ export function InquiryReview({ values }: InquiryReviewProps) {
             value={serviceLabels || "Not provided"}
           />
         </div>
-      </CardShell>
+      </section>
 
-      <CardShell>
+      <section className="border-b border-line py-6 xl:border-b-0 xl:border-r xl:px-7 xl:first:pl-0">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Site Context
         </p>
@@ -112,16 +111,16 @@ export function InquiryReview({ values }: InquiryReviewProps) {
             value={getBudgetRangeLabel(values.budgetRange) ?? "Optional"}
           />
         </div>
-      </CardShell>
+      </section>
 
-      <CardShell tone="accent">
+      <section className="py-6 xl:px-7 xl:last:pr-0">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Project Description
         </p>
         <p className="mt-5 text-sm leading-7 text-foreground">
           {values.projectDescription || "Not provided"}
         </p>
-      </CardShell>
+      </section>
     </div>
   );
 }

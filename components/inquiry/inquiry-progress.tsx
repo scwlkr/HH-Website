@@ -1,4 +1,3 @@
-import { CardShell } from "@/components/ui/card-shell";
 import { inquiryProgressSteps } from "@/lib/inquiry/options";
 import { cn } from "@/lib/utils/cn";
 
@@ -10,7 +9,7 @@ export function InquiryProgress({ currentStepIndex }: InquiryProgressProps) {
   const activeStep = inquiryProgressSteps[currentStepIndex];
 
   return (
-    <CardShell tone="muted">
+    <div className="border-y border-line-strong py-6">
       <nav aria-labelledby="inquiry-progress-title" aria-describedby="inquiry-progress-status">
         <p
           id="inquiry-progress-title"
@@ -22,7 +21,7 @@ export function InquiryProgress({ currentStepIndex }: InquiryProgressProps) {
           Current step: {activeStep.title}. Step {currentStepIndex + 1} of{" "}
           {inquiryProgressSteps.length}.
         </p>
-        <ol className="mt-5 space-y-4">
+        <ol className="mt-5 border-t border-line">
           {inquiryProgressSteps.map((step, index) => {
             const isComplete = index < currentStepIndex;
             const isCurrent = index === currentStepIndex;
@@ -31,24 +30,24 @@ export function InquiryProgress({ currentStepIndex }: InquiryProgressProps) {
               <li
                 key={step.id}
                 className={cn(
-                  "rounded-[calc(var(--hh-radius-panel)-0.3rem)] border px-4 py-4 transition-colors",
+                  "border-b border-line py-4 transition-colors",
                   isCurrent
-                    ? "border-accent bg-accent-soft/50"
+                    ? "border-l-2 border-l-accent pl-4"
                     : isComplete
-                      ? "border-line-strong bg-surface"
-                      : "border-line bg-surface",
+                      ? "text-foreground"
+                      : "text-muted",
                 )}
                 aria-current={isCurrent ? "step" : undefined}
               >
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--hh-radius-pill)] border font-mono text-[0.68rem] uppercase tracking-[0.18em]",
+                      "flex h-8 w-8 shrink-0 items-center justify-center border-r border-line font-mono text-[0.68rem] uppercase tracking-[0.18em]",
                       isCurrent
-                        ? "border-accent bg-accent text-background"
+                        ? "border-accent text-accent"
                         : isComplete
-                          ? "border-line-strong bg-surface-raised text-foreground"
-                          : "border-line bg-surface text-muted",
+                          ? "border-line-strong text-foreground"
+                          : "border-line text-muted",
                     )}
                   >
                     {step.label}
@@ -67,6 +66,6 @@ export function InquiryProgress({ currentStepIndex }: InquiryProgressProps) {
           })}
         </ol>
       </nav>
-    </CardShell>
+    </div>
   );
 }
