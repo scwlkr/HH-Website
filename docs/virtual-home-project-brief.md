@@ -144,7 +144,7 @@ The walkthrough will use six to eight combined room zones and will not change ba
 
 Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections. Moving forward or backward triggers a brief predesigned transition between the fixed room scenes.
 
-A customer selecting one bedroom sees the same rooms as a customer selecting five bedrooms. A bedroom scene represents the bedroom portion of the questionnaire rather than each literal bedroom in the proposed home. Every stop should still support **skip**, **not applicable**, or **not sure yet** where appropriate.
+A customer selecting one bedroom sees the same rooms as a customer selecting five bedrooms. A bedroom scene represents the bedroom portion of the questionnaire rather than each literal bedroom in the proposed home. Each structured prompt must be acknowledged, using **not applicable**, **none**, or **not sure yet** where appropriate instead of a silent skip.
 
 The room scenes use dimensional architectural illustration: believable perspective and depth, restrained material cues, architectural linework, warm paper tones, and limited green emphasis. They should feel spatial and polished without becoming photorealistic promises or game-like 3D environments.
 
@@ -257,6 +257,7 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 - Integrate prompts with relevant room objects or areas instead of exposing a separate form column.
 - Guide customers through one active prompt at a time; do not display a field of competing hotspots.
 - Offer **not sure yet** wherever a customer may reasonably need H&H's guidance.
+- Require every structured prompt to be acknowledged; use explicit **none** or **not applicable** choices when relevant rather than leaving ambiguous blanks.
 - Allow optional notes without making customers type after every choice.
 - Ask for requirements and preferences, not final specifications.
 - Use plain homeowner language and explain unfamiliar terms such as scullery or Jack-and-Jill bath.
@@ -311,7 +312,7 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 - Do not imply that visuals exactly represent the final material, layout, or price.
 - Avoid presenting an automatic price as authoritative before site, design, and scope review.
 - Keep every home feature available regardless of the customer's stated budget; reconcile scope and budget with H&H during the later in-person design conversation.
-- Let customers skip, go back, and revise without losing work.
+- Let customers choose an explicit uncertainty response, go back, and revise without losing work.
 - Autosave each answer locally, sync a server draft after every completed room, and return a resumed customer to their last position.
 - Show unfinished room-by-room drafts in H&H's backend without treating them as completed submissions.
 - Send no automatic abandoned-draft reminder; allow disclosed, manual H&H follow-up.
@@ -499,20 +500,28 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 - Make uploaded files directly openable and website references clickable from the record.
 - Do not add a customer-facing house visualization, AI-generated summary, lead scoring, or complex analytics to the HHQ review screen.
 
+### 2026-07-13 — No silently skipped planning prompts
+
+- Require a response to each structured planning prompt before moving forward.
+- Include **Not sure yet**, **None**, or **Not applicable** wherever those are honest possible answers.
+- Keep optional notes, uploads, and inspiration links optional.
+- Preserve **Back** and revision controls so acknowledgment does not make an answer feel permanent.
+- Store explicit uncertainty separately from missing or invalid data so H&H can understand the customer's actual level of clarity.
+
 ## Current Question
 
-Should customers be allowed to silently skip planning questions?
+Should the final walkthrough use six, seven, or eight visual zones?
 
-### A. Require an answer or an uncertainty choice — recommended
+### A. Keep all eight current zones
 
-Each structured prompt needs a response before continuing, but appropriate questions include **Not sure yet**, **None**, or **Not applicable**. Optional notes and inspiration remain optional. This distinguishes genuine uncertainty from an accidentally missed question.
+Keep Garage/Exterior/Site and Outdoor Living/Specialty Spaces separate. This creates the most room-to-room movement, but two late zones contain only a few questions each.
 
-### B. Allow every question to be skipped
+### B. Merge the two exterior-oriented zones into seven — recommended
 
-Keep a visible **Skip** action on all planning prompts. This minimizes friction, but H&H cannot tell whether a blank means uncertainty, irrelevance, or accidental omission.
+Combine Garage, Exterior, Site, Outdoor Living, and Specialty Spaces into one broader visual stop. All questions remain, but the late walkthrough loses one transition and feels more balanced.
 
-### C. Require only the core home basics
+### C. Reduce to six zones
 
-Require square footage, stories, bedroom and bathroom counts, finish level, location, and contact details. Let customers silently skip the remaining lifestyle and room-feature prompts.
+Also combine Primary Suite with Bedrooms and Shared Bathrooms. This minimizes transitions but makes the bedroom zone denser and loses a distinct primary-suite moment.
 
-The recommendation is **A**. Quick uncertainty choices keep the walkthrough complete without forcing customers to pretend they have decisions they have not made.
+The recommendation is **B**. Seven preserves the meaningful interior-room progression while removing the weakest late-stage split.
