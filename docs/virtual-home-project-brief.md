@@ -228,7 +228,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 | 31 | What do you like or dislike about your current home, and how should the new home feel different? | Mood cards plus two short optional prompts |
 | 32 | What plans, images, websites, or homes best communicate your direction? | File uploads and repeatable links with a note for each |
 | 33 | What are your must-haves, nice-to-haves, and deal-breakers? | Ranked or grouped priorities |
-| 34 | What investment range and timing are you working toward, and where would you invest or simplify? | Budget range, timing choice, and priority areas |
+| 34 | What home-design-and-construction budget range and timing are you currently planning around? | Stepped budget range plus timing choice |
 
 ### Review And Contact
 
@@ -291,6 +291,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Never make a selection feel like a binding specification.
 - Do not imply that visuals exactly represent the final material, layout, or price.
 - Avoid presenting an automatic price as authoritative before site, design, and scope review.
+- Keep every home feature available regardless of the customer's stated budget; reconcile scope and budget with H&H during the later in-person design conversation.
 - Let customers skip, go back, and revise without losing work.
 - Autosave each answer locally and return a resumed customer to the exact prompt they left.
 - Offer account-free cross-device continuation only when a customer explicitly requests a resume link by email or text.
@@ -309,12 +310,11 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 3. Refine and approve the exact question inventory.
 4. Final room-zone set and sequence.
 5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-8. Draft retention, expiration, deletion, and resume-link delivery details.
-9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-10. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-11. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+7. Draft retention, expiration, deletion, and resume-link delivery details.
+8. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+9. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -422,20 +422,29 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Allow the link to resume across devices without creating an account.
 - Set the exact draft-retention period and link-expiration rules during privacy and implementation planning.
 
+### 2026-07-13 — Budget is planning context only
+
+- Ask what home-design-and-construction budget the customer is currently planning around; treat the response as directional and exclude land from the range.
+- Use the intake's existing stepped bands: **Under $500K**, **$500K–$1M**, **$1M–$2M**, **$2M–$5M**, **$5M+**, and **Not sure yet**.
+- Present the bands as one simple stepped selector or equivalent single-choice control.
+- Do not calculate, display, update, or warn about pricing while the customer plans the home.
+- Do not hide, disable, or discourage features based on the selected range.
+- Let the customer describe the home they want; H&H will align the design and budget during a later in-person meeting.
+
 ## Current Question
 
-How should budget work in the walkthrough?
+When should the walkthrough ask for the customer's contact details?
 
-### A. Private planning range — recommended
+### A. At final submission — recommended
 
-Near the end, ask for a broad total-project budget range with **Not sure yet** and **Prefer to discuss** options. H&H receives the answer, but the walkthrough does not calculate or display an estimated home price. This gives the first conversation useful context without implying a quote.
+Let the customer plan the home and review the completed brief first. Ask for their name, email, phone, and preferred contact method only when they choose to submit. The optional resume-link action remains the only earlier contact request.
 
-### B. Budget range with live guidance
+### B. Before the walkthrough starts
 
-Ask for the range and show broad planning feedback as square footage, finish level, and features change. This may help customers set expectations, but even wide estimates can look authoritative before H&H knows the site and scope.
+Collect contact information at the welcome screen. H&H captures more partial leads, but the experience begins like a conventional gated lead form.
 
-### C. Do not ask about budget
+### C. After the first room
 
-Leave budget entirely for the follow-up conversation. This avoids premature pricing but removes an important qualification and planning signal from the project brief.
+Let the customer experience one room before asking. This demonstrates value first, but interrupts the spatial walkthrough with an unrelated identity step.
 
-The recommendation is **A**. Budget context is valuable, but an interactive estimate would create false precision before H&H reviews the site, design, and scope.
+The recommendation is **A**. It preserves the walkthrough illusion, reduces the initial commitment, and asks for personal information only when the customer is ready to send the brief.
