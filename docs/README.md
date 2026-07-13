@@ -8,6 +8,7 @@ This is the canonical manual path for the Howeth and Harp website repo. Start he
 | --- | --- |
 | Understand the current system | [Architecture](architecture.md) |
 | Work on the project brief flow | [Inquiry flow](inquiry-flow.md) |
+| Shape the future virtual-home inquiry | [Virtual home project brief](virtual-home-project-brief.md) |
 | Work on HHQ or managed public data | [Operations portal](operations-portal.md) |
 | Review local UI changes quickly | [Fast local review](devops.md) |
 | Prepare preview or production | [Launch QA](launch-qa.md) |
