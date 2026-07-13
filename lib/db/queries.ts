@@ -1,6 +1,5 @@
 import "server-only";
 
-import { Timestamp } from "firebase-admin/firestore";
 import {
   getFirebaseDatabase,
   isFirebaseAdminConfigured,
@@ -20,7 +19,7 @@ export async function insertInquirySubmission(input: InquirySubmissionInput) {
     await submissionReference.create({
       ...input,
       status: "new",
-      createdAt: Timestamp.now(),
+      createdAt: new Date(),
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

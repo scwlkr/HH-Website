@@ -1,6 +1,5 @@
 import "server-only";
 
-import { Timestamp } from "firebase-admin/firestore";
 import { unstable_cache } from "next/cache";
 import {
   getFirebaseDatabase,
@@ -79,9 +78,7 @@ function parseNumericValue(value: unknown) {
 function toIsoString(value: unknown, fieldName: string) {
   let date: Date | null = null;
 
-  if (value instanceof Timestamp) {
-    date = value.toDate();
-  } else if (value instanceof Date) {
+  if (value instanceof Date) {
     date = value;
   } else if (typeof value === "string" || typeof value === "number") {
     date = new Date(value);
@@ -678,7 +675,7 @@ export async function saveProject(params: {
         throw new Error("That slug is already in use by another project.");
       }
 
-      const now = Timestamp.now();
+      const now = new Date();
       const createdAt = projectSnapshot.exists
         ? (projectSnapshot.get("createdAt") ?? now)
         : now;
@@ -746,6 +743,6 @@ export async function upsertPricingSettings(input: PricingWriteInput) {
       builderPlusPricePerSqft: input.builderPlusPricePerSqft,
       customPricePerSqft: input.customPricePerSqft,
       pricingNote: input.pricingNote,
-      updatedAt: Timestamp.now(),
+      updatedAt: new Date(),
     });
 }
