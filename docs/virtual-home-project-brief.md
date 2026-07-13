@@ -118,7 +118,7 @@ This is a conversation starter, not an approved flow.
 
 1. **Personalized welcome** — Ask only for the customer's name, then type it onto the illustrated home's address plaque or nameplate so the walkthrough immediately feels like their home.
 2. **Home basics** — Complete the first room's broad home questions without another identity form.
-3. **Save progress** — Ask for email and phone after the first room, explain that they can now resume later, and sync the first backend draft.
+3. **Save progress** — Ask for email and phone after the first room, explain that they can resume later and H&H may personally follow up about the project, then sync the first backend draft without sending an automatic reminder.
 4. **Walk through the home** — Continue through the fixed illustrated room sequence using visual choices, lists, checkboxes, and short answers, syncing after every room.
 5. **Set priorities and add inspiration** — Separate must-haves from preferences, then upload plans or images and add useful links.
 6. **Review and submit** — See one editable summary, confirm follow-up preferences and consent, and send the project brief to H&H.
@@ -241,7 +241,7 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 
 ### Save-Progress Checkpoint
 
-After **Living Room and Home Basics**, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** When completed, sync the customer's name, first-room answers, and contact details as the first identifiable backend draft. This checkpoint is separate from the 35 planning decisions above.
+After **Living Room and Home Basics**, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** Clearly disclose that H&H may personally follow up about the project. When completed, silently sync the customer's name, first-room answers, and contact details as the first identifiable backend draft; do not automatically send a reminder. This checkpoint is separate from the 35 planning decisions above.
 
 ### Question-Design Rules
 
@@ -302,6 +302,7 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 - Let customers skip, go back, and revise without losing work.
 - Autosave each answer locally, sync a server draft after every completed room, and return a resumed customer to their last position.
 - Show unfinished room-by-room drafts in H&H's backend without treating them as completed submissions.
+- Send no automatic abandoned-draft reminder; allow disclosed, manual H&H follow-up.
 - Ensure every integrated prompt remains a real semantic control with a clear label, focus state, and ordered keyboard path.
 - Keep transitions short, preserve answers during movement, and honor reduced-motion preferences with an immediate alternative.
 - Keep a complete keyboard- and screen-reader-friendly form path alongside visual navigation.
@@ -453,22 +454,30 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 - Keep progress local while the customer completes the first room.
 - After **Living Room and Home Basics**, ask for email and phone with a clear **Save your progress and resume later** explanation.
 - Once contact details are provided, sync the name, first-room answers, and contact details as the first identifiable backend draft; sync again after each later room.
-- Collect follow-up preference and consent at final submission rather than placing a full contact form at the entrance.
+- Collect the preferred follow-up method and final submission confirmation at the end; separately explain the possibility of manual H&H contact at the save-progress checkpoint.
+
+### 2026-07-13 — Silent draft saving with manual follow-up
+
+- Do not automatically email or text a resume reminder when an identifiable draft becomes inactive.
+- Keep the unfinished draft and its progress visible in H&H's backend.
+- Allow an H&H team member to follow up manually using the saved email or phone number.
+- Disclose at the save-progress checkpoint that H&H may use the contact details to personally follow up about the project; do not imply they are used only for technical draft storage.
+- Let returning customers initiate resume from the site using a secure recovery flow; settle its exact verification method during implementation planning.
 
 ## Current Question
 
-What should happen if an identifiable draft remains unfinished?
+How detailed should the square-footage question be?
 
-### A. Send one resume reminder — recommended
+### A. One whole-home target — recommended
 
-Clearly disclose at the save-progress checkpoint that H&H will send one reminder with the resume link after a reasonable delay. Do not begin manual sales follow-up until the customer submits the brief.
+Ask for one approximate total heated square-footage target using a simple range or number control, plus **Not sure yet**. Room questions capture priorities and features without asking customers to allocate square footage themselves.
 
-### B. Save silently
+### B. Whole-home target plus room-size priorities
 
-Keep the draft visible to H&H and available to the customer, but send nothing unless the customer explicitly requests a resume link or submits the brief.
+Ask for total square footage, then let customers mark a few rooms as compact, average, or generous. This adds useful design context but introduces more repeated choices.
 
-### C. Allow manual H&H follow-up
+### C. Allocate square footage room by room
 
-Let H&H contact customers who stop after providing email and phone. This may recover more leads, but the save checkpoint must clearly disclose that the details may be used for follow-up rather than only saving progress.
+Ask customers to estimate square footage for each major room or zone. This produces more numbers but feels like architectural programming and can create totals that do not account for circulation, walls, storage, and systems.
 
-The recommendation is **A**. One expected, disclosed reminder helps customers return without turning a progress-saving feature into an unexpected sales follow-up.
+The recommendation is **A**. It captures the useful scale signal without making customers solve a floor plan before meeting H&H.
