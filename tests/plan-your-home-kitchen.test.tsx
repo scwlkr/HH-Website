@@ -103,7 +103,13 @@ async function renderKitchen(checkpointDraft?: PlanHomeDraftAction) {
 async function answerKitchen(
   user: ReturnType<typeof userEvent.setup>,
   query: ReturnType<typeof within>,
+  container: HTMLElement,
 ) {
+  assert.equal(
+    container.querySelector('[data-scene-anchor="range-and-island"]')
+      ?.getAttribute("data-active"),
+    "true",
+  );
   await user.click(query.getByRole("checkbox", { name: "Everyday cooking" }));
   await user.click(
     query.getByRole("checkbox", { name: "Serious cooking or baking" }),
@@ -119,6 +125,12 @@ async function answerKitchen(
       }),
     ),
   );
+  assert.equal(
+    container.querySelector('[data-scene-anchor="room-opening"]')?.getAttribute(
+      "data-active",
+    ),
+    "true",
+  );
   await user.click(query.getByRole("radio", { name: "Single island" }));
   await user.click(query.getByRole("radio", { name: "Open" }));
   await user.click(query.getByRole("button", { name: "Next" }));
@@ -127,8 +139,20 @@ async function answerKitchen(
     query.getByText(/A butler pantry supports serving and storage/).textContent ?? "",
     /appliance garage/,
   );
+  assert.equal(
+    container.querySelector('[data-scene-anchor="pantry-door"]')?.getAttribute(
+      "data-active",
+    ),
+    "true",
+  );
   await user.click(query.getByRole("checkbox", { name: "Butler pantry" }));
   await user.click(query.getByRole("button", { name: "Next" }));
+  assert.equal(
+    container.querySelector('[data-scene-anchor="dining-table"]')?.getAttribute(
+      "data-active",
+    ),
+    "true",
+  );
   await user.click(query.getByRole("checkbox", { name: "Island seating" }));
 }
 
@@ -272,8 +296,8 @@ test("question 15 retries one Kitchen and Dining checkpoint and enters the prima
     };
   };
   const user = userEvent.setup({ document: window.document });
-  const { query } = await renderKitchen(checkpointDraft);
-  await answerKitchen(user, query);
+  const { view, query } = await renderKitchen(checkpointDraft);
+  await answerKitchen(user, query, view.container);
 
   await user.click(query.getByRole("button", { name: "Save room" }));
   await waitFor(() =>
