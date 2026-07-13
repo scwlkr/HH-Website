@@ -637,6 +637,7 @@ async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
     await firstPage
       .getByText(
         "All gallery uploads must be JPG, PNG, WebP, or AVIF and at most 4 MB.",
+        { exact: true },
       )
       .waitFor();
     assert(
