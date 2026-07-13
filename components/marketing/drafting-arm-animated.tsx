@@ -129,15 +129,15 @@ export function DraftingArmAnimated() {
   };
 
   useEffect(() => {
-    // Respect reduced-motion
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      // Show house fully drawn, arm at rest
+    const shouldShowStaticDrawing =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(max-width: 63.999rem)").matches;
+
+    if (shouldShowStaticDrawing) {
       pathRefs.current.forEach((p) => {
         if (p) p.style.strokeDashoffset = "0";
       });
+      if (houseRef.current) houseRef.current.style.opacity = "1";
       return;
     }
 
@@ -317,6 +317,20 @@ export function DraftingArmAnimated() {
           <line key={`h-${y}`} x1="86" y1={y} x2="90" y2={y} stroke="rgba(35,45,63,0.1)" strokeWidth="0.6" />
         ))}
 
+        {/* ── Construction guide remains visible while the final line is drawn ── */}
+        <g opacity="0.22">
+          {SEGMENTS.map((seg, i) => (
+            <path
+              key={`guide-${i}`}
+              d={toPathD(seg)}
+              stroke="rgba(35,45,63,0.22)"
+              strokeWidth="0.75"
+              strokeDasharray="2 3"
+              fill="none"
+            />
+          ))}
+        </g>
+
         {/* ── House drawing (animated paths) ── */}
         <g ref={houseRef} style={{ opacity: 0 }}>
           {SEGMENTS.map((seg, i) => (
@@ -324,8 +338,8 @@ export function DraftingArmAnimated() {
               key={i}
               ref={(el) => { pathRefs.current[i] = el; }}
               d={toPathD(seg)}
-              stroke="rgba(35,45,63,0.38)"
-              strokeWidth="1.2"
+              stroke="rgba(35,45,63,0.46)"
+              strokeWidth="1.3"
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"

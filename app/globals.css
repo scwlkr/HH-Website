@@ -558,94 +558,70 @@
     z-index: -1;
   }
 
-  /* ─── Drafting Board Hero ──────────────────────────────── */
+  /* ─── Open landing-page drafting field ─────────────────── */
 
-  .hh-drafting-board {
+  .hh-home-hero {
     position: relative;
-    isolation: isolate;
-    border: 1px solid rgba(17, 17, 15, 0.18);
-    border-radius: var(--hh-radius-panel);
-    background: color-mix(in srgb, var(--hh-surface) 94%, transparent);
-    box-shadow:
-      0 18px 42px -34px rgba(17, 17, 15, 0.22),
-      0 1px 0 rgba(255, 255, 255, 0.92) inset;
+    overflow: clip;
+    background: color-mix(in srgb, var(--hh-surface) 72%, var(--hh-paper));
   }
 
-  /* Inner inset border — the "rebate" of a mounted sheet */
-  .hh-drafting-board::before {
+  .hh-home-hero::before {
     position: absolute;
-    inset: 0.72rem;
-    border: 1px solid rgba(17, 17, 15, 0.09);
-    border-radius: max(0px, calc(var(--hh-radius-panel) - 0.15rem));
+    inset: 0;
+    background-image: linear-gradient(
+      to right,
+      rgba(35, 45, 63, 0.035) 1px,
+      transparent 1px
+    );
+    background-position: center;
+    background-size: var(--hh-grid-size-room) 100%;
     content: "";
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Drop-shadow beneath the board */
-  .hh-drafting-board::after {
-    position: absolute;
-    inset: auto 1.4rem -1.1rem 1.4rem;
-    height: 1.6rem;
-    border-radius: inherit;
-    background:
-      linear-gradient(180deg, rgba(17, 17, 15, 0) 0%, rgba(17, 17, 15, 0.14) 100%),
-      repeating-linear-gradient(
-        135deg,
-        rgba(17, 17, 15, 0.1) 0,
-        rgba(17, 17, 15, 0.1) 1px,
-        transparent 1px,
-        transparent 9px
-      );
-    content: "";
-    mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.45) 42%, rgba(0, 0, 0, 1) 100%);
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  /* Corner registration marks */
-  .hh-corner {
-    position: absolute;
-    width: 0.85rem;
-    height: 0.85rem;
-    z-index: 10;
+    mask-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.72) 14%, rgba(0, 0, 0, 0.72) 86%, transparent);
+    opacity: 0.44;
     pointer-events: none;
   }
 
-  .hh-corner--tl {
-    top: 0.68rem;
-    left: 0.68rem;
-    border-top: 1px solid rgba(17, 17, 15, 0.28);
-    border-left: 1px solid rgba(17, 17, 15, 0.28);
-  }
-
-  .hh-corner--tr {
-    top: 0.68rem;
-    right: 0.68rem;
-    border-top: 1px solid rgba(17, 17, 15, 0.28);
-    border-right: 1px solid rgba(17, 17, 15, 0.28);
-  }
-
-  .hh-corner--bl {
-    bottom: 0.68rem;
-    left: 0.68rem;
-    border-bottom: 1px solid rgba(17, 17, 15, 0.28);
-    border-left: 1px solid rgba(17, 17, 15, 0.28);
-  }
-
-  .hh-corner--br {
-    bottom: 0.68rem;
-    right: 0.68rem;
-    border-bottom: 1px solid rgba(17, 17, 15, 0.28);
-    border-right: 1px solid rgba(17, 17, 15, 0.28);
-  }
-
-  /* Right-column instrument panel */
-  .hh-drafting-panel {
+  .hh-home-hero > * {
     position: relative;
-    min-height: 22rem;
-    background: var(--hh-surface);
+    z-index: 1;
+  }
+
+  .hh-home-hero-drawing {
+    min-height: 38rem;
+    background: transparent;
+  }
+
+  .hh-home-hero-action {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    border-bottom: var(--hh-line-hairline) solid var(--hh-line-strong);
+    padding: 0.25rem 0 0.4rem;
+    color: var(--hh-ink);
+    font-family: var(--font-code), monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition:
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .hh-home-hero-action:hover {
+    border-color: var(--hh-accent);
+    color: var(--hh-accent);
+  }
+
+  .hh-home-hero-action:focus-visible {
+    border-color: var(--hh-accent);
+    border-radius: var(--hh-radius-tight);
+    box-shadow: 0 0 0 2px var(--hh-accent-soft);
+    color: var(--hh-accent);
+    outline: none;
   }
 }
 
@@ -682,12 +658,8 @@
   }
 
   @layer utilities {
-    .hh-drafting-panel {
-      min-height: auto;
-    }
-
-    .hh-drafting-panel > [aria-hidden="true"] {
-      display: none;
+    .hh-home-hero::before {
+      opacity: 0.28;
     }
   }
 }
