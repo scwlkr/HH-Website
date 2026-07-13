@@ -42,7 +42,7 @@ The new concept should preserve useful parts of this contract while replacing th
 
 This is a conversation starter, not an approved flow.
 
-1. **Set the project frame** — Confirm the new-home scope, custom-home intent, location, and lot status.
+1. **Set the project frame** — Confirm the single-family new-home scope, custom-home intent, location, and lot status.
 2. **Shape the home** — Approximate total square footage, stories, bedrooms, bathrooms, garage, and major must-have spaces.
 3. **Add inspiration** — Upload plans or images and add links to websites, house plans, or reference projects.
 4. **Walk through the home** — Follow the same illustrated room sequence as every other customer and make selections using visual choices, lists, checkboxes, and short answers.
@@ -117,17 +117,16 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 ## Decisions To Resolve
 
-1. New-home boundary: single-family homes only, or townhome and multifamily projects too.
-2. Customer promise: project brief, home planner, design consultation starter, or another framing.
-3. Fixed room set and sequence.
-4. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
-5. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
-6. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-7. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-8. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-9. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-10. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-11. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Customer promise: project brief, home planner, design consultation starter, or another framing.
+2. Fixed room set and sequence.
+3. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
+4. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
+5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -143,20 +142,26 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 - The walkthrough is a dedicated intake experience for customers planning a new home.
 - Remodels, additions, commercial work, land-only work, and other project types use a separate inquiry path.
 
+### 2026-07-13 — Single-family working scope
+
+- Treat detached single-family new homes as the working audience.
+- A home may be fully custom or based on a more repeatable plan.
+- The choice is provisional until planning is complete; townhome and multifamily projects remain outside the walkthrough unless deliberately added later.
+
 ## Current Question
 
-What counts as a **new home** for this walkthrough?
+What should the customer-facing experience be called?
 
-### A. Single-family new homes — recommended
+### A. Plan Your Home — recommended
 
-Use it only for detached single-family new-home inquiries, whether fully custom or based on a more repeatable plan.
+Use **Plan Your Home** as the inviting title or call to action, with supporting copy such as: “Walk room by room and create a project brief for Howeth and Harp.” Internally and in the final summary, the result remains a **project brief**.
 
-### B. Single-family homes and townhomes
+### B. Design Your Home
 
-Include new single-family homes and new townhome units, but keep multifamily developments separate.
+This feels more creative and ambitious, but it may imply the website is producing an actual home design.
 
-### C. All new residential construction
+### C. Start Your Project Brief
 
-Include single-family, townhome, and multifamily projects whenever the work is new construction.
+This is accurate and consistent with the existing website language, but it sounds more like paperwork and weakens the experiential idea.
 
-The recommendation is **A**. The homeowner-focused questions and fixed house walkthrough fit a single-family inquiry. Townhome and multifamily development briefs need different project-level questions even though their individual units contain similar rooms.
+The recommendation is **A**. It makes the experience feel active without promising drawings, specifications, or pricing. The supporting copy can explain exactly what H&H receives.
