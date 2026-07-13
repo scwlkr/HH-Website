@@ -31,7 +31,10 @@ import {
   PlanHomeDraftConflictError,
   createPlanHomeDraftRepository,
 } from "../features/plan-your-home/server-draft-repository.ts";
-import { planHomeQuestions } from "../features/plan-your-home/registry.ts";
+import {
+  planHomeQuestions,
+  summarizePlanHomeAnswer,
+} from "../features/plan-your-home/registry.ts";
 import { hashPlanHomeDraftSessionSecret } from "../lib/plan-your-home/draft-session-token.ts";
 
 const hasEmulators = Boolean(
@@ -243,27 +246,36 @@ test(
         "A stale checkpoint must not erase or overwrite newer answers.",
       );
 
-      const safeRetry = {
-        ...staleCheckpoint,
+      const kitchenCheckpoint = {
+        draftId: created.draftId,
         expectedRevision: 2,
-        idempotencyKey: `safe-retry-${randomUUID()}`,
+        idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:kitchen-and-dining`,
+        completedZoneId: "kitchen-and-dining",
+        answers: answersThrough(15),
       };
-      const safeRetryResult = await repository.checkpointDraft(
-        safeRetry,
+      const kitchenCheckpointResult = await repository.checkpointDraft(
+        kitchenCheckpoint,
         sessionTokenHash,
       );
-      assert.equal(safeRetryResult.applied, true);
-      assert.equal(safeRetryResult.revision, 3);
+      assert.equal(kitchenCheckpointResult.applied, true);
+      assert.equal(kitchenCheckpointResult.revision, 3);
+      assert.deepEqual(kitchenCheckpointResult.progress, {
+        currentPromptId: "primary.location",
+        currentZoneId: "primary-suite",
+        completedZoneIds: ["project-and-living", "kitchen-and-dining"],
+      });
       assert.deepEqual(
-        await repository.checkpointDraft(safeRetry, sessionTokenHash),
-        { ...safeRetryResult, applied: false },
+        await repository.checkpointDraft(kitchenCheckpoint, sessionTokenHash),
+        { ...kitchenCheckpointResult, applied: false },
       );
 
+      const conflictingKitchenAnswers = answersThrough(15);
+      conflictingKitchenAnswers["kitchen.use"] = ["large-groups"];
       await assert.rejects(
         repository.checkpointDraft(
           {
-            ...safeRetry,
-            answers: answersThrough(11),
+            ...kitchenCheckpoint,
+            answers: conflictingKitchenAnswers,
           },
           sessionTokenHash,
         ),
@@ -278,8 +290,31 @@ test(
       ).data();
       assert(finalDraft, "The final draft must exist.");
       assert.equal(finalDraft.revision, 3);
-      assert.equal(finalDraft.answers["home.heated-square-feet"], "2500-2999");
+      assert.equal(
+        finalDraft.answers["home.heated-square-feet"],
+        createInput.answers["home.heated-square-feet"],
+      );
       assert.equal(finalDraft.derived.finishLevel, "builder-grade");
+      assert.equal(Object.keys(finalDraft.answers).length, 15);
+      assert.deepEqual(finalDraft.progress, {
+        currentPromptId: "primary.location",
+        currentZoneId: "primary-suite",
+        completedZoneIds: ["project-and-living", "kitchen-and-dining"],
+      });
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "kitchen.arrangement",
+          finalDraft.answers["kitchen.arrangement"],
+        ),
+        "Work center: Single island; Connection: Open",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "kitchen.support",
+          finalDraft.answers["kitchen.support"],
+        ),
+        "Cabinet pantry",
+      );
       assert.equal(
         Object.keys(finalDraft.checkpointIdempotency).length,
         2,

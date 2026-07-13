@@ -6,6 +6,7 @@ import {
   createCompletedZoneProgress,
   createPlanHomeDraftContact,
   createPlanHomeDraftDerived,
+  parseCheckpointPlanHomeDraftInput,
   parseCreatePlanHomeDraftInput,
 } from "../features/plan-your-home/server-draft-contract.ts";
 import { createPlanHomeDraftRepository } from "../features/plan-your-home/server-draft-repository.ts";
@@ -144,6 +145,33 @@ describe("Plan Your Home server draft contract", () => {
         "design-desk-and-review",
       ],
     });
+  });
+
+  it("accepts exactly the canonical Kitchen and Dining prefix", () => {
+    const parsed = parseCheckpointPlanHomeDraftInput({
+      draftId: `draft-${"c".repeat(40)}`,
+      expectedRevision: 2,
+      idempotencyKey:
+        "local-39ef1878-bf95-4873-8610-d51d44a96fe0:plan-home-v1:zone:kitchen-and-dining",
+      completedZoneId: "kitchen-and-dining",
+      answers: answersThrough(15),
+    });
+
+    assert.equal(Object.keys(parsed.answers).length, 15);
+    assert.equal(parsed.answers["kitchen.use"]?.length, 1);
+    assert.deepEqual(createCompletedZoneProgress("kitchen-and-dining"), {
+      currentPromptId: "primary.location",
+      currentZoneId: "primary-suite",
+      completedZoneIds: ["project-and-living", "kitchen-and-dining"],
+    });
+    assert.throws(
+      () =>
+        parseCheckpointPlanHomeDraftInput({
+          ...parsed,
+          answers: answersThrough(14),
+        }),
+      PlanHomeDraftValidationError,
+    );
   });
 });
 
