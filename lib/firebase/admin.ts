@@ -35,7 +35,12 @@ function getVercelOidcClient(): BaseExternalAccountClient | null {
     return vercelOidcClient;
   }
 
-  if (!readOptionalEnv("VERCEL_OIDC_TOKEN")) {
+  const isVercelRuntime =
+    readOptionalEnv("VERCEL") === "1" ||
+    Boolean(readOptionalEnv("VERCEL_ENV")) ||
+    Boolean(readOptionalEnv("VERCEL_TARGET_ENV"));
+
+  if (!isVercelRuntime) {
     vercelOidcClient = null;
     return vercelOidcClient;
   }
