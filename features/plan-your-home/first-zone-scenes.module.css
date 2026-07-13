@@ -178,24 +178,8 @@
   font-size: 0.62rem;
 }
 
-.threshold .living {
-  filter: saturate(0.92);
-  transform: translateX(-2.5%) scale(1.025);
-  transform-origin: 84% 52%;
-}
-
-.thresholdWash {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 45%, rgba(228, 236, 224, 0.64));
-}
-
 @media (max-width: 40rem) {
   .addressPlaque { top: 42%; }
   .sceneDisclaimer { display: none; }
   .sceneCaption { left: 5%; bottom: 7%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .threshold .living { transform: none; }
 }

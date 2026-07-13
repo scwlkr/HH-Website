@@ -203,9 +203,14 @@
   animation: exterior-arrive 420ms ease both;
 }
 
-.moment[data-tour-beat="living-to-kitchen"] .momentScene {
+.sceneBeat[data-tour-beat="living-to-kitchen"] {
   animation: kitchen-turn 420ms ease both;
   transform-origin: 82% 50%;
+}
+
+.moment[data-tour-beat="primary-hall-transition"] .momentScene {
+  animation: primary-hall-turn 420ms ease both;
+  transform-origin: 86% 54%;
 }
 
 @keyframes exterior-arrive {
@@ -220,6 +225,11 @@
 
 @keyframes kitchen-turn {
   from { opacity: 0.72; transform: translateX(1.5%) scale(1.015); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes primary-hall-turn {
+  from { opacity: 0.74; transform: translateX(-1.5%) scale(1.012); }
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
@@ -258,4 +268,10 @@
     animation: none !important;
     transform: none !important;
   }
+}
+
+.moment[data-reduced-motion="true"] .momentScene,
+.sceneBeat[data-reduced-motion="true"] {
+  animation: none !important;
+  transform: none !important;
 }

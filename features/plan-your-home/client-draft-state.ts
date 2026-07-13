@@ -3,6 +3,7 @@ export const PLAN_HOME_CLIENT_DRAFT_KEY = "plan-home-v1:client-draft";
 export type PlanHomeClientDraftState = Readonly<{
   createIdempotencyKey: string;
   projectAndLivingCheckpointKey: string | null;
+  kitchenAndDiningCheckpointKey?: string | null;
   draftId: string | null;
   revision: number | null;
 }>;
@@ -39,8 +40,20 @@ function isClientDraftState(value: unknown): value is PlanHomeClientDraftState {
       candidate.projectAndLivingCheckpointKey.length >= 16 &&
       candidate.projectAndLivingCheckpointKey.length <= 200 &&
       uuidV4Pattern.test(candidate.projectAndLivingCheckpointKey));
+  const hasValidKitchenCheckpointKey =
+    candidate.kitchenAndDiningCheckpointKey === undefined ||
+    candidate.kitchenAndDiningCheckpointKey === null ||
+    (typeof candidate.kitchenAndDiningCheckpointKey === "string" &&
+      candidate.kitchenAndDiningCheckpointKey.length >= 16 &&
+      candidate.kitchenAndDiningCheckpointKey.length <= 200 &&
+      uuidV4Pattern.test(candidate.kitchenAndDiningCheckpointKey));
 
-  return hasValidKey && hasValidDraft && hasValidCheckpointKey;
+  return (
+    hasValidKey &&
+    hasValidDraft &&
+    hasValidCheckpointKey &&
+    hasValidKitchenCheckpointKey
+  );
 }
 
 export function createPlanHomeClientDraftAdapter(

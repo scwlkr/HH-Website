@@ -154,12 +154,3 @@ export function LivingRoomScene({ activeAnchor }: SceneProps) {
     </div>
   );
 }
-
-export function KitchenThresholdScene() {
-  return (
-    <div className={`${styles.scene} ${styles.threshold}`} aria-hidden="true">
-      <LivingRoomScene activeAnchor="kitchen-opening" />
-      <div className={styles.thresholdWash} />
-    </div>
-  );
-}

@@ -332,3 +332,9 @@
     transform: none;
   }
 }
+
+.stage[data-reduced-motion="true"] .sceneCamera,
+.stage[data-reduced-motion="true"] .promptSheet {
+  animation: none !important;
+  transition: none !important;
+}

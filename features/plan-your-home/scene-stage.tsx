@@ -148,6 +148,7 @@ export function SceneStage({
   return (
     <section
       className={styles.stage}
+      data-reduced-motion={prefersReducedMotion}
       data-transition-direction={direction}
       data-transition-state={phase}
       aria-busy={isTransitioning}

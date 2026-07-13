@@ -15,10 +15,13 @@ import {
 } from "@/features/plan-your-home/client-draft-state";
 import {
   EntryScene,
-  KitchenThresholdScene,
   LivingRoomScene,
   WelcomeExteriorScene,
 } from "@/features/plan-your-home/first-zone-scenes";
+import {
+  KitchenDiningScene,
+  PrimaryHallThresholdScene,
+} from "@/features/plan-your-home/kitchen-dining-scene";
 import { createPlanHomeLocalSnapshotAdapter } from "@/features/plan-your-home/local-snapshot";
 import {
   ChoicePrompt,
@@ -90,8 +93,10 @@ const unavailableDraftAction: PlanHomeDraftAction = async () => ({
   message: "Draft saving is temporarily unavailable.",
 });
 
-const FIRST_ZONE_LAST_QUESTION = 11;
+const PROJECT_AND_LIVING_LAST_QUESTION = 11;
+const KITCHEN_AND_DINING_LAST_QUESTION = 15;
 const PROJECT_AND_LIVING_ZONE = planHomeZones[0];
+const KITCHEN_AND_DINING_ZONE = planHomeZones[1];
 
 const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "entry-plans": { xPercent: 1.5, yPercent: 0.4, scale: 1.08 },
@@ -105,6 +110,10 @@ const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "living-connection": { xPercent: -4.2, yPercent: -0.2, scale: 1.13 },
   "living-features": { xPercent: 3.2, yPercent: 0.4, scale: 1.12 },
   "living-finishes": { xPercent: -0.8, yPercent: 1.8, scale: 1.15 },
+  "kitchen-use": { xPercent: 2.8, yPercent: -0.8, scale: 1.12 },
+  "kitchen-arrangement": { xPercent: -2.8, yPercent: -0.2, scale: 1.1 },
+  "kitchen-support": { xPercent: -4.2, yPercent: 0.2, scale: 1.14 },
+  "dining-use": { xPercent: -3.2, yPercent: -1.2, scale: 1.12 },
 };
 
 function randomUuidV4() {
@@ -124,25 +133,34 @@ function randomUuidV4() {
     .join("")}-${hex.slice(8, 10).join("")}-${hex.slice(10).join("")}`;
 }
 
-function createIdempotencyKey(boundary: "contact-gate" | "zone:project-and-living") {
+function createIdempotencyKey(
+  boundary:
+    | "contact-gate"
+    | "zone:project-and-living"
+    | "zone:kitchen-and-dining",
+) {
   return `local-${randomUuidV4()}:plan-home-v1:${boundary}`;
 }
 
 function initialDraftAnswers() {
   return Object.fromEntries(
-    planHomeQuestions.slice(0, FIRST_ZONE_LAST_QUESTION).map((question) => [
-      question.id,
-      structuredClone(question.response.defaultAnswer),
-    ]),
+    planHomeQuestions
+      .slice(0, KITCHEN_AND_DINING_LAST_QUESTION)
+      .map((question) => [
+        question.id,
+        structuredClone(question.response.defaultAnswer),
+      ]),
   ) as Record<string, unknown>;
 }
 
 function sceneForQuestion(question: PlanHomeQuestionDefinition) {
-  return question.number <= 3 ? (
-    <EntryScene activeAnchor={question.sceneAnchor} />
-  ) : (
-    <LivingRoomScene activeAnchor={question.sceneAnchor} />
-  );
+  if (question.number <= 3) {
+    return <EntryScene activeAnchor={question.sceneAnchor} />;
+  }
+  if (question.number <= PROJECT_AND_LIVING_LAST_QUESTION) {
+    return <LivingRoomScene activeAnchor={question.sceneAnchor} />;
+  }
+  return <KitchenDiningScene activeAnchor={question.sceneAnchor} />;
 }
 
 function actionError(result: Exclude<PlanHomeDraftActionState, { status: "success" }>) {
@@ -395,27 +413,34 @@ function ContactCheckpoint({
   );
 }
 
-function ZoneBoundary({ onBack }: Readonly<{ onBack: () => void }>) {
+function PrimaryHallBoundary({
+  onBack,
+  reducedMotion,
+}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
   }, []);
   return (
-    <section className={styles.moment} data-tour-beat="living-to-kitchen">
+    <section
+      className={styles.moment}
+      data-reduced-motion={reducedMotion}
+      data-tour-beat="primary-hall-transition"
+    >
       <div className={styles.momentScene}>
-        <KitchenThresholdScene />
+        <PrimaryHallThresholdScene />
       </div>
       <div className={styles.momentSheet}>
-        <p className={styles.eyebrow}>Project frame saved</p>
+        <p className={styles.eyebrow}>Kitchen and dining saved</p>
         <h1 ref={headingRef} tabIndex={-1}>
-          The kitchen is through the opening.
+          The primary hall is just beyond the dining room.
         </h1>
         <p className={styles.momentCopy}>
-          Your welcome, project frame, and Living Room answers are saved. The
-          next room continues from this threshold.
+          Your kitchen and dining priorities are checkpointed. The next room
+          will continue from this hall.
         </p>
         <Button type="button" variant="secondary" onClick={onBack}>
-          Back to finish level
+          Back to dining
         </Button>
       </div>
     </section>
@@ -532,7 +557,22 @@ export function PlanYourHomeShell({
       return false;
     }
 
-    if (question.number === FIRST_ZONE_LAST_QUESTION) {
+    const checkpointBoundary =
+      question.number === PROJECT_AND_LIVING_LAST_QUESTION
+        ? ({
+            zoneId: "project-and-living",
+            answerCount: PROJECT_AND_LIVING_LAST_QUESTION,
+            keyField: "projectAndLivingCheckpointKey",
+          } as const)
+        : question.number === KITCHEN_AND_DINING_LAST_QUESTION
+          ? ({
+              zoneId: "kitchen-and-dining",
+              answerCount: KITCHEN_AND_DINING_LAST_QUESTION,
+              keyField: "kitchenAndDiningCheckpointKey",
+            } as const)
+          : null;
+
+    if (checkpointBoundary) {
       commitState(answered.state);
       if (!clientDraft?.draftId || !clientDraft.revision) {
         setError({
@@ -544,11 +584,11 @@ export function PlanYourHomeShell({
 
       if (saving) return false;
       const checkpointKey =
-        clientDraft.projectAndLivingCheckpointKey ??
-        createIdempotencyKey("zone:project-and-living");
+        clientDraft[checkpointBoundary.keyField] ??
+        createIdempotencyKey(`zone:${checkpointBoundary.zoneId}`);
       const checkpointingDraft = {
         ...clientDraft,
-        projectAndLivingCheckpointKey: checkpointKey,
+        [checkpointBoundary.keyField]: checkpointKey,
       };
       createPlanHomeClientDraftAdapter(window.localStorage).save(
         checkpointingDraft,
@@ -559,10 +599,10 @@ export function PlanYourHomeShell({
         draftId: clientDraft.draftId,
         expectedRevision: clientDraft.revision,
         idempotencyKey: checkpointKey,
-        completedZoneId: "project-and-living",
+        completedZoneId: checkpointBoundary.zoneId,
         answers: Object.fromEntries(
           planHomeQuestions
-            .slice(0, FIRST_ZONE_LAST_QUESTION)
+            .slice(0, checkpointBoundary.answerCount)
             .map((item) => [item.id, answered.state.answers[item.id]]),
         ),
       });
@@ -574,7 +614,7 @@ export function PlanYourHomeShell({
 
       const checkpointed = reducePlanHomeTour(advanced.state, {
         type: "checkpoint-zone",
-        zoneId: "project-and-living",
+        zoneId: checkpointBoundary.zoneId,
       });
       const nextClientDraft = {
         ...checkpointingDraft,
@@ -614,6 +654,7 @@ export function PlanYourHomeShell({
       ({
         createIdempotencyKey: createIdempotencyKey("contact-gate"),
         projectAndLivingCheckpointKey: null,
+        kitchenAndDiningCheckpointKey: null,
         draftId: null,
         revision: null,
       } satisfies PlanHomeClientDraftState);
@@ -643,6 +684,8 @@ export function PlanYourHomeShell({
       createIdempotencyKey: pendingDraft.createIdempotencyKey,
       projectAndLivingCheckpointKey:
         pendingDraft.projectAndLivingCheckpointKey,
+      kitchenAndDiningCheckpointKey:
+        pendingDraft.kitchenAndDiningCheckpointKey ?? null,
       draftId: result.result.draftId,
       revision: result.result.revision,
     } satisfies PlanHomeClientDraftState;
@@ -697,19 +740,38 @@ export function PlanYourHomeShell({
         onSubmit={submitContact}
       />
     );
-  } else if (activeQuestion && activeQuestion.number > FIRST_ZONE_LAST_QUESTION) {
-    content = <ZoneBoundary onBack={backFromBoundary} />;
+  } else if (
+    activeQuestion &&
+    activeQuestion.number > KITCHEN_AND_DINING_LAST_QUESTION
+  ) {
+    content = (
+      <PrimaryHallBoundary
+        onBack={backFromBoundary}
+        reducedMotion={reducedMotion}
+      />
+    );
   } else if (tourState.location.kind === "question") {
     const question = activeQuestion;
     if (!question) throw new Error("The active Plan Your Home question is missing.");
     content = (
       <div
         className={styles.sceneBeat}
-        data-tour-beat={question.number === 1 ? "front-door" : "in-room"}
+        data-reduced-motion={reducedMotion}
+        data-tour-beat={
+          question.number === 1
+            ? "front-door"
+            : question.number === 12
+              ? "living-to-kitchen"
+              : "in-room"
+        }
       >
         <SceneStage
           question={question}
-          zone={PROJECT_AND_LIVING_ZONE}
+          zone={
+            question.number <= PROJECT_AND_LIVING_LAST_QUESTION
+              ? PROJECT_AND_LIVING_ZONE
+              : KITCHEN_AND_DINING_ZONE
+          }
           totalQuestions={planHomeQuestions.length}
           scene={sceneForQuestion(question)}
           prompt={renderQuestionPrompt(
@@ -732,7 +794,10 @@ export function PlanYourHomeShell({
           onNext={() => nextFromQuestion(question)}
           canGoBack
           nextLabel={
-            question.number === FIRST_ZONE_LAST_QUESTION ? "Save room" : "Next"
+            question.number === PROJECT_AND_LIVING_LAST_QUESTION ||
+            question.number === KITCHEN_AND_DINING_LAST_QUESTION
+              ? "Save room"
+              : "Next"
           }
           error={error}
           reducedMotion={reducedMotion}
@@ -740,7 +805,12 @@ export function PlanYourHomeShell({
       </div>
     );
   } else {
-    content = <ZoneBoundary onBack={backFromBoundary} />;
+    content = (
+      <PrimaryHallBoundary
+        onBack={backFromBoundary}
+        reducedMotion={reducedMotion}
+      />
+    );
   }
 
   return (
