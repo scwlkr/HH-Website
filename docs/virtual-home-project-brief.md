@@ -293,8 +293,8 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Avoid presenting an automatic price as authoritative before site, design, and scope review.
 - Keep every home feature available regardless of the customer's stated budget; reconcile scope and budget with H&H during the later in-person design conversation.
 - Let customers skip, go back, and revise without losing work.
-- Autosave each answer locally and return a resumed customer to the exact prompt they left.
-- Offer account-free cross-device continuation only when a customer explicitly requests a resume link by email or text.
+- Autosave each answer locally, sync a server draft after every completed room, and return a resumed customer to their last position.
+- Show unfinished room-by-room drafts in H&H's backend without treating them as completed submissions.
 - Ensure every integrated prompt remains a real semantic control with a clear label, focus state, and ordered keyboard path.
 - Keep transitions short, preserve answers during movement, and honor reduced-motion preferences with an immediate alternative.
 - Keep a complete keyboard- and screen-reader-friendly form path alongside visual navigation.
@@ -311,8 +311,8 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 4. Final room-zone set and sequence.
 5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
 6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-7. Draft retention, expiration, deletion, and resume-link delivery details.
-8. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+7. Draft retention, expiration, deletion, identity timing, and resume-link delivery details.
+8. H&H review: incomplete drafts, submitted answers, generated summary, visual home map, lead scoring, and follow-up workflow.
 9. Animation implementation technique, chosen later based on assets, performance, and maintainability.
 10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
@@ -413,14 +413,22 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Present the same interaction in a wider horizontal stage on desktop rather than creating a separate desktop form layout.
 - Treat predominantly mobile use as a working assumption and validate the actual device mix after launch.
 
-### 2026-07-13 — Autosave with optional resume link
+### 2026-07-13 — Layered draft saving and resume
 
 - Autosave every answer locally without requiring an account or contact information.
 - Return the customer to the exact prompt they left when the same browser resumes the walkthrough.
 - Include a visible **Save for later** action that can send a secure resume link by email or text.
-- Ask for email or phone only when the customer requests the link; do not gate the start of the walkthrough behind contact capture.
 - Allow the link to resume across devices without creating an account.
 - Set the exact draft-retention period and link-expiration rules during privacy and implementation planning.
+
+### 2026-07-13 — Room-by-room backend drafts
+
+- Continue saving each answer locally so an interrupted question does not disappear.
+- After every completed room, sync the accumulated answers to a server-side draft.
+- Show the unfinished draft, completed rooms, current position, answers so far, and last activity time in H&H's backend.
+- On the same device, resume the exact prompt from local progress; on another device, resume immediately after the last room synced to the server.
+- Keep **draft** and **submitted inquiry** as distinct statuses; completing a room does not imply that the customer submitted the project brief.
+- A lightweight customer-identity checkpoint is required before H&H can associate the draft or offer reliable cross-device resume; its exact placement is the current decision.
 
 ### 2026-07-13 — Budget is planning context only
 
@@ -433,18 +441,18 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 
 ## Current Question
 
-When should the walkthrough ask for the customer's contact details?
+When should the draft become identifiable?
 
-### A. At final submission — recommended
+### A. Quick identity at the welcome — recommended
 
-Let the customer plan the home and review the completed brief first. Ask for their name, email, phone, and preferred contact method only when they choose to submit. The optional resume-link action remains the only earlier contact request.
+Before the first room, ask only for a name and either email or mobile number so the draft can be saved, resumed, and shown meaningfully to H&H. Collect any remaining contact details and follow-up preferences at final submission.
 
-### B. Before the walkthrough starts
+### B. After the first room
 
-Collect contact information at the welcome screen. H&H captures more partial leads, but the experience begins like a conventional gated lead form.
+Let the customer complete one room anonymously, then ask for a name and email or mobile number to save it. This proves the experience's value first, but customers who leave during room one remain unidentified.
 
-### C. After the first room
+### C. Full contact form at the welcome
 
-Let the customer experience one room before asking. This demonstrates value first, but interrupts the spatial walkthrough with an unrelated identity step.
+Collect name, email, phone, and contact preference before starting. Every draft is complete from a lead-management perspective, but the walkthrough begins with the conventional form experience this concept is meant to avoid.
 
-The recommendation is **A**. It preserves the walkthrough illusion, reduces the initial commitment, and asks for personal information only when the customer is ready to send the brief.
+The recommendation is **A**. It supports H&H's draft visibility and reliable resume behavior with the smallest practical upfront request.
