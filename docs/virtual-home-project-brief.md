@@ -139,11 +139,13 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 The room scenes use dimensional architectural illustration: believable perspective and depth, restrained material cues, architectural linework, warm paper tones, and limited green emphasis. They should feel spatial and polished without becoming photorealistic promises or game-like 3D environments.
 
+Questions and answer controls are integrated into the illustrated room rather than placed in a permanent form panel. A prompt can attach to a relevant object, fixture, surface, or area and expand in place when active. The room itself is the interface; it should not look like a decorative image sitting beside a form.
+
 ## Research-Informed Draft Question Inventory
 
-This is a working inventory, not approved public copy. It contains 35 short question screens: the upper edge of the balanced-discovery target. Conditional details can reduce what an individual customer sees, but the eight visual zones remain fixed.
+This is a working inventory, not approved public copy. It contains 35 short question interactions: the upper edge of the balanced-discovery target. Conditional details can reduce what an individual customer sees, but the eight visual zones remain fixed.
 
-Most answers should use visual cards, checkboxes, ranges, or steppers. Free text is reserved for details that structured choices cannot capture.
+Most answers should use visual cards, checkboxes, ranges, or steppers that appear as part of the active room scene. Free text is reserved for details that structured choices cannot capture.
 
 ### Welcome And Project Frame
 
@@ -233,6 +235,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 ### Question-Design Rules
 
 - Keep all eight zones visible even when a conditional detail is not applicable.
+- Integrate prompts with relevant room objects or areas instead of exposing a separate form column.
 - Offer **not sure yet** wherever a customer may reasonably need H&H's guidance.
 - Allow optional notes without making customers type after every choice.
 - Ask for requirements and preferences, not final specifications.
@@ -284,6 +287,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - Do not imply that visuals exactly represent the final material, layout, or price.
 - Avoid presenting an automatic price as authoritative before site, design, and scope review.
 - Let customers skip, go back, and revise without losing work.
+- Ensure every integrated prompt remains a real semantic control with a clear label, focus state, and ordered keyboard path.
 - Keep transitions short, preserve answers during movement, and honor reduced-motion preferences with an immediate alternative.
 - Keep a complete keyboard- and screen-reader-friendly form path alongside visual navigation.
 - Make the experience practical on a phone, where many customers will first encounter it.
@@ -291,17 +295,18 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 
 ## Decisions To Resolve
 
-1. Relationship between the room scene and question controls, including mobile behavior.
-2. Transition storyboards and the illustrated asset plan.
-3. Refine and approve the exact question inventory.
-4. Final room-zone set and sequence.
-5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-10. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-11. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Integrated-prompt choreography: one at a time, all visible, or free exploration.
+2. Mobile and assistive-technology presentation for room-integrated controls.
+3. Transition storyboards and the illustrated asset plan.
+4. Refine and approve the exact question inventory.
+5. Final room-zone set and sequence.
+6. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+7. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+8. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+9. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+10. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+11. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+12. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -350,7 +355,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 
 ### 2026-07-13 — Balanced discovery depth
 
-- Target roughly 25 to 35 short decision screens.
+- Target roughly 25 to 35 short decision interactions.
 - Use structured visual choices for most answers, with optional notes and conditional detail.
 - Capture enough context to prepare H&H for the first conversation without drifting into detailed architectural programming.
 
@@ -377,20 +382,28 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - Build scenes in layers that can support simple pans, pivots, or doorway transitions.
 - Avoid both photorealistic renders and game-like 3D presentation.
 
+### 2026-07-13 — Questions integrated into the room
+
+- The illustrated room is the interaction surface, not a background beside a visible form.
+- Attach each prompt to a relevant object, fixture, surface, or spatial area whenever possible.
+- Let the active question and its choices expand within the scene, then settle back into the room when answered.
+- Do not use a permanent split-screen question panel.
+- Preserve semantic controls, readable labels, keyboard order, and screen-reader access underneath the visual treatment.
+
 ## Current Question
 
-How should the questions coexist with each room scene?
+How many integrated prompts should be active at once?
 
-### A. Room-dominant split layout — recommended
+### A. One guided prompt at a time — recommended
 
-Keep the illustrated room as the dominant surface and place one focused question panel beside it. On mobile, keep a compact room view above a bottom question card. The room remains visible while the customer answers.
+Highlight one object or area, open its question, accept the answer, then guide attention to the next point in the room. This preserves the simple linear flow and makes it difficult to get lost.
 
-### B. Hotspots inside the room
+### B. Show every room hotspot at once
 
-Place clickable markers on objects and areas in the illustration. This feels more game-like, but important questions become easier to miss and harder to use with a keyboard, screen reader, or small phone.
+Display every interactive marker as soon as the room loads. Customers can answer in any order, but the illustration may become visually busy and progress becomes less obvious.
 
-### C. Full room followed by a separate form screen
+### C. Hide prompts for free exploration
 
-Show the scene and transition first, then replace it with a conventional full-width question page. This is simple, but the walkthrough feeling disappears while customers make their selections.
+Let customers inspect the room and discover interactive areas themselves. This feels exploratory, but creates the greatest risk of missed questions and confusion.
 
-The recommendation is **A**. It keeps the home present without hiding questions or sacrificing clarity. The scene supplies emotion and context; the dedicated panel keeps the interaction simple and intuitive.
+The recommendation is **A**. It combines the integrated-room idea with the earlier decision that the walkthrough must remain linear, simple, and intuitive.
