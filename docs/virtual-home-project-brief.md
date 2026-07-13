@@ -292,6 +292,8 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Do not imply that visuals exactly represent the final material, layout, or price.
 - Avoid presenting an automatic price as authoritative before site, design, and scope review.
 - Let customers skip, go back, and revise without losing work.
+- Autosave each answer locally and return a resumed customer to the exact prompt they left.
+- Offer account-free cross-device continuation only when a customer explicitly requests a resume link by email or text.
 - Ensure every integrated prompt remains a real semantic control with a clear label, focus state, and ordered keyboard path.
 - Keep transitions short, preserve answers during movement, and honor reduced-motion preferences with an immediate alternative.
 - Keep a complete keyboard- and screen-reader-friendly form path alongside visual navigation.
@@ -309,7 +311,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
 6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
 7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+8. Draft retention, expiration, deletion, and resume-link delivery details.
 9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
 10. Animation implementation technique, chosen later based on assets, performance, and maintainability.
 11. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
@@ -411,20 +413,29 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Present the same interaction in a wider horizontal stage on desktop rather than creating a separate desktop form layout.
 - Treat predominantly mobile use as a working assumption and validate the actual device mix after launch.
 
+### 2026-07-13 — Autosave with optional resume link
+
+- Autosave every answer locally without requiring an account or contact information.
+- Return the customer to the exact prompt they left when the same browser resumes the walkthrough.
+- Include a visible **Save for later** action that can send a secure resume link by email or text.
+- Ask for email or phone only when the customer requests the link; do not gate the start of the walkthrough behind contact capture.
+- Allow the link to resume across devices without creating an account.
+- Set the exact draft-retention period and link-expiration rules during privacy and implementation planning.
+
 ## Current Question
 
-How should unfinished progress be protected?
+How should budget work in the walkthrough?
 
-### A. Autosave plus an optional resume link — recommended
+### A. Private planning range — recommended
 
-Save each answer automatically on the device. A visible **Save for later** action lets the customer request a secure resume link by email or text without creating an account. This handles normal phone interruptions and makes switching devices possible without asking for contact information upfront.
+Near the end, ask for a broad total-project budget range with **Not sure yet** and **Prefer to discuss** options. H&H receives the answer, but the walkthrough does not calculate or display an estimated home price. This gives the first conversation useful context without implying a quote.
 
-### B. Autosave on the same device only
+### B. Budget range with live guidance
 
-Save progress in the current browser with no contact information. This is simpler, but a customer cannot continue on another device and may lose the draft if browser data is cleared.
+Ask for the range and show broad planning feedback as square footage, finish level, and features change. This may help customers set expectations, but even wide estimates can look authoritative before H&H knows the site and scope.
 
-### C. No draft saving
+### C. Do not ask about budget
 
-Keep the walkthrough to one session. This is the simplest system, but an interruption could force a customer to restart a 25-to-35-interaction experience.
+Leave budget entirely for the follow-up conversation. This avoids premature pricing but removes an important qualification and planning signal from the project brief.
 
-The recommendation is **A**. It protects progress automatically while keeping the initial experience anonymous and account-free.
+The recommendation is **A**. Budget context is valuable, but an interactive estimate would create false precision before H&H reviews the site, design, and scope.
