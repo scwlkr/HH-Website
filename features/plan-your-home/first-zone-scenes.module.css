@@ -1,0 +1,201 @@
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #253746;
+}
+
+.scene svg {
+  width: 100%;
+  height: 100%;
+}
+
+.horizon {
+  fill: #dbe4d8;
+  opacity: 0.72;
+}
+
+.houseFill {
+  fill: rgba(255, 255, 255, 0.74);
+}
+
+.architecturalLine,
+.perspectiveLine,
+.landscapeLine,
+.paperObjects,
+.rugLines,
+.materialBoard,
+.photoFrames {
+  fill: none;
+  stroke: currentColor;
+  vector-effect: non-scaling-stroke;
+}
+
+.architecturalLine {
+  stroke-width: 1.5;
+  opacity: 0.72;
+}
+
+.perspectiveLine {
+  stroke-width: 0.9;
+  opacity: 0.18;
+}
+
+.landscapeLine {
+  fill: rgba(42, 105, 77, 0.06);
+  stroke: #2a694d;
+  stroke-width: 1;
+  opacity: 0.58;
+}
+
+.stone {
+  stroke: rgba(37, 55, 70, 0.34);
+  stroke-width: 0.7;
+}
+
+.addressPlaque {
+  position: absolute;
+  left: 50%;
+  bottom: 14%;
+  display: grid;
+  min-width: min(18rem, 72vw);
+  translate: -50% 0;
+  border: 1px solid rgba(37, 55, 70, 0.5);
+  padding: 0.8rem 1.25rem;
+  background: rgba(246, 242, 232, 0.94);
+  box-shadow: 0 0.65rem 1.8rem rgba(30, 43, 36, 0.12);
+  text-align: center;
+}
+
+.addressPlaque::before,
+.addressPlaque::after {
+  position: absolute;
+  top: 50%;
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 50%;
+  background: #2a694d;
+  content: "";
+  translate: 0 -50%;
+}
+
+.addressPlaque::before { left: 0.55rem; }
+.addressPlaque::after { right: 0.55rem; }
+
+.addressPlaque span,
+.sceneDisclaimer,
+.sceneCaption {
+  font-family: var(--font-code), monospace;
+  text-transform: uppercase;
+}
+
+.addressPlaque span {
+  color: #56635f;
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+}
+
+.addressPlaque strong {
+  margin-top: 0.24rem;
+  overflow-wrap: anywhere;
+  color: #1f332b;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.05rem, 3vw, 1.55rem);
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+.sceneDisclaimer {
+  position: absolute;
+  right: 3%;
+  bottom: 3%;
+  color: rgba(37, 55, 70, 0.62);
+  font-size: 0.52rem;
+  letter-spacing: 0.12em;
+}
+
+.lightWash {
+  fill: rgba(255, 255, 255, 0.48);
+  stroke: rgba(37, 55, 70, 0.4);
+  stroke-width: 1;
+}
+
+.paperObjects,
+.rugLines,
+.materialBoard,
+.photoFrames {
+  stroke-width: 1.05;
+  opacity: 0.55;
+}
+
+.anchor {
+  position: absolute;
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 1px solid #2a694d;
+  border-radius: 50%;
+  background: #f4efe5;
+  box-shadow: 0 0 0 0.23rem rgba(42, 105, 77, 0.08);
+}
+
+.scene:has([data-scene-anchor][data-active="true"]) .anchor {
+  opacity: 0.35;
+}
+
+.anchor[data-active="true"] {
+  opacity: 1;
+  background: #2a694d;
+  box-shadow: 0 0 0 0.35rem rgba(42, 105, 77, 0.14);
+}
+
+.rolledPlans { left: 45%; top: 45%; }
+.siteMap { left: 52%; top: 61%; }
+.landscapeWindow { left: 74%; top: 34%; }
+.floorPlanRug { left: 50%; top: 75%; }
+.stair { left: 80%; top: 45%; }
+.hallDoors { left: 86%; top: 30%; }
+.familyPhotos { left: 48%; top: 38%; }
+.seating { left: 49%; top: 57%; }
+.kitchenOpening { left: 89%; top: 60%; }
+.fireplaceWindow { left: 25%; top: 43%; }
+.finishBoard { left: 62%; top: 33%; }
+
+.sceneCaption {
+  position: absolute;
+  left: 4%;
+  bottom: 5%;
+  display: grid;
+  gap: 0.2rem;
+  border-left: 2px solid #2a694d;
+  padding-left: 0.65rem;
+  color: rgba(37, 55, 70, 0.65);
+  font-size: 0.54rem;
+  letter-spacing: 0.13em;
+}
+
+.sceneCaption strong {
+  color: #253746;
+  font-size: 0.62rem;
+}
+
+.threshold .living {
+  filter: saturate(0.92);
+  transform: translateX(-2.5%) scale(1.025);
+  transform-origin: 84% 52%;
+}
+
+.thresholdWash {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 45%, rgba(228, 236, 224, 0.64));
+}
+
+@media (max-width: 40rem) {
+  .addressPlaque { bottom: 12%; }
+  .sceneDisclaimer { display: none; }
+  .sceneCaption { left: 5%; bottom: 7%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .threshold .living { transform: none; }
+}
