@@ -32,7 +32,7 @@ export function Section({
     >
       <Container size={size}>
         {hasHeader ? (
-          <header className="grid gap-7 lg:grid-cols-[minmax(13rem,0.42fr)_minmax(0,1.58fr)] lg:gap-14">
+          <div className="grid gap-7 lg:grid-cols-[minmax(13rem,0.42fr)_minmax(0,1.58fr)] lg:gap-14">
             <div>
               {eyebrow ? <DividerFrame label={eyebrow} /> : null}
             </div>
@@ -49,7 +49,7 @@ export function Section({
                 </div>
               ) : null}
             </div>
-          </header>
+          </div>
         ) : null}
         <div className={cn(hasHeader ? "mt-10 lg:mt-12" : "", contentClassName)}>
           {children}

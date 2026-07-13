@@ -45,7 +45,7 @@ export default function Home() {
       <section className="border-b border-line py-16 sm:py-20 lg:py-24">
         <Container size="wide">
           <div className="grid gap-10 lg:grid-cols-[minmax(18rem,0.62fr)_minmax(0,1.38fr)] lg:gap-16 xl:gap-20">
-            <header>
+            <div>
               <DividerFrame label="Capabilities" detail="Scope Register" />
               <h2 className="mt-7 max-w-xl text-3xl leading-tight sm:text-4xl">
                 What {siteConfig.name} Does
@@ -54,7 +54,7 @@ export default function Home() {
                 The work is organized around three connected disciplines. Each one stays
                 direct, practical, and tied to the decisions that shape scope.
               </p>
-            </header>
+            </div>
 
             <div className="border-t border-line-strong">
               {marketingPageContent.home.capabilities.map((capability, index) => (
@@ -81,7 +81,7 @@ export default function Home() {
       <section className="bg-white/35 py-16 sm:py-20 lg:py-24">
         <Container size="wide">
           <div className="grid gap-10 lg:grid-cols-[minmax(17rem,0.58fr)_minmax(0,1.42fr)] lg:gap-16 xl:gap-24">
-            <header>
+            <div>
               <DividerFrame
                 label="FAQ"
                 detail={`${faqPreview.length.toString().padStart(2, "0")} Questions`}
@@ -93,7 +93,7 @@ export default function Home() {
                 The full FAQ stays available from the header. The front page keeps only
                 the questions most likely to clarify fit.
               </p>
-            </header>
+            </div>
 
             <Accordion items={faqPreview} />
           </div>

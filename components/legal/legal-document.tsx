@@ -56,12 +56,12 @@ export function LegalDocumentPage({ document }: LegalDocumentProps) {
               key={section.title}
               className="grid gap-6 border-b border-line py-7 lg:grid-cols-[minmax(14rem,0.45fr)_minmax(0,1.55fr)] lg:gap-12 lg:py-9"
             >
-              <header>
+              <div>
                 <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-accent">
                   Clause {String(index + 1).padStart(2, "0")}
                 </p>
                 <h2 className="mt-4 text-2xl">{section.title}</h2>
-              </header>
+              </div>
               <div className="max-w-3xl space-y-4 text-sm leading-7 text-muted">
                 {section.paragraphs.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>

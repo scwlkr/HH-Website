@@ -50,14 +50,14 @@ export default function FaqPage() {
                 key={group.slug}
                 className="grid gap-7 border-b border-line py-7 lg:grid-cols-[minmax(14rem,0.48fr)_minmax(0,1.52fr)] lg:gap-12 lg:py-9"
               >
-                <header>
+                <div>
                   <p className="font-mono text-[0.72rem] uppercase tracking-[0.14em] text-accent">
                     {group.title}
                   </p>
                   <p className="mt-4 max-w-sm text-sm leading-7 text-muted">
                     {group.description}
                   </p>
-                </header>
+                </div>
                 <Accordion items={items} />
               </article>
             );
