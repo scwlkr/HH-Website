@@ -14,6 +14,8 @@ The illustrated home is an engaging way to navigate a long questionnaire. It doe
 
 The customer-facing experience is called **Plan Your Home**. The structured result sent to H&H remains a **project brief**.
 
+The phone is the canonical design and testing viewport. The room illustration automatically pans or zooms to frame the active object and opens a touch-sized prompt within that area. Desktop presents the same interaction in a wider horizontal stage rather than introducing a separate desktop form layout. Predominantly mobile usage is a working product assumption to validate after launch, not a confirmed measurement.
+
 ## Desired Outcome
 
 At the end of the experience:
@@ -140,6 +142,8 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 The room scenes use dimensional architectural illustration: believable perspective and depth, restrained material cues, architectural linework, warm paper tones, and limited green emphasis. They should feel spatial and polished without becoming photorealistic promises or game-like 3D environments.
 
 Questions and answer controls are integrated into the illustrated room rather than placed in a permanent form panel. One prompt at a time attaches to a relevant object, fixture, surface, or area and expands in place when active. After the answer is recorded, attention moves to the next integrated prompt. The room itself is the interface; it should not look like a decorative image sitting beside a form.
+
+On a phone, the scene automatically frames the current object or area so the illustration, label, and answer targets remain understandable and easy to touch. Customers should not have to rotate their phone. On desktop, the same scene and interaction model expand into a wide horizontal presentation; desktop does not become a different questionnaire.
 
 ## Research-Informed Draft Question Inventory
 
@@ -291,12 +295,14 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Ensure every integrated prompt remains a real semantic control with a clear label, focus state, and ordered keyboard path.
 - Keep transitions short, preserve answers during movement, and honor reduced-motion preferences with an immediate alternative.
 - Keep a complete keyboard- and screen-reader-friendly form path alongside visual navigation.
-- Make the experience practical on a phone, where many customers will first encounter it.
+- Design and test the phone experience first, including touch target size, text legibility, viewport changes, and one-handed use.
+- Do not require landscape orientation or depend on hover.
+- Treat desktop as a wider rendering of the same guided experience, not a separate form layout.
 - Ask only questions that improve qualification or the first H&H conversation.
 
 ## Decisions To Resolve
 
-1. Mobile and assistive-technology presentation for room-integrated controls.
+1. Assistive-technology presentation for room-integrated controls.
 2. Transition storyboards and the illustrated asset plan.
 3. Refine and approve the exact question inventory.
 4. Final room-zone set and sequence.
@@ -397,20 +403,28 @@ Most answers should use visual cards, checkboxes, ranges, or steppers that appea
 - Keep progress explicit so customers know how much remains in the room and the overall walkthrough.
 - Do not show every hotspot at once or require customers to discover hidden interactions.
 
+### 2026-07-13 — Mobile-first single experience
+
+- Treat the phone as the canonical design and testing viewport.
+- Automatically pan or zoom each room scene to frame the active object and its touch-sized prompt.
+- Do not require landscape orientation.
+- Present the same interaction in a wider horizontal stage on desktop rather than creating a separate desktop form layout.
+- Treat predominantly mobile use as a working assumption and validate the actual device mix after launch.
+
 ## Current Question
 
-How should the room-integrated interaction adapt to a phone?
+How should unfinished progress be protected?
 
-### A. Automatically frame the active area — recommended
+### A. Autosave plus an optional resume link — recommended
 
-Pan or zoom the illustration to the relevant object, then open a touch-sized question treatment on or beside that object. After the answer, move to the next area. The customer always sees a meaningful portion of the room instead of a tiny full-room image.
+Save each answer automatically on the device. A visible **Save for later** action lets the customer request a secure resume link by email or text without creating an account. This handles normal phone interruptions and makes switching devices possible without asking for contact information upfront.
 
-### B. Keep the entire room visible
+### B. Autosave on the same device only
 
-Scale the complete scene to the phone and place the active prompt within it. The overall room remains visible, but objects, labels, and answer targets may become too small.
+Save progress in the current browser with no contact information. This is simpler, but a customer cannot continue on another device and may lose the draft if browser data is cleared.
 
-### C. Require landscape orientation
+### C. No draft saving
 
-Ask customers to rotate their phone so the room has more horizontal space. This preserves more of the desktop composition but interrupts the experience and may be impractical or inaccessible.
+Keep the walkthrough to one session. This is the simplest system, but an interruption could force a customer to restart a 25-to-35-interaction experience.
 
-The recommendation is **A**. It keeps the questions inside the room while ensuring the active object and controls remain large enough to understand and touch.
+The recommendation is **A**. It protects progress automatically while keeping the initial experience anonymous and account-free.
