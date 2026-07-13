@@ -8,9 +8,9 @@ This is the living discovery document for a future room-by-room inquiry experien
 
 ## Working Idea
 
-Evolve the existing `/inquire` project brief into a visual journey through a prospective home. A customer would establish the broad shape of the project, move through rooms, make selections, attach inspiration, and submit one coherent brief for H&H to review before following up.
+Evolve the existing `/inquire` project brief into a visual journey through a representative home. A customer would establish the broad shape of the project, move through a fixed sequence of rooms, make selections, attach inspiration, and submit one coherent brief for H&H to review before following up.
 
-The experience should feel closer to walking through and describing a future home than filling out a conventional form.
+The illustrated home is an engaging way to navigate a long questionnaire. It does not generate or reconfigure a floor plan from the customer's answers. The experience should feel closer to walking through and describing a future home than filling out a conventional form.
 
 ## Desired Outcome
 
@@ -45,14 +45,14 @@ This is a conversation starter, not an approved flow.
 1. **Set the project frame** — New home, remodel, addition, or another path; custom-home intent; location and lot status.
 2. **Shape the home** — Approximate total square footage, stories, bedrooms, bathrooms, garage, and major must-have spaces.
 3. **Add inspiration** — Upload plans or images and add links to websites, house plans, or reference projects.
-4. **Walk through the home** — Visit rooms or zones and make room-specific selections using visual choices, lists, checkboxes, and short answers.
+4. **Walk through the home** — Follow the same illustrated room sequence as every other customer and make selections using visual choices, lists, checkboxes, and short answers.
 5. **Set priorities** — Mark choices as must-have, preferred, optional, or undecided; identify where the customer wants to invest or simplify.
 6. **Review the brief** — See the home program, selections, references, and unanswered items in one editable summary.
 7. **Introduce yourself and submit** — Provide contact details, consent to follow-up, and send the project brief to H&H.
 
-## Provisional Room Map
+## Fixed Walkthrough
 
-The exact map and order are unresolved.
+The exact rooms and order are unresolved, but the walkthrough itself will not change based on the customer's answers.
 
 - site and exterior
 - entry and living areas
@@ -63,9 +63,9 @@ The exact map and order are unresolved.
 - laundry, mudroom, and storage
 - garage and workshop
 - outdoor living
-- optional specialty spaces such as an office, gym, media room, safe room, or guest suite
+- specialty-space questions such as an office, gym, media room, safe room, or guest suite
 
-Not every customer should be forced through every room. The home outline should determine which stops appear, and every stop should support **skip** or **not sure yet**.
+A customer selecting one bedroom sees the same rooms as a customer selecting five bedrooms. A bedroom scene represents the bedroom portion of the questionnaire rather than each literal bedroom in the proposed home. Every stop should still support **skip**, **not applicable**, or **not sure yet** where appropriate.
 
 ## Information Model
 
@@ -117,38 +117,41 @@ Not every customer should be forced through every room. The home outline should 
 
 ## Decisions To Resolve
 
-1. Visual fidelity: illustrated room journey, photo-led tour, or navigable 3D environment.
-2. Audience: custom new homes only, all new homes, or residential projects including remodels and additions.
-3. Customer promise: project brief, home planner, design consultation starter, or another framing.
-4. House structure: fixed room sequence, clickable floor plan, adaptive room list, or a hybrid.
-5. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
-6. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
-7. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-8. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-9. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-10. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-11. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-12. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Audience: custom new homes only, all new homes, or residential projects including remodels and additions.
+2. Customer promise: project brief, home planner, design consultation starter, or another framing.
+3. Fixed room set and sequence.
+4. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
+5. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
+6. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+7. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+8. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+9. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+10. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+11. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
-No decisions yet.
+### 2026-07-13 — Fixed illustrated walkthrough
+
+- Use a guided illustrated home rather than a first-person 3D or photo-led experience.
+- Every customer moves through the same visual rooms regardless of bedroom count, bathroom count, square footage, or other answers.
+- The rooms organize and enliven a long questionnaire; they do not represent a generated floor plan.
+- Customer answers do not add, remove, or visually reconfigure rooms.
 
 ## Current Question
 
-What should **virtual walkthrough** mean for the customer?
+Who should this home walkthrough be designed for?
 
-### A. Guided illustrated home — recommended starting point
+### A. New residential construction — recommended
 
-The customer sees a stylized floor plan, dollhouse, or room scene, selects a room, and configures it in a panel. This can feel like touring a home while remaining understandable on mobile, accessible, and flexible as the question set changes.
+Use the walkthrough for anyone planning a new home, whether the home is fully custom or based on a more repeatable plan. Route remodels, additions, commercial work, and land-only inquiries into a shorter project brief suited to those scopes.
 
-### B. First-person 3D walkthrough
+### B. All residential projects
 
-The customer moves through a rendered home like a game and makes selections in place. This is the most literal interpretation and the most immersive, but it assumes a house layout before the customer has designed one and creates a much larger experience and content burden.
+Send new homes, remodels, and additions through the same fixed rooms. Customers would mark rooms as applicable or not applicable.
 
-### C. Photo-led room tour
+### C. Every H&H inquiry
 
-The customer moves through curated H&H room photography or reference scenes and responds to what they see. This can feel authentic and approachable, but it is closer to a visual questionnaire than building or walking through their own home.
+Use the house walkthrough for residential, commercial, land-development, and other inquiries, with customers skipping irrelevant rooms.
 
-The recommendation is **A**, with enough visual continuity that the house appears to take shape as decisions are made. It preserves the emotional idea without requiring the experience to pretend that a real floor plan already exists.
-
+The recommendation is **A**. A fixed home walkthrough naturally fits new-home planning. Forcing remodel, commercial, or land-only customers through it would make the visual metaphor feel arbitrary and add unnecessary questions.
