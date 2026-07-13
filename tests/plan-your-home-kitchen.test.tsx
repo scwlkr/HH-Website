@@ -151,9 +151,20 @@ test("four registered anchors reframe the exact Kitchen and Dining prompts and e
       name: "How will the kitchen be used most often?",
     }),
   );
+  assert.equal(
+    view.container.querySelector(
+      '[data-tour-beat="living-to-kitchen"][data-reduced-motion="true"]',
+    ) !== null,
+    true,
+  );
 
+  await user.tab();
+  assert.equal(
+    window.document.activeElement,
+    query.getByRole("checkbox", { name: "Everyday cooking" }),
+  );
+  await user.keyboard("[Space]");
   for (const label of [
-    "Everyday cooking",
     "Serious cooking or baking",
     "Family gathering",
     "Entertaining",
@@ -177,8 +188,10 @@ test("four registered anchors reframe the exact Kitchen and Dining prompts and e
   assert.ok(query.getByRole("group", { name: "Work center" }));
   assert.ok(query.getByRole("group", { name: "Connection" }));
   assert.equal(
-    view.container.querySelector('[data-reduced-motion="true"]') !== null,
-    true,
+    view.container.querySelector("[data-transition-state]")?.getAttribute(
+      "data-transition-state",
+    ),
+    "idle",
   );
 
   const results = await axe.run(view.container, {
