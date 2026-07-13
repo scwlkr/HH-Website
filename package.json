@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "test": "node --test",
+    "test:plan-home-drafts:emulator": "node --test tests/plan-your-home-draft-emulator.test.mts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "review": "node scripts/review.mjs",

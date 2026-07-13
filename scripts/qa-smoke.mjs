@@ -906,6 +906,8 @@ async function main() {
     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "123456789012",
     NEXT_PUBLIC_FIREBASE_APP_ID: "1:123456789012:web:firebase-emulator-smoke",
     NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST: firebaseEmulators.authHost,
+    PLAN_HOME_DRAFT_SESSION_SECRET:
+      "qa-smoke-plan-home-draft-session-secret-only",
     HH_CONTACT_PHONE_HREF: "tel:+15125550199",
     HH_CONTACT_PHONE_LABEL: "(512) 555-0199",
   };
@@ -919,6 +921,15 @@ async function main() {
     adminApp = await seedAdminUser(firebaseEmulators.projectId);
     const firestore = getFirestore(adminApp);
     await seedPublicationFixtures(firestore);
+
+    log("Running focused Plan Your Home draft emulator tests...");
+    const draftTestResult = await runNpmScript({
+      script: "test:plan-home-drafts:emulator",
+      env: qaEnv,
+    });
+    if (draftTestResult.stdout.trim()) {
+      log(draftTestResult.stdout.trim());
+    }
 
     log("Building the production app under smoke-test env...");
     await runNpmScript({

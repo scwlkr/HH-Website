@@ -10,10 +10,7 @@ import {
   parseCreatePlanHomeDraftInput,
   type PlanHomeDraftProgress,
 } from "./server-draft-contract.ts";
-import type {
-  PlanHomeAnswerMap,
-  PlanHomeZoneId,
-} from "./registry.ts";
+import type { PlanHomeAnswerMap } from "./registry.ts";
 
 const inquirySubmissionsCollection = "inquirySubmissions";
 export const PLAN_HOME_DRAFT_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
