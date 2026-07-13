@@ -606,7 +606,7 @@ async function verifyInquiryFailureState(browser, baseUrl) {
     await submitButton.click();
     await page
       .getByText(
-        "The project brief could not be sent right now. Please try again in a moment or email H&H directly.",
+        "The project brief could not be sent right now. Please try again in a moment or email h and h directly.",
       )
       .waitFor();
     assert(
