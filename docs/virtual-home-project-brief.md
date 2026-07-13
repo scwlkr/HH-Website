@@ -40,32 +40,100 @@ The current five-step project brief already collects:
 
 The new concept should preserve useful parts of this contract while replacing the generic stepper experience with a more visual and detailed path for new-home inquiries. Other project types continue through a separate intake.
 
+## Custom-Home Intake Research
+
+### Method
+
+On 2026-07-13, ten public custom-home builder, residential designer, and architect intake experiences were reviewed qualitatively. The sample deliberately includes short lead forms, discovery briefs, and detailed pre-design questionnaires. This is a competitive benchmark, not a statistical census of the industry.
+
+### Source Sample
+
+| Source | Intake depth | Notable coverage |
+| --- | --- | --- |
+| [Fidelity Homes](https://www.fidelityhomes.ca/custom-home-questionnaire) | Short inquiry | Home type, square footage, bedrooms, bathrooms, custom versus existing plan, plan upload, budget, move-in timing, lot, servicing, restrictions, and meeting availability. |
+| [ONE Custom Homes](https://www.onecustomhomes.com/our-process) | Consultation outline | Objectives, overall budget, property location and characteristics, square footage, bedroom and bathroom count, features, aesthetics, and a written follow-up summary. |
+| [Premier Builders](https://mypremierbuilders.com/wp-content/uploads/2025/04/Forms.pdf) | Discovery brief | Daily life, current-home likes and dislikes, lot and views, space needs, entertaining, accessibility, inspiration, must-haves, budget, financing, timeline, involvement, and decision-makers. |
+| [Black Rock Home Builders](https://www.blackrockhomebuilders.com/custom-home-questionnaire/) | Comprehensive pre-design | Site constraints, orientation, utilities, lifestyle, layout, adjacency, storage, accessibility, finishes, systems, outdoor living, budget priorities, future use, inspiration, must-haves, and deal-breakers. |
+| [No Limit Homes](https://nolimitshomes.com/questionnaire/) | Detailed six-step form | Contact and household, plan readiness, size by floor, budget, land, style, high-priority rooms, exterior, garage, kitchen, laundry, living, dining, foyer, bedrooms, and finishes. It supports save and continue. |
+| [L&M Custom Designs and Build](https://lmcustombuilds.com/forms/designer-questionnaire.pdf) | Room-program questionnaire | Household, site restrictions, style, square footage, room list, quantity, size, location, adjacency, kitchen, living, dining, bedrooms, baths, garage, and outdoor rooms. |
+| [J Edwards Home Designs](https://www.jedwardshomedesigns.com/_files/ugd/0ccd6f_d9312643525d4d56aafe9c65a71c42e1.pdf) | Architectural questionnaire | Budget, household, site views, screening, trees, topography, setbacks, amenities, square footage, stories, bedrooms, bathrooms, garage bays, exterior materials, and room needs. |
+| [Pippin Home Designs](https://www.pippinhomedesigns.com/wp-content/uploads/2025/01/Pippins-New-Home-Design-Questionnaire.pdf) | Deep design programming | Life goals, routines, future needs, property, views, desired feeling, accessibility, full room program, exterior style, detailed room features, storage, pets, systems, daylight, must-haves, and nice-to-haves. |
+| [The Art of Architecture](https://theartofarchitecture.com/wp-content/uploads/2023/08/Lifestyle_Questionnaire-FILLABLE-1.pdf) | Deep lifestyle programming | Entertaining, room formality, room size, ceiling height, use, mood, orientation, adjacency, furniture, kitchen equipment, suites, utility areas, outdoor spaces, and special rooms. |
+| [Primarc Studio](https://primarcstudio.com/residential-design-questionnaire/) | Comprehensive design intake | Site and plot, parking, privacy, room requirements, technology, sustainability, materials, landscape, time spent by space, specialty features, services, documents, timeline, and communication. |
+
+### Recurring Information
+
+The reviewed forms consistently separate broad project qualification from deeper design programming.
+
+#### Core qualification
+
+These appear in nearly every short inquiry and recur throughout the deeper questionnaires:
+
+- contact details and preferred follow-up
+- fully custom home versus an existing plan
+- plan or inspiration upload when one exists
+- lot ownership, location, servicing, and known restrictions
+- target square footage, stories, bedrooms, bathrooms, and garage capacity
+- approximate budget and desired start or move-in timing
+- architectural or general style direction
+
+#### Frequent discovery topics
+
+These repeatedly appear once a company wants a useful design conversation rather than a basic sales lead:
+
+- who will live in the home now and later
+- daily routines, entertaining, working from home, hobbies, guests, children, and pets
+- accessibility, multigenerational living, and aging-in-place needs
+- what customers like and dislike about their current home
+- open versus defined rooms, privacy, views, daylight, and desired mood
+- must-have rooms, room relationships, storage, and future additions
+- kitchen and dining behavior, primary-suite priorities, utility spaces, garage use, outdoor living, and specialty spaces
+- must-haves, nice-to-haves, deal-breakers, and areas where the customer would invest or simplify
+- inspiration photos, plans, websites, and notes explaining what is appealing
+
+#### Deep pre-design details
+
+The longest questionnaires also ask for exact room dimensions, furniture sizes, detailed adjacencies, appliance brands, hardware, plumbing fixtures, ceiling treatments, HVAC, wiring, energy systems, surveys, covenants, and financing details.
+
+Those details are useful after a real project relationship begins, but most are too specific for an initial H&H inquiry. Asking them too early would make **Plan Your Home** feel like unpaid design work and increase abandonment.
+
+### Research Direction For H&H
+
+The strongest fit is a middle layer between the two market extremes:
+
+- more useful than a ten-field lead form
+- substantially lighter than a multi-page architectural programming document
+- mostly quick visual choices with optional notes
+- focused on decisions that improve qualification and the first conversation
+- broad finish direction rather than exact brands, products, or specifications
+- a clear result that separates requirements, preferences, unknowns, and inspiration
+
+The existing eight-zone route remains a good working hypothesis. Research suggests adding whole-home systems and comfort preferences to the utility zone, keeping lot and site questions prominent, and treating lifestyle and future-use questions as equally important as room features.
+
 ## Draft Experience Shape
 
 This is a conversation starter, not an approved flow.
 
-1. **Set the project frame** — Confirm the single-family new-home scope, custom-home intent, location, and lot status.
-2. **Shape the home** — Approximate total square footage, stories, bedrooms, bathrooms, garage, and major must-have spaces.
-3. **Add inspiration** — Upload plans or images and add links to websites, house plans, or reference projects.
-4. **Walk through the home** — Follow the same illustrated room sequence as every other customer and make selections using visual choices, lists, checkboxes, and short answers.
-5. **Set priorities** — Mark choices as must-have, preferred, optional, or undecided; identify where the customer wants to invest or simplify.
-6. **Review the brief** — See the home program, selections, references, and unanswered items in one editable summary.
-7. **Introduce yourself and submit** — Provide contact details, consent to follow-up, and send the project brief to H&H.
+1. **Welcome** — Confirm the single-family new-home scope and explain what the customer will produce.
+2. **Walk through the home** — Follow the fixed illustrated room sequence using visual choices, lists, checkboxes, and short answers.
+3. **Set priorities and add inspiration** — Separate must-haves from preferences, then upload plans or images and add useful links.
+4. **Review the brief** — See the home program, selections, references, and unanswered items in one editable summary.
+5. **Introduce yourself and submit** — Provide contact details, consent to follow-up, and send the project brief to H&H.
 
 ## Fixed Walkthrough
 
-The walkthrough will use six to eight combined room zones and will not change based on the customer's answers. The exact zones and order are still unresolved. Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections.
+The walkthrough will use six to eight combined room zones and will not change based on the customer's answers. The following eight-stop route is a provisional starting point until the question inventory is settled:
 
-- site and exterior
-- entry and living areas
-- kitchen and dining
-- primary suite
-- secondary bedrooms
-- bathrooms
-- laundry, mudroom, and storage
-- garage and workshop
-- outdoor living
-- specialty-space questions such as an office, gym, media room, safe room, or guest suite
+1. **Living Room and Home Basics**
+2. **Kitchen and Dining**
+3. **Primary Suite**
+4. **Bedrooms and Shared Bathrooms**
+5. **Laundry, Mudroom, Storage, and Home Systems**
+6. **Garage, Exterior, and Site**
+7. **Outdoor Living and Specialty Spaces**
+8. **Design Desk and Inspiration**
+
+Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections.
 
 A customer selecting one bedroom sees the same rooms as a customer selecting five bedrooms. A bedroom scene represents the bedroom portion of the questionnaire rather than each literal bedroom in the proposed home. Every stop should still support **skip**, **not applicable**, or **not sure yet** where appropriate.
 
@@ -119,15 +187,16 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 ## Decisions To Resolve
 
-1. Fixed room-zone set and sequence.
-2. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
-3. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
-4. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-5. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-7. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-8. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-9. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Discovery depth and approximate question count.
+2. Exact question inventory.
+3. Final room-zone set and sequence.
+4. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
+5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -168,29 +237,26 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 - Group related rooms so the process does not become tedious.
 - Keep each stop focused enough that it still feels like progressing through the home rather than completing a dense form page.
 
+### 2026-07-13 — Provisional eight-stop route
+
+- Use the interior-first eight-stop route as the general starting idea.
+- Do not lock the room list until competitive research has informed the question inventory.
+- Add, remove, or combine zones if the final questions reveal a better grouping.
+
 ## Current Question
 
-Which fixed route best matches the experience?
+How deep should **Plan Your Home** go?
 
-### A. Interior-first eight-stop route — recommended
+### A. Qualification: roughly 12 to 18 decisions
 
-1. **Living Room and Home Basics** — custom or plan-based, total square footage, stories, bedrooms, bathrooms, and how the household lives.
-2. **Kitchen and Dining** — layout, pantry, appliances, entertaining, and finish direction.
-3. **Primary Suite** — bedroom, bathroom, closet, privacy, and accessibility preferences.
-4. **Bedrooms and Shared Bathrooms** — counts, sizes, guest or family use, and shared-bath expectations.
-5. **Laundry, Mudroom, and Storage** — daily entry, utilities, organization, and storage needs.
-6. **Garage, Exterior, and Site** — vehicles, workshop needs, exterior character, lot, and site considerations.
-7. **Outdoor Living and Specialty Spaces** — porches, patios, pool, office, gym, media room, safe room, or other extras.
-8. **Design Desk and Inspiration** — upload plans or images, add links, explain references, and capture final priorities.
+Collect the essentials found on short builder forms: lot, size, bedrooms, bathrooms, garage, style, budget, timeline, plan status, inspiration, and contact. This is easy to finish but does not fully use the room-walkthrough concept.
 
-The review, contact details, and submission follow the walkthrough and are not counted as room stops.
+### B. Balanced discovery: roughly 25 to 35 decisions — recommended
 
-### B. Arrival-first eight-stop route
+Add household and lifestyle, room function, storage, accessibility, outdoor living, priorities, and broad finish direction. Keep most questions tap-based, use conditional follow-ups, and leave exact specifications for a later design phase.
 
-Start with the site, exterior, and front entry before moving into the living room. This feels more like physically arriving at a home, but delays the familiar square-footage and household questions.
+### C. Pre-design programming: 50 or more decisions
 
-### C. Essentials-only six-stop route
+Capture detailed room sizes, adjacencies, materials, fixtures, systems, furniture, and technical preferences. This produces a richer architectural brief but risks turning the inquiry into the tedious form the experience is meant to avoid.
 
-Combine the primary and secondary bedroom questions, combine utility spaces with the garage, and fold inspiration into the final review. This is shorter, but gives the most personal and practical areas less breathing room.
-
-The recommendation is **A**. It begins exactly where the original idea began—the living room—then moves through the home in understandable groups. The final design desk gives uploads and references a natural home without interrupting the room questions.
+The recommendation is **B**. It matches H&H's goal: arrive at the first conversation informed, without pretending the customer has already completed design programming.
