@@ -36,13 +36,13 @@ The current five-step project brief already collects:
 - a freeform project description
 - attribution data
 
-The new concept should preserve useful parts of this contract while replacing the generic stepper experience with a more visual and detailed residential path.
+The new concept should preserve useful parts of this contract while replacing the generic stepper experience with a more visual and detailed path for new-home inquiries. Other project types continue through a separate intake.
 
 ## Draft Experience Shape
 
 This is a conversation starter, not an approved flow.
 
-1. **Set the project frame** — New home, remodel, addition, or another path; custom-home intent; location and lot status.
+1. **Set the project frame** — Confirm the new-home scope, custom-home intent, location, and lot status.
 2. **Shape the home** — Approximate total square footage, stories, bedrooms, bathrooms, garage, and major must-have spaces.
 3. **Add inspiration** — Upload plans or images and add links to websites, house plans, or reference projects.
 4. **Walk through the home** — Follow the same illustrated room sequence as every other customer and make selections using visual choices, lists, checkboxes, and short answers.
@@ -117,7 +117,7 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 ## Decisions To Resolve
 
-1. Audience: custom new homes only, all new homes, or residential projects including remodels and additions.
+1. New-home boundary: single-family homes only, or townhome and multifamily projects too.
 2. Customer promise: project brief, home planner, design consultation starter, or another framing.
 3. Fixed room set and sequence.
 4. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
@@ -138,20 +138,25 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 - The rooms organize and enliven a long questionnaire; they do not represent a generated floor plan.
 - Customer answers do not add, remove, or visually reconfigure rooms.
 
+### 2026-07-13 — New-home inquiries only
+
+- The walkthrough is a dedicated intake experience for customers planning a new home.
+- Remodels, additions, commercial work, land-only work, and other project types use a separate inquiry path.
+
 ## Current Question
 
-Who should this home walkthrough be designed for?
+What counts as a **new home** for this walkthrough?
 
-### A. New residential construction — recommended
+### A. Single-family new homes — recommended
 
-Use the walkthrough for anyone planning a new home, whether the home is fully custom or based on a more repeatable plan. Route remodels, additions, commercial work, and land-only inquiries into a shorter project brief suited to those scopes.
+Use it only for detached single-family new-home inquiries, whether fully custom or based on a more repeatable plan.
 
-### B. All residential projects
+### B. Single-family homes and townhomes
 
-Send new homes, remodels, and additions through the same fixed rooms. Customers would mark rooms as applicable or not applicable.
+Include new single-family homes and new townhome units, but keep multifamily developments separate.
 
-### C. Every H&H inquiry
+### C. All new residential construction
 
-Use the house walkthrough for residential, commercial, land-development, and other inquiries, with customers skipping irrelevant rooms.
+Include single-family, townhome, and multifamily projects whenever the work is new construction.
 
-The recommendation is **A**. A fixed home walkthrough naturally fits new-home planning. Forcing remodel, commercial, or land-only customers through it would make the visual metaphor feel arbitrary and add unnecessary questions.
+The recommendation is **A**. The homeowner-focused questions and fixed house walkthrough fit a single-family inquiry. Townhome and multifamily development briefs need different project-level questions even though their individual units contain similar rooms.
