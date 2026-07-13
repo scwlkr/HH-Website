@@ -238,6 +238,29 @@ describe("Plan Your Home deterministic tour state", () => {
     });
     assert.equal(invalidCommand.error?.code, "wrong-question");
     assert.strictEqual(invalidCommand.state, wrongPrompt);
+
+    let contactState = advanceTo("home.bed-bath-counts");
+    contactState = apply(contactState, {
+      type: "answer-question",
+      questionId: "home.bed-bath-counts",
+      answer: planHomeQuestions[5].response.exampleAnswer,
+    }).state;
+    contactState = apply(contactState, { type: "next" }).state;
+
+    const missingContact = reducePlanHomeTour(contactState, { type: "next" });
+    assert.equal(missingContact.error?.code, "contact-required");
+    assert.strictEqual(missingContact.state, contactState);
+
+    const invalidContact = reducePlanHomeTour(contactState, {
+      type: "complete-contact-gate",
+      contact: {
+        email: "not-an-email",
+        phone: "123",
+        manualFollowUpDisclosureAccepted: false,
+      },
+    });
+    assert.equal(invalidContact.error?.code, "invalid-contact");
+    assert.strictEqual(invalidContact.state, contactState);
   });
 
   it("preserves later answers during backward edits and returns directly to review", () => {
