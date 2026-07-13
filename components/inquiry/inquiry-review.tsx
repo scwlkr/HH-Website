@@ -56,7 +56,7 @@ export function InquiryReview({ values }: InquiryReviewProps) {
 
   return (
     <div className="grid border-y border-line-strong xl:grid-cols-2">
-      <section className="border-b border-line py-6 xl:border-r xl:px-7 xl:first:pl-0">
+      <section className="border-b border-line py-6 xl:border-r xl:pr-7">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Contact
         </p>
@@ -71,7 +71,7 @@ export function InquiryReview({ values }: InquiryReviewProps) {
         </div>
       </section>
 
-      <section className="border-b border-line py-6 xl:px-7 xl:last:pr-0">
+      <section className="border-b border-line py-6 xl:pl-7">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Project Basics
         </p>
@@ -95,7 +95,7 @@ export function InquiryReview({ values }: InquiryReviewProps) {
         </div>
       </section>
 
-      <section className="border-b border-line py-6 xl:border-b-0 xl:border-r xl:px-7 xl:first:pl-0">
+      <section className="border-b border-line py-6 xl:border-b-0 xl:border-r xl:pr-7">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Site Context
         </p>
@@ -113,7 +113,7 @@ export function InquiryReview({ values }: InquiryReviewProps) {
         </div>
       </section>
 
-      <section className="py-6 xl:px-7 xl:last:pr-0">
+      <section className="py-6 xl:pl-7">
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Project Description
         </p>

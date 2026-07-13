@@ -66,55 +66,82 @@ export function FinishComparison({
       </div>
 
       <div className="hidden lg:block">
-        <div className="grid grid-cols-[minmax(10rem,0.58fr)_repeat(3,minmax(0,1fr))]">
-          <div className="border-b border-line p-5 font-mono text-[0.68rem] uppercase tracking-[0.2em] text-muted">
-            Comparison Register
-          </div>
-          {finishLevels.map((finish) => (
-            <div key={finish.slug} className="border-b border-l border-line p-5">
-              <h3 className="text-xl">{finish.shortTitle}</h3>
-              {pricingLabels?.[finish.slug] ? (
-                <p className="mt-2 font-mono text-[0.66rem] uppercase tracking-[0.12em] text-accent">
-                  {pricingLabels[finish.slug]}
-                </p>
-              ) : null}
-            </div>
-          ))}
+        <table className="w-full table-fixed border-collapse text-left">
+          <colgroup>
+            <col className="w-[16%]" />
+            {finishLevels.map((finish) => (
+              <col key={finish.slug} />
+            ))}
+          </colgroup>
+          <thead>
+            <tr>
+              <th
+                scope="col"
+                className="border-b border-line p-5 align-top font-mono text-[0.68rem] font-normal uppercase tracking-[0.2em] text-muted"
+              >
+                Comparison Register
+              </th>
+              {finishLevels.map((finish) => (
+                <th
+                  key={finish.slug}
+                  scope="col"
+                  className="border-b border-l border-line p-5 align-top font-normal"
+                >
+                  <span className="block text-xl">{finish.shortTitle}</span>
+                  {pricingLabels?.[finish.slug] ? (
+                    <span className="mt-2 block font-mono text-[0.66rem] uppercase tracking-[0.12em] text-accent">
+                      {pricingLabels[finish.slug]}
+                    </span>
+                  ) : null}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {comparisonLabels.map((label) => (
+              <tr key={label}>
+                <th
+                  scope="row"
+                  className="border-b border-line p-5 align-top font-mono text-[0.68rem] font-normal uppercase tracking-[0.14em] text-muted-strong"
+                >
+                  {label}
+                </th>
+                {finishLevels.map((finish) => {
+                  const comparisonPoint = finish.comparisonPoints.find(
+                    (point) => point.label === label,
+                  );
 
-          {comparisonLabels.map((label) => (
-            <div key={label} className="contents">
-              <div className="border-b border-line p-5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted-strong">
-                {label}
-              </div>
-              {finishLevels.map((finish) => {
-                const comparisonPoint = finish.comparisonPoints.find(
-                  (point) => point.label === label,
-                );
-
-                return (
-                  <div
-                    key={finish.slug}
-                    className="border-b border-l border-line p-5 text-sm leading-7 text-muted"
-                  >
-                    {comparisonPoint?.value}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-
-          <div className="p-5" />
-          {finishLevels.map((finish) => (
-            <div key={finish.slug} className="border-l border-line p-5">
-              <ActionLink
-                href={getFinishLevelHref(finish.slug)}
-                label="View Detail"
-                variant="ghost"
-                size="sm"
-              />
-            </div>
-          ))}
-        </div>
+                  return (
+                    <td
+                      key={finish.slug}
+                      className="border-b border-l border-line p-5 align-top text-sm leading-7 text-muted"
+                    >
+                      {comparisonPoint?.value}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+            <tr>
+              <th
+                scope="row"
+                className="p-5 align-middle font-mono text-[0.68rem] font-normal uppercase tracking-[0.14em] text-muted"
+              >
+                Detail Pages
+              </th>
+              {finishLevels.map((finish) => (
+                <td key={finish.slug} className="border-l border-line p-5">
+                  <ActionLink
+                    href={getFinishLevelHref(finish.slug)}
+                    label="View Detail"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );
