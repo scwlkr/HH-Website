@@ -22,6 +22,10 @@ import {
   KitchenDiningScene,
 } from "@/features/plan-your-home/kitchen-dining-scene";
 import {
+  BedroomsSharedBathroomsScene,
+  UtilityHallThresholdScene,
+} from "@/features/plan-your-home/bedrooms-shared-bathrooms-scene";
+import {
   BedroomHallThresholdScene,
   PrimarySuiteScene,
 } from "@/features/plan-your-home/primary-suite-scene";
@@ -99,9 +103,11 @@ const unavailableDraftAction: PlanHomeDraftAction = async () => ({
 const PROJECT_AND_LIVING_LAST_QUESTION = 11;
 const KITCHEN_AND_DINING_LAST_QUESTION = 15;
 const PRIMARY_SUITE_LAST_QUESTION = 19;
+const BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION = 21;
 const PROJECT_AND_LIVING_ZONE = planHomeZones[0];
 const KITCHEN_AND_DINING_ZONE = planHomeZones[1];
 const PRIMARY_SUITE_ZONE = planHomeZones[2];
+const BEDROOMS_AND_SHARED_BATHROOMS_ZONE = planHomeZones[3];
 
 const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "entry-plans": { xPercent: 1.5, yPercent: 0.4, scale: 1.08 },
@@ -123,6 +129,8 @@ const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "primary-bedroom": { xPercent: 0.8, yPercent: -1.6, scale: 1.11 },
   "primary-bath": { xPercent: -3.6, yPercent: -0.4, scale: 1.14 },
   "primary-closet": { xPercent: -4.2, yPercent: 0.8, scale: 1.15 },
+  "secondary-bedrooms": { xPercent: 2.8, yPercent: -0.4, scale: 1.12 },
+  "secondary-bathrooms": { xPercent: -3.4, yPercent: 0.4, scale: 1.14 },
 };
 
 function randomUuidV4() {
@@ -147,7 +155,8 @@ function createIdempotencyKey(
     | "contact-gate"
     | "zone:project-and-living"
     | "zone:kitchen-and-dining"
-    | "zone:primary-suite",
+    | "zone:primary-suite"
+    | "zone:bedrooms-and-shared-bathrooms",
 ) {
   return `local-${randomUuidV4()}:plan-home-v1:${boundary}`;
 }
@@ -155,7 +164,7 @@ function createIdempotencyKey(
 function initialDraftAnswers() {
   return Object.fromEntries(
     planHomeQuestions
-      .slice(0, PRIMARY_SUITE_LAST_QUESTION)
+      .slice(0, BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION)
       .map((question) => [
         question.id,
         structuredClone(question.response.defaultAnswer),
@@ -173,7 +182,10 @@ function sceneForQuestion(question: PlanHomeQuestionDefinition) {
   if (question.number <= KITCHEN_AND_DINING_LAST_QUESTION) {
     return <KitchenDiningScene activeAnchor={question.sceneAnchor} />;
   }
-  return <PrimarySuiteScene activeAnchor={question.sceneAnchor} />;
+  if (question.number <= PRIMARY_SUITE_LAST_QUESTION) {
+    return <PrimarySuiteScene activeAnchor={question.sceneAnchor} />;
+  }
+  return <BedroomsSharedBathroomsScene activeAnchor={question.sceneAnchor} />;
 }
 
 function actionError(result: Exclude<PlanHomeDraftActionState, { status: "success" }>) {
@@ -428,8 +440,13 @@ function ContactCheckpoint({
 
 function BedroomHallBoundary({
   onBack,
+  onContinue,
   reducedMotion,
-}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+}: Readonly<{
+  onBack: () => void;
+  onContinue: () => void;
+  reducedMotion?: boolean;
+}>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -452,8 +469,47 @@ function BedroomHallBoundary({
           Your primary-suite priorities are checkpointed. Secondary bedrooms
           and shared bathrooms will continue from this hall.
         </p>
+        <div className={styles.momentActions}>
+          <Button type="button" variant="secondary" onClick={onBack}>
+            Back to the closet
+          </Button>
+          <Button type="button" onClick={onContinue}>
+            Continue down the hall
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function UtilityHallBoundary({
+  onBack,
+  reducedMotion,
+}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+  return (
+    <section
+      className={styles.moment}
+      data-reduced-motion={reducedMotion}
+      data-tour-beat="utility-hall-transition"
+    >
+      <div className={styles.momentScene}>
+        <UtilityHallThresholdScene />
+      </div>
+      <div className={styles.momentSheet}>
+        <p className={styles.eyebrow}>Bedrooms and shared bathrooms saved</p>
+        <h1 ref={headingRef} tabIndex={-1}>
+          The utility hall is next.
+        </h1>
+        <p className={styles.momentCopy}>
+          Bedroom users, arrangement, and bathroom sharing are checkpointed.
+          Laundry, everyday entry, storage, and systems continue from here.
+        </p>
         <Button type="button" variant="secondary" onClick={onBack}>
-          Back to the closet
+          Back to shared bathrooms
         </Button>
       </div>
     </section>
@@ -483,6 +539,7 @@ export function PlanYourHomeShell({
   const [error, setError] = useState<PlanHomeTourTransition["error"]>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showBedroomHallBoundary, setShowBedroomHallBoundary] = useState(false);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
@@ -589,6 +646,12 @@ export function PlanYourHomeShell({
                   answerCount: PRIMARY_SUITE_LAST_QUESTION,
                   keyField: "primarySuiteCheckpointKey",
                 } as const)
+              : question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION
+                ? ({
+                    zoneId: "bedrooms-and-shared-bathrooms",
+                    answerCount: BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION,
+                    keyField: "bedroomsAndSharedBathroomsCheckpointKey",
+                  } as const)
               : null;
 
     if (checkpointBoundary) {
@@ -643,6 +706,9 @@ export function PlanYourHomeShell({
       setClientDraft(nextClientDraft);
       setError(null);
       commitState(checkpointed.state);
+      if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
+        setShowBedroomHallBoundary(true);
+      }
       return true;
     }
 
@@ -675,6 +741,7 @@ export function PlanYourHomeShell({
         projectAndLivingCheckpointKey: null,
         kitchenAndDiningCheckpointKey: null,
         primarySuiteCheckpointKey: null,
+        bedroomsAndSharedBathroomsCheckpointKey: null,
         draftId: null,
         revision: null,
       } satisfies PlanHomeClientDraftState);
@@ -708,6 +775,8 @@ export function PlanYourHomeShell({
         pendingDraft.kitchenAndDiningCheckpointKey ?? null,
       primarySuiteCheckpointKey:
         pendingDraft.primarySuiteCheckpointKey ?? null,
+      bedroomsAndSharedBathroomsCheckpointKey:
+        pendingDraft.bedroomsAndSharedBathroomsCheckpointKey ?? null,
       draftId: result.result.draftId,
       revision: result.result.revision,
     } satisfies PlanHomeClientDraftState;
@@ -726,6 +795,7 @@ export function PlanYourHomeShell({
   }
 
   function backFromBoundary() {
+    setShowBedroomHallBoundary(false);
     const transition = reducePlanHomeTour(tourState, { type: "back" });
     if (!transition.error) commitState(transition.state);
   }
@@ -762,12 +832,20 @@ export function PlanYourHomeShell({
         onSubmit={submitContact}
       />
     );
-  } else if (
-    activeQuestion &&
-    activeQuestion.number > PRIMARY_SUITE_LAST_QUESTION
-  ) {
+  } else if (showBedroomHallBoundary) {
     content = (
       <BedroomHallBoundary
+        onBack={backFromBoundary}
+        onContinue={() => setShowBedroomHallBoundary(false)}
+        reducedMotion={reducedMotion}
+      />
+    );
+  } else if (
+    activeQuestion &&
+    activeQuestion.number > BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION
+  ) {
+    content = (
+      <UtilityHallBoundary
         onBack={backFromBoundary}
         reducedMotion={reducedMotion}
       />
@@ -786,6 +864,8 @@ export function PlanYourHomeShell({
               ? "living-to-kitchen"
               : question.number === 16
                 ? "kitchen-hall-to-primary"
+                : question.number === 20
+                  ? "bedroom-hall-entrance"
               : "in-room"
         }
       >
@@ -796,7 +876,9 @@ export function PlanYourHomeShell({
               ? PROJECT_AND_LIVING_ZONE
               : question.number <= KITCHEN_AND_DINING_LAST_QUESTION
                 ? KITCHEN_AND_DINING_ZONE
-                : PRIMARY_SUITE_ZONE
+                : question.number <= PRIMARY_SUITE_LAST_QUESTION
+                  ? PRIMARY_SUITE_ZONE
+                  : BEDROOMS_AND_SHARED_BATHROOMS_ZONE
           }
           totalQuestions={planHomeQuestions.length}
           scene={sceneForQuestion(question)}
@@ -822,7 +904,8 @@ export function PlanYourHomeShell({
           nextLabel={
             question.number === PROJECT_AND_LIVING_LAST_QUESTION ||
             question.number === KITCHEN_AND_DINING_LAST_QUESTION ||
-            question.number === PRIMARY_SUITE_LAST_QUESTION
+            question.number === PRIMARY_SUITE_LAST_QUESTION ||
+            question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION
               ? "Save room"
               : "Next"
           }
@@ -833,10 +916,7 @@ export function PlanYourHomeShell({
     );
   } else {
     content = (
-      <BedroomHallBoundary
-        onBack={backFromBoundary}
-        reducedMotion={reducedMotion}
-      />
+      <UtilityHallBoundary onBack={backFromBoundary} reducedMotion={reducedMotion} />
     );
   }
 
