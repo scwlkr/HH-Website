@@ -137,6 +137,106 @@ Navigation is intentionally linear: one room at a time, one obvious next action,
 
 A customer selecting one bedroom sees the same rooms as a customer selecting five bedrooms. A bedroom scene represents the bedroom portion of the questionnaire rather than each literal bedroom in the proposed home. Every stop should still support **skip**, **not applicable**, or **not sure yet** where appropriate.
 
+## Research-Informed Draft Question Inventory
+
+This is a working inventory, not approved public copy. It contains 35 short question screens: the upper edge of the balanced-discovery target. Conditional details can reduce what an individual customer sees, but the eight visual zones remain fixed.
+
+Most answers should use visual cards, checkboxes, ranges, or steppers. Free text is reserved for details that structured choices cannot capture.
+
+### Welcome And Project Frame
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 1 | Where are you starting: fully custom, adapting a plan, bringing a completed plan, or not sure yet? | Choice cards |
+| 2 | What is your lot status, and where are you building or hoping to build? | Lot-status choice plus location |
+| 3 | What do you already know about the site? | Multi-select for slope, trees, views, water, utilities, well/septic, restrictions, or unknown |
+
+### 1. Living Room And Home Basics
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 4 | What total heated square footage are you considering? | Range or number plus not sure |
+| 5 | How many stories are you considering? | One, one-and-a-half, two, more, or not sure |
+| 6 | How many bedrooms, full bathrooms, and half bathrooms do you expect? | Three compact steppers |
+| 7 | Who should this home support now and over the next five to ten years? | Adults, children, extended family, frequent guests, pets, aging needs, or other |
+| 8 | What parts of daily life should the home support especially well? | Gathering, quiet time, entertaining, remote work, hobbies, caregiving, accessibility, or other |
+| 9 | How should the main living areas relate? | Open, partly open, more defined, or not sure |
+| 10 | What matters most in the main living area? | Fireplace, television, built-ins, high ceilings, strong views, outdoor connection, flexible furniture, or other |
+
+### 2. Kitchen And Dining
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 11 | How will the kitchen be used most often? | Everyday cooking, serious cooking, family gathering, entertaining, catering, or mixed use |
+| 12 | What kitchen arrangement sounds closest to what you want? | Island, double island, peninsula, no island, open to living, more separate, or not sure |
+| 13 | What pantry or support space do you want? | Cabinet pantry, walk-in pantry, butler pantry, scullery/prep kitchen, none, or not sure |
+| 14 | What broad finish and appliance direction fits the kitchen? | Broad package choice; exact finish logic still unresolved |
+| 15 | How should dining work in the home? | Island seating, breakfast area, open dining, formal dining, large-group hosting, or mixed use |
+
+### 3. Primary Suite
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 16 | Where should the primary suite be located? | Main floor, upper floor, separate wing, no preference, or not sure |
+| 17 | Which primary-bedroom features matter? | Sitting area, fireplace, outdoor access, morning bar, strong view, compact/simple, or other |
+| 18 | Which primary-bath features matter? | Large shower, soaking tub, separate vanities, private toilet room, natural light, accessible design, or other |
+| 19 | What closet, storage, and future-accessibility needs should the suite support? | Closet size/type, separate/shared, direct laundry access, aging-in-place, or other |
+
+### 4. Bedrooms And Shared Bathrooms
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 20 | Who will use the secondary bedrooms, and should any be separated from the others? | Children, guests, multigenerational family, flexible use, grouped, split, or no preference |
+| 21 | How should secondary bathrooms be shared? | Hall bath, Jack-and-Jill, private en suites, mixed approach, or not sure |
+
+### 5. Laundry, Mudroom, Storage, And Home Systems
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 22 | Where and how should laundry work? | Near bedrooms, near primary suite, near mudroom, multiple locations, folding, sink, hanging, or other |
+| 23 | What should the everyday entry or mudroom handle? | Shoes, coats, school bags, deliveries, pet gear, dog wash, freezer, charging, or other |
+| 24 | What storage needs are easy to overlook but important to you? | Linens, seasonal items, sports, hobbies, food, cleaning, outdoor gear, bulk storage, or other |
+| 25 | Which whole-home comfort or system priorities matter? | Energy efficiency, generator, all-electric, smart controls, security, audio, indoor-air quality, low maintenance, or other |
+
+### 6. Garage, Exterior, And Site
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 26 | What should the garage accommodate? | Vehicle count, truck/SUV, EV charging, boat/RV, workshop, storage, detached/attached, or other |
+| 27 | Which exterior character feels closest to the home you want? | Visual style cards plus materials loved or disliked |
+| 28 | What site relationships matter most? | Views, morning/evening sun, privacy, street presence, trees, outdoor access, future structures, or not sure |
+
+### 7. Outdoor Living And Specialty Spaces
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 29 | Which outdoor-living features matter? | Covered porch, screened porch, patio, outdoor kitchen, fireplace, pool, spa, garden, play area, or other |
+| 30 | Which specialty spaces or future additions should be considered? | Office, gym, media room, game room, library, craft room, safe room, guest suite, ADU, workshop, or other |
+
+### 8. Design Desk And Inspiration
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 31 | What do you like or dislike about your current home, and how should the new home feel different? | Mood cards plus two short optional prompts |
+| 32 | What plans, images, websites, or homes best communicate your direction? | File uploads and repeatable links with a note for each |
+| 33 | What are your must-haves, nice-to-haves, and deal-breakers? | Ranked or grouped priorities |
+| 34 | What investment range and timing are you working toward, and where would you invest or simplify? | Budget range, timing choice, and priority areas |
+
+### Review And Contact
+
+| # | Working question | Likely response |
+| --- | --- | --- |
+| 35 | Who should H&H follow up with, and how? | Name, email, phone, preferred contact method, and consent |
+
+### Question-Design Rules
+
+- Keep all eight zones visible even when a conditional detail is not applicable.
+- Offer **not sure yet** wherever a customer may reasonably need H&H's guidance.
+- Allow optional notes without making customers type after every choice.
+- Ask for requirements and preferences, not final specifications.
+- Use plain homeowner language and explain unfamiliar terms such as scullery or Jack-and-Jill bath.
+- Keep exact brands, model numbers, fixture schedules, and technical documents out of the initial inquiry.
+
 ## Information Model
 
 ### Whole Project
@@ -187,16 +287,15 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 ## Decisions To Resolve
 
-1. Discovery depth and approximate question count.
-2. Exact question inventory.
-3. Final room-zone set and sequence.
-4. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
-5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Refine and approve the exact question inventory.
+2. Final room-zone set and sequence.
+3. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
+4. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+5. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+7. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+8. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+9. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -243,20 +342,26 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 - Do not lock the room list until competitive research has informed the question inventory.
 - Add, remove, or combine zones if the final questions reveal a better grouping.
 
+### 2026-07-13 — Balanced discovery depth
+
+- Target roughly 25 to 35 short decision screens.
+- Use structured visual choices for most answers, with optional notes and conditional detail.
+- Capture enough context to prepare H&H for the first conversation without drifting into detailed architectural programming.
+
 ## Current Question
 
-How deep should **Plan Your Home** go?
+How should finish level work across the home?
 
-### A. Qualification: roughly 12 to 18 decisions
+### A. One finish level for the entire home
 
-Collect the essentials found on short builder forms: lot, size, bedrooms, bathrooms, garage, style, budget, timeline, plan status, inspiration, and contact. This is easy to finish but does not fully use the room-walkthrough concept.
+The customer selects Builder Grade, Builder+, or Custom once. Every room inherits that choice with no room-level adjustment.
 
-### B. Balanced discovery: roughly 25 to 35 decisions — recommended
+### B. A separate finish level in every room
 
-Add household and lifestyle, room function, storage, accessibility, outdoor living, priorities, and broad finish direction. Keep most questions tap-based, use conditional follow-ups, and leave exact specifications for a later design phase.
+Each room asks for its own package. This gives H&H more detail but repeats the same decision and may encourage an unrealistic patchwork of selections.
 
-### C. Pre-design programming: 50 or more decisions
+### C. One baseline with optional room upgrades — recommended
 
-Capture detailed room sizes, adjacencies, materials, fixtures, systems, furniture, and technical preferences. This produces a richer architectural brief but risks turning the inquiry into the tedious form the experience is meant to avoid.
+The customer chooses one overall finish direction, then key rooms such as the kitchen or primary bath can stay at that level, simplify, or move up. This matches the original base-versus-upgraded idea without asking the same question everywhere.
 
-The recommendation is **B**. It matches H&H's goal: arrive at the first conversation informed, without pretending the customer has already completed design programming.
+The recommendation is **C**. It gives H&H a coherent baseline and clearly shows where the customer wants to concentrate investment. The public labels may need refinement so a **Custom** finish level is not confused with a **custom home**.
