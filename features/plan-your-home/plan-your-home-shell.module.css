@@ -17,11 +17,14 @@
   text-transform: uppercase;
 }
 
-.previewHeader h2 {
+.previewTitle {
   max-width: 44rem;
   margin-top: 0.45rem;
+  color: var(--hh-ink);
   font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+  font-weight: 600;
   line-height: 1.08;
+  text-wrap: balance;
 }
 
 .previewHeader span {

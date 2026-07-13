@@ -333,7 +333,7 @@ export function PlanYourHomeShell() {
     <div className={styles.preview}>
       <header className={styles.previewHeader}>
         <p>Internal interaction preview</p>
-        <h2>Plan Your Home shared scene stage</h2>
+        <p className={styles.previewTitle}>Plan Your Home shared scene stage</p>
         <span>
           Seven representative registered prompts. Final rooms and customer-facing
           composition follow in later slices.

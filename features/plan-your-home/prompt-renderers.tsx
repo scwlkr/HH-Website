@@ -330,7 +330,6 @@ export function GroupedChoicePrompt({
 }: GroupedChoicePromptProps) {
   return (
     <div className={styles.groupedPrompt}>
-      {instructions ? <p className={styles.instructions}>{instructions}</p> : null}
       {groups.map((group) => {
         const current = value[group.id];
         const groupId = `${id}-${group.id}`;
@@ -345,6 +344,7 @@ export function GroupedChoicePrompt({
               value={current}
               maxSelections={group.maxSelections}
               exclusiveOptionSlugs={group.exclusiveOptionSlugs}
+              instructions={instructions}
               error={errors[group.id]}
               onChange={(next) => onChange({ ...value, [group.id]: next })}
             />
@@ -358,6 +358,7 @@ export function GroupedChoicePrompt({
             legend={group.label}
             options={group.options}
             value={typeof current === "string" ? current : null}
+            instructions={instructions}
             error={errors[group.id]}
             onChange={(next) => onChange({ ...value, [group.id]: next })}
           />
@@ -442,7 +443,6 @@ export function CountPrompt({
 }: CountPromptProps) {
   return (
     <div className={styles.countPrompt}>
-      {instructions ? <p className={styles.instructions}>{instructions}</p> : null}
       {groups.map((group) => (
         <ChoicePrompt
           key={group.id}
@@ -450,6 +450,7 @@ export function CountPrompt({
           legend={group.label}
           options={group.options}
           value={value[group.id] ?? null}
+          instructions={instructions}
           error={errors[group.id]}
           columns={3}
           onChange={(next) => onChange({ ...value, [group.id]: next })}

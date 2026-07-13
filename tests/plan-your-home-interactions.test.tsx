@@ -15,6 +15,7 @@ import {
   ShortTextPrompt,
 } from "../features/plan-your-home/prompt-renderers.tsx";
 import { SceneStage } from "../features/plan-your-home/scene-stage.tsx";
+import { PlanYourHomeShell } from "../features/plan-your-home/plan-your-home-shell.tsx";
 import {
   getPlanHomeQuestion,
   planHomeQuestions,
@@ -137,6 +138,7 @@ test("grouped renderer gives every subgroup its own legend and state", async () 
           },
         ]}
         value={value}
+        instructions="Choose one response in each group."
         onChange={(next) =>
           setValue(next as typeof value)
         }
@@ -161,6 +163,14 @@ test("grouped renderer gives every subgroup its own legend and state", async () 
     }) as HTMLInputElement).checked,
     true,
   );
+  for (const group of query.getAllByRole("group")) {
+    const relationship = group.getAttribute("aria-describedby");
+    assert.ok(relationship);
+    assert.match(
+      view.container.querySelector(`#${relationship}`)?.textContent ?? "",
+      /Choose one response in each group\./,
+    );
+  }
 });
 
 test("short text renderer labels optional input, error, count, and uncertainty", async () => {
@@ -212,6 +222,7 @@ test("count renderer uses discrete radios for every required count", async () =>
         id="counts"
         groups={question.response.optionGroups}
         value={value}
+        instructions="Choose one exact range for each count."
         onChange={setValue}
       />
     );
@@ -225,6 +236,14 @@ test("count renderer uses discrete radios for every required count", async () =>
     groups.map((group) => group.querySelector("legend")?.textContent),
     ["Bedrooms", "Full bathrooms", "Half bathrooms"],
   );
+  for (const group of groups) {
+    const relationship = group.getAttribute("aria-describedby");
+    assert.ok(relationship);
+    assert.equal(
+      view.container.querySelector(`#${relationship}`)?.textContent,
+      "Choose one exact range for each count.",
+    );
+  }
   await user.click(within(groups[0]).getByRole("radio", { name: "4" }));
   await user.click(within(groups[1]).getByRole("radio", { name: "3" }));
   await user.click(within(groups[2]).getByRole("radio", { name: "1" }));
@@ -494,4 +513,12 @@ test("representative scene stage has no detectable automated accessibility viola
     results.violations.map((violation) => violation.id),
     [],
   );
+});
+
+test("route shell keeps the active prompt as its single heading", () => {
+  const view = render(<PlanYourHomeShell />);
+  const query = within(view.container);
+  assert.equal(query.getAllByRole("heading").length, 1);
+  assert.equal(query.getAllByRole("heading", { level: 1 }).length, 1);
+  assert.equal(query.queryByRole("heading", { level: 2 }), null);
 });
