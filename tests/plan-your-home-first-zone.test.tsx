@@ -57,6 +57,12 @@ async function beginTour(
       }),
     ),
   );
+  assert.equal(
+    window.document.activeElement,
+    query.getByRole("heading", {
+      name: "Where are you starting, and what help are you looking for?",
+    }),
+  );
 }
 
 async function answerThroughContactGate(
@@ -100,6 +106,12 @@ async function answerThroughContactGate(
       }),
     ),
   );
+  assert.equal(
+    window.document.activeElement,
+    query.getByRole("heading", {
+      name: "Save your progress and resume later.",
+    }),
+  );
 }
 
 async function saveContact(
@@ -120,6 +132,12 @@ async function saveContact(
         name: "Who should this home support now and over the next five to ten years?",
       }),
     ),
+  );
+  assert.equal(
+    window.document.activeElement,
+    query.getByRole("heading", {
+      name: "Who should this home support now and over the next five to ten years?",
+    }),
   );
 }
 
