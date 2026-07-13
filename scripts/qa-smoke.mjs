@@ -12,6 +12,12 @@ const smokeAdmin = {
   uid: "firebase-admin-smoke",
 };
 
+const revisionConflictProject = {
+  id: "revision-conflict-smoke",
+  originalImageId: "revision-conflict-original-image",
+  slug: "revision-conflict-smoke",
+};
+
 function log(message) {
   process.stdout.write(`${message}\n`);
 }
@@ -45,6 +51,7 @@ function getFirebaseEmulatorConfig() {
     process.env.FIREBASE_PROJECT_ID?.trim();
   const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST?.trim();
   const firestoreHost = process.env.FIRESTORE_EMULATOR_HOST?.trim();
+  const storageHost = process.env.FIREBASE_STORAGE_EMULATOR_HOST?.trim();
 
   assert(
     projectId,
@@ -57,6 +64,10 @@ function getFirebaseEmulatorConfig() {
   assert(
     firestoreHost,
     "Firebase smoke QA requires the Firestore emulator.",
+  );
+  assert(
+    storageHost,
+    "Firebase smoke QA requires the Storage emulator.",
   );
 
   return {
@@ -94,6 +105,53 @@ async function seedAdminUser(projectId) {
   await auth.setCustomUserClaims(smokeAdmin.uid, { role: "admin" });
 
   return app;
+}
+
+async function seedRevisionConflictProject(firestore) {
+  log("Seeding the optimistic project revision fixture...");
+
+  const now = new Date();
+  const project = {
+    id: revisionConflictProject.id,
+    slug: revisionConflictProject.slug,
+    title: "Revision Conflict Smoke Project",
+    status: "for-sale",
+    buildTypeSlug: "single-family",
+    finishLevelSlug: "builder-plus",
+    squareFootage: 2400,
+    bedrooms: 4,
+    bathrooms: 3,
+    location: "Austin, Texas",
+    shortDescription:
+      "A seeded project used to verify optimistic revision conflict handling.",
+    fullDescription:
+      "This project fixture proves that two authenticated edit forms cannot overwrite one another or corrupt the persisted Firebase image references.",
+    featured: false,
+    createdAt: now,
+    updatedAt: now,
+    revision: 0,
+    images: [
+      {
+        id: revisionConflictProject.originalImageId,
+        storagePath: `projects/${revisionConflictProject.id}/original.jpg`,
+        publicUrl: "/images/build-types/single-family/front-elevation.jpg",
+        altText: "Original revision conflict project image",
+        sortOrder: 0,
+        isCover: true,
+      },
+    ],
+  };
+  const batch = firestore.batch();
+
+  batch.set(
+    firestore.collection("projects").doc(revisionConflictProject.id),
+    project,
+  );
+  batch.set(
+    firestore.collection("projectSlugs").doc(revisionConflictProject.slug),
+    { projectId: revisionConflictProject.id },
+  );
+  await batch.commit();
 }
 
 async function waitForServer(baseUrl, childProcess) {
@@ -511,6 +569,148 @@ async function verifyInquirySuccess(
   }
 }
 
+function normalizeProjectImageRefs(images) {
+  assert(Array.isArray(images), "Expected the project image refs to be an array.");
+
+  return images
+    .map((image) => ({
+      id: image.id,
+      storagePath: image.storagePath,
+      publicUrl: image.publicUrl ?? null,
+      downloadToken: image.downloadToken ?? null,
+      altText: image.altText,
+      sortOrder: image.sortOrder,
+      isCover: image.isCover,
+    }))
+    .sort((leftImage, rightImage) => leftImage.id.localeCompare(rightImage.id));
+}
+
+async function readRevisionConflictProject(firestore) {
+  const snapshot = await firestore
+    .collection("projects")
+    .doc(revisionConflictProject.id)
+    .get();
+
+  assert(snapshot.exists, "Expected the revision conflict project to exist.");
+  return snapshot.data();
+}
+
+async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
+  log("Checking optimistic project revision conflict handling...");
+
+  await seedRevisionConflictProject(firestore);
+
+  const context = await browser.newContext();
+  const firstPage = await context.newPage();
+  const editPath = `/admin/projects/${revisionConflictProject.id}`;
+  const editUrl = `${baseUrl}${editPath}`;
+
+  try {
+    await firstPage.goto(
+      `${baseUrl}/admin/login?next=${encodeURIComponent(editPath)}`,
+      { waitUntil: "networkidle" },
+    );
+    await firstPage.getByLabel("Email").fill(smokeAdmin.email);
+    await firstPage.getByLabel("Password").fill(smokeAdmin.password);
+    await firstPage.getByRole("button", { name: "Sign In" }).click();
+    await firstPage.waitForURL(editUrl);
+
+    const stalePage = await context.newPage();
+    await stalePage.goto(editUrl, { waitUntil: "networkidle" });
+
+    for (const [label, page] of [
+      ["first", firstPage],
+      ["stale", stalePage],
+    ]) {
+      assert(
+        await page.locator('input[name="projectRevision"]').inputValue() === "0",
+        `Expected the ${label} edit form to load project revision 0.`,
+      );
+    }
+
+    await firstPage
+      .locator('input[name="title"]')
+      .fill("Revision Conflict First Save");
+    await firstPage
+      .locator(
+        `input[name="existingImageAltText:${revisionConflictProject.originalImageId}"]`,
+      )
+      .fill("Original image retained by the first save");
+    await firstPage
+      .locator('input[name="galleryImages"]')
+      .setInputFiles(
+        "public/images/build-types/single-family/living-space.jpg",
+      );
+
+    await Promise.all([
+      firstPage.waitForURL(`${editUrl}?saved=1`),
+      firstPage.getByRole("button", { name: "Save Project" }).click(),
+    ]);
+
+    const firstSavedProject = await readRevisionConflictProject(firestore);
+    const firstSavedImages = normalizeProjectImageRefs(firstSavedProject.images);
+
+    assert(
+      firstSavedProject.revision === 1,
+      "Expected the first project save to increment the revision to 1.",
+    );
+    assert(
+      firstSavedProject.title === "Revision Conflict First Save",
+      "Expected the first project save to persist its title.",
+    );
+    assert(
+      firstSavedImages.length === 2,
+      "Expected the first project save to retain one image and add one image.",
+    );
+    assert(
+      firstSavedImages.some(
+        (image) => image.id === revisionConflictProject.originalImageId,
+      ),
+      "Expected the first project save to retain the original image ref.",
+    );
+
+    await stalePage
+      .locator('input[name="title"]')
+      .fill("Stale Revision Conflict Attempt");
+    await stalePage
+      .locator(
+        `input[name="existingImageAltText:${revisionConflictProject.originalImageId}"]`,
+      )
+      .fill("Stale image metadata must not persist");
+    await stalePage.getByRole("button", { name: "Save Project" }).click();
+    await stalePage
+      .getByText(
+        "This project changed after you opened it. Reload the page and review the latest version before saving again.",
+      )
+      .waitFor();
+
+    assert(
+      new URL(stalePage.url()).pathname === editPath,
+      "Expected the stale project save to stay on its edit form.",
+    );
+
+    const projectAfterConflict = await readRevisionConflictProject(firestore);
+    const imagesAfterConflict = normalizeProjectImageRefs(
+      projectAfterConflict.images,
+    );
+
+    assert(
+      projectAfterConflict.revision === 1,
+      "A stale project save must not increment the persisted revision.",
+    );
+    assert(
+      projectAfterConflict.title === "Revision Conflict First Save",
+      "A stale project save must not overwrite the first save.",
+    );
+    assert(
+      JSON.stringify(imagesAfterConflict) === JSON.stringify(firstSavedImages),
+      "A stale project save must not alter, reintroduce, or delete image refs.",
+    );
+  } finally {
+    await context.close();
+  }
+}
+
 async function verifyAdminAuth(browser, baseUrl) {
   log("Checking Firebase admin login, protected routes, and logout...");
   const context = await browser.newContext();
@@ -576,6 +776,7 @@ async function main() {
 
   try {
     adminApp = await seedAdminUser(firebaseEmulators.projectId);
+    const firestore = getFirestore(adminApp);
 
     log("Building the production app under smoke-test env...");
     await runNpmScript({
@@ -600,7 +801,12 @@ async function main() {
     await verifyInquirySuccess(
       browser,
       nextServer.baseUrl,
-      getFirestore(adminApp),
+      firestore,
+    );
+    await verifyProjectRevisionConflict(
+      browser,
+      nextServer.baseUrl,
+      firestore,
     );
     await verifyAdminAuth(browser, nextServer.baseUrl);
 
