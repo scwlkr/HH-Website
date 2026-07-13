@@ -1,8 +1,12 @@
 import "server-only";
 
+import { Timestamp } from "firebase-admin/firestore";
 import { unstable_cache } from "next/cache";
-import { env } from "@/lib/env";
-import { getSupabaseAdminClient, isSupabaseAdminConfigured } from "@/lib/db/client";
+import {
+  getFirebaseDatabase,
+  getFirebaseStorageBucket,
+  isFirebaseAdminConfigured,
+} from "@/lib/db/client";
 import type {
   ExistingProjectImageFormInput,
   PricingSettings,
@@ -17,43 +21,49 @@ export const projectCacheTag = "projects";
 export const pricingSettingsCacheTag = "pricing-settings";
 export const projectImagesBucket = "project-images";
 
-type ProjectImageRow = {
+const projectsCollection = "projects";
+const projectSlugsCollection = "projectSlugs";
+const settingsCollection = "settings";
+const pricingSettingsDocument = "pricing";
+
+type ProjectImageDocument = {
   id: string;
-  project_id: string;
-  storage_path: string;
-  alt_text: string | null;
-  sort_order: number;
-  is_cover: boolean;
+  storagePath: string;
+  publicUrl?: string;
+  downloadToken?: string;
+  altText: string;
+  sortOrder: number;
+  isCover: boolean;
 };
 
-type ProjectRow = {
-  id: string;
+type ProjectDocument = {
+  id?: string;
   slug: string;
   title: string;
   status: string;
-  build_type_slug: string;
-  finish_level_slug: string;
-  square_footage: number;
+  buildTypeSlug: string;
+  finishLevelSlug: string;
+  squareFootage: number;
   bedrooms: number;
   bathrooms: number;
   location: string;
-  short_description: string;
-  full_description: string;
+  shortDescription: string;
+  fullDescription: string;
   featured: boolean;
-  created_at: string;
-  updated_at: string;
-  project_images?: ProjectImageRow[] | null;
+  createdAt: unknown;
+  updatedAt: unknown;
+  images?: ProjectImageDocument[];
 };
 
-type PricingSettingsRow = {
-  builder_grade_price_per_sqft: number | string | null;
-  builder_plus_price_per_sqft: number | string | null;
-  custom_price_per_sqft: number | string | null;
-  pricing_note: string | null;
-  updated_at: string | null;
+type PricingSettingsDocument = {
+  builderGradePricePerSqft?: number | string | null;
+  builderPlusPricePerSqft?: number | string | null;
+  customPricePerSqft?: number | string | null;
+  pricingNote?: string | null;
+  updatedAt?: unknown;
 };
 
-function parseNumericValue(value: number | string | null) {
+function parseNumericValue(value: unknown) {
   if (typeof value === "number") {
     return Number.isFinite(value) ? value : null;
   }
@@ -66,13 +76,66 @@ function parseNumericValue(value: number | string | null) {
   return null;
 }
 
-function buildProjectImagePublicUrl(storagePath: string) {
-  if (!env.supabaseUrl) {
+function toIsoString(value: unknown, fieldName: string) {
+  let date: Date | null = null;
+
+  if (value instanceof Timestamp) {
+    date = value.toDate();
+  } else if (value instanceof Date) {
+    date = value;
+  } else if (typeof value === "string" || typeof value === "number") {
+    date = new Date(value);
+  } else if (
+    value &&
+    typeof value === "object" &&
+    "toDate" in value &&
+    typeof value.toDate === "function"
+  ) {
+    date = value.toDate();
+  }
+
+  if (!date || Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid Firestore timestamp in ${fieldName}.`);
+  }
+
+  return date.toISOString();
+}
+
+function toOptionalIsoString(value: unknown, fieldName: string) {
+  return value === null || value === undefined
+    ? null
+    : toIsoString(value, fieldName);
+}
+
+function buildFirebaseStorageDownloadUrl(params: {
+  bucketName: string;
+  storagePath: string;
+  downloadToken: string;
+}) {
+  return (
+    `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(params.bucketName)}` +
+    `/o/${encodeURIComponent(params.storagePath)}?alt=media&token=${encodeURIComponent(params.downloadToken)}`
+  );
+}
+
+function resolveProjectImagePublicUrl(image: ProjectImageDocument) {
+  if (image.publicUrl) {
+    return image.publicUrl;
+  }
+
+  if (!image.downloadToken) {
     return "";
   }
 
-  const normalizedBaseUrl = env.supabaseUrl.replace(/\/$/, "");
-  return `${normalizedBaseUrl}/storage/v1/object/public/${projectImagesBucket}/${storagePath}`;
+  try {
+    return buildFirebaseStorageDownloadUrl({
+      bucketName: getFirebaseStorageBucket().name,
+      storagePath: image.storagePath,
+      downloadToken: image.downloadToken,
+    });
+  } catch {
+    return "";
+  }
 }
 
 function sortProjectImages(images: ProjectImage[]) {
@@ -89,52 +152,61 @@ function sortProjectImages(images: ProjectImage[]) {
   });
 }
 
-function mapProjectImage(row: ProjectImageRow): ProjectImage {
+function mapProjectImage(image: ProjectImageDocument): ProjectImage {
   return {
-    id: row.id,
-    storagePath: row.storage_path,
-    publicUrl: buildProjectImagePublicUrl(row.storage_path),
-    altText: row.alt_text ?? "",
-    sortOrder: row.sort_order,
-    isCover: row.is_cover,
+    id: image.id,
+    storagePath: image.storagePath,
+    publicUrl: resolveProjectImagePublicUrl(image),
+    altText: image.altText ?? "",
+    sortOrder: image.sortOrder,
+    isCover: image.isCover,
   };
 }
 
-function mapProjectSummary(row: ProjectRow): ProjectSummary {
-  const images = sortProjectImages((row.project_images ?? []).map(mapProjectImage));
+function mapProjectSummary(
+  projectId: string,
+  project: ProjectDocument,
+): ProjectSummary {
+  const images = sortProjectImages((project.images ?? []).map(mapProjectImage));
   const coverImage = images.find((image) => image.isCover) ?? images[0] ?? null;
 
   return {
-    id: row.id,
-    slug: row.slug,
-    title: row.title,
-    status: row.status as ProjectSummary["status"],
-    buildTypeSlug: row.build_type_slug as ProjectSummary["buildTypeSlug"],
-    finishLevelSlug: row.finish_level_slug as ProjectSummary["finishLevelSlug"],
-    squareFootage: row.square_footage,
-    bedrooms: row.bedrooms,
-    bathrooms: row.bathrooms,
-    location: row.location,
-    shortDescription: row.short_description,
-    featured: row.featured,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    id: projectId,
+    slug: project.slug,
+    title: project.title,
+    status: project.status as ProjectSummary["status"],
+    buildTypeSlug: project.buildTypeSlug as ProjectSummary["buildTypeSlug"],
+    finishLevelSlug:
+      project.finishLevelSlug as ProjectSummary["finishLevelSlug"],
+    squareFootage: project.squareFootage,
+    bedrooms: project.bedrooms,
+    bathrooms: project.bathrooms,
+    location: project.location,
+    shortDescription: project.shortDescription,
+    featured: project.featured,
+    createdAt: toIsoString(project.createdAt, "projects.createdAt"),
+    updatedAt: toIsoString(project.updatedAt, "projects.updatedAt"),
     coverImage,
   };
 }
 
-function mapProjectDetail(row: ProjectRow): ProjectDetail {
-  const summary = mapProjectSummary(row);
+function mapProjectDetail(
+  projectId: string,
+  project: ProjectDocument,
+): ProjectDetail {
+  const summary = mapProjectSummary(projectId, project);
 
   return {
     ...summary,
-    fullDescription: row.full_description,
-    images: sortProjectImages((row.project_images ?? []).map(mapProjectImage)),
+    fullDescription: project.fullDescription,
+    images: sortProjectImages((project.images ?? []).map(mapProjectImage)),
   };
 }
 
-function mapPricingSettings(row: PricingSettingsRow | null): PricingSettings {
-  if (!row) {
+function mapPricingSettings(
+  document: PricingSettingsDocument | null,
+): PricingSettings {
+  if (!document) {
     return {
       builderGradePricePerSqft: null,
       builderPlusPricePerSqft: null,
@@ -145,25 +217,28 @@ function mapPricingSettings(row: PricingSettingsRow | null): PricingSettings {
   }
 
   return {
-    builderGradePricePerSqft: parseNumericValue(row.builder_grade_price_per_sqft),
-    builderPlusPricePerSqft: parseNumericValue(row.builder_plus_price_per_sqft),
-    customPricePerSqft: parseNumericValue(row.custom_price_per_sqft),
-    pricingNote: row.pricing_note,
-    updatedAt: row.updated_at,
+    builderGradePricePerSqft: parseNumericValue(
+      document.builderGradePricePerSqft,
+    ),
+    builderPlusPricePerSqft: parseNumericValue(
+      document.builderPlusPricePerSqft,
+    ),
+    customPricePerSqft: parseNumericValue(document.customPricePerSqft),
+    pricingNote: document.pricingNote ?? null,
+    updatedAt: toOptionalIsoString(
+      document.updatedAt,
+      "settings/pricing.updatedAt",
+    ),
   };
 }
 
-function formatPublicDataError(error: unknown) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return String(error);
+function formatDataError(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function logPublicDataFallback(resource: string, error: unknown) {
   console.warn(
-    `[public-data-fallback] Returning a safe default for ${resource}: ${formatPublicDataError(error)}`,
+    `[public-data-fallback] Returning a safe default for ${resource}: ${formatDataError(error)}`,
   );
 }
 
@@ -181,69 +256,84 @@ function sortProjectSummaries(projects: ProjectSummary[]) {
   });
 }
 
+async function getProjectDocumentById(projectId: string) {
+  const projectSnapshot = await getFirebaseDatabase()
+    .collection(projectsCollection)
+    .doc(projectId)
+    .get();
+
+  return projectSnapshot.exists
+    ? (projectSnapshot.data() as ProjectDocument)
+    : null;
+}
+
 async function queryPublicProjects() {
-  if (!isSupabaseAdminConfigured()) {
+  if (!isFirebaseAdminConfigured()) {
     return [] as ProjectSummary[];
   }
 
-  const supabase = getSupabaseAdminClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select(
-      "id, slug, title, status, build_type_slug, finish_level_slug, square_footage, bedrooms, bathrooms, location, short_description, full_description, featured, created_at, updated_at, project_images(id, project_id, storage_path, alt_text, sort_order, is_cover)",
-    );
+  const projectsSnapshot = await getFirebaseDatabase()
+    .collection(projectsCollection)
+    .get();
+  const projects = projectsSnapshot.docs.map((projectSnapshot) =>
+    mapProjectSummary(
+      projectSnapshot.id,
+      projectSnapshot.data() as ProjectDocument,
+    ),
+  );
 
-  if (error) {
-    throw new Error(`Failed to fetch projects: ${error.message}`);
-  }
-
-  return sortProjectSummaries((data ?? []).map((row) => mapProjectSummary(row as ProjectRow)));
+  return sortProjectSummaries(projects);
 }
 
 async function queryPublicProjectBySlug(projectSlug: string) {
-  if (!isSupabaseAdminConfigured()) {
+  if (!isFirebaseAdminConfigured()) {
     return null;
   }
 
-  const supabase = getSupabaseAdminClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select(
-      "id, slug, title, status, build_type_slug, finish_level_slug, square_footage, bedrooms, bathrooms, location, short_description, full_description, featured, created_at, updated_at, project_images(id, project_id, storage_path, alt_text, sort_order, is_cover)",
-    )
-    .eq("slug", projectSlug)
-    .maybeSingle();
+  const database = getFirebaseDatabase();
+  const slugSnapshot = await database
+    .collection(projectSlugsCollection)
+    .doc(projectSlug)
+    .get();
 
-  if (error) {
-    throw new Error(`Failed to fetch project detail: ${error.message}`);
-  }
-
-  if (!data) {
+  if (!slugSnapshot.exists) {
     return null;
   }
 
-  return mapProjectDetail(data as ProjectRow);
+  const projectId = slugSnapshot.get("projectId");
+
+  if (typeof projectId !== "string" || !projectId) {
+    throw new Error(`Project slug reservation "${projectSlug}" is invalid.`);
+  }
+
+  const project = await getProjectDocumentById(projectId);
+
+  if (!project) {
+    throw new Error(`Project slug reservation "${projectSlug}" is stale.`);
+  }
+
+  if (project.slug !== projectSlug) {
+    throw new Error(`Project slug reservation "${projectSlug}" is inconsistent.`);
+  }
+
+  return mapProjectDetail(projectId, project);
 }
 
 async function queryPricingSettings() {
-  if (!isSupabaseAdminConfigured()) {
+  if (!isFirebaseAdminConfigured()) {
     return mapPricingSettings(null);
   }
 
-  const supabase = getSupabaseAdminClient();
-  const { data, error } = await supabase
-    .from("pricing_settings")
-    .select(
-      "builder_grade_price_per_sqft, builder_plus_price_per_sqft, custom_price_per_sqft, pricing_note, updated_at",
-    )
-    .eq("id", 1)
-    .maybeSingle();
+  const pricingSnapshot = await getFirebaseDatabase()
+    .collection(settingsCollection)
+    .doc(pricingSettingsDocument)
+    .get();
 
-  if (error) {
-    throw new Error(`Failed to fetch pricing settings: ${error.message}`);
-  }
-
-  return mapPricingSettings((data as PricingSettingsRow | null) ?? null);
+  return mapPricingSettings(
+    pricingSnapshot.exists
+      ? (pricingSnapshot.data() as PricingSettingsDocument)
+      : null,
+  );
 }
 
 const getCachedPublicProjects = unstable_cache(
@@ -308,24 +398,12 @@ export async function listAdminProjects() {
 }
 
 export async function getAdminProjectById(projectId: string) {
-  if (!isSupabaseAdminConfigured()) {
+  if (!isFirebaseAdminConfigured()) {
     return null;
   }
 
-  const supabase = getSupabaseAdminClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .select(
-      "id, slug, title, status, build_type_slug, finish_level_slug, square_footage, bedrooms, bathrooms, location, short_description, full_description, featured, created_at, updated_at, project_images(id, project_id, storage_path, alt_text, sort_order, is_cover)",
-    )
-    .eq("id", projectId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`Failed to fetch project by id: ${error.message}`);
-  }
-
-  return data ? mapProjectDetail(data as ProjectRow) : null;
+  const project = await getProjectDocumentById(projectId);
+  return project ? mapProjectDetail(projectId, project) : null;
 }
 
 export async function getAdminPricingSettings() {
@@ -336,24 +414,22 @@ export async function getProjectSlugAvailability(
   slug: string,
   currentProjectId?: string,
 ) {
-  if (!isSupabaseAdminConfigured()) {
+  if (!isFirebaseAdminConfigured()) {
     return true;
   }
 
-  const supabase = getSupabaseAdminClient();
-  let query = supabase.from("projects").select("id").eq("slug", slug).limit(1);
+  const slugSnapshot = await getFirebaseDatabase()
+    .collection(projectSlugsCollection)
+    .doc(slug)
+    .get();
 
-  if (currentProjectId) {
-    query = query.neq("id", currentProjectId);
+  if (!slugSnapshot.exists) {
+    return true;
   }
 
-  const { data, error } = await query;
-
-  if (error) {
-    throw new Error(`Failed to validate slug uniqueness: ${error.message}`);
-  }
-
-  return (data ?? []).length === 0;
+  return Boolean(
+    currentProjectId && slugSnapshot.get("projectId") === currentProjectId,
+  );
 }
 
 function getFileExtension(file: File) {
@@ -382,36 +458,61 @@ async function uploadProjectImage(params: {
   projectId: string;
   file: File;
 }) {
-  const supabase = getSupabaseAdminClient();
+  const bucket = getFirebaseStorageBucket();
   const fileExtension = getFileExtension(params.file);
   const storagePath = `projects/${params.projectId}/${crypto.randomUUID()}.${fileExtension}`;
+  const downloadToken = crypto.randomUUID();
+  const storageFile = bucket.file(storagePath);
   const fileBuffer = Buffer.from(await params.file.arrayBuffer());
-  const { error } = await supabase.storage
-    .from(projectImagesBucket)
-    .upload(storagePath, fileBuffer, {
-      contentType: params.file.type,
-      upsert: false,
-      cacheControl: "3600",
-    });
 
-  if (error) {
-    throw new Error(`Failed to upload image: ${error.message}`);
+  try {
+    await storageFile.save(fileBuffer, {
+      resumable: false,
+      validation: "crc32c",
+      metadata: {
+        contentType: params.file.type,
+        cacheControl: "public,max-age=3600",
+        metadata: {
+          firebaseStorageDownloadTokens: downloadToken,
+        },
+      },
+    });
+  } catch (error) {
+    await storageFile.delete({ ignoreNotFound: true }).catch(() => undefined);
+    throw new Error(`Failed to upload image: ${formatDataError(error)}`);
   }
 
-  return storagePath;
+  return {
+    storagePath,
+    downloadToken,
+    publicUrl: buildFirebaseStorageDownloadUrl({
+      bucketName: bucket.name,
+      storagePath,
+      downloadToken,
+    }),
+  };
 }
 
 async function removeStorageFiles(storagePaths: string[]) {
-  if (!storagePaths.length || !isSupabaseAdminConfigured()) {
+  if (!storagePaths.length || !isFirebaseAdminConfigured()) {
     return;
   }
 
-  const supabase = getSupabaseAdminClient();
-  const { error } = await supabase.storage
-    .from(projectImagesBucket)
-    .remove(storagePaths);
+  try {
+    const bucket = getFirebaseStorageBucket();
+    const deleteResults = await Promise.allSettled(
+      storagePaths.map((storagePath) =>
+        bucket.file(storagePath).delete({ ignoreNotFound: true }),
+      ),
+    );
+    const failures = deleteResults.filter((result) => result.status === "rejected");
 
-  if (error) {
+    if (failures.length > 0) {
+      console.error(
+        `Failed to remove ${failures.length} project image file(s) from Firebase Storage.`,
+      );
+    }
+  } catch (error) {
     console.error("Failed to remove project image files", error);
   }
 }
@@ -422,181 +523,196 @@ export async function saveProject(params: {
   coverImage: File | null;
   galleryImages: File[];
 }) {
-  if (!isSupabaseAdminConfigured()) {
-    throw new Error("Supabase admin credentials are not configured.");
+  if (!isFirebaseAdminConfigured()) {
+    throw new Error("Firebase admin credentials are not configured.");
   }
 
-  const supabase = getSupabaseAdminClient();
+  const database = getFirebaseDatabase();
   const projectId = params.project.id ?? crypto.randomUUID();
   const isNewProject = !params.project.id;
   const uploadedStoragePaths: string[] = [];
+  let projectPersisted = false;
 
   const currentProject = isNewProject
     ? null
-    : await getAdminProjectById(params.project.id as string);
+    : await getProjectDocumentById(projectId);
+
+  if (!isNewProject && !currentProject) {
+    throw new Error("The project could not be found.");
+  }
+
   const currentImagesById = new Map(
     (currentProject?.images ?? []).map((image) => [image.id, image]),
   );
-  const retainedExistingImages = params.existingImages.filter((image) => !image.remove);
-  const removedExistingImages = params.existingImages.filter((image) => image.remove);
+  const retainedExistingImages = params.existingImages.filter(
+    (image) => !image.remove,
+  );
+  const removedExistingImages = params.existingImages.filter(
+    (image) => image.remove,
+  );
   const currentMaxSortOrder = retainedExistingImages.reduce(
     (highestSortOrder, image) => Math.max(highestSortOrder, image.sortOrder),
     -1,
   );
   let nextSortOrder = currentMaxSortOrder + 1;
 
+  const finalExistingImages = retainedExistingImages.map((image) => {
+    const currentImage = currentImagesById.get(image.id);
+
+    if (!currentImage) {
+      throw new Error("An existing project image could not be resolved.");
+    }
+
+    return {
+      id: image.id,
+      storagePath: currentImage.storagePath,
+      publicUrl: resolveProjectImagePublicUrl(currentImage),
+      ...(currentImage.downloadToken
+        ? { downloadToken: currentImage.downloadToken }
+        : {}),
+      altText: image.altText || currentImage.altText,
+      sortOrder: image.sortOrder,
+      isCover: image.isCover,
+    } satisfies ProjectImageDocument;
+  });
+
   try {
-    let newCoverImageRecord:
-      | {
-          id: string;
-          project_id: string;
-          storage_path: string;
-          alt_text: string;
-          sort_order: number;
-          is_cover: boolean;
-        }
-      | null = null;
+    let newCoverImageRecord: ProjectImageDocument | null = null;
 
     if (params.coverImage) {
-      const storagePath = await uploadProjectImage({
+      const uploadedImage = await uploadProjectImage({
         projectId,
         file: params.coverImage,
       });
 
-      uploadedStoragePaths.push(storagePath);
+      uploadedStoragePaths.push(uploadedImage.storagePath);
       newCoverImageRecord = {
         id: crypto.randomUUID(),
-        project_id: projectId,
-        storage_path: storagePath,
-        alt_text:
+        ...uploadedImage,
+        altText:
           params.project.coverAltText ?? `${params.project.title} cover image`,
-        sort_order: nextSortOrder++,
-        is_cover: true,
+        sortOrder: nextSortOrder++,
+        isCover: true,
       };
     }
 
-    const newGalleryImageRecords = [];
+    const newGalleryImageRecords: ProjectImageDocument[] = [];
 
     for (const [index, file] of params.galleryImages.entries()) {
-      const storagePath = await uploadProjectImage({
+      const uploadedImage = await uploadProjectImage({
         projectId,
         file,
       });
 
-      uploadedStoragePaths.push(storagePath);
+      uploadedStoragePaths.push(uploadedImage.storagePath);
       newGalleryImageRecords.push({
         id: crypto.randomUUID(),
-        project_id: projectId,
-        storage_path: storagePath,
-        alt_text: `${params.project.title} gallery image ${index + 1}`,
-        sort_order: nextSortOrder++,
-        is_cover: false,
+        ...uploadedImage,
+        altText: `${params.project.title} gallery image ${index + 1}`,
+        sortOrder: nextSortOrder++,
+        isCover: false,
       });
     }
 
-    const finalExistingImages = retainedExistingImages.map((image) => {
-      const currentImage = currentImagesById.get(image.id);
-
-      if (!currentImage) {
-        throw new Error("An existing project image could not be resolved.");
-      }
-
-      return {
-        id: image.id,
-        project_id: projectId,
-        storage_path: currentImage.storagePath,
-        alt_text: image.altText || currentImage.altText,
-        sort_order: image.sortOrder,
-        is_cover: image.isCover,
-      };
-    });
-
-    const finalImageRows = [
+    const finalImages = [
       ...finalExistingImages,
       ...(newCoverImageRecord ? [newCoverImageRecord] : []),
       ...newGalleryImageRecords,
     ];
 
-    if (finalImageRows.length === 0) {
+    if (finalImages.length === 0) {
       throw new Error("At least one project image is required.");
     }
 
-    let resolvedCoverImageId = newCoverImageRecord?.id ?? null;
-
-    if (!resolvedCoverImageId) {
-      resolvedCoverImageId =
-        finalExistingImages.find((image) => image.is_cover)?.id ??
-        finalImageRows
-          .slice()
-          .sort((leftImage, rightImage) => leftImage.sort_order - rightImage.sort_order)[0]
-          ?.id ??
-        null;
-    }
+    const resolvedCoverImageId =
+      newCoverImageRecord?.id ??
+      finalExistingImages.find((image) => image.isCover)?.id ??
+      finalImages
+        .slice()
+        .sort((leftImage, rightImage) => leftImage.sortOrder - rightImage.sortOrder)[0]
+        ?.id;
 
     if (!resolvedCoverImageId) {
       throw new Error("A cover image is required before publishing a project.");
     }
 
-    const normalizedImageRows = finalImageRows.map((image) => ({
+    const normalizedImages = finalImages.map((image) => ({
       ...image,
-      is_cover: image.id === resolvedCoverImageId,
-      alt_text: image.alt_text || `${params.project.title} project image`,
+      isCover: image.id === resolvedCoverImageId,
+      altText: image.altText || `${params.project.title} project image`,
     }));
+    const projectReference = database
+      .collection(projectsCollection)
+      .doc(projectId);
+    const newSlugReference = database
+      .collection(projectSlugsCollection)
+      .doc(params.project.slug);
 
-    const projectPayload = {
-      id: projectId,
-      slug: params.project.slug,
-      title: params.project.title,
-      status: params.project.status,
-      build_type_slug: params.project.buildTypeSlug,
-      finish_level_slug: params.project.finishLevelSlug,
-      square_footage: params.project.squareFootage,
-      bedrooms: params.project.bedrooms,
-      bathrooms: params.project.bathrooms,
-      location: params.project.location,
-      short_description: params.project.shortDescription,
-      full_description: params.project.fullDescription,
-      featured: params.project.featured,
-    };
+    await database.runTransaction(async (transaction) => {
+      const projectSnapshot = await transaction.get(projectReference);
 
-    const projectMutation = isNewProject
-      ? supabase.from("projects").insert(projectPayload)
-      : supabase.from("projects").update(projectPayload).eq("id", projectId);
-    const { error: projectError } = await projectMutation;
-
-    if (projectError) {
-      throw new Error(`Failed to save project: ${projectError.message}`);
-    }
-
-    const { error: resetCoverError } = await supabase
-      .from("project_images")
-      .update({ is_cover: false })
-      .eq("project_id", projectId);
-
-    if (resetCoverError) {
-      throw new Error(`Failed to reset project cover image: ${resetCoverError.message}`);
-    }
-
-    const removedImageIds = removedExistingImages.map((image) => image.id);
-
-    if (removedImageIds.length > 0) {
-      const { error: deleteImageRowsError } = await supabase
-        .from("project_images")
-        .delete()
-        .in("id", removedImageIds);
-
-      if (deleteImageRowsError) {
-        throw new Error(`Failed to remove deleted images: ${deleteImageRowsError.message}`);
+      if (isNewProject && projectSnapshot.exists) {
+        throw new Error("A project with this ID already exists.");
       }
-    }
 
-    const { error: upsertImageRowsError } = await supabase
-      .from("project_images")
-      .upsert(normalizedImageRows);
+      if (!isNewProject && !projectSnapshot.exists) {
+        throw new Error("The project could not be found.");
+      }
 
-    if (upsertImageRowsError) {
-      throw new Error(`Failed to save project images: ${upsertImageRowsError.message}`);
-    }
+      const previousSlug = projectSnapshot.exists
+        ? (projectSnapshot.get("slug") as unknown)
+        : null;
+      const previousSlugReference =
+        typeof previousSlug === "string" && previousSlug !== params.project.slug
+          ? database.collection(projectSlugsCollection).doc(previousSlug)
+          : null;
+      const newSlugSnapshot = await transaction.get(newSlugReference);
+      const previousSlugSnapshot = previousSlugReference
+        ? await transaction.get(previousSlugReference)
+        : null;
+      const reservedProjectId = newSlugSnapshot.exists
+        ? newSlugSnapshot.get("projectId")
+        : null;
+
+      if (newSlugSnapshot.exists && reservedProjectId !== projectId) {
+        throw new Error("That slug is already in use by another project.");
+      }
+
+      const now = Timestamp.now();
+      const createdAt = projectSnapshot.exists
+        ? (projectSnapshot.get("createdAt") ?? now)
+        : now;
+
+      transaction.set(projectReference, {
+        id: projectId,
+        slug: params.project.slug,
+        title: params.project.title,
+        status: params.project.status,
+        buildTypeSlug: params.project.buildTypeSlug,
+        finishLevelSlug: params.project.finishLevelSlug,
+        squareFootage: params.project.squareFootage,
+        bedrooms: params.project.bedrooms,
+        bathrooms: params.project.bathrooms,
+        location: params.project.location,
+        shortDescription: params.project.shortDescription,
+        fullDescription: params.project.fullDescription,
+        featured: params.project.featured,
+        createdAt,
+        updatedAt: now,
+        images: normalizedImages,
+      });
+      transaction.set(newSlugReference, { projectId });
+
+      if (
+        previousSlugReference &&
+        previousSlugSnapshot?.exists &&
+        previousSlugSnapshot.get("projectId") === projectId
+      ) {
+        transaction.delete(previousSlugReference);
+      }
+    });
+
+    projectPersisted = true;
 
     await removeStorageFiles(
       removedExistingImages
@@ -609,26 +725,27 @@ export async function saveProject(params: {
       slug: params.project.slug,
     };
   } catch (error) {
-    await removeStorageFiles(uploadedStoragePaths);
+    if (!projectPersisted) {
+      await removeStorageFiles(uploadedStoragePaths);
+    }
+
     throw error;
   }
 }
 
 export async function upsertPricingSettings(input: PricingWriteInput) {
-  if (!isSupabaseAdminConfigured()) {
-    throw new Error("Supabase admin credentials are not configured.");
+  if (!isFirebaseAdminConfigured()) {
+    throw new Error("Firebase admin credentials are not configured.");
   }
 
-  const supabase = getSupabaseAdminClient();
-  const { error } = await supabase.from("pricing_settings").upsert({
-    id: 1,
-    builder_grade_price_per_sqft: input.builderGradePricePerSqft,
-    builder_plus_price_per_sqft: input.builderPlusPricePerSqft,
-    custom_price_per_sqft: input.customPricePerSqft,
-    pricing_note: input.pricingNote,
-  });
-
-  if (error) {
-    throw new Error(`Failed to save pricing settings: ${error.message}`);
-  }
+  await getFirebaseDatabase()
+    .collection(settingsCollection)
+    .doc(pricingSettingsDocument)
+    .set({
+      builderGradePricePerSqft: input.builderGradePricePerSqft,
+      builderPlusPricePerSqft: input.builderPlusPricePerSqft,
+      customPricePerSqft: input.customPricePerSqft,
+      pricingNote: input.pricingNote,
+      updatedAt: Timestamp.now(),
+    });
 }
