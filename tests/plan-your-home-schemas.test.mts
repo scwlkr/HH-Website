@@ -181,7 +181,7 @@ describe("Plan Your Home persisted schemas", () => {
       status: "submitted",
       contact: {
         name: "Taylor Homeowner",
-        email: "taylor@example.com",
+        email: "Taylor@Example.COM",
         phone: "+1 214 555 0100",
         preferredFollowUp: "email",
         manualFollowUpDisclosureAccepted: true,
@@ -214,6 +214,10 @@ describe("Plan Your Home persisted schemas", () => {
       expiresAt: "2028-07-13T12:00:00.000Z",
     });
     assert.equal(result.success, true);
+    if (result.success) {
+      assert.equal(result.data.contact.email, "taylor@example.com");
+      assert.equal(result.data.contact.phone, "+12145550100");
+    }
   });
 
   it("rejects incomplete submissions and draft-only statuses", () => {

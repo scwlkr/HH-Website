@@ -58,16 +58,21 @@ export type PlanHomeDefinition = Readonly<{
   questions: readonly PlanHomeQuestionDefinition[];
 }>;
 
-function option(
-  slug: string,
-  label: string,
+function option<const Slug extends string, const Label extends string>(
+  slug: Slug,
+  label: Label,
   semantic?: PlanHomeOptionSemantic,
-): PlanHomeOption {
+): Readonly<{ slug: Slug; label: Label; semantic?: PlanHomeOptionSemantic }> {
   return semantic ? { slug, label, semantic } : { slug, label };
 }
 
-function optionEnum(options: readonly PlanHomeOption[]) {
-  const slugs = options.map(({ slug }) => slug) as [string, ...string[]];
+function optionEnum<
+  const Options extends readonly [PlanHomeOption, ...PlanHomeOption[]],
+>(options: Options) {
+  const slugs = options.map(({ slug }) => slug) as [
+    Options[number]["slug"],
+    ...Options[number]["slug"][],
+  ];
   return z.enum(slugs);
 }
 
@@ -83,11 +88,13 @@ function uniqueValues(values: readonly string[]) {
   return new Set(values).size === values.length;
 }
 
-function choiceResponse(
+function choiceResponse<
+  const Options extends readonly [PlanHomeOption, ...PlanHomeOption[]],
+>(
   groupId: string,
   groupLabel: string,
-  options: readonly PlanHomeOption[],
-): PlanHomeResponseDefinition {
+  options: Options,
+) {
   const answerSchema = optionEnum(options);
   const example = options.find((item) => item.semantic === undefined) ?? options[0];
 
@@ -98,12 +105,14 @@ function choiceResponse(
     answerSchema,
     defaultAnswer: null,
     exampleAnswer: example.slug,
-    summarize: (answer) => optionLabel(options, answerSchema.parse(answer)),
-  };
+    summarize: (answer: unknown) => optionLabel(options, answerSchema.parse(answer)),
+  } satisfies PlanHomeResponseDefinition;
 }
 
-function multiChoiceSchemas(
-  options: readonly PlanHomeOption[],
+function multiChoiceSchemas<
+  const Options extends readonly [PlanHomeOption, ...PlanHomeOption[]],
+>(
+  options: Options,
   maxSelections?: number,
   exclusiveOptionSlugs: readonly string[] = [],
 ) {
@@ -127,15 +136,17 @@ function multiChoiceSchemas(
   };
 }
 
-function multiChoiceResponse(
+function multiChoiceResponse<
+  const Options extends readonly [PlanHomeOption, ...PlanHomeOption[]],
+>(
   groupId: string,
   groupLabel: string,
-  options: readonly PlanHomeOption[],
+  options: Options,
   settings: Readonly<{
     maxSelections?: number;
     exclusiveOptionSlugs?: readonly string[];
   }> = {},
-): PlanHomeResponseDefinition {
+) {
   const exclusiveOptionSlugs = settings.exclusiveOptionSlugs ?? [];
   const schemas = multiChoiceSchemas(
     options,
@@ -163,23 +174,35 @@ function multiChoiceResponse(
     answerSchema: schemas.answerSchema,
     defaultAnswer: [],
     exampleAnswer: [example.slug],
-    summarize: (answer) => optionLabels(options, schemas.answerSchema.parse(answer)),
-  };
+    summarize: (answer: unknown) =>
+      optionLabels(options, schemas.answerSchema.parse(answer)),
+  } satisfies PlanHomeResponseDefinition;
 }
 
-function groupedResponse(
-  definition: Omit<PlanHomeResponseDefinition, "kind">,
-): PlanHomeResponseDefinition {
-  return { kind: "grouped", ...definition };
+function groupedResponse<
+  const Definition extends Omit<PlanHomeResponseDefinition, "kind">,
+>(definition: Definition) {
+  return { kind: "grouped" as const, ...definition };
 }
 
 function formatParts(parts: readonly [string, string][]) {
   return parts.map(([label, value]) => `${label}: ${value}`).join("; ");
 }
 
-const uncertain = (slug = "not-sure-yet", label = "Not sure yet") =>
-  option(slug, label, "uncertain");
-const none = (slug = "none", label = "None") => option(slug, label, "none");
+const uncertain = <
+  const Slug extends string = "not-sure-yet",
+  const Label extends string = "Not sure yet",
+>(
+  slug: Slug = "not-sure-yet" as Slug,
+  label: Label = "Not sure yet" as Label,
+) => option(slug, label, "uncertain");
+const none = <
+  const Slug extends string = "none",
+  const Label extends string = "None",
+>(
+  slug: Slug = "none" as Slug,
+  label: Label = "None" as Label,
+) => option(slug, label, "none");
 
 export const planHomeZones = [
   {
@@ -821,7 +844,7 @@ const referencesAnswerSchema = referencesResponseSchema.refine(
     (!value.noReferencesYet && value.references.length > 0),
   "Add a reference or explicitly choose that you do not have references yet.",
 );
-const referencesResponse: PlanHomeResponseDefinition = {
+const referencesResponse = {
   kind: "references",
   optionGroups: [],
   limits: PLAN_HOME_REFERENCE_LIMITS,
@@ -839,7 +862,7 @@ const referencesResponse: PlanHomeResponseDefinition = {
     const links = value.references.length - files;
     return `${files} file${files === 1 ? "" : "s"}; ${links} link${links === 1 ? "" : "s"}`;
   },
-};
+} satisfies PlanHomeResponseDefinition;
 
 const priorityLimits = {
   mustHave: 5,
@@ -894,7 +917,7 @@ const prioritiesAnswerSchema = prioritiesResponseSchema.superRefine((value, cont
     context.addIssue({ code: "custom", message: "Deal-breakers are limited to three items." });
   }
 });
-const prioritiesResponse: PlanHomeResponseDefinition = {
+const prioritiesResponse = {
   kind: "priorities",
   optionGroups: [],
   limits: priorityLimits,
@@ -932,7 +955,7 @@ const prioritiesResponse: PlanHomeResponseDefinition = {
       ],
     ]);
   },
-};
+} satisfies PlanHomeResponseDefinition;
 
 const budgetOptions = [
   option("under-300k", "Under $300k"),
@@ -1385,6 +1408,14 @@ export const planHomeV1Definition = {
 
 export type PlanHomeQuestionId = (typeof planHomeQuestions)[number]["id"];
 export type PlanHomeZoneId = (typeof planHomeZones)[number]["id"];
+export type PlanHomeOptionSlug =
+  (typeof planHomeQuestions)[number]["response"]["optionGroups"][number]["options"][number]["slug"];
+export type PlanHomeAnswerByQuestionId = {
+  [Question in (typeof planHomeQuestions)[number] as Question["id"]]: z.infer<
+    Question["response"]["answerSchema"]
+  >;
+};
+export type PlanHomeAnswerMap = Partial<PlanHomeAnswerByQuestionId>;
 
 export const planHomeQuestionIds = planHomeQuestions.map(
   ({ id }) => id,

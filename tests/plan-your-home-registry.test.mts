@@ -57,7 +57,7 @@ const expectedQuestions = [
   ["contact.follow-up", "How should h and h follow up after you submit the project brief?"],
 ];
 
-function question(id: string) {
+function question(id: string): PlanHomeQuestionDefinition {
   const match = planHomeV1Definition.questions.find((item) => item.id === id);
   assert.ok(match, `Missing question ${id}`);
   return match;

@@ -10,6 +10,21 @@ import {
 const timestampSchema = z.string().datetime({ offset: true });
 const questionIdSchema = z.enum(planHomeQuestionIds);
 const zoneIdSchema = z.enum(planHomeZoneIds);
+const normalizedEmailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .pipe(z.email().max(160));
+const normalizedPhoneSchema = z
+  .string()
+  .trim()
+  .min(7)
+  .max(32)
+  .refine((value) => value.replace(/\D/g, "").length >= 10)
+  .transform((value) => {
+    const digits = value.replace(/\D/g, "");
+    return value.startsWith("+") ? `+${digits}` : digits;
+  });
 
 function addAnswerIssues(
   answers: Record<string, unknown>,
@@ -26,11 +41,11 @@ function addAnswerIssues(
 }
 
 export const partialPlanHomeAnswerMapSchema = z
-  .record(z.string(), z.unknown())
+  .partialRecord(questionIdSchema, z.unknown())
   .superRefine(addAnswerIssues);
 
 export const completePlanHomeAnswerMapSchema = z
-  .record(z.string(), z.unknown())
+  .record(questionIdSchema, z.unknown())
   .superRefine((answers, context) => {
     addAnswerIssues(answers, context);
 
@@ -80,13 +95,8 @@ export const localDraftSnapshotSchema = z
 const contactSchema = z
   .object({
     name: z.string().trim().min(2).max(120),
-    email: z.email().max(160),
-    phone: z
-      .string()
-      .trim()
-      .min(7)
-      .max(32)
-      .refine((value) => value.replace(/\D/g, "").length >= 10),
+    email: normalizedEmailSchema,
+    phone: normalizedPhoneSchema,
     preferredFollowUp: z.enum(["email", "phone-call", "text-message"]),
     manualFollowUpDisclosureAccepted: z.literal(true),
   })
@@ -114,8 +124,8 @@ const sourceSchema = z
 const derivedSchema = z
   .object({
     name: z.string().trim().min(2).max(120),
-    email: z.email().max(160),
-    phone: z.string().trim().min(7).max(32),
+    email: normalizedEmailSchema,
+    phone: normalizedPhoneSchema,
     targetLocation: z.string().trim().min(2).max(160).nullable(),
     squareFootageBand: z.string().refine(
       (value) => validatePlanHomeAnswer("home.heated-square-feet", value).success,

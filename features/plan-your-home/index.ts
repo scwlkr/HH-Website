@@ -13,6 +13,9 @@ export {
 } from "./registry";
 export type {
   PlanHomeDefinition,
+  PlanHomeAnswerByQuestionId,
+  PlanHomeAnswerMap,
+  PlanHomeOptionSlug,
   PlanHomeQuestionDefinition,
   PlanHomeQuestionId,
   PlanHomeZoneDefinition,
