@@ -5,7 +5,6 @@ import { Section } from "@/components/layout/section";
 import { ActionLink } from "@/components/marketing/action-link";
 import { ContentImageGrid } from "@/components/marketing/content-image-grid";
 import { FinishCard } from "@/components/marketing/finish-card";
-import { CardShell } from "@/components/ui/card-shell";
 import {
   finishLevelSlugs,
   getFinishLevelBySlug,
@@ -95,7 +94,7 @@ export default async function FinishDetailPage({
         }
         detail={
           <div className="space-y-4">
-            <div className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised px-4 py-4">
+            <div className="border-y border-line py-4">
               <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
                 Directional Benchmark
               </p>
@@ -139,8 +138,8 @@ export default async function FinishDetailPage({
         title="What typically defines this level in practice."
         description="These are directional characteristics intended to clarify fit. They are not contract language."
       >
-        <div className="grid gap-6 lg:grid-cols-2">
-          <CardShell>
+        <div className="grid border-y border-line-strong lg:grid-cols-2">
+          <div className="py-7 lg:pr-10">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
               Typical Characteristics
             </p>
@@ -154,9 +153,9 @@ export default async function FinishDetailPage({
                 </li>
               ))}
             </ul>
-          </CardShell>
+          </div>
 
-          <CardShell tone="muted">
+          <div className="border-t border-line py-7 lg:border-l lg:border-t-0 lg:pl-10">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
               Best Fit
             </p>
@@ -170,7 +169,7 @@ export default async function FinishDetailPage({
                 </li>
               ))}
             </ul>
-          </CardShell>
+          </div>
         </div>
       </Section>
 
@@ -179,7 +178,7 @@ export default async function FinishDetailPage({
         title="Cross-check the neighboring finish paths before committing to inquiry."
         description="The finish levels are designed to help users orient themselves, not trap them in the first option they open."
       >
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid border-b border-line lg:grid-cols-2">
           {otherFinishLevels.map((item) => (
             <FinishCard
               key={item.slug}
@@ -188,6 +187,7 @@ export default async function FinishDetailPage({
               directionalPriceLabel={formatDirectionalPrice(
                 getDirectionalPriceForFinish(pricingSettings, item.slug),
               )}
+              className="lg:border-l lg:px-8 lg:first:border-l-0 lg:first:pl-0 lg:last:pr-0"
             />
           ))}
         </div>

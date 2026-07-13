@@ -56,10 +56,10 @@ export function SiteFooter() {
   });
 
   return (
-    <footer className="relative mt-16 border-t border-line-strong bg-white/82">
+    <footer className="relative border-t border-line-strong bg-white/82">
       <Container size="wide" className="py-10 sm:py-12">
-        <div className="grid gap-10 border-b border-line pb-9 lg:grid-cols-[minmax(0,1.35fr)_repeat(3,minmax(0,0.55fr))] lg:gap-8">
-          <div className="space-y-5 lg:pr-10">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-b border-line pb-9 md:grid-cols-3 lg:grid-cols-[minmax(0,1.35fr)_repeat(3,minmax(0,0.55fr))] lg:gap-8">
+          <div className="col-span-2 space-y-5 md:col-span-3 lg:col-span-1 lg:pr-10">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--hh-radius-pill)] border border-line-strong bg-white">
                 <BrandMark decorative sizes="34px" className="h-7 w-7" />

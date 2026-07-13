@@ -4,13 +4,14 @@ import {
   getFinishLevelInquiryHref,
 } from "@/lib/content/finish-levels";
 import { ActionLink } from "@/components/marketing/action-link";
-import { CardShell } from "@/components/ui/card-shell";
+import { cn } from "@/lib/utils/cn";
 
 type FinishCardProps = {
   finish: FinishLevel;
   variant?: "preview" | "detail";
   showInquiryAction?: boolean;
   directionalPriceLabel?: string | null;
+  className?: string;
 };
 
 export function FinishCard({
@@ -18,12 +19,17 @@ export function FinishCard({
   variant = "detail",
   showInquiryAction = false,
   directionalPriceLabel,
+  className,
 }: FinishCardProps) {
   const bulletLimit = variant === "preview" ? 2 : 3;
 
   return (
-    <CardShell className="h-full">
-      <div className="flex h-full flex-col">
+    <article
+      className={cn(
+        "flex h-full flex-col border-t border-line-strong py-7",
+        className,
+      )}
+    >
         <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
           Finish Level
         </p>
@@ -32,7 +38,7 @@ export function FinishCard({
           <p className="mt-3 text-sm leading-7 text-muted">{finish.tagline}</p>
         </div>
         {directionalPriceLabel ? (
-          <div className="mt-5 rounded-[var(--hh-radius-tight)] border border-line-strong bg-white px-4 py-3">
+          <div className="mt-5 border-y border-line py-4">
             <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
               Directional Benchmark
             </p>
@@ -64,7 +70,6 @@ export function FinishCard({
             />
           ) : null}
         </div>
-      </div>
-    </CardShell>
+    </article>
   );
 }

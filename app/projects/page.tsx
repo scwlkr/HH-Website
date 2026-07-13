@@ -16,24 +16,22 @@ export const metadata: Metadata = createPageMetadata({
 
 function ProjectArchivePreview() {
   return (
-    <div className="space-y-5">
-      <div className="grid gap-5 md:grid-cols-3" aria-hidden="true">
-        {[0, 1, 2].map((item) => (
-          <div
-            key={item}
-            className="relative aspect-[16/11] overflow-hidden rounded-[var(--hh-radius-panel)] border border-line bg-white"
-          >
+    <div className="grid gap-7 border-y border-line-strong py-7 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.55fr)] lg:gap-10">
+      <div className="relative aspect-[16/9] overflow-hidden border border-line bg-white" aria-hidden="true">
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(35,45,63,0.055)_0_1px,transparent_1px_38%),linear-gradient(90deg,rgba(17,17,15,0.035)_1px,transparent_1px),linear-gradient(180deg,rgba(17,17,15,0.028)_1px,transparent_1px)] bg-[length:100%_100%,1.25rem_1.25rem,1.25rem_1.25rem]" />
             <div className="absolute inset-x-6 bottom-6 top-10 border border-line" />
             <div className="absolute bottom-10 left-10 h-px w-1/2 bg-line-strong" />
             <div className="absolute bottom-14 left-10 h-px w-1/3 bg-line" />
-          </div>
-        ))}
       </div>
-      <p className="max-w-2xl text-sm leading-7 text-muted">
-        Published project photography and completed-work records will appear
-        here once approved.
-      </p>
+      <div className="flex flex-col justify-between border-t border-line pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+        <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-accent">
+          Archive Reserved
+        </p>
+        <p className="mt-5 max-w-md text-sm leading-7 text-muted">
+          Published project photography and completed-work records will appear
+          here once approved.
+        </p>
+      </div>
     </div>
   );
 }
@@ -65,9 +63,14 @@ export default async function ProjectsPage() {
         description="Copy stays secondary here. Imagery, status, location, and a few essential facts do the work."
       >
         {projects.length > 0 ? (
-          <div className="grid gap-x-8 gap-y-10 md:grid-cols-2 xl:grid-cols-3">
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+          <div className="border-b border-line-strong">
+            {projects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                index={index}
+                lead={index === 0}
+              />
             ))}
           </div>
         ) : (

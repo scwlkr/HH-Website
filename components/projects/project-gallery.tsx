@@ -7,11 +7,13 @@ type ProjectGalleryProps = {
 };
 
 export function ProjectGallery({ images, title }: ProjectGalleryProps) {
-  if (!images.length) {
+  const publishedImages = images.filter((image) => Boolean(image.publicUrl));
+
+  if (!publishedImages.length) {
     return (
       <div className="space-y-4">
         <div
-          className="relative aspect-[16/9] overflow-hidden rounded-[var(--hh-radius-panel)] border border-line bg-white"
+          className="relative aspect-[16/9] overflow-hidden border-y border-line-strong bg-white"
           role="img"
           aria-label={`${title} abstract gallery image`}
         >
@@ -27,27 +29,49 @@ export function ProjectGallery({ images, title }: ProjectGalleryProps) {
     );
   }
 
+  const [leadImage, ...supportingImages] = publishedImages;
+
   return (
-    <div className="grid gap-x-6 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
-      {images.map((image, index) => (
+    <div className="space-y-8">
+      <figure className="border-t border-line-strong pt-4">
+        <div className="relative aspect-[16/9] overflow-hidden border border-line bg-surface">
+          <Image
+            src={leadImage.publicUrl}
+            alt={leadImage.altText || `${title} image 1`}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        </div>
+        <figcaption className="border-b border-line py-4 text-sm text-muted">
+          {leadImage.altText || `${title} image 1`}
+        </figcaption>
+      </figure>
+
+      {supportingImages.length > 0 ? (
+        <div className="grid gap-x-6 gap-y-8 md:grid-cols-2">
+          {supportingImages.map((image, index) => (
         <figure
           key={image.id}
-          className="overflow-hidden rounded-[var(--hh-radius-panel)] border border-line bg-surface"
+              className="border-t border-line-strong pt-4"
         >
-          <div className="relative aspect-[4/3]">
+              <div className="relative aspect-[4/3] overflow-hidden border border-line bg-surface">
             <Image
               src={image.publicUrl}
-              alt={image.altText || `${title} image ${index + 1}`}
+                  alt={image.altText || `${title} image ${index + 2}`}
               fill
-              sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 100vw"
+                  sizes="(min-width: 768px) 50vw, 100vw"
               className="object-cover"
             />
           </div>
-          <figcaption className="border-t border-line px-4 py-3 text-sm text-muted">
-            {image.altText || `${title} image ${index + 1}`}
+              <figcaption className="border-b border-line py-4 text-sm text-muted">
+                {image.altText || `${title} image ${index + 2}`}
           </figcaption>
         </figure>
-      ))}
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -242,7 +242,7 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-10">
       <CardShell className="px-5 py-5 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
         <form
           ref={formRef}
@@ -519,10 +519,10 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
         </form>
       </CardShell>
 
-      <div className="space-y-6">
+      <aside className="space-y-8 xl:sticky xl:top-28">
         <InquiryProgress currentStepIndex={activeStepIndex} />
 
-        <CardShell>
+        <div className="border-t border-line-strong pt-6">
           <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
             What Happens Next
           </p>
@@ -554,8 +554,8 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
               trackingLocation="inquiry-side-panel"
             />
           </div>
-        </CardShell>
-      </div>
+        </div>
+      </aside>
     </div>
   );
 }

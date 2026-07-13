@@ -6,22 +6,32 @@ type ContentImageGridProps = {
 };
 
 export function ContentImageGrid({ images }: ContentImageGridProps) {
+  const [leadImage, ...supportingImages] = images;
+
+  if (!leadImage) {
+    return null;
+  }
+
   return (
-    <div className="grid gap-5 lg:grid-cols-3">
-      {images.map((image, index) => (
-        <ContentImageCard
-          key={`${image.src}-${index}`}
-          image={image}
-          priority={index === 0}
-          className={index === 0 ? "lg:col-span-2" : undefined}
-          aspectClassName={index === 0 ? "aspect-[16/10]" : "aspect-[16/11]"}
-          sizes={
-            index === 0
-              ? "(min-width: 1024px) 66vw, 100vw"
-              : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          }
-        />
-      ))}
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+      <ContentImageCard
+        image={leadImage}
+        priority
+        aspectClassName="aspect-[16/10]"
+        sizes="(min-width: 1024px) 66vw, 100vw"
+      />
+      {supportingImages.length > 0 ? (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+          {supportingImages.map((image, index) => (
+            <ContentImageCard
+              key={`${image.src}-${index}`}
+              image={image}
+              aspectClassName="aspect-[16/10]"
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

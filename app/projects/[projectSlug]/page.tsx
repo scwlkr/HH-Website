@@ -81,16 +81,15 @@ export default async function ProjectDetailPage({
         }
         detail={
           <div className="space-y-5">
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-accent">
+              Project Record
+            </p>
             <ProjectStatusBadge status={project.status} />
-            <ul className="space-y-3 text-sm leading-7 text-muted">
-              <li>{project.location}</li>
-              <li>
-                {project.squareFootage.toLocaleString("en-US")} sq ft • {project.bedrooms} bd •{" "}
-                {formatProjectBathrooms(project.bathrooms)} ba
-              </li>
-              <li>{buildType?.title ?? project.buildTypeSlug}</li>
-              <li>{finishLevel?.title ?? project.finishLevelSlug}</li>
-            </ul>
+            <p className="border-t border-line pt-4 text-sm leading-7 text-muted">
+              {project.location}<br />
+              {project.squareFootage.toLocaleString("en-US")} sq ft • {project.bedrooms} bd •{" "}
+              {formatProjectBathrooms(project.bathrooms)} ba
+            </p>
           </div>
         }
       />

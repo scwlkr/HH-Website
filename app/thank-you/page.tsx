@@ -3,7 +3,6 @@ import { AnalyticsEventTrigger } from "@/components/analytics/analytics-event-tr
 import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
 import { ActionLink } from "@/components/marketing/action-link";
-import { CardShell } from "@/components/ui/card-shell";
 import { marketingPageContent } from "@/lib/content";
 import { createPageMetadata } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
@@ -52,24 +51,27 @@ export default function ThankYouPage() {
         title="The confirmation state should stay calm and practical."
         description="This page tells the user that the brief landed and gives them a clear fallback if anything important needs to be added."
       >
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.7fr)]">
-          <CardShell>
+        <div className="grid border-y border-line-strong lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.7fr)]">
+          <div className="py-7 lg:pr-10">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
               What Happens Next
             </p>
-            <ul className="mt-5 space-y-3 text-sm leading-7 text-muted">
-              {marketingPageContent.thankYou.nextSteps.map((step) => (
+            <ol className="mt-5 border-t border-line text-sm leading-7 text-muted">
+              {marketingPageContent.thankYou.nextSteps.map((step, index) => (
                 <li
                   key={step}
-                  className="border-b border-line pb-3 last:border-b-0 last:pb-0"
+                  className="grid grid-cols-[2.5rem_1fr] gap-4 border-b border-line py-4"
                 >
-                  {step}
+                  <span className="font-mono text-[0.68rem] tracking-[0.16em] text-accent">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span>{step}</span>
                 </li>
               ))}
-            </ul>
-          </CardShell>
+            </ol>
+          </div>
 
-          <CardShell tone="muted">
+          <div className="border-t border-line py-7 lg:border-l lg:border-t-0 lg:pl-10">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
               Direct Fallback
             </p>
@@ -85,7 +87,7 @@ export default function ThankYouPage() {
                 {siteConfig.contact.note}
               </p>
             </div>
-          </CardShell>
+          </div>
         </div>
       </Section>
     </>

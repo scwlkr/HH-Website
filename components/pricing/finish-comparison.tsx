@@ -1,6 +1,5 @@
 import type { FinishLevel } from "@/types/content";
 import { ActionLink } from "@/components/marketing/action-link";
-import { CardShell } from "@/components/ui/card-shell";
 import { getFinishLevelHref } from "@/lib/content/finish-levels";
 
 type FinishComparisonProps = {
@@ -21,49 +20,129 @@ export function FinishComparison({
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
-      {comparisonLabels.map((label) => (
-        <CardShell key={label}>
-          <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
-            {label}
-          </p>
-          <div className="mt-5 space-y-4">
-            {finishLevels.map((finish) => {
-              const comparisonPoint = finish.comparisonPoints.find(
-                (point) => point.label === label,
-              );
+    <div className="border-y border-line-strong">
+      <div className="divide-y divide-line lg:hidden">
+        {finishLevels.map((finish) => (
+          <article key={finish.slug} className="py-7">
+            <div className="flex items-start justify-between gap-5">
+              <div>
+                <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-accent">
+                  Finish Column
+                </p>
+                <h3 className="mt-3 text-2xl">{finish.shortTitle}</h3>
+                {pricingLabels?.[finish.slug] ? (
+                  <p className="mt-2 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted-strong">
+                    {pricingLabels[finish.slug]}
+                  </p>
+                ) : null}
+              </div>
+              <ActionLink
+                href={getFinishLevelHref(finish.slug)}
+                label="Open"
+                variant="ghost"
+                size="sm"
+              />
+            </div>
+            <dl className="mt-6 divide-y divide-line border-t border-line">
+              {comparisonLabels.map((label) => {
+                const comparisonPoint = finish.comparisonPoints.find(
+                  (point) => point.label === label,
+                );
 
-              return (
-                <div
-                  key={finish.slug}
-                  className="border-t border-line pt-4 first:border-t-0 first:pt-0"
-                >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h3 className="text-xl">{finish.shortTitle}</h3>
-                      {pricingLabels?.[finish.slug] ? (
-                        <p className="mt-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-accent">
-                          {pricingLabels[finish.slug]}
-                        </p>
-                      ) : null}
-                      <p className="mt-2 text-sm leading-7 text-muted">
-                        {comparisonPoint?.value}
-                      </p>
-                    </div>
-                    <ActionLink
-                      href={getFinishLevelHref(finish.slug)}
-                      label="Open"
-                      variant="ghost"
-                      size="sm"
-                      className="self-start"
-                    />
+                return (
+                  <div key={label} className="grid gap-2 py-4 sm:grid-cols-[10rem_1fr] sm:gap-6">
+                    <dt className="font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted-strong">
+                      {label}
+                    </dt>
+                    <dd className="text-sm leading-7 text-muted">
+                      {comparisonPoint?.value}
+                    </dd>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardShell>
-      ))}
+                );
+              })}
+            </dl>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden lg:block">
+        <table className="w-full table-fixed border-collapse text-left">
+          <colgroup>
+            <col className="w-[16%]" />
+            {finishLevels.map((finish) => (
+              <col key={finish.slug} />
+            ))}
+          </colgroup>
+          <thead>
+            <tr>
+              <th
+                scope="col"
+                className="border-b border-line p-5 align-top font-mono text-[0.68rem] font-normal uppercase tracking-[0.2em] text-muted"
+              >
+                Comparison Register
+              </th>
+              {finishLevels.map((finish) => (
+                <th
+                  key={finish.slug}
+                  scope="col"
+                  className="border-b border-l border-line p-5 align-top font-normal"
+                >
+                  <span className="block text-xl">{finish.shortTitle}</span>
+                  {pricingLabels?.[finish.slug] ? (
+                    <span className="mt-2 block font-mono text-[0.66rem] uppercase tracking-[0.12em] text-accent">
+                      {pricingLabels[finish.slug]}
+                    </span>
+                  ) : null}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {comparisonLabels.map((label) => (
+              <tr key={label}>
+                <th
+                  scope="row"
+                  className="border-b border-line p-5 align-top font-mono text-[0.68rem] font-normal uppercase tracking-[0.14em] text-muted-strong"
+                >
+                  {label}
+                </th>
+                {finishLevels.map((finish) => {
+                  const comparisonPoint = finish.comparisonPoints.find(
+                    (point) => point.label === label,
+                  );
+
+                  return (
+                    <td
+                      key={finish.slug}
+                      className="border-b border-l border-line p-5 align-top text-sm leading-7 text-muted"
+                    >
+                      {comparisonPoint?.value}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+            <tr>
+              <th
+                scope="row"
+                className="p-5 align-middle font-mono text-[0.68rem] font-normal uppercase tracking-[0.14em] text-muted"
+              >
+                Detail Pages
+              </th>
+              {finishLevels.map((finish) => (
+                <td key={finish.slug} className="border-l border-line p-5">
+                  <ActionLink
+                    href={getFinishLevelHref(finish.slug)}
+                    label="View Detail"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

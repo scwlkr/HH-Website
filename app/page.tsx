@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import type { Route } from "next";
-import { Section } from "@/components/layout/section";
+import { Container } from "@/components/layout/container";
 import { DraftingHero } from "@/components/marketing/drafting-hero";
 import { Accordion } from "@/components/ui/accordion";
+import { DividerFrame } from "@/components/ui/divider-frame";
 import {
   getFaqPreviewItems,
   marketingPageContent,
@@ -41,38 +42,63 @@ export default function Home() {
         primaryCta={{ href: "/projects" as Route, label: "View Projects" }}
       />
 
-      <Section
-        eyebrow="Capabilities"
-        title={`What ${siteConfig.name} Does`}
-        description="The work is organized around three connected disciplines. Each one stays direct, practical, and tied to the decisions that shape scope."
-        className="border-t border-line py-14 sm:py-16"
-      >
-        <div className="grid border-y border-line lg:grid-cols-3">
-          {marketingPageContent.home.capabilities.map((capability) => (
-            <article
-              key={capability.title}
-              className="border-t border-line px-0 py-6 first:border-t-0 lg:border-l lg:border-t-0 lg:border-line lg:px-8 lg:py-8 lg:first:border-l-0"
-            >
-              <p className="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-accent">
-                {capability.title}
+      <section className="border-b border-line py-16 sm:py-20 lg:py-24">
+        <Container size="wide">
+          <div className="grid gap-10 lg:grid-cols-[minmax(18rem,0.62fr)_minmax(0,1.38fr)] lg:gap-16 xl:gap-20">
+            <div>
+              <DividerFrame label="Capabilities" detail="Scope Register" />
+              <h2 className="mt-7 max-w-xl text-3xl leading-tight sm:text-4xl">
+                What {siteConfig.name} Does
+              </h2>
+              <p className="mt-5 max-w-lg text-base leading-7 text-muted">
+                The work is organized around three connected disciplines. Each one stays
+                direct, practical, and tied to the decisions that shape scope.
               </p>
-              <p className="mt-4 text-sm leading-7 text-muted">
-                {capability.description}
-              </p>
-            </article>
-          ))}
-        </div>
-      </Section>
+            </div>
 
-      <Section
-        eyebrow="FAQ"
-        title="A few practical questions, answered directly."
-        description="The full FAQ stays available from the header. The front page keeps only the questions most likely to clarify fit."
-        className="py-14 sm:py-16"
-        size="content"
-      >
-        <Accordion items={faqPreview} />
-      </Section>
+            <div className="border-t border-line-strong">
+              {marketingPageContent.home.capabilities.map((capability, index) => (
+                <article
+                  key={capability.title}
+                  className="grid gap-4 border-b border-line py-6 sm:grid-cols-[3.5rem_minmax(12rem,0.65fr)_minmax(0,1fr)] sm:gap-6 sm:py-8"
+                >
+                  <span className="font-mono text-[0.68rem] tracking-[0.2em] text-accent">
+                    {(index + 1).toString().padStart(2, "0")}
+                  </span>
+                  <h3 className="text-xl leading-tight sm:text-2xl">
+                    {capability.title}
+                  </h3>
+                  <p className="text-sm leading-7 text-muted">
+                    {capability.description}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-white/35 py-16 sm:py-20 lg:py-24">
+        <Container size="wide">
+          <div className="grid gap-10 lg:grid-cols-[minmax(17rem,0.58fr)_minmax(0,1.42fr)] lg:gap-16 xl:gap-24">
+            <div>
+              <DividerFrame
+                label="FAQ"
+                detail={`${faqPreview.length.toString().padStart(2, "0")} Questions`}
+              />
+              <h2 className="mt-7 max-w-xl text-3xl leading-tight sm:text-4xl">
+                A few practical questions, answered directly.
+              </h2>
+              <p className="mt-5 max-w-lg text-base leading-7 text-muted">
+                The full FAQ stays available from the header. The front page keeps only
+                the questions most likely to clarify fit.
+              </p>
+            </div>
+
+            <Accordion items={faqPreview} />
+          </div>
+        </Container>
+      </section>
     </>
   );
 }

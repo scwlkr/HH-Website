@@ -144,7 +144,7 @@ components:
     typography: "{typography.label-sm}"
     rounded: "{rounded.sm}"
     padding: "4px 10px"
-  card-surface:
+  interactive-surface:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.on-surface}"
     rounded: "{rounded.lg}"
@@ -165,16 +165,21 @@ components:
     rounded: "{rounded.sm}"
     width: 1px
     height: 72px
-  drafting-board:
-    backgroundColor: "{colors.surface}"
+  route-intro:
+    backgroundColor: "{colors.surface-strong}"
     textColor: "{colors.on-surface}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.lg}"
-  project-card:
-    backgroundColor: "{colors.neutral}"
+    rounded: "{rounded.none}"
+    padding: "{spacing.2xl}"
+  specification-register:
+    backgroundColor: "transparent"
     textColor: "{colors.on-surface}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.sm}"
+    rounded: "{rounded.none}"
+    padding: "{spacing.md} 0"
+  project-register:
+    backgroundColor: "transparent"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.none}"
+    padding: "{spacing.lg} 0"
   status-badge:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.muted-strong}"
@@ -253,6 +258,8 @@ Container widths mirror the implementation: narrow content around `46rem`, conte
 
 The homepage is intentionally short. Projects is the primary proof surface and should be image-led, quiet, and archival. Pricing explains finish levels without reading like a rate sheet. FAQ is compact objection-removal. Inquiry is a functional project brief flow where clarity beats editorial spaciousness. HHQ/admin stays denser and more operational than the public site.
 
+Public routes use one visual grammar without sharing one rigid template. Route intros behave as open cover sheets. Pricing uses finish schedules and a comparison matrix. Projects uses an archival register and image plates. FAQ uses grouped question registers. Legal pages use numbered clauses. Inquiry keeps the form as the single large contained work surface and moves progress and next-step guidance into open margin notes. Catalog remains outside active navigation but follows the same register system so dormant routes do not preserve an older card language.
+
 On mobile, preserve premium restraint with clean stacking and reduced decoration. Do not force the full desktop drafting-board composition into mobile. On tablet, preserve columns only while they remain readable. On desktop, let the layout breathe through linework, image ratio, and horizontal alignment, not heavy nested frames.
 
 ## Elevation & Depth
@@ -279,7 +286,9 @@ Navigation is lean and header-led. The header carries most navigation. Content s
 
 Forms are functional, readable, and hard to misuse. Inputs use white or raised surfaces, clear labels, strong enough contrast, and visible focus rings. Inquiry progress must remain understandable to screen readers.
 
-Project cards link as whole cards to detail pages and avoid repeated card CTA buttons. Projects should be image-led, quiet, and proof-oriented. Badges and metadata stay compact and secondary.
+Project records link as whole register rows and avoid repeated card CTA buttons. The first record may act as a wider cover sheet; later records remain continuous ruled entries. Projects should be image-led, quiet, and proof-oriented. Badges and metadata stay compact and secondary.
+
+Static marketing content should not use `CardShell`. Use open rules, schedules, registers, title blocks, and image plates. `CardShell` remains appropriate for the active inquiry form and other genuinely interactive work surfaces where containment improves comprehension.
 
 The animated drafting arm remains a signature detail only if it is integrated, subtle, and architectural. Motion is limited to subtle architectural behavior, light hover/focus transitions, and slow quiet signature movement. Do not add scroll theatrics, parallax, reveal animations, or attention-seeking movement.
 

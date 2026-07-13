@@ -99,7 +99,6 @@ export default async function InquirePage({
         eyebrow="Inquiry Flow"
         title="The brief stays lean, but it should still be useful."
         description={`Each section collects a small set of decisions so ${siteConfig.shortName} can review project type, finish direction, site realities, and timing as one coherent intake.`}
-        className="pt-0"
       >
         <InquiryForm initialValues={initialValues} />
       </Section>

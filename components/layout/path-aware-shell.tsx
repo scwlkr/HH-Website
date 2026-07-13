@@ -34,7 +34,7 @@ export function PathAwareShell({
           className={
             isAdminRoute
               ? "flex-1 focus:outline-none"
-              : "flex-1 pb-16 pt-6 focus:outline-none sm:pb-24 sm:pt-8"
+              : "flex-1 focus:outline-none"
           }
           tabIndex={-1}
         >

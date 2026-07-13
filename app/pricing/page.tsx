@@ -3,7 +3,6 @@ import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
 import { FinishCard } from "@/components/marketing/finish-card";
 import { FinishComparison } from "@/components/pricing/finish-comparison";
-import { CardShell } from "@/components/ui/card-shell";
 import { DividerFrame } from "@/components/ui/divider-frame";
 import { finishLevels, marketingPageContent } from "@/lib/content";
 import { getPublicPricingSettings } from "@/lib/db/operations";
@@ -66,12 +65,13 @@ export default async function PricingPage() {
         title="Finish levels explain posture, not packages."
         description="Use these levels to understand the likely degree of material coordination, flexibility, and customization before a project conversation gets too specific."
       >
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid border-b border-line lg:grid-cols-3">
           {finishLevels.map((finish) => (
             <FinishCard
               key={finish.slug}
               finish={finish}
               directionalPriceLabel={pricingLabels[finish.slug] ?? null}
+              className="lg:border-l lg:px-8 lg:first:border-l-0 lg:first:pl-0 lg:last:pr-0"
             />
           ))}
         </div>
@@ -87,14 +87,14 @@ export default async function PricingPage() {
           pricingLabels={pricingLabels}
         />
         {pricingSettings.pricingNote ? (
-          <CardShell className="mt-6">
+          <div className="mt-8 grid gap-4 border-y border-line py-5 sm:grid-cols-[12rem_1fr] sm:gap-8">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
               Pricing Note
             </p>
-            <p className="mt-4 text-sm leading-7 text-muted">
+            <p className="text-sm leading-7 text-muted">
               {pricingSettings.pricingNote}
             </p>
-          </CardShell>
+          </div>
         ) : null}
       </Section>
     </>

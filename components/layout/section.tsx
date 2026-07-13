@@ -23,30 +23,35 @@ export function Section({
   size = "wide",
   ...props
 }: SectionProps) {
+  const hasHeader = Boolean(eyebrow || title || description || actions);
+
   return (
-    <section className={cn("py-10 sm:py-12", className)} {...props}>
+    <section
+      className={cn("border-b border-line py-14 sm:py-16 lg:py-20", className)}
+      {...props}
+    >
       <Container size={size}>
-        {eyebrow || title || description || actions ? (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,0.4fr)] lg:gap-10">
+        {hasHeader ? (
+          <div className="grid gap-7 lg:grid-cols-[minmax(13rem,0.42fr)_minmax(0,1.58fr)] lg:gap-14">
             <div>
               {eyebrow ? <DividerFrame label={eyebrow} /> : null}
-              {title ? (
-                <h2 className="mt-5 max-w-4xl text-3xl sm:text-4xl">{title}</h2>
-              ) : null}
+            </div>
+            <div>
+              {title ? <h2 className="max-w-4xl text-3xl sm:text-4xl">{title}</h2> : null}
               {description ? (
                 <p className="mt-4 max-w-3xl text-base leading-7 text-muted">
                   {description}
                 </p>
               ) : null}
+              {actions ? (
+                <div className="mt-6 flex flex-wrap items-start gap-3">
+                  {actions}
+                </div>
+              ) : null}
             </div>
-            {actions ? (
-              <div className="flex flex-wrap items-start gap-3 lg:justify-end">
-                {actions}
-              </div>
-            ) : null}
           </div>
         ) : null}
-        <div className={cn(title || eyebrow || description ? "mt-8" : "", contentClassName)}>
+        <div className={cn(hasHeader ? "mt-10 lg:mt-12" : "", contentClassName)}>
           {children}
         </div>
       </Container>
