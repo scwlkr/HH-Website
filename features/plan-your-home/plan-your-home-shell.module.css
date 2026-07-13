@@ -38,6 +38,7 @@
 
 .sceneBeat {
   width: 100%;
+  overflow: clip;
 }
 
 .sceneBeat[data-tour-beat="front-door"] {
