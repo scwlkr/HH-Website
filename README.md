@@ -44,6 +44,7 @@ npm run qa:smoke
 | `npm run start` | Serve a built production app. |
 | `npm run lint` | Run ESLint. |
 | `npm run typecheck` | Run TypeScript without emitting files. |
+| `npm run review -- /route` | Capture desktop/mobile local screenshots and a review board. |
 | `npm run qa:smoke` | Build and smoke-test the production app against local Firebase emulators. |
 
 ## Configuration
@@ -80,6 +81,7 @@ Start with [docs/README.md](docs/README.md), then use the focused docs:
 - [Architecture](docs/architecture.md)
 - [Inquiry flow](docs/inquiry-flow.md)
 - [Operations portal](docs/operations-portal.md)
+- [Fast local review](docs/devops.md)
 - [Launch QA](docs/launch-qa.md)
 - [Glossary](docs/glossary.md)
 - [Style guide](docs/style-guide.md)

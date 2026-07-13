@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "review": "node scripts/review.mjs",
     "qa:smoke": "npx -y firebase-tools@latest emulators:exec --only auth,firestore,storage \"node scripts/qa-smoke.mjs\""
   },
   "dependencies": {
