@@ -137,6 +137,8 @@ Navigation is intentionally linear: one room at a time, one obvious next action,
 
 A customer selecting one bedroom sees the same rooms as a customer selecting five bedrooms. A bedroom scene represents the bedroom portion of the questionnaire rather than each literal bedroom in the proposed home. Every stop should still support **skip**, **not applicable**, or **not sure yet** where appropriate.
 
+The room scenes use dimensional architectural illustration: believable perspective and depth, restrained material cues, architectural linework, warm paper tones, and limited green emphasis. They should feel spatial and polished without becoming photorealistic promises or game-like 3D environments.
+
 ## Research-Informed Draft Question Inventory
 
 This is a working inventory, not approved public copy. It contains 35 short question screens: the upper edge of the balanced-discovery target. Conditional details can reduce what an individual customer sees, but the eight visual zones remain fixed.
@@ -289,16 +291,17 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 
 ## Decisions To Resolve
 
-1. Visual room-scene art direction and transition storyboards.
-2. Refine and approve the exact question inventory.
-3. Final room-zone set and sequence.
-4. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-5. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
-6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-7. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
-8. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-9. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+1. Relationship between the room scene and question controls, including mobile behavior.
+2. Transition storyboards and the illustrated asset plan.
+3. Refine and approve the exact question inventory.
+4. Final room-zone set and sequence.
+5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
+6. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
+7. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+8. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
+9. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+10. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+11. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -366,20 +369,28 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - Defer the technical choice until implementation planning. Remotion is a candidate, not a commitment; the simplest performant approach should win.
 - Provide an immediate reduced-motion path without changing the questions or progress.
 
+### 2026-07-13 — Dimensional architectural illustration
+
+- Use illustrated room scenes with believable perspective and depth.
+- Carry the site's warm architectural paper, restrained linework, near-black ink, and limited green emphasis into the walkthrough.
+- Use material and furniture cues to make each zone legible without presenting a photorealistic final design.
+- Build scenes in layers that can support simple pans, pivots, or doorway transitions.
+- Avoid both photorealistic renders and game-like 3D presentation.
+
 ## Current Question
 
-What visual treatment should the fixed room scenes use?
+How should the questions coexist with each room scene?
 
-### A. Dimensional architectural illustration — recommended
+### A. Room-dominant split layout — recommended
 
-Use illustrated interiors with believable depth, restrained materials, architectural linework, warm paper tones, and limited H&H green. Layered scenes can pan or pivot between rooms without looking like a literal final design.
+Keep the illustrated room as the dominant surface and place one focused question panel beside it. On mobile, keep a compact room view above a bottom question card. The room remains visible while the customer answers.
 
-### B. Photorealistic architectural renders
+### B. Hotspots inside the room
 
-Use highly realistic rooms and rendered camera moves. This creates stronger immersion but costs more to produce, is heavier to deliver, and may make customers believe the pictured home or finishes are what they are selecting.
+Place clickable markers on objects and areas in the illustration. This feels more game-like, but important questions become easier to miss and harder to use with a keyboard, screen reader, or small phone.
 
-### C. Clean stylized 3D scenes
+### C. Full room followed by a separate form screen
 
-Use simplified 3D geometry with consistent lighting and materials. This makes camera movement straightforward, but it risks feeling like a configurator or game instead of Howeth and Harp's restrained architectural brand.
+Show the scene and transition first, then replace it with a conventional full-width question page. This is simple, but the walkthrough feeling disappears while customers make their selections.
 
-The recommendation is **A**. It aligns with the site's drafting identity, supports simple motion, and preserves enough abstraction that the visuals frame the questions without promising a specific design.
+The recommendation is **A**. It keeps the home present without hiding questions or sacrificing clarity. The scene supplies emotion and context; the dedicated panel keeps the interaction simple and intuitive.
