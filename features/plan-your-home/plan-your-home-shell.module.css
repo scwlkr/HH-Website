@@ -209,9 +209,14 @@
   transform-origin: 82% 50%;
 }
 
-.moment[data-tour-beat="primary-hall-transition"] .momentScene {
+.sceneBeat[data-tour-beat="kitchen-hall-to-primary"] {
   animation: primary-hall-turn 420ms ease both;
-  transform-origin: 86% 54%;
+  transform-origin: 18% 52%;
+}
+
+.moment[data-tour-beat="bedroom-hall-transition"] .momentScene {
+  animation: bedroom-hall-pivot 420ms ease both;
+  transform-origin: 88% 54%;
 }
 
 @keyframes exterior-arrive {
@@ -230,6 +235,11 @@
 }
 
 @keyframes primary-hall-turn {
+  from { opacity: 0.74; transform: translateX(-1.5%) scale(1.012); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes bedroom-hall-pivot {
   from { opacity: 0.74; transform: translateX(-1.5%) scale(1.012); }
   to { opacity: 1; transform: translateX(0) scale(1); }
 }

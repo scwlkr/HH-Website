@@ -308,7 +308,7 @@ test("question 15 retries one Kitchen and Dining checkpoint and enters the prima
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The primary hall is just beyond the dining room.",
+        name: "Where should the primary suite be located?",
       }),
     ),
   );
@@ -332,7 +332,13 @@ test("question 15 retries one Kitchen and Dining checkpoint and enters the prima
   assert.equal(clientDraft.revision, 3);
   assert.equal(clientDraft.kitchenAndDiningCheckpointKey, calls[0].idempotencyKey);
 
-  await user.click(query.getByRole("button", { name: "Back to dining" }));
+  assert.equal(
+    view.container.querySelector(
+      '[data-tour-beat="kitchen-hall-to-primary"][data-reduced-motion="true"]',
+    ) !== null,
+    true,
+  );
+  await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", { name: "How should dining work in the home?" }),
