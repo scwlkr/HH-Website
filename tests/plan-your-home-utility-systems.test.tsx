@@ -312,7 +312,11 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
     }
     return {
       status: "success",
-      result: { draftId, revision: 6, applied: false },
+      result: {
+        draftId,
+        revision: calls.length === 3 ? 7 : 6,
+        applied: calls.length !== 2,
+      },
     };
   };
   const { view, query } = await renderUtility(checkpointDraft);
@@ -396,5 +400,31 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
     (query.getByRole("checkbox", { name: "Smart controls" }) as HTMLInputElement)
       .checked,
     true,
+  );
+
+  await user.click(query.getByRole("button", { name: "Save room" }));
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", {
+        name: "The back door opens to the exterior.",
+      }),
+    ),
+  );
+  assert.equal(calls.length, 2, "An unchanged boundary crossing must not write again.");
+
+  await user.click(query.getByRole("button", { name: "Back to home systems" }));
+  await user.click(query.getByRole("checkbox", { name: "Smart controls" }));
+  await user.click(query.getByRole("button", { name: "Save room" }));
+  await waitFor(() =>
+    assert.equal(calls.length, 3),
+  );
+  assert.notEqual(calls[2].idempotencyKey, calls[0].idempotencyKey);
+  assert.equal(calls[2].expectedRevision, 6);
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", {
+        name: "The back door opens to the exterior.",
+      }),
+    ),
   );
 });

@@ -599,6 +599,7 @@ export function PlanYourHomeShell({
   const [saving, setSaving] = useState(false);
   const [showBedroomHallBoundary, setShowBedroomHallBoundary] = useState(false);
   const [showUtilityHallBoundary, setShowUtilityHallBoundary] = useState(false);
+  const utilityCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
@@ -610,6 +611,13 @@ export function PlanYourHomeShell({
         setTourState(restored);
         setWelcomeName(restored.welcomeName);
         setDraftAnswers({ ...initialDraftAnswers(), ...restored.answers });
+        if (restored.checkpointedZoneIds.includes("utility-and-systems")) {
+          utilityCheckpointAnswers.current = Object.fromEntries(
+            planHomeQuestions
+              .slice(0, UTILITY_AND_SYSTEMS_LAST_QUESTION)
+              .map((question) => [question.id, restored.answers[question.id]]),
+          );
+        }
         if (restored.contactCheckpoint) {
           setContactFields({
             email: restored.contactCheckpoint.email,
@@ -730,6 +738,21 @@ export function PlanYourHomeShell({
       }
 
       if (saving) return false;
+      const checkpointAnswers = Object.fromEntries(
+        planHomeQuestions
+          .slice(0, checkpointBoundary.answerCount)
+          .map((item) => [item.id, answered.state.answers[item.id]]),
+      );
+      if (
+        checkpointBoundary.zoneId === "utility-and-systems" &&
+        utilityCheckpointAnswers.current &&
+        JSON.stringify(utilityCheckpointAnswers.current) ===
+          JSON.stringify(checkpointAnswers)
+      ) {
+        setError(null);
+        commitState(advanced.state);
+        return true;
+      }
       const checkpointKey =
         clientDraft[checkpointBoundary.keyField] ??
         createIdempotencyKey(`zone:${checkpointBoundary.zoneId}`);
@@ -747,11 +770,7 @@ export function PlanYourHomeShell({
         expectedRevision: clientDraft.revision,
         idempotencyKey: checkpointKey,
         completedZoneId: checkpointBoundary.zoneId,
-        answers: Object.fromEntries(
-          planHomeQuestions
-            .slice(0, checkpointBoundary.answerCount)
-            .map((item) => [item.id, answered.state.answers[item.id]]),
-        ),
+        answers: checkpointAnswers,
       });
       setSaving(false);
       if (result.status !== "success") {
@@ -769,6 +788,9 @@ export function PlanYourHomeShell({
       };
       createPlanHomeClientDraftAdapter(window.localStorage).save(nextClientDraft);
       setClientDraft(nextClientDraft);
+      if (checkpointBoundary.zoneId === "utility-and-systems") {
+        utilityCheckpointAnswers.current = structuredClone(checkpointAnswers);
+      }
       setError(null);
       commitState(checkpointed.state);
       if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
@@ -872,6 +894,18 @@ export function PlanYourHomeShell({
     if (!transition.error) commitState(transition.state);
   }
 
+  function backFromExteriorBoundary() {
+    if (clientDraft) {
+      const editableDraft = {
+        ...clientDraft,
+        utilityAndSystemsCheckpointKey: null,
+      } satisfies PlanHomeClientDraftState;
+      createPlanHomeClientDraftAdapter(window.localStorage).save(editableDraft);
+      setClientDraft(editableDraft);
+    }
+    backFromBoundary();
+  }
+
   const activeQuestion =
     tourState.location.kind === "question"
       ? getPlanHomeQuestion(tourState.location.questionId)
@@ -926,7 +960,7 @@ export function PlanYourHomeShell({
   ) {
     content = (
       <ExteriorBackDoorBoundary
-        onBack={backFromBoundary}
+        onBack={backFromExteriorBoundary}
         reducedMotion={reducedMotion}
       />
     );
@@ -1002,7 +1036,7 @@ export function PlanYourHomeShell({
   } else {
     content = (
       <ExteriorBackDoorBoundary
-        onBack={backFromBoundary}
+        onBack={backFromExteriorBoundary}
         reducedMotion={reducedMotion}
       />
     );
