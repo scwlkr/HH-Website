@@ -369,6 +369,48 @@ test(
         PlanHomeDraftConflictError,
       );
 
+      const utilityCheckpoint = {
+        draftId: created.draftId,
+        expectedRevision: 5,
+        idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:utility-and-systems`,
+        completedZoneId: "utility-and-systems",
+        answers: answersThrough(25),
+      };
+      const utilityCheckpointResult = await repository.checkpointDraft(
+        utilityCheckpoint,
+        sessionTokenHash,
+      );
+      assert.equal(utilityCheckpointResult.applied, true);
+      assert.equal(utilityCheckpointResult.revision, 6);
+      assert.deepEqual(utilityCheckpointResult.progress, {
+        currentPromptId: "exterior.garage",
+        currentZoneId: "exterior-and-site",
+        completedZoneIds: [
+          "project-and-living",
+          "kitchen-and-dining",
+          "primary-suite",
+          "bedrooms-and-shared-bathrooms",
+          "utility-and-systems",
+        ],
+      });
+      assert.deepEqual(
+        await repository.checkpointDraft(utilityCheckpoint, sessionTokenHash),
+        { ...utilityCheckpointResult, applied: false },
+      );
+
+      const conflictingUtilityAnswers = answersThrough(25);
+      conflictingUtilityAnswers["home.systems"] = ["generator"];
+      await assert.rejects(
+        repository.checkpointDraft(
+          {
+            ...utilityCheckpoint,
+            answers: conflictingUtilityAnswers,
+          },
+          sessionTokenHash,
+        ),
+        PlanHomeDraftConflictError,
+      );
+
       const finalDraft = (
         await firestore
           .collection("inquirySubmissions")
@@ -376,21 +418,22 @@ test(
           .get()
       ).data();
       assert(finalDraft, "The final draft must exist.");
-      assert.equal(finalDraft.revision, 5);
+      assert.equal(finalDraft.revision, 6);
       assert.equal(
         finalDraft.answers["home.heated-square-feet"],
         createInput.answers["home.heated-square-feet"],
       );
       assert.equal(finalDraft.derived.finishLevel, "builder-grade");
-      assert.equal(Object.keys(finalDraft.answers).length, 21);
+      assert.equal(Object.keys(finalDraft.answers).length, 25);
       assert.deepEqual(finalDraft.progress, {
-        currentPromptId: "utility.laundry",
-        currentZoneId: "utility-and-systems",
+        currentPromptId: "exterior.garage",
+        currentZoneId: "exterior-and-site",
         completedZoneIds: [
           "project-and-living",
           "kitchen-and-dining",
           "primary-suite",
           "bedrooms-and-shared-bathrooms",
+          "utility-and-systems",
         ],
       });
       assert.equal(
@@ -436,8 +479,36 @@ test(
         "Hall bath",
       );
       assert.equal(
+        summarizePlanHomeAnswer(
+          "utility.laundry",
+          finalDraft.answers["utility.laundry"],
+        ),
+        "Near bedrooms",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "utility.mudroom",
+          finalDraft.answers["utility.mudroom"],
+        ),
+        "Shoes and coats",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "utility.storage",
+          finalDraft.answers["utility.storage"],
+        ),
+        "Linens",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "home.systems",
+          finalDraft.answers["home.systems"],
+        ),
+        "Energy efficiency",
+      );
+      assert.equal(
         Object.keys(finalDraft.checkpointIdempotency).length,
-        4,
+        5,
       );
 
       const legacyDocument = (
