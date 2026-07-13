@@ -1,5 +1,4 @@
-.scene,
-.threshold {
+.scene {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -108,52 +107,9 @@
   font-size: 0.62rem;
 }
 
-.threshold .scene {
-  filter: saturate(0.9);
-  transform: translateX(-3%) scale(1.025);
-  transform-origin: 84% 52%;
-}
-
-.hallReveal {
-  position: absolute;
-  inset: 0 0 0 58%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-left: 1px solid rgba(37, 55, 70, 0.36);
-  background:
-    linear-gradient(90deg, rgba(233, 238, 226, 0.18), rgba(220, 230, 216, 0.86)),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 3.5rem,
-      rgba(37, 55, 70, 0.08) 3.5rem calc(3.5rem + 1px)
-    );
-  clip-path: polygon(28% 12%, 100% 0, 100% 100%, 28% 88%);
-}
-
-.hallReveal span {
-  border-block: 1px solid rgba(37, 55, 70, 0.48);
-  padding: 0.7rem 1rem;
-  color: rgba(37, 55, 70, 0.72);
-  font-family: var(--font-code), monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 @media (max-width: 40rem) {
   .sceneCaption {
     bottom: 7%;
     left: 5%;
-  }
-
-  .hallReveal {
-    inset-inline-start: 50%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .threshold .scene {
-    transform: none;
   }
 }

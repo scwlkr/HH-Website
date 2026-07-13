@@ -117,14 +117,3 @@ export function KitchenDiningScene({
     </div>
   );
 }
-
-export function PrimaryHallThresholdScene() {
-  return (
-    <div className={styles.threshold} aria-hidden="true">
-      <KitchenDiningScene activeAnchor="dining-table" />
-      <div className={styles.hallReveal}>
-        <span>Primary hall</span>
-      </div>
-    </div>
-  );
-}

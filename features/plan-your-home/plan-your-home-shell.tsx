@@ -572,24 +572,24 @@ export function PlanYourHomeShell({
 
     const checkpointBoundary =
       question.number === PROJECT_AND_LIVING_LAST_QUESTION
-        ? ({
-            zoneId: "project-and-living",
-            answerCount: PROJECT_AND_LIVING_LAST_QUESTION,
-            keyField: "projectAndLivingCheckpointKey",
-          } as const)
-          : question.number === KITCHEN_AND_DINING_LAST_QUESTION
           ? ({
-              zoneId: "kitchen-and-dining",
-              answerCount: KITCHEN_AND_DINING_LAST_QUESTION,
-              keyField: "kitchenAndDiningCheckpointKey",
+              zoneId: "project-and-living",
+              answerCount: PROJECT_AND_LIVING_LAST_QUESTION,
+              keyField: "projectAndLivingCheckpointKey",
             } as const)
-          : question.number === PRIMARY_SUITE_LAST_QUESTION
+          : question.number === KITCHEN_AND_DINING_LAST_QUESTION
             ? ({
-                zoneId: "primary-suite",
-                answerCount: PRIMARY_SUITE_LAST_QUESTION,
-                keyField: "primarySuiteCheckpointKey",
+                zoneId: "kitchen-and-dining",
+                answerCount: KITCHEN_AND_DINING_LAST_QUESTION,
+                keyField: "kitchenAndDiningCheckpointKey",
               } as const)
-          : null;
+            : question.number === PRIMARY_SUITE_LAST_QUESTION
+              ? ({
+                  zoneId: "primary-suite",
+                  answerCount: PRIMARY_SUITE_LAST_QUESTION,
+                  keyField: "primarySuiteCheckpointKey",
+                } as const)
+              : null;
 
     if (checkpointBoundary) {
       commitState(answered.state);
