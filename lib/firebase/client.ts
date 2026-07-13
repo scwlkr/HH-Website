@@ -1,5 +1,6 @@
 import { getApp, getApps, initializeApp, type FirebaseOptions } from "firebase/app";
 import {
+  connectAuthEmulator,
   getAuth,
   inMemoryPersistence,
   setPersistence,
@@ -29,7 +30,20 @@ export function getFirebaseClientAuth(): Auth {
   }
 
   const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-  return getAuth(app);
+  const auth = getAuth(app);
+  const authEmulatorHost =
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST?.trim();
+
+  if (authEmulatorHost && auth.emulatorConfig === null) {
+    const authEmulatorUrl = authEmulatorHost.startsWith("http://") ||
+      authEmulatorHost.startsWith("https://")
+      ? authEmulatorHost
+      : `http://${authEmulatorHost}`;
+
+    connectAuthEmulator(auth, authEmulatorUrl, { disableWarnings: true });
+  }
+
+  return auth;
 }
 
 export async function signInForAdminSession(email: string, password: string) {

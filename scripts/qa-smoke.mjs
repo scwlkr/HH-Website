@@ -1,7 +1,16 @@
 import http from "node:http";
 import { once } from "node:events";
 import { spawn } from "node:child_process";
+import { deleteApp, initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 import { chromium } from "playwright";
+
+const smokeAdmin = {
+  email: "firebase-admin-smoke@example.com",
+  password: "FirebaseSmokePassword123!",
+  uid: "firebase-admin-smoke",
+};
 
 function log(message) {
   process.stdout.write(`${message}\n`);
@@ -29,63 +38,62 @@ async function getAvailablePort() {
   return port;
 }
 
-async function startFakeSupabaseServer(port) {
-  const state = {
-    mode: "success",
-    requests: [],
-  };
+function getFirebaseEmulatorConfig() {
+  const projectId =
+    process.env.GCLOUD_PROJECT?.trim() ||
+    process.env.GOOGLE_CLOUD_PROJECT?.trim() ||
+    process.env.FIREBASE_PROJECT_ID?.trim();
+  const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST?.trim();
+  const firestoreHost = process.env.FIRESTORE_EMULATOR_HOST?.trim();
 
-  const server = http.createServer((request, response) => {
-    if (
-      request.method === "POST" &&
-      request.url?.startsWith("/rest/v1/inquiry_submissions")
-    ) {
-      let body = "";
-
-      request.on("data", (chunk) => {
-        body += chunk;
-      });
-
-      request.on("end", () => {
-        state.requests.push({
-          body,
-          headers: request.headers,
-          url: request.url ?? "",
-        });
-
-        if (state.mode === "fail-next") {
-          state.mode = "success";
-          response.writeHead(500, {
-            "content-type": "application/json",
-          });
-          response.end(JSON.stringify({ message: "forced smoke failure" }));
-          return;
-        }
-
-        response.writeHead(201, {
-          "content-type": "application/json",
-        });
-        response.end(JSON.stringify([{ id: `smoke-${state.requests.length}` }]));
-      });
-
-      return;
-    }
-
-    response.writeHead(404, {
-      "content-type": "application/json",
-    });
-    response.end(JSON.stringify({ message: "not found" }));
-  });
-
-  server.listen(port, "127.0.0.1");
-  await once(server, "listening");
+  assert(
+    projectId,
+    "Firebase smoke QA requires GCLOUD_PROJECT, GOOGLE_CLOUD_PROJECT, or FIREBASE_PROJECT_ID.",
+  );
+  assert(
+    authHost,
+    "Firebase smoke QA requires the Authentication emulator.",
+  );
+  assert(
+    firestoreHost,
+    "Firebase smoke QA requires the Firestore emulator.",
+  );
 
   return {
-    state,
-    async close() {
-      await new Promise((resolve) => server.close(resolve));
-    },
+    authHost,
+    firestoreHost,
+    projectId,
   };
+}
+
+async function seedAdminUser(projectId) {
+  log("Seeding an authorized admin in the Authentication emulator...");
+
+  const app = initializeApp(
+    { projectId },
+    `qa-smoke-${process.pid}-${Date.now()}`,
+  );
+  const auth = getAuth(app);
+
+  try {
+    const existingUser = await auth.getUserByEmail(smokeAdmin.email);
+    await auth.deleteUser(existingUser.uid);
+  } catch (error) {
+    if (error?.code !== "auth/user-not-found") {
+      await deleteApp(app);
+      throw error;
+    }
+  }
+
+  await auth.createUser({
+    email: smokeAdmin.email,
+    emailVerified: true,
+    password: smokeAdmin.password,
+    uid: smokeAdmin.uid,
+  });
+  await auth.setCustomUserClaims(smokeAdmin.uid, { role: "admin" });
+
+  return app;
 }
 
 async function waitForServer(baseUrl, childProcess) {
@@ -352,7 +360,7 @@ async function fillInquiryForm(page, overrides = {}) {
     timeline: "3-6-months",
     budgetRange: "1m-2m",
     projectDescription:
-      "This smoke test brief verifies the guided inquiry flow, submission handling, and success redirect without depending on a live Supabase project.",
+      "This smoke test brief verifies the guided inquiry flow, Firebase emulator persistence, and success redirect without touching production data.",
     ...overrides,
   };
 
@@ -400,15 +408,23 @@ async function fillInquiryForm(page, overrides = {}) {
   return submission;
 }
 
-function readLastSubmissionPayload(fakeSupabase) {
-  const lastRequest = fakeSupabase.state.requests.at(-1);
-  assert(lastRequest, "Expected the fake Supabase server to receive a submission.");
+async function readInquirySubmission({ email, firestore }) {
+  const snapshot = await firestore
+    .collection("inquirySubmissions")
+    .where("email", "==", email)
+    .limit(1)
+    .get();
+  const document = snapshot.docs[0];
 
-  const parsedBody = JSON.parse(lastRequest.body);
-  return Array.isArray(parsedBody) ? parsedBody[0] : parsedBody;
+  assert(
+    document,
+    `Expected Firestore emulator to contain the inquiry for ${email}.`,
+  );
+
+  return document.data();
 }
 
-async function verifyInquiryFailureState(browser, baseUrl, fakeSupabase) {
+async function verifyInquiryFailureState(browser, baseUrl) {
   log("Checking inquiry validation and safe failure handling...");
   const page = await browser.newPage();
 
@@ -419,8 +435,6 @@ async function verifyInquiryFailureState(browser, baseUrl, fakeSupabase) {
       .last()
       .evaluate((button) => button.click());
     await page.getByText("Please share your name.").waitFor();
-
-    fakeSupabase.state.mode = "fail-next";
 
     await page.goto(`${baseUrl}/inquire`, { waitUntil: "networkidle" });
     await fillInquiryForm(page, {
@@ -435,12 +449,20 @@ async function verifyInquiryFailureState(browser, baseUrl, fakeSupabase) {
         "The project brief could not be sent right now. Please try again in a moment or email H&H directly.",
       )
       .waitFor();
+    assert(
+      new URL(page.url()).pathname === "/inquire",
+      "A failed Firestore write must keep the visitor on the inquiry form.",
+    );
   } finally {
     await page.close();
   }
 }
 
-async function verifyInquirySuccess(browser, baseUrl, fakeSupabase) {
+async function verifyInquirySuccess(
+  browser,
+  baseUrl,
+  firestore,
+) {
   log("Checking inquiry success path...");
   const page = await browser.newPage();
 
@@ -463,38 +485,98 @@ async function verifyInquirySuccess(browser, baseUrl, fakeSupabase) {
       submitButton.click(),
     ]);
 
-    const payload = readLastSubmissionPayload(fakeSupabase);
+    const fields = await readInquirySubmission({
+      email: submission.email,
+      firestore,
+    });
 
-    assert(payload.name === submission.name, "Submitted name did not reach persistence.");
     assert(
-      payload.finish_level === submission.finishLevel,
-      "Submitted finish level did not reach persistence.",
+      fields.name === submission.name,
+      "Submitted name did not reach Firestore.",
     );
     assert(
-      payload.project_type === submission.projectType,
-      "Submitted project type did not reach persistence.",
+      fields.finishLevel === submission.finishLevel,
+      "Submitted finish level did not reach Firestore.",
+    );
+    assert(
+      fields.projectType === submission.projectType,
+      "Submitted project type did not reach Firestore.",
+    );
+    assert(
+      fields.status === "new",
+      "Submitted inquiry did not receive the new status in Firestore.",
     );
   } finally {
     await page.close();
   }
 }
 
+async function verifyAdminAuth(browser, baseUrl) {
+  log("Checking Firebase admin login, protected routes, and logout...");
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  try {
+    await page.goto(`${baseUrl}/admin/projects`, { waitUntil: "networkidle" });
+
+    const loginUrl = new URL(page.url());
+    assert(
+      loginUrl.pathname === "/admin/login",
+      "Unauthenticated admin access must redirect to the login page.",
+    );
+    assert(
+      loginUrl.searchParams.get("next") === "/admin/projects",
+      "Protected-route redirect must preserve the requested admin path.",
+    );
+
+    await page.getByLabel("Email").fill(smokeAdmin.email);
+    await page.getByLabel("Password").fill(smokeAdmin.password);
+    await page.getByRole("button", { name: "Sign In" }).click();
+    await page.waitForURL(`${baseUrl}/admin/projects`);
+    await page.getByText(smokeAdmin.email).waitFor();
+    await page.getByRole("heading", { name: "Completed Homes" }).waitFor();
+
+    await page.getByRole("button", { name: "Sign Out" }).click();
+    await page.waitForURL(`${baseUrl}/admin/login?signed_out=1`);
+    await page.getByText("You have been signed out.").waitFor();
+
+    await page.goto(`${baseUrl}/admin/projects`, { waitUntil: "networkidle" });
+    assert(
+      new URL(page.url()).pathname === "/admin/login",
+      "Logged-out admin access must return to the login page.",
+    );
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
+  const firebaseEmulators = getFirebaseEmulatorConfig();
   const appPort = await getAvailablePort();
-  const fakeSupabasePort = await getAvailablePort();
-  const fakeSupabase = await startFakeSupabaseServer(fakeSupabasePort);
+  const failureAppPort = await getAvailablePort();
+  const unavailableFirestorePort = await getAvailablePort();
   const qaEnv = {
+    FIREBASE_PROJECT_ID: firebaseEmulators.projectId,
     NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${appPort}`,
-    SUPABASE_URL: `http://127.0.0.1:${fakeSupabasePort}`,
-    SUPABASE_SERVICE_ROLE_KEY: "smoke-service-role",
+    NEXT_PUBLIC_FIREBASE_API_KEY: "firebase-emulator-api-key",
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: `${firebaseEmulators.projectId}.firebaseapp.com`,
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID: firebaseEmulators.projectId,
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: `${firebaseEmulators.projectId}.firebasestorage.app`,
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "123456789012",
+    NEXT_PUBLIC_FIREBASE_APP_ID: "1:123456789012:web:firebase-emulator-smoke",
+    NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST: firebaseEmulators.authHost,
     HH_CONTACT_PHONE_HREF: "tel:+15125550199",
     HH_CONTACT_PHONE_LABEL: "(512) 555-0199",
   };
 
   let nextServer;
+  let failureServer;
   let browser;
+  let adminApp;
 
   try {
+    adminApp = await seedAdminUser(firebaseEmulators.projectId);
+
     log("Building the production app under smoke-test env...");
     await runNpmScript({
       script: "build",
@@ -515,10 +597,25 @@ async function main() {
     await verifyPrefillBehavior(page, nextServer.baseUrl);
     await verifyResponsiveLayouts(browser, nextServer.baseUrl);
     await page.close();
-    await verifyInquiryFailureState(browser, nextServer.baseUrl, fakeSupabase);
-    await verifyInquirySuccess(browser, nextServer.baseUrl, fakeSupabase);
+    await verifyInquirySuccess(
+      browser,
+      nextServer.baseUrl,
+      getFirestore(adminApp),
+    );
+    await verifyAdminAuth(browser, nextServer.baseUrl);
 
-    log("Phase 7 smoke QA passed.");
+    log("Starting a second app instance against an unavailable Firestore port...");
+    failureServer = await startNextServer({
+      port: failureAppPort,
+      env: {
+        ...qaEnv,
+        FIRESTORE_PREFER_REST: "true",
+        FIRESTORE_EMULATOR_HOST: `127.0.0.1:${unavailableFirestorePort}`,
+      },
+    });
+    await verifyInquiryFailureState(browser, failureServer.baseUrl);
+
+    log("Firebase emulator smoke QA passed.");
   } catch (error) {
     if (
       error instanceof Error &&
@@ -529,14 +626,21 @@ async function main() {
       );
     }
 
-    if (nextServer) {
-      const { stdout, stderr } = nextServer.getLogs();
+    for (const [label, server] of [
+      ["Next server", nextServer],
+      ["Failure-path Next server", failureServer],
+    ]) {
+      if (!server) {
+        continue;
+      }
+
+      const { stdout, stderr } = server.getLogs();
       if (stdout.trim()) {
-        log("\nNext server stdout:");
+        log(`\n${label} stdout:`);
         log(stdout.trim());
       }
       if (stderr.trim()) {
-        log("\nNext server stderr:");
+        log(`\n${label} stderr:`);
         log(stderr.trim());
       }
     }
@@ -551,7 +655,13 @@ async function main() {
       await nextServer.close();
     }
 
-    await fakeSupabase.close();
+    if (failureServer) {
+      await failureServer.close();
+    }
+
+    if (adminApp) {
+      await deleteApp(adminApp);
+    }
   }
 }
 
