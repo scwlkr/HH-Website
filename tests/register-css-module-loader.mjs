@@ -1,3 +1,4 @@
-import { register } from "node:module";
+import { registerHooks } from "node:module";
+import { load } from "./css-module-loader.mjs";
 
-register("./css-module-loader.mjs", import.meta.url);
+registerHooks({ load });

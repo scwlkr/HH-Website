@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { cleanup, render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
-import { dom } from "./dom-setup.mjs";
 import {
   ChoicePrompt,
   CountPrompt,
@@ -31,6 +30,14 @@ const basicOptions = [
   { slug: "not-sure-yet", label: "Not sure yet", semantic: "uncertain" as const },
 ];
 
+function requireQuestion(id: string) {
+  const question = getPlanHomeQuestion(id);
+  if (!question) {
+    throw new Error(`Missing test question ${id}.`);
+  }
+  return question;
+}
+
 test("choice renderer exposes a named radio group and keyboard state", async () => {
   function Harness() {
     const [value, setValue] = useState<string | null>(null);
@@ -46,17 +53,17 @@ test("choice renderer exposes a named radio group and keyboard state", async () 
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   const first = query.getByRole("radio", { name: "First choice" });
   const second = query.getByRole("radio", { name: "Second choice" });
 
   await user.tab();
-  assert.equal(dom.window.document.activeElement, first);
+  assert.equal(window.document.activeElement, first);
   await user.keyboard("{ArrowDown}");
   assert.equal((second as HTMLInputElement).checked, true);
-  assert.equal(second, dom.window.document.activeElement);
+  assert.equal(second, window.document.activeElement);
   assert.match(
     query.getByRole("group", { name: "Choose one direction" }).getAttribute(
       "aria-describedby",
@@ -81,7 +88,7 @@ test("multi-choice renderer enforces limits and exclusive choices", async () => 
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   await user.click(query.getByRole("checkbox", { name: "First choice" }));
@@ -137,7 +144,7 @@ test("grouped renderer gives every subgroup its own legend and state", async () 
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   await user.click(query.getByRole("radio", { name: "First choice" }));
@@ -178,7 +185,7 @@ test("short text renderer labels optional input, error, count, and uncertainty",
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   const input = query.getByRole("textbox", { name: /Target area/ });
@@ -192,8 +199,7 @@ test("short text renderer labels optional input, error, count, and uncertainty",
 });
 
 test("count renderer uses discrete radios for every required count", async () => {
-  const question = getPlanHomeQuestion("home.bed-bath-counts");
-  assert.ok(question);
+  const question = requireQuestion("home.bed-bath-counts");
 
   function Harness() {
     const [value, setValue] = useState<Record<string, string | null>>({
@@ -211,7 +217,7 @@ test("count renderer uses discrete radios for every required count", async () =>
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   const groups = query.getAllByRole("group");
@@ -251,7 +257,7 @@ test("priority renderer is fully operable with selects and reports limits", asyn
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   await user.selectOptions(
@@ -330,7 +336,7 @@ test("references renderer validates links/files and exposes notes and remove", a
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   const linkInput = query.getByRole("textbox", { name: "Website link" });
@@ -342,7 +348,7 @@ test("references renderer validates links/files and exposes notes and remove", a
   await user.click(query.getByRole("button", { name: "Add link" }));
   assert.ok(query.getByRole("textbox", { name: /Note for example.com/ }));
 
-  const file = new dom.window.File(["plan"], "plan.pdf", {
+  const file = new File(["plan"], "plan.pdf", {
     type: "application/pdf",
   });
   const fileInput = view.container.querySelector('input[type="file"]');
@@ -354,9 +360,8 @@ test("references renderer validates links/files and exposes notes and remove", a
 });
 
 test("scene stage moves focus, announces concise progress, and skips delay for reduced motion", async () => {
-  const first = getPlanHomeQuestion("home.heated-square-feet");
-  const second = getPlanHomeQuestion("home.stories");
-  assert.ok(first && second);
+  const first = requireQuestion("home.heated-square-feet");
+  const second = requireQuestion("home.stories");
   const zone = planHomeZones[0];
 
   function Harness() {
@@ -379,7 +384,7 @@ test("scene stage moves focus, announces concise progress, and skips delay for r
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   await user.click(query.getByRole("button", { name: "Next" }));
@@ -387,7 +392,7 @@ test("scene stage moves focus, announces concise progress, and skips delay for r
     name: second.prompt,
     level: 1,
   });
-  assert.equal(dom.window.document.activeElement, heading);
+  assert.equal(window.document.activeElement, heading);
   assert.equal(
     view.container.querySelector("[data-transition-state]")?.getAttribute(
       "data-transition-state",
@@ -405,9 +410,8 @@ test("scene stage moves focus, announces concise progress, and skips delay for r
 });
 
 test("scene stage exposes transition lifecycle and associated reducer errors", async () => {
-  const first = getPlanHomeQuestion("home.heated-square-feet");
-  const second = getPlanHomeQuestion("home.stories");
-  assert.ok(first && second);
+  const first = requireQuestion("home.heated-square-feet");
+  const second = requireQuestion("home.stories");
 
   function Harness() {
     const [question, setQuestion] = useState(first);
@@ -440,7 +444,7 @@ test("scene stage exposes transition lifecycle and associated reducer errors", a
     );
   }
 
-  const user = userEvent.setup({ document: dom.window.document });
+  const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
   const stage = view.container.querySelector("[data-transition-state]");
@@ -457,8 +461,7 @@ test("scene stage exposes transition lifecycle and associated reducer errors", a
 });
 
 test("representative scene stage has no detectable automated accessibility violations", async () => {
-  const question = getPlanHomeQuestion("home.heated-square-feet");
-  assert.ok(question);
+  const question = requireQuestion("home.heated-square-feet");
   const group = question.response.optionGroups[0];
   const view = render(
     <main>

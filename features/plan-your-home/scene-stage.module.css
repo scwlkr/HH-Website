@@ -308,12 +308,9 @@
   }
 
   .stageActions {
-    position: sticky;
-    bottom: 0;
-    z-index: 4;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     margin-inline: -0.25rem;
-    padding: 0.75rem 0.25rem 0.25rem;
-    background: linear-gradient(180deg, transparent, var(--hh-surface) 28%);
+    padding-inline: 0.25rem;
   }
 }
 
