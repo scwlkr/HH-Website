@@ -22,7 +22,7 @@ The smoke suite builds the app, starts a local production server, and checks:
 - project brief server-error handling
 - success redirect and persistence payload shape
 
-The script starts isolated Firebase Auth and Firestore emulators, so local smoke QA does not write to the production project.
+The script starts isolated Firebase Auth, Firestore, and Storage emulators, so local smoke QA does not write to the production project.
 
 ## Environment Checklist
 

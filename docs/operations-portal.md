@@ -23,7 +23,7 @@ The shared authorization helper is `lib/firebase/admin-access.ts`. Do not duplic
 
 To grant access, set the Firebase Auth user's custom claim to `{ "role": "admin" }` with trusted admin tooling. Never accept role data from the browser.
 
-To remove access, remove that role or change it to another value. The user may need to sign out and back in after role changes.
+To remove access immediately, remove or change the role and revoke that user's refresh tokens (or disable the user). Session-cookie verification checks revocation. A claim change alone may not take effect until the existing session expires or the user signs in again.
 
 ## Managed Data
 
@@ -77,6 +77,8 @@ Public data helpers live in `lib/db/operations.ts`. They use cache tags so admin
 Project image files use Firebase Storage at `projects/{projectId}/{file}`. Each Firestore project document embeds image IDs, paths, alt text, sort order, cover status, and download-token URLs.
 
 Firebase Storage provisioning requires the Blaze plan. Direct Firebase SDK reads and writes stay disabled; Firebase Admin owns writes and issues download-token URLs for public image display.
+
+Each HHQ save accepts up to 4 MB of new images combined so the request remains below Vercel's Function payload limit.
 
 ## Demo Seed
 

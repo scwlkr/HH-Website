@@ -53,7 +53,7 @@ Marketing content for finish levels, build types, FAQ, legal copy, and route met
 2. `app/inquire/actions.ts` receives `FormData`.
 3. `lib/validation/inquiry.ts` extracts, normalizes, and validates values.
 4. The honeypot and in-memory IP rate limiter reject obvious spam.
-5. `lib/db/queries.ts` inserts a valid inquiry into `inquiry_submissions`.
+5. `lib/db/queries.ts` inserts a valid inquiry into `inquirySubmissions`.
 6. The user redirects to `/thank-you` after a successful submission.
 
 ### Projects And Pricing
@@ -116,10 +116,6 @@ HHQ is intentionally more utilitarian than the public site. It should stay fast,
 
 ## Known Launch Gaps
 
-- Enable Firebase Auth email/password sign-in, Firestore, and Firebase Storage.
-- Upgrade Firebase to Blaze before provisioning Storage.
-- Configure Vercel OIDC and Workload Identity Federation.
-- Set preview and production environment variables.
 - Replace placeholder gallery assets with final production imagery.
 - Confirm final public phone and email details.
 - Choose and connect the production analytics destination.

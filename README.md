@@ -2,7 +2,7 @@
 
 > Drafting-board public site, project brief funnel, and HHQ operations workspace for Howeth and Harp.
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.1-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.10-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-149ECA?style=flat&logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-24.x-5FA04E?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -102,7 +102,7 @@ docs/         Current manual path and deprecated historical docs
 
 ## Launch State
 
-The core public routes, structured inquiry flow, Firebase-backed projects/pricing path, protected HHQ admin surface, and smoke test script are present. Launch still depends on production environment values, Firebase Auth and Storage readiness, owner-approved legal content, final contact details, final production imagery, and the selected analytics destination.
+The core public routes, structured inquiry flow, Firebase-backed projects/pricing path, protected HHQ admin surface, and emulator-backed smoke suite are operational. Remaining launch decisions are owner-approved legal content, final contact details, final production imagery, and the selected analytics destination.
 
 ## Contributing
 

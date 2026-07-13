@@ -11,7 +11,7 @@ The project brief at `/inquire` is the primary conversion flow. It collects stru
 | Server action | `app/inquire/actions.ts` | Receives the submitted `FormData`. |
 | Validation | `lib/validation/inquiry.ts` | Extracts, normalizes, sanitizes, and validates values with Zod. |
 | Rate limit | `lib/inquiry/rate-limit.ts` | Applies a basic in-memory IP submission limit. |
-| Persistence | `lib/db/queries.ts` | Inserts valid submissions into `inquiry_submissions`. |
+| Persistence | `lib/db/queries.ts` | Inserts valid submissions into `inquirySubmissions`. |
 | Success | `app/thank-you/page.tsx` | Confirms submission and provides direct-contact fallback. |
 
 ## Submission Pipeline
