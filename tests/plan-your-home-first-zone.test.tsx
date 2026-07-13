@@ -302,7 +302,7 @@ test("refresh restores before and after contact; question 11 checkpoints all fir
   await waitFor(() =>
     assert.ok(
       resumed.getByRole("heading", {
-        name: "The kitchen is through the opening.",
+        name: "How will the kitchen be used most often?",
       }),
     ),
   );
