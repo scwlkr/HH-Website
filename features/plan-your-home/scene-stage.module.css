@@ -1,0 +1,337 @@
+.stage {
+  --stage-gutter: clamp(0.75rem, 3.8vw, 2.25rem);
+  position: relative;
+  width: min(100%, 78rem);
+  margin-inline: auto;
+  overflow: clip;
+  border-block: 1px solid var(--hh-line-strong);
+  background:
+    linear-gradient(90deg, transparent 0 8%, var(--hh-draft-ink-faint) 8% calc(8% + 1px), transparent calc(8% + 1px)),
+    color-mix(in srgb, var(--hh-surface) 54%, var(--hh-paper));
+  isolation: isolate;
+}
+
+.stageRail {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7.5rem, 24rem);
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.5rem;
+  padding: 0.7rem var(--stage-gutter);
+  border-bottom: 1px solid var(--hh-line);
+  background: color-mix(in srgb, var(--hh-paper) 90%, transparent);
+}
+
+.zoneLabel,
+.progressLabel,
+.questionNumber,
+.cameraMark,
+.stageError span {
+  font-family: var(--font-code), monospace;
+  text-transform: uppercase;
+}
+
+.zoneLabel {
+  max-width: 36rem;
+  color: var(--hh-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+}
+
+.progressLabel {
+  margin-top: 0.25rem;
+  color: var(--hh-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.progress {
+  width: 100%;
+  height: 0.35rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--hh-line);
+  color: var(--hh-accent);
+  appearance: none;
+}
+
+.progress::-webkit-progress-bar {
+  background: var(--hh-line);
+}
+
+.progress::-webkit-progress-value {
+  background: var(--hh-accent);
+}
+
+.progress::-moz-progress-bar {
+  background: var(--hh-accent);
+}
+
+.sceneWindow {
+  position: relative;
+  min-height: clamp(17rem, 52svh, 32rem);
+  overflow: hidden;
+  background:
+    linear-gradient(var(--hh-draft-ink-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hh-draft-ink-faint) 1px, transparent 1px),
+    color-mix(in srgb, var(--hh-paper-deep) 55%, var(--hh-surface));
+  background-size: var(--hh-grid-size) var(--hh-grid-size);
+}
+
+.sceneCamera {
+  position: absolute;
+  inset: -7%;
+  transform: translate3d(var(--scene-camera-x), var(--scene-camera-y), 0)
+    scale(var(--scene-camera-scale));
+  transform-origin: 50% 54%;
+  transition: transform 180ms ease, opacity 120ms ease;
+  will-change: transform, opacity;
+}
+
+.stage[data-transition-state="exiting"][data-transition-direction="next"]
+  .sceneCamera {
+  opacity: 0;
+  transform: translate3d(calc(var(--scene-camera-x) - 1.5%), var(--scene-camera-y), 0)
+    scale(calc(var(--scene-camera-scale) + 0.018));
+}
+
+.stage[data-transition-state="exiting"][data-transition-direction="back"]
+  .sceneCamera {
+  opacity: 0;
+  transform: translate3d(calc(var(--scene-camera-x) + 1.5%), var(--scene-camera-y), 0)
+    scale(calc(var(--scene-camera-scale) - 0.018));
+}
+
+.cameraMark {
+  position: absolute;
+  right: var(--stage-gutter);
+  bottom: 1rem;
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  border-block: 1px solid var(--hh-line-ink);
+  padding-inline: 1.1rem;
+  background: color-mix(in srgb, var(--hh-paper) 86%, transparent);
+  color: var(--hh-muted-strong);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+}
+
+.promptLayer {
+  position: relative;
+  z-index: 3;
+  width: min(100% - (var(--stage-gutter) * 2), 48rem);
+  margin: clamp(-2.75rem, -5vw, -1.5rem) auto 0;
+  padding-bottom: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.promptSheet {
+  position: relative;
+  padding: clamp(1.1rem, 4vw, 2rem);
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  background:
+    linear-gradient(90deg, transparent 0 1.5rem, var(--hh-draft-ink-faint) 1.5rem calc(1.5rem + 1px), transparent calc(1.5rem + 1px)),
+    color-mix(in srgb, var(--hh-surface) 96%, var(--hh-paper));
+  box-shadow: var(--hh-shadow-panel);
+  transition: opacity 120ms ease, transform 180ms ease;
+}
+
+.promptSheet::before,
+.promptSheet::after {
+  position: absolute;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-color: var(--hh-line-ink);
+  content: "";
+  pointer-events: none;
+}
+
+.promptSheet::before {
+  top: 0.55rem;
+  left: 0.55rem;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.promptSheet::after {
+  right: 0.55rem;
+  bottom: 0.55rem;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.stage[data-transition-state="exiting"] .promptSheet {
+  opacity: 0;
+  transform: translateY(0.45rem);
+}
+
+.stage[data-transition-state="entering"] .promptSheet {
+  animation: prompt-enter 180ms ease both;
+}
+
+.promptHeader {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: clamp(0.75rem, 3vw, 1.25rem);
+  align-items: start;
+}
+
+.questionNumber {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hh-line-strong);
+  color: var(--hh-accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.promptHeading {
+  max-width: 38rem;
+  font-size: clamp(1.35rem, 4.8vw, 2rem);
+  line-height: 1.15;
+  outline: none;
+}
+
+.promptHeading:focus-visible {
+  border-radius: var(--hh-radius-tight);
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+}
+
+.promptHelper {
+  max-width: 40rem;
+  margin-top: 0.65rem;
+  color: var(--hh-muted-strong);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.stageError {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+  border-left: 3px solid var(--hh-accent);
+  padding: 0.8rem 1rem;
+  background: var(--hh-accent-soft);
+  color: var(--hh-ink);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.stageError span {
+  color: var(--hh-accent-strong);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.promptBody {
+  margin-top: clamp(1.25rem, 4vw, 2rem);
+}
+
+.stageActions {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.55fr) minmax(9rem, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--hh-line);
+}
+
+.actionButton {
+  min-width: 0;
+  min-height: 2.75rem;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes prompt-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 40rem) {
+  .stageRail {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .sceneWindow {
+    min-height: min(44svh, 23rem);
+  }
+
+  .cameraMark {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+
+  .promptLayer {
+    width: calc(100% - 1rem);
+    margin-top: -1.75rem;
+  }
+
+  .promptSheet {
+    padding-inline: 1rem;
+    background: color-mix(in srgb, var(--hh-surface) 97%, var(--hh-paper));
+  }
+
+  .promptHeader {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .questionNumber {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .stageActions {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+    margin-inline: -0.25rem;
+    padding: 0.75rem 0.25rem 0.25rem;
+    background: linear-gradient(180deg, transparent, var(--hh-surface) 28%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sceneCamera,
+  .promptSheet {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .stage[data-transition-state="exiting"] .sceneCamera {
+    opacity: 1;
+    transform: translate3d(var(--scene-camera-x), var(--scene-camera-y), 0)
+      scale(var(--scene-camera-scale));
+  }
+
+  .stage[data-transition-state="exiting"] .promptSheet {
+    opacity: 1;
+    transform: none;
+  }
+}

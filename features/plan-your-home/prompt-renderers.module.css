@@ -1,0 +1,400 @@
+.promptStack,
+.groupedPrompt,
+.countPrompt {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend,
+.textLabel,
+.linkAdder > label,
+.customPriority > label,
+.referenceList label {
+  color: var(--hh-ink);
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.legend {
+  width: 100%;
+  padding: 0 0 0.55rem;
+  border-bottom: 1px solid var(--hh-line);
+}
+
+.instructions,
+.characterCount {
+  margin-top: 0.5rem;
+  color: var(--hh-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.error {
+  margin-top: 0.55rem;
+  border-left: 2px solid var(--hh-accent);
+  padding: 0.45rem 0.65rem;
+  background: var(--hh-accent-soft);
+  color: var(--hh-accent-strong);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.optionGrid[data-columns="1"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.optionGrid[data-columns="3"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.option {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-tight);
+  background: color-mix(in srgb, var(--hh-surface) 84%, var(--hh-paper));
+  color: var(--hh-ink);
+  cursor: pointer;
+  font-size: 0.86rem;
+  line-height: 1.35;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.option:hover {
+  border-color: var(--hh-accent);
+}
+
+.option:focus-within {
+  border-color: var(--hh-accent);
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+}
+
+.option:has(.nativeControl:checked) {
+  border-color: var(--hh-accent);
+  background: var(--hh-accent-soft);
+}
+
+.nativeControl {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+}
+
+.radioMark,
+.checkboxMark {
+  display: block;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid var(--hh-line-ink);
+  background: var(--hh-surface);
+}
+
+.radioMark {
+  border-radius: 50%;
+}
+
+.checkboxMark {
+  border-radius: 0.16rem;
+}
+
+.nativeControl:checked + .radioMark {
+  border: 0.32rem solid var(--hh-accent);
+}
+
+.nativeControl:checked + .checkboxMark {
+  border-color: var(--hh-accent);
+  background:
+    linear-gradient(135deg, transparent 0 42%, white 42% 52%, transparent 52%) 0.02rem 0.05rem / 0.58rem 0.66rem no-repeat,
+    linear-gradient(45deg, transparent 0 47%, white 47% 58%, transparent 58%) 0.42rem 0.02rem / 0.68rem 0.8rem no-repeat,
+    var(--hh-accent);
+}
+
+.textLabel {
+  display: block;
+  margin-top: 0.85rem;
+}
+
+.textLabel span {
+  color: var(--hh-muted);
+  font-weight: 400;
+}
+
+.textControl,
+.priorityRow select,
+.customPriority input,
+.customPriority select,
+.linkAdder input,
+.linkAdder button,
+.referenceList textarea,
+.referenceHeading button {
+  min-height: 2.75rem;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-input);
+  background: var(--hh-surface);
+  color: var(--hh-ink);
+  font: inherit;
+}
+
+.textControl {
+  width: 100%;
+  margin-top: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  resize: vertical;
+}
+
+.textControl:disabled {
+  background: var(--hh-paper-deep);
+  color: var(--hh-muted);
+}
+
+.textControl:focus-visible,
+.priorityRow select:focus-visible,
+.customPriority input:focus-visible,
+.customPriority select:focus-visible,
+.linkAdder input:focus-visible,
+.linkAdder button:focus-visible,
+.referenceList textarea:focus-visible,
+.referenceHeading button:focus-visible,
+.fileButton:focus-within,
+.standaloneCheck:focus-within {
+  border-color: var(--hh-accent);
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+  outline: none;
+}
+
+.characterCount {
+  margin-top: 0.3rem;
+  text-align: right;
+}
+
+.standaloneCheck {
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: 0.85rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--hh-line);
+  border-radius: var(--hh-radius-tight);
+  cursor: pointer;
+  font-size: 0.84rem;
+}
+
+.standaloneCheck input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--hh-accent);
+}
+
+.priorityList,
+.customPriority,
+.referenceActions,
+.referenceList {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.priorityRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.55fr);
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--hh-line);
+}
+
+.priorityRow label {
+  font-size: 0.84rem;
+}
+
+.priorityRow select,
+.customPriority input,
+.customPriority select,
+.linkAdder input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+}
+
+.customPriority {
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.55fr);
+  align-items: end;
+  margin-top: 1.25rem;
+  padding: 0.85rem;
+  border: 1px solid var(--hh-line);
+  background: color-mix(in srgb, var(--hh-paper) 66%, transparent);
+}
+
+.customPriority > label:last-of-type {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.referenceActions {
+  grid-template-columns: minmax(8rem, 0.35fr) minmax(0, 1fr);
+  align-items: end;
+}
+
+.fileButton {
+  position: relative;
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hh-accent);
+  border-radius: var(--hh-radius-pill);
+  background: var(--hh-accent);
+  color: white;
+  cursor: pointer;
+  font-family: var(--font-code), monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.fileButton input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.linkAdder > label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.linkAdder > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem;
+}
+
+.linkAdder button,
+.referenceHeading button {
+  padding-inline: 0.8rem;
+  border-color: var(--hh-accent);
+  color: var(--hh-accent-strong);
+  cursor: pointer;
+  font-family: var(--font-code), monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.referenceList {
+  padding: 0;
+  list-style: none;
+}
+
+.referenceList li {
+  padding: 0.85rem;
+  border: 1px solid var(--hh-line);
+  background: color-mix(in srgb, var(--hh-paper) 58%, transparent);
+}
+
+.referenceHeading {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: start;
+  margin-bottom: 0.65rem;
+}
+
+.referenceHeading strong,
+.referenceHeading span {
+  display: block;
+}
+
+.referenceHeading strong {
+  overflow-wrap: anywhere;
+  font-size: 0.84rem;
+}
+
+.referenceHeading div > span {
+  margin-top: 0.2rem;
+  color: var(--hh-muted);
+  font-size: 0.72rem;
+}
+
+.referenceList label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.referenceList textarea {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  resize: vertical;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 40rem) {
+  .optionGrid,
+  .optionGrid[data-columns="3"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .priorityRow,
+  .customPriority,
+  .referenceActions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .customPriority > label:last-of-type {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .linkAdder > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .referenceHeading {
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option {
+    transition: none;
+  }
+}

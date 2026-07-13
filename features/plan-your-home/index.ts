@@ -72,3 +72,25 @@ export type {
   StorageLike,
 } from "./local-snapshot";
 export { PlanYourHomeShell } from "./plan-your-home-shell";
+export { NeutralDevelopmentScene } from "./neutral-development-scene";
+export {
+  ChoicePrompt,
+  CountPrompt,
+  GroupedChoicePrompt,
+  MultiChoicePrompt,
+  PriorityPrompt,
+  PromptStack,
+  ReferencesPrompt,
+  ShortTextPrompt,
+} from "./prompt-renderers";
+export type {
+  GroupedChoiceValue,
+  PriorityCategory,
+  PriorityPromptValue,
+  ReferencePromptItem,
+} from "./prompt-renderers";
+export { SceneStage } from "./scene-stage";
+export type {
+  SceneCameraFrame,
+  SceneStageNavigationResult,
+} from "./scene-stage";
