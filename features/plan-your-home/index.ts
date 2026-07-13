@@ -36,12 +36,39 @@ export type {
 export {
   completePlanHomeAnswerMapSchema,
   localDraftSnapshotSchema,
+  localTourProgressSchema,
   partialPlanHomeAnswerMapSchema,
+  planHomeContactCheckpointSchema,
   submittedProjectBriefSchema,
 } from "./schemas";
 export type {
   LocalDraftSnapshot,
+  LocalTourProgress,
   PartialPlanHomeAnswerMap,
+  PlanHomeContactCheckpoint,
   SubmittedProjectBrief,
 } from "./schemas";
+export {
+  createInitialPlanHomeTourState,
+  isPlanHomeSubmissionReady,
+  reducePlanHomeTour,
+  validatePlanHomeTourState,
+} from "./tour-state";
+export type {
+  PlanHomeTourCommand,
+  PlanHomeTourErrorCode,
+  PlanHomeTourEvent,
+  PlanHomeTourLocation,
+  PlanHomeTourState,
+  PlanHomeTourTransition,
+} from "./tour-state";
+export {
+  createPlanHomeLocalSnapshotAdapter,
+  PLAN_HOME_LOCAL_SNAPSHOT_KEY,
+  PLAN_HOME_LOCAL_SNAPSHOT_TTL_MS,
+} from "./local-snapshot";
+export type {
+  PlanHomeLocalSnapshotDependencies,
+  StorageLike,
+} from "./local-snapshot";
 export { PlanYourHomeShell } from "./plan-your-home-shell";
