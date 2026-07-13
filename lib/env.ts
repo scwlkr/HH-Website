@@ -29,12 +29,6 @@ function readSiteUrl() {
   return fallbackSiteUrl;
 }
 
-function readSupabaseUrl() {
-  return normalizeAbsoluteUrl(
-    readOptionalEnv("NEXT_PUBLIC_SUPABASE_URL") ?? readOptionalEnv("SUPABASE_URL"),
-  );
-}
-
 function normalizePhoneHref(value: string | undefined) {
   if (!value) {
     return undefined;
@@ -57,10 +51,16 @@ const contactPhoneHref = normalizePhoneHref(
 const contactEmailAddress = normalizeEmailAddress(
   readOptionalEnv("HH_CONTACT_EMAIL"),
 );
-const supabaseUrl = readSupabaseUrl();
-const supabaseAnonKey =
-  readOptionalEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY") ??
-  readOptionalEnv("SUPABASE_ANON_KEY");
+const firebaseApiKey = readOptionalEnv("NEXT_PUBLIC_FIREBASE_API_KEY");
+const firebaseAuthDomain = readOptionalEnv("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN");
+const firebaseProjectId = readOptionalEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID");
+const firebaseStorageBucket = readOptionalEnv(
+  "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+);
+const firebaseMessagingSenderId = readOptionalEnv(
+  "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+);
+const firebaseAppId = readOptionalEnv("NEXT_PUBLIC_FIREBASE_APP_ID");
 
 export const env = {
   siteUrl: readSiteUrl(),
@@ -71,7 +71,18 @@ export const env = {
     ? readOptionalEnv("HH_CONTACT_PHONE_LABEL") ??
       contactPhoneHref.replace(/^tel:/, "")
     : undefined,
-  supabaseUrl,
-  supabaseAnonKey,
-  hasSupabasePublicEnv: Boolean(supabaseUrl && supabaseAnonKey),
+  firebaseApiKey,
+  firebaseAuthDomain,
+  firebaseProjectId,
+  firebaseStorageBucket,
+  firebaseMessagingSenderId,
+  firebaseAppId,
+  hasFirebasePublicEnv: Boolean(
+    firebaseApiKey &&
+      firebaseAuthDomain &&
+      firebaseProjectId &&
+      firebaseStorageBucket &&
+      firebaseMessagingSenderId &&
+      firebaseAppId,
+  ),
 } as const;

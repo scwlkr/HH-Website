@@ -4,8 +4,8 @@ import { AdminNotice } from "@/components/admin/admin-notice";
 import { BrandWordmark } from "@/components/brand/brand-logo";
 import { Container } from "@/components/layout/container";
 import { adminBrand, formatAdminPageTitle } from "@/lib/admin/branding";
+import { isFirebaseAuthConfigured } from "@/lib/firebase/auth";
 import { createPageMetadata } from "@/lib/metadata";
-import { isSupabaseAuthConfigured } from "@/lib/supabase/server";
 
 export const metadata: Metadata = createPageMetadata({
   title: formatAdminPageTitle("Login"),
@@ -52,10 +52,10 @@ export default async function AdminLoginPage({
           </p>
 
           <div className="mt-6 space-y-4">
-            {!isSupabaseAuthConfigured() ? (
+            {!isFirebaseAuthConfigured() ? (
               <AdminNotice tone="error">
-                Supabase auth is not configured yet. Add `NEXT_PUBLIC_SUPABASE_URL`
-                and `NEXT_PUBLIC_SUPABASE_ANON_KEY` before using HHQ.
+                Firebase auth is not configured yet. Add the public Firebase web
+                app settings before using HHQ.
               </AdminNotice>
             ) : null}
 

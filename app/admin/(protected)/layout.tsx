@@ -1,6 +1,6 @@
 import { AdminShell } from "@/components/admin/admin-shell";
 import { logoutAdminAction } from "@/app/admin/actions";
-import { requireAdminUser } from "@/lib/supabase/auth";
+import { requireAdminUser } from "@/lib/firebase/auth";
 
 export default async function ProtectedAdminLayout({
   children,

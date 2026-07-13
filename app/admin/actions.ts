@@ -4,9 +4,6 @@ import { updateTag } from "next/cache";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { adminBrand } from "@/lib/admin/branding";
-import { createSupabaseServerClient, isSupabaseAuthConfigured } from "@/lib/supabase/server";
-import { isAuthorizedAdminUser } from "@/lib/supabase/admin-access";
-import { requireAdminUser } from "@/lib/supabase/auth";
 import {
   getProjectSlugAvailability,
   pricingSettingsCacheTag,
@@ -15,20 +12,24 @@ import {
   upsertPricingSettings,
 } from "@/lib/db/operations";
 import {
+  AdminAuthorizationError,
+  clearAdminSession,
+  createAdminSession,
+  isFirebaseAuthConfigured,
+  requireAdminUser,
+} from "@/lib/firebase/auth";
+import {
   createAdminLoginServerErrorState,
   createPricingServerErrorState,
   createProjectServerErrorState,
-  getAdminLoginValues,
   getPricingFormValues,
   getProjectFormValues,
   getProjectUploads,
-  mapAdminLoginFieldErrors,
   mapPricingFieldErrors,
   mapProjectFieldErrors,
   parseExistingProjectImageInputs,
   toPricingWriteInput,
   toProjectWriteInput,
-  validateAdminLoginValues,
   validatePricingFormValues,
   validateProjectFormValues,
   validateProjectUploads,
@@ -42,80 +43,48 @@ import {
   type ProjectActionState,
 } from "@/types/operations";
 
-function normalizeNextPath(value: FormDataEntryValue | null) {
-  if (typeof value !== "string" || !value.startsWith("/admin")) {
-    return "/admin/projects" as Route;
-  }
-
-  return value as Route;
-}
-
 export async function loginAdminAction(
   previousState: AdminLoginActionState = adminLoginActionInitialState,
   formData: FormData,
 ): Promise<AdminLoginActionState> {
   void previousState;
 
-  if (!isSupabaseAuthConfigured()) {
+  if (!isFirebaseAuthConfigured()) {
     return createAdminLoginServerErrorState(
-      `Supabase auth is not configured. Add the public Supabase URL and anon key before using ${adminBrand.name}.`,
+      `Firebase auth is not configured. Add the public Firebase web app settings before using ${adminBrand.name}.`,
     );
   }
 
-  const values = getAdminLoginValues(formData);
-  const validationResult = validateAdminLoginValues(values);
+  const idToken = formData.get("idToken");
 
-  if (!validationResult.success) {
-    const fieldErrors = mapAdminLoginFieldErrors(validationResult.error);
-    console.warn("Admin login validation failed", {
-      fieldErrors,
-    });
-
-    return {
-      status: "field-error",
-      message: "Review the highlighted fields and try again.",
-      fieldErrors,
-    };
+  if (typeof idToken !== "string" || idToken.length === 0) {
+    return createAdminLoginServerErrorState(
+      `${adminBrand.name} login could not be completed right now.`,
+    );
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.signInWithPassword(validationResult.data);
-
-    if (error) {
-      return createAdminLoginServerErrorState(error.message);
-    }
-
-    if (!isAuthorizedAdminUser(user)) {
-      await supabase.auth.signOut();
+    await createAdminSession(idToken);
+  } catch (error) {
+    if (error instanceof AdminAuthorizationError) {
       return createAdminLoginServerErrorState(
         `This account is not authorized to access ${adminBrand.name}.`,
       );
     }
-  } catch (error) {
+
     console.error("Admin login failed", error);
     return createAdminLoginServerErrorState(
       `${adminBrand.name} login could not be completed right now.`,
     );
   }
 
-  redirect(normalizeNextPath(formData.get("next")));
+  return adminLoginActionInitialState;
 }
 
 export async function logoutAdminAction() {
-  if (isSupabaseAuthConfigured()) {
-    try {
-      const supabase = await createSupabaseServerClient();
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Admin logout failed", error);
-    }
-  }
+  await clearAdminSession();
 
-  redirect("/admin/login" as Route);
+  redirect("/admin/login?signed_out=1" as Route);
 }
 
 export async function saveProjectAction(
