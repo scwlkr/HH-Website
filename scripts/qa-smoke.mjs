@@ -628,6 +628,22 @@ async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
       );
     }
 
+    await firstPage.locator('input[name="galleryImages"]').setInputFiles({
+      name: "over-upload-limit.jpg",
+      mimeType: "image/jpeg",
+      buffer: Buffer.alloc(4 * 1024 * 1024 + 1),
+    });
+    await firstPage.getByRole("button", { name: "Save Project" }).click();
+    await firstPage
+      .getByText(
+        "All gallery uploads must be JPG, PNG, WebP, or AVIF and at most 4 MB.",
+      )
+      .waitFor();
+    assert(
+      (await readRevisionConflictProject(firestore)).revision === 0,
+      "An oversized project upload must not persist changes.",
+    );
+
     await firstPage
       .locator('input[name="title"]')
       .fill("Revision Conflict First Save");

@@ -25,27 +25,14 @@ let vercelOidcClient: BaseExternalAccountClient | null | undefined;
 let vercelOidcFirestore: GoogleCloudFirestore | undefined;
 let vercelOidcStorage: GoogleCloudStorage | undefined;
 
-type VercelOidcConfig = {
-  type: "external_account";
-  audience: string;
-  subject_token_type: "urn:ietf:params:oauth:token-type:jwt";
-  token_url: "https://sts.googleapis.com/v1/token";
-  service_account_impersonation_url: string;
-  subject_token_supplier: {
-    getSubjectToken: () => Promise<string>;
-  };
-};
-
-let vercelOidcConfig: VercelOidcConfig | null | undefined;
-
 function readOptionalEnv(name: string) {
   const value = process.env[name]?.trim();
   return value && value.length > 0 ? value : undefined;
 }
 
-function getVercelOidcConfig(): VercelOidcConfig | null {
-  if (vercelOidcConfig !== undefined) {
-    return vercelOidcConfig;
+function getVercelOidcClient(): BaseExternalAccountClient | null {
+  if (vercelOidcClient !== undefined) {
+    return vercelOidcClient;
   }
 
   const isVercelRuntime =
@@ -54,8 +41,8 @@ function getVercelOidcConfig(): VercelOidcConfig | null {
     Boolean(readOptionalEnv("VERCEL_TARGET_ENV"));
 
   if (!isVercelRuntime) {
-    vercelOidcConfig = null;
-    return vercelOidcConfig;
+    vercelOidcClient = null;
+    return vercelOidcClient;
   }
 
   const config = {
@@ -74,7 +61,7 @@ function getVercelOidcConfig(): VercelOidcConfig | null {
   }
 
   const providerResource = `//iam.googleapis.com/projects/${config.projectNumber}/locations/global/workloadIdentityPools/${config.workloadIdentityPoolId}/providers/${config.workloadIdentityPoolProviderId}`;
-  vercelOidcConfig = {
+  vercelOidcClient = ExternalAccountClient.fromJSON({
     type: "external_account",
     audience: providerResource,
     subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
@@ -83,24 +70,7 @@ function getVercelOidcConfig(): VercelOidcConfig | null {
     subject_token_supplier: {
       getSubjectToken: () => getVercelOidcToken(),
     },
-  };
-
-  return vercelOidcConfig;
-}
-
-function getVercelOidcClient(): BaseExternalAccountClient | null {
-  if (vercelOidcClient !== undefined) {
-    return vercelOidcClient;
-  }
-
-  const config = getVercelOidcConfig();
-
-  if (!config) {
-    vercelOidcClient = null;
-    return vercelOidcClient;
-  }
-
-  vercelOidcClient = ExternalAccountClient.fromJSON(config);
+  });
 
   if (!vercelOidcClient) {
     throw new Error("Vercel OIDC credentials could not be initialized.");
@@ -186,16 +156,23 @@ export function getFirebaseAdminFirestore(): GoogleCloudFirestore {
 }
 
 export function getFirebaseAdminStorage() {
-  const oidcConfig = getVercelOidcConfig();
+  const oidcClient = getActiveVercelOidcClient();
 
-  if (oidcConfig) {
-    // Storage 7 uses google-auth-library 9 internally. Let that version build
-    // the external-account client so its Authorization headers remain intact.
+  if (oidcClient) {
+    // Storage 7 wraps this v10 client with google-auth-library 9, which expects
+    // enumerable header properties rather than a WHATWG Headers instance.
+    const storageAuthClient = {
+      async getRequestHeaders() {
+        const headers = await oidcClient.getRequestHeaders();
+        return Object.fromEntries(headers.entries());
+      },
+    } as unknown as StorageOptions["authClient"];
+
     vercelOidcStorage ??= new GoogleCloudStorage({
       projectId:
         readOptionalEnv("GCP_PROJECT_ID") ??
         readOptionalEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID"),
-      credentials: oidcConfig as unknown as StorageOptions["credentials"],
+      authClient: storageAuthClient,
     });
     return vercelOidcStorage;
   }

@@ -1,4 +1,4 @@
-const adminUploadBodySizeLimit = "64mb";
+const adminUploadBodySizeLimit = "4.4mb";
 
 const nextConfig = {
   typedRoutes: true,

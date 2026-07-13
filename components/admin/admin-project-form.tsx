@@ -476,8 +476,8 @@ function AdminProjectFormFields({
           className="rounded-[var(--hh-radius-tight)] file:mr-3 file:rounded-[var(--hh-radius-tight)] file:border-0 file:bg-accent file:px-3 file:py-2 file:font-mono file:text-[0.68rem] file:uppercase file:tracking-[0.18em] file:text-[#f9f6ef]"
           helperText={
             project
-              ? "Optional. JPG, PNG, WebP, or AVIF up to 10 MB. Uploading a new cover image keeps older images unless removed below."
-              : "Required for new projects. JPG, PNG, WebP, or AVIF up to 10 MB."
+              ? "Optional. JPG, PNG, WebP, or AVIF up to 4 MB. Uploading a new cover image keeps older images unless removed below."
+              : "Required for new projects. JPG, PNG, WebP, or AVIF up to 4 MB."
           }
           error={state.fieldErrors.coverImage}
           required={!project}
@@ -490,7 +490,7 @@ function AdminProjectFormFields({
           multiple
           label="Add Gallery Images"
           className="rounded-[var(--hh-radius-tight)] file:mr-3 file:rounded-[var(--hh-radius-tight)] file:border file:border-line-strong file:bg-background file:px-3 file:py-2 file:font-mono file:text-[0.68rem] file:uppercase file:tracking-[0.18em] file:text-muted-strong"
-          helperText="Optional. Each image must be under 10 MB, and each save can upload up to 48 MB total."
+          helperText="Optional. Each image and each save can include up to 4 MB total."
           error={state.fieldErrors.galleryImages}
         />
       </div>

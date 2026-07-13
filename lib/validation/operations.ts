@@ -24,8 +24,8 @@ const buildTypeEnum = z.enum(buildTypeSlugs);
 const finishLevelEnum = z.enum(finishLevelSlugs);
 const projectStatusEnum = z.enum(projectStatusValues);
 
-const maxProjectImageBytes = 10 * 1024 * 1024;
-const maxProjectUploadTotalBytes = 48 * 1024 * 1024;
+const maxProjectImageBytes = 4 * 1024 * 1024;
+const maxProjectUploadTotalBytes = 4 * 1024 * 1024;
 const allowedProjectImageTypes = new Set([
   "image/jpeg",
   "image/png",
@@ -488,7 +488,7 @@ export function validateProjectUploads(input: {
   if (input.requireCoverImage && !validateImageFile(input.coverImage)) {
     return {
       fieldErrors: {
-        coverImage: "Upload a cover image as JPG, PNG, WebP, or AVIF (max 10 MB).",
+        coverImage: "Upload a cover image as JPG, PNG, WebP, or AVIF (max 4 MB).",
       } satisfies ProjectFieldErrors,
     };
   }
@@ -496,7 +496,7 @@ export function validateProjectUploads(input: {
   if (input.coverImage && !validateImageFile(input.coverImage)) {
     return {
       fieldErrors: {
-        coverImage: "Cover image must be JPG, PNG, WebP, or AVIF and under 10 MB.",
+        coverImage: "Cover image must be JPG, PNG, WebP, or AVIF and at most 4 MB.",
       } satisfies ProjectFieldErrors,
     };
   }
@@ -509,7 +509,7 @@ export function validateProjectUploads(input: {
     return {
       fieldErrors: {
         galleryImages:
-          "All gallery uploads must be JPG, PNG, WebP, or AVIF and under 10 MB.",
+          "All gallery uploads must be JPG, PNG, WebP, or AVIF and at most 4 MB.",
       } satisfies ProjectFieldErrors,
     };
   }
@@ -522,7 +522,7 @@ export function validateProjectUploads(input: {
     return {
       fieldErrors: {
         galleryImages:
-          "Combined cover and gallery uploads must stay under 48 MB per save.",
+          "Combined cover and gallery uploads must stay at or below 4 MB per save.",
       } satisfies ProjectFieldErrors,
     };
   }
