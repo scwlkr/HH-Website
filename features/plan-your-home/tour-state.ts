@@ -503,12 +503,15 @@ export function validatePlanHomeTourState(state: PlanHomeTourState) {
     issues.push("The tour state contains invalid reference metadata.");
   }
 
-  const expectedCompleted = orderedZoneIds(state.completedZoneIds);
+  const expectedCompleted = planHomeZoneIds.slice(
+    0,
+    state.completedZoneIds.length,
+  );
   if (
     expectedCompleted.length !== state.completedZoneIds.length ||
     expectedCompleted.some((zoneId, index) => zoneId !== state.completedZoneIds[index])
   ) {
-    issues.push("Completed zones must be unique and in registry order.");
+    issues.push("Completed zones must form a contiguous registry prefix.");
   }
   const expectedCheckpointed = orderedZoneIds(state.checkpointedZoneIds);
   if (

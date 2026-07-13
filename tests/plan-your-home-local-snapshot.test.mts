@@ -47,6 +47,39 @@ function namedState() {
   return transition.state;
 }
 
+function completedReviewState() {
+  let state = namedState();
+  let transition = reducePlanHomeTour(state, { type: "next" });
+  assert.equal(transition.error, null);
+  state = transition.state;
+
+  for (const question of planHomeQuestions) {
+    transition = reducePlanHomeTour(state, {
+      type: "answer-question",
+      questionId: question.id,
+      answer: question.response.exampleAnswer,
+    });
+    assert.equal(transition.error, null);
+    state = transition.state;
+
+    transition = reducePlanHomeTour(state, { type: "next" });
+    assert.equal(transition.error, null);
+    state = transition.state;
+
+    if (question.number === 6) {
+      transition = reducePlanHomeTour(state, {
+        type: "complete-contact-gate",
+        contact,
+      });
+      assert.equal(transition.error, null);
+      state = transition.state;
+    }
+  }
+
+  assert.deepEqual(state.location, { kind: "review" });
+  return state;
+}
+
 describe("Plan Your Home local snapshot adapter", () => {
   it("saves valid answer transitions and restores the exact prompt mid-zone", () => {
     const storage = new MemoryStorage();
@@ -170,6 +203,70 @@ describe("Plan Your Home local snapshot adapter", () => {
     storage.setItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY, JSON.stringify(impossible));
     assert.equal(adapter.load(), null);
     assert.equal(storage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY), null);
+  });
+
+  it("rejects and clears non-contiguous completed-zone progress", () => {
+    const storage = new MemoryStorage();
+    const adapter = createPlanHomeLocalSnapshotAdapter({
+      storage,
+      now: () => new Date("2026-07-13T12:00:00.000Z"),
+    });
+
+    assert.equal(adapter.save(namedState()), true);
+    const tampered = JSON.parse(
+      storage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) as string,
+    ) as {
+      answers: Record<string, unknown>;
+      progress: {
+        completedZoneIds: string[];
+        checkpointedZoneIds: string[];
+      };
+    };
+    tampered.answers = Object.fromEntries(
+      planHomeQuestions
+        .filter((question) => question.zoneId === "primary-suite")
+        .map((question) => [question.id, question.response.exampleAnswer]),
+    );
+    tampered.progress.completedZoneIds = ["primary-suite"];
+    tampered.progress.checkpointedZoneIds = [];
+    storage.setItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY, JSON.stringify(tampered));
+
+    assert.equal(adapter.load(), null);
+    assert.equal(storage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY), null);
+  });
+
+  it("restores completed review and review-edit locations with later answers intact", () => {
+    const storage = new MemoryStorage();
+    const adapter = createPlanHomeLocalSnapshotAdapter({
+      storage,
+      now: () => new Date("2026-07-13T12:00:00.000Z"),
+    });
+    const reviewState = completedReviewState();
+    const laterAnswer = structuredClone(
+      reviewState.answers["project.budget-timing"],
+    );
+
+    assert.equal(adapter.save(reviewState), true);
+    assert.deepEqual(adapter.load(), reviewState);
+
+    const editTransition = reducePlanHomeTour(reviewState, {
+      type: "jump-to-review-question",
+      questionId: "project.starting-services",
+    });
+    assert.equal(editTransition.error, null);
+    assert.equal(adapter.saveAfterTransition(editTransition), true);
+
+    const restoredEdit = adapter.load();
+    assert.deepEqual(restoredEdit, editTransition.state);
+    assert.deepEqual(restoredEdit?.location, {
+      kind: "question",
+      questionId: "project.starting-services",
+      editingFromReview: true,
+    });
+    assert.deepEqual(
+      restoredEdit?.answers["project.budget-timing"],
+      laterAnswer,
+    );
   });
 
   it("never writes and always rejects raw blobs or sensitive resume tokens", () => {
