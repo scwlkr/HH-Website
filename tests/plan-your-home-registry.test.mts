@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { describe, it } from "node:test";
 
 import {
@@ -90,6 +91,39 @@ describe("plan-home-v1 registry", () => {
       expectedQuestions,
     );
     assert.deepEqual(validatePlanHomeDefinition(planHomeV1Definition), []);
+  });
+
+  it("locks the complete public copy, stable slugs, limits, and scene bindings", () => {
+    const publicContract = planHomeV1Definition.questions.map((item) => ({
+      number: item.number,
+      id: item.id,
+      zoneId: item.zoneId,
+      prompt: item.prompt,
+      helper: "helper" in item ? item.helper : null,
+      sceneAnchor: item.sceneAnchor,
+      cameraKey: item.cameraKey,
+      optionGroups: item.response.optionGroups.map((group) => ({
+        id: group.id,
+        label: group.label,
+        maxSelections: "maxSelections" in group ? group.maxSelections : null,
+        exclusiveOptionSlugs:
+          "exclusiveOptionSlugs" in group ? group.exclusiveOptionSlugs : [],
+        options: group.options.map((item) => ({
+          slug: item.slug,
+          label: item.label,
+          semantic: item.semantic ?? null,
+        })),
+      })),
+      limits: "limits" in item.response ? item.response.limits : null,
+    }));
+    const fingerprint = createHash("sha256")
+      .update(JSON.stringify(publicContract))
+      .digest("hex");
+
+    assert.equal(
+      fingerprint,
+      "924a96c654f1e79f2f76dd4a76979f8b1da9e5d8231f5f76c6d10a709a173332",
+    );
   });
 
   it("keeps IDs, option slugs, scene anchors, camera keys, and defaults valid", () => {
