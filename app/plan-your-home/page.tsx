@@ -3,6 +3,10 @@ import {
   planYourHomeFeature,
   PlanYourHomeShell,
 } from "@/features/plan-your-home";
+import {
+  checkpointPlanHomeDraftAction,
+  createPlanHomeDraftAction,
+} from "@/app/plan-your-home/actions";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createPageMetadata({
@@ -15,5 +19,10 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default function PlanYourHomePage() {
-  return <PlanYourHomeShell />;
+  return (
+    <PlanYourHomeShell
+      createDraft={createPlanHomeDraftAction}
+      checkpointDraft={checkpointPlanHomeDraftAction}
+    />
+  );
 }

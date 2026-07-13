@@ -25,11 +25,17 @@ describe("Plan Your Home client draft metadata", () => {
     const adapter = createPlanHomeClientDraftAdapter(storage);
 
     assert.equal(
-      adapter.save({ createIdempotencyKey, draftId: null, revision: null }),
+      adapter.save({
+        createIdempotencyKey,
+        projectAndLivingCheckpointKey: null,
+        draftId: null,
+        revision: null,
+      }),
       true,
     );
     assert.deepEqual(adapter.load(), {
       createIdempotencyKey,
+      projectAndLivingCheckpointKey: null,
       draftId: null,
       revision: null,
     });
@@ -41,6 +47,8 @@ describe("Plan Your Home client draft metadata", () => {
     const adapter = createPlanHomeClientDraftAdapter(storage);
     const identified = {
       createIdempotencyKey,
+      projectAndLivingCheckpointKey:
+        "local-a2cbf314-5057-4f01-b10d-b77647c719f9:plan-home-v1:zone:project-and-living",
       draftId: `draft-${"a".repeat(40)}`,
       revision: 2,
     };
