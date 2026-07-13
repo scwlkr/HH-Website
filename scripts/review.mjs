@@ -4,7 +4,11 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
-const defaultRoutes = ["/", "/pricing", "/projects", "/faq", "/inquire"];
+const reviewRoutes = {
+  public: ["/", "/pricing", "/projects", "/faq", "/inquire"],
+  internal: ["/plan-your-home"],
+};
+const defaultRoutes = reviewRoutes.public;
 const baseUrl = new URL(
   process.env.REVIEW_URL?.trim() || "http://127.0.0.1:3000",
 ).origin;
@@ -24,7 +28,8 @@ function parseInput() {
   if (args.includes("--help") || args.includes("-h")) {
     process.stdout.write(
       "Usage: npm run review -- [/route ...]\n" +
-        "Env: REVIEW_URL=http://127.0.0.1:3000 REVIEW_VIEWPORTS=desktop,mobile\n",
+        "Env: REVIEW_URL=http://127.0.0.1:3000 REVIEW_VIEWPORTS=desktop,mobile\n" +
+        `Internal routes: ${reviewRoutes.internal.join(", ")}\n`,
     );
     process.exit(0);
   }

@@ -25,6 +25,13 @@ npm run review -- /pricing
 npm run review -- / /pricing /inquire
 ```
 
+Plan Your Home remains an internal build route. Open it directly at
+`http://127.0.0.1:3000/plan-your-home` or capture it with:
+
+```bash
+npm run review -- /plan-your-home
+```
+
 `npm run review` with no routes checks `/`, `/pricing`, `/projects`, `/faq`, and `/inquire`. It reuses the live server on port `3000`, or starts and stops an isolated dev server. Each route is checked at desktop and mobile sizes for HTTP failure, browser errors, and horizontal overflow.
 
 Review these ignored artifacts:
