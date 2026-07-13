@@ -26,6 +26,8 @@ At the end of the experience:
 - the customer sees a clear summary and can correct it before submitting
 - the submission starts a design conversation; it does not promise a final plan, specification, price, or build commitment
 
+The primary success test is whether H&H can enter the first customer meeting with enough context to ask informed design and fit questions instead of repeating basic intake. Completion, abandonment, and identifiable-draft conversion are supporting health metrics rather than the main goal.
+
 ## Existing Baseline
 
 The current five-step project brief already collects:
@@ -318,7 +320,7 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 - Treat desktop as a wider rendering of the same guided experience, not a separate form layout.
 - Ask only questions that improve qualification or the first H&H conversation.
 
-## Decisions To Resolve
+## Planning Details Still To Resolve
 
 1. Assistive-technology presentation for room-integrated controls.
 2. Transition storyboards and the illustrated asset plan.
@@ -326,7 +328,6 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 4. Inspiration: final file types, upload limits, link security, ownership language, and privacy.
 5. Draft retention, expiration, deletion, and resume-link delivery details.
 6. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-7. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -509,20 +510,20 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 - Preserve all existing questions; the merge removes one transition rather than removing intake content.
 - Treat this as the settled planning direction unless prototyping later reveals a clear pacing problem.
 
-## Current Question
+### 2026-07-13 — First-meeting preparedness is the primary outcome
 
-What should be the primary measure of success after launch?
+- Judge the experience primarily by whether H&H can start the first meeting with informed design and project-fit questions instead of repeating basic intake.
+- Use a lightweight internal review after early real inquiries to learn whether the brief was useful, what H&H still had to re-ask, and which answers created noise.
+- Track completion rate, abandonment by zone, identifiable-draft-to-submission conversion, and completion time as supporting health metrics.
+- Do not maximize form completion or early contact capture at the expense of the information H&H needs for a productive conversation.
 
-### A. Better-prepared first meetings — recommended
+## Brainstorming Checkpoint
 
-H&H should be able to review a submitted brief and begin the first meeting with informed design and fit questions instead of re-asking basic project information. Completion rate and abandonment remain supporting health metrics.
+The major product-direction decisions are aligned. No implementation is authorized by this document.
 
-### B. Completed project-brief volume
+The next planning pass should:
 
-Optimize primarily for the number and percentage of people who reach final submission. This is easy to measure but may reward shorter, less useful briefs.
-
-### C. Identifiable draft volume
-
-Optimize for how many visitors provide email and phone after the opening questions. This produces more follow-up opportunities but can overvalue incomplete, low-intent inquiries.
-
-The recommendation is **A**. The stated purpose is to give H&H more knowledge before follow-up, so meeting preparedness should lead while conversion metrics guard against excessive friction.
+1. refine the 35 working questions and exact answer sets
+2. storyboard each zone, integrated prompt location, and transition
+3. define upload, draft-retention, resume, accessibility, privacy, and security details
+4. produce an implementation plan only after H&H explicitly approves moving beyond brainstorming
