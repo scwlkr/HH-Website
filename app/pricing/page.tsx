@@ -36,6 +36,7 @@ export default async function PricingPage() {
       <PageIntro
         eyebrow={marketingPageContent.pricing.eyebrow}
         title={marketingPageContent.pricing.title}
+        lede={marketingPageContent.pricing.lede}
         description={marketingPageContent.pricing.description}
         detail={
           <div className="space-y-5">

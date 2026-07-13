@@ -43,7 +43,8 @@ export default async function ProjectsPage() {
     <>
       <PageIntro
         eyebrow="Completed Homes"
-        title="Completed work, held as a quiet archive."
+        title="Completed Work"
+        lede="A quiet archive of completed homes and project records."
         description="Projects are the primary proof surface for Howeth and Harp. The page stays image-led, minimal, and tied to published records."
         detail={
           <div className="space-y-5">

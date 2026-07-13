@@ -36,7 +36,7 @@ export default function Home() {
   return (
     <>
       <DraftingHero
-        headline="Advancing design, building, and land development."
+        headline="Design. Build. Develop."
         subhead="Howeth and Harp delivers architectural design, building, and land development with a disciplined eye for scope, site, and finish."
         capabilities={heroCapabilities}
         primaryCta={{ href: "/projects" as Route, label: "View Projects" }}

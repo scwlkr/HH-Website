@@ -26,9 +26,15 @@ colors:
 typography:
   headline-display:
     fontFamily: "IBM Plex Sans"
-    fontSize: 58px
+    fontSize: 64px
     fontWeight: 600
-    lineHeight: 1.04
+    lineHeight: 1.02
+    letterSpacing: 0em
+  headline-lede:
+    fontFamily: "IBM Plex Sans"
+    fontSize: 24px
+    fontWeight: 400
+    lineHeight: 1.38
     letterSpacing: 0em
   headline-lg:
     fontFamily: "IBM Plex Sans"
@@ -246,9 +252,9 @@ No separate red error palette has been established in the current implementation
 
 IBM Plex Sans is the website body and display font. IBM Plex Mono is reserved for labels, technical texture, utilities, small metadata, and drafting-sheet cues. Panchang must not be reintroduced on the website unless the brand guide is intentionally updated again.
 
-Headings use IBM Plex Sans with moderate weight, zero letter spacing, and tight-but-readable line height. The hero display treatment is large and calm, not decorative. Body text uses generous line height for credibility and scanning. Tiny all-caps mono labels remain secondary texture only; primary navigation, buttons, headings, and important content prioritize readability over extreme letter spacing.
+Headings use IBM Plex Sans with moderate weight, zero letter spacing, and tight-but-readable line height. Display titles are short noun phrases or compact statements: usually three to five words, no more than two lines on desktop, and no more than three lines on mobile. Longer ideas become regular-weight ledes rather than oversized bold sentences. Body text uses generous line height for credibility and scanning. Tiny all-caps mono labels remain secondary texture only; primary navigation, buttons, headings, and important content prioritize readability over extreme letter spacing.
 
-Use `typography.headline-display` for first-viewport hero hierarchy, `typography.headline-lg` for major section titles, `typography.headline-md` for card and subsection headings, `typography.body-md` or `typography.body-lg` for explanatory copy, and mono label tokens only for short UI labels, metadata, dividers, and tags.
+Use `typography.headline-display` only for short first-viewport titles, `typography.headline-lede` for the supporting thought, `typography.headline-lg` for major section titles, `typography.headline-md` for card and subsection headings, `typography.body-md` or `typography.body-lg` for explanatory copy, and mono label tokens only for short UI labels, metadata, dividers, and tags.
 
 ## Layout & Spacing
 

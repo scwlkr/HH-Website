@@ -63,7 +63,8 @@ export default async function InquirePage({
       />
       <PageIntro
         eyebrow="Project Brief"
-        title={`Share the project in a way that gives ${siteConfig.shortName} something real to respond to.`}
+        title="Start a Project"
+        lede={`Share enough context to give ${siteConfig.shortName} something real to respond to.`}
         description="This intake is structured to move from contact basics into category, finish direction, site context, and priorities without turning the process into a cold generic form."
         actions={
           <ActionLink

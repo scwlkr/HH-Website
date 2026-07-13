@@ -22,6 +22,7 @@ export default function CatalogPage() {
       <PageIntro
         eyebrow={marketingPageContent.catalog.eyebrow}
         title={marketingPageContent.catalog.title}
+        lede={marketingPageContent.catalog.lede}
         description={marketingPageContent.catalog.description}
         actions={
           <>

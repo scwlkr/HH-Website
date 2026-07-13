@@ -28,6 +28,7 @@ export default function ThankYouPage() {
       <PageIntro
         eyebrow={marketingPageContent.thankYou.eyebrow}
         title={marketingPageContent.thankYou.title}
+        lede={marketingPageContent.thankYou.lede}
         description={marketingPageContent.thankYou.description}
         actions={
           <>

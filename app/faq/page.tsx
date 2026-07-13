@@ -23,6 +23,7 @@ export default function FaqPage() {
       <PageIntro
         eyebrow={marketingPageContent.faq.eyebrow}
         title={marketingPageContent.faq.title}
+        lede={marketingPageContent.faq.lede}
         description={marketingPageContent.faq.description}
         detail={
           <p className="max-w-xs text-sm leading-7 text-muted">

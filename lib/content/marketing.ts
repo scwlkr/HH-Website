@@ -7,8 +7,7 @@ export const marketingPageContent = {
   home: {
     hero: {
       eyebrow: publicName,
-      title:
-        "Architectural design, building, and land development with measured discipline.",
+      title: "Design. Build. Develop.",
       description:
         `${publicName} aligns project type, finish strategy, and site realities early so the work starts from a clear brief instead of a scatter of disconnected decisions.`,
     },
@@ -48,9 +47,9 @@ export const marketingPageContent = {
     },
   },
   pricing: {
-    eyebrow: "Finish Levels",
-    title:
-      "Finish levels explain how the project is specified, coordinated, and ultimately experienced.",
+    eyebrow: "Pricing + Finish",
+    title: "Finish Levels",
+    lede: "Three approaches to specification, coordination, and finish.",
     description:
       "These categories are directional, not fixed-price packages. Final pricing depends on scope, site conditions, systems, and the degree of customization involved.",
     detail:
@@ -69,8 +68,10 @@ export const marketingPageContent = {
     },
   },
   catalog: {
-    eyebrow: "Project Categories",
-    title: `${publicName} handles project types that need planning discipline, finish clarity, and credible execution.`,
+    eyebrow: "Scope Register",
+    title: "Project Categories",
+    lede:
+      "Planning discipline, finish clarity, and credible execution across four project types.",
     description:
       `These categories show where ${publicName} works and how the work tends to organize. Each page explains the nature of the category and routes into the inquiry path.`,
     detail:
@@ -84,7 +85,9 @@ export const marketingPageContent = {
   },
   faq: {
     eyebrow: "FAQ",
-    title: "Common questions, grouped to reduce hesitation without turning the page into a wall of text.",
+    title: "Common Questions",
+    lede:
+      "Direct answers to the questions most likely to slow down a project decision.",
     description:
       "The questions stay short, the answers stay direct, and the page keeps practical objections from becoming a wall of copy.",
     detail:
@@ -98,7 +101,8 @@ export const marketingPageContent = {
   },
   thankYou: {
     eyebrow: "Submission Received",
-    title: "Your project brief is in and the next step is a direct follow-up.",
+    title: "Brief Received",
+    lede: "The next step is a direct follow-up.",
     description:
       "This page is the success destination for the inquiry flow. It confirms receipt, sets expectations for next steps, and keeps direct contact accessible if anything important needs to be added.",
     nextSteps: [
