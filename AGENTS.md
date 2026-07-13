@@ -12,3 +12,7 @@ the business naming is a little confusing, but the colloquial name should always
 
 Load: `./docs/devops.md `
 
+## git
+
+- commit frequently, and verify branches are synced
+- when using branches verify that you are using the right branch, and merge back to main as soon as possible. long lasting branches create clutter, and are not organzied easily
