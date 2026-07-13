@@ -112,6 +112,12 @@ The strongest fit is a middle layer between the two market extremes:
 
 The existing eight-zone route remains a good working hypothesis. Research suggests adding whole-home systems and comfort preferences to the utility zone, keeping lot and site questions prominent, and treating lifestyle and future-use questions as equally important as room features.
 
+### Square-Footage Bracket Check
+
+The [2025 U.S. Census Characteristics of New Housing](https://www.census.gov/construction/chars/highlights.html) reports a 2,142-square-foot median for completed new single-family homes and 2,194 square feet for new single-family homes sold. [Houseplans.com's size collections](https://www.houseplans.com/collection/sizes) use familiar 500-square-foot bands from 1,000 through 2,999 square feet, then broader large-home categories. This supports finer choices around the common middle and wider choices above 3,000 square feet.
+
+For this walkthrough, **heated square footage** means finished conditioned living area; it excludes garages, carports, porches, and unfinished space, consistent with the practical distinction in the [Census floor-area definition](https://www.census.gov/construction/soc/definitions.html).
+
 ## Draft Experience Shape
 
 This is a conversation starter, not an approved flow.
@@ -166,7 +172,7 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 4 | What total heated square footage are you considering? | Range or number plus not sure |
+| 4 | What total heated square footage are you considering? | Stepped range: under 1,000; 1,000–1,499; 1,500–1,999; 2,000–2,499; 2,500–2,999; 3,000–3,999; 4,000–4,999; 5,000+; or not sure yet |
 | 5 | How many stories are you considering? | One, one-and-a-half, two, more, or not sure |
 | 6 | How many bedrooms, full bathrooms, and half bathrooms do you expect? | Three compact steppers |
 | 7 | Who should this home support now and over the next five to ten years? | Adults, children, extended family, frequent guests, pets, aging needs, or other |
@@ -317,12 +323,11 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 2. Transition storyboards and the illustrated asset plan.
 3. Refine and approve the exact question inventory.
 4. Final room-zone set and sequence.
-5. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
-6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
-7. Draft retention, expiration, deletion, and resume-link delivery details.
-8. H&H review: incomplete drafts, submitted answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-9. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+5. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
+6. Draft retention, expiration, deletion, and resume-link delivery details.
+7. H&H review: incomplete drafts, submitted answers, generated summary, visual home map, lead scoring, and follow-up workflow.
+8. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+9. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -464,20 +469,28 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 - Disclose at the save-progress checkpoint that H&H may use the contact details to personally follow up about the project; do not imply they are used only for technical draft storage.
 - Let returning customers initiate resume from the site using a secure recovery flow; settle its exact verification method during implementation planning.
 
+### 2026-07-13 — One whole-home square-footage range
+
+- Ask for one approximate total heated-square-footage range; do not ask customers to allocate square footage by room.
+- Define heated square footage as finished conditioned living area, excluding garages, carports, porches, and unfinished spaces.
+- Use these research-aligned steps: **Under 1,000**, **1,000–1,499**, **1,500–1,999**, **2,000–2,499**, **2,500–2,999**, **3,000–3,999**, **4,000–4,999**, **5,000+**, and **Not sure yet**.
+- Present the choice as a simple stepped mobile control with a clearly displayed selected range; retain an equivalent semantic form control for accessibility.
+- Treat the answer as directional planning context, not a generated floor plan or constraint on later feature choices.
+
 ## Current Question
 
-How detailed should the square-footage question be?
+Where should customers add plans, photos, and website links?
 
-### A. One whole-home target — recommended
+### A. One Design Desk near the end — recommended
 
-Ask for one approximate total heated square-footage target using a simple range or number control, plus **Not sure yet**. Room questions capture priorities and features without asking customers to allocate square footage themselves.
+Keep the walkthrough moving, then gather PDFs, phone images, and repeatable website links in the final illustrated Design Desk zone. Each item can include a short optional note explaining what the customer likes.
 
-### B. Whole-home target plus room-size priorities
+### B. Upload within each relevant room
 
-Ask for total square footage, then let customers mark a few rooms as compact, average, or generous. This adds useful design context but introduces more repeated choices.
+Let customers attach kitchen inspiration in the kitchen, bathroom inspiration in the suite, and so on. Context is stronger, but upload controls interrupt several rooms and may feel repetitive.
 
-### C. Allocate square footage room by room
+### C. Both room uploads and a Design Desk
 
-Ask customers to estimate square footage for each major room or zone. This produces more numbers but feels like architectural programming and can create totals that do not account for circulation, walls, storage, and systems.
+Allow attachments throughout the walkthrough and provide a final place to organize them. This is flexible but adds the most interface and data-management complexity.
 
-The recommendation is **A**. It captures the useful scale signal without making customers solve a floor plan before meeting H&H.
+The recommendation is **A**. One dedicated visual workspace keeps the room flow simple while still collecting all reference material in a structured place.
