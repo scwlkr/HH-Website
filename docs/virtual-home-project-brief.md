@@ -10,7 +10,7 @@ This is the living discovery document for a future room-by-room inquiry experien
 
 Evolve the existing `/inquire` project brief into a visual journey through a representative home. A customer would establish the broad shape of the project, move through a fixed sequence of rooms, make selections, attach inspiration, and submit one coherent brief for H&H to review before following up.
 
-The illustrated home is an engaging way to navigate a long questionnaire. It does not generate or reconfigure a floor plan from the customer's answers. The experience should feel closer to walking through and describing a future home than filling out a conventional form.
+The illustrated home is an engaging way to navigate a long questionnaire. It does not generate or reconfigure a floor plan from the customer's answers. Short room-to-room animations should turn, pan, or move through a doorway so the experience feels spatial rather than like unrelated form pages. The experience should feel closer to walking through and describing a future home than filling out a conventional form.
 
 The customer-facing experience is called **Plan Your Home**. The structured result sent to H&H remains a **project brief**.
 
@@ -133,7 +133,7 @@ The walkthrough will use six to eight combined room zones and will not change ba
 7. **Outdoor Living and Specialty Spaces**
 8. **Design Desk and Inspiration**
 
-Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections.
+Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections. Moving forward or backward triggers a brief predesigned transition between the fixed room scenes.
 
 A customer selecting one bedroom sees the same rooms as a customer selecting five bedrooms. A bedroom scene represents the bedroom portion of the questionnaire rather than each literal bedroom in the proposed home. Every stop should still support **skip**, **not applicable**, or **not sure yet** where appropriate.
 
@@ -162,15 +162,15 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 | 8 | What parts of daily life should the home support especially well? | Gathering, quiet time, entertaining, remote work, hobbies, caregiving, accessibility, or other |
 | 9 | How should the main living areas relate? | Open, partly open, more defined, or not sure |
 | 10 | What matters most in the main living area? | Fireplace, television, built-ins, high ceilings, strong views, outdoor connection, flexible furniture, or other |
+| 11 | Which of H&H's three finish levels fits the home as a whole? | Builder Grade, Builder+, Custom, or not sure |
 
 ### 2. Kitchen And Dining
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 11 | How will the kitchen be used most often? | Everyday cooking, serious cooking, family gathering, entertaining, catering, or mixed use |
-| 12 | What kitchen arrangement sounds closest to what you want? | Island, double island, peninsula, no island, open to living, more separate, or not sure |
-| 13 | What pantry or support space do you want? | Cabinet pantry, walk-in pantry, butler pantry, scullery/prep kitchen, none, or not sure |
-| 14 | What broad finish and appliance direction fits the kitchen? | Broad package choice; exact finish logic still unresolved |
+| 12 | How will the kitchen be used most often? | Everyday cooking, serious cooking, family gathering, entertaining, catering, or mixed use |
+| 13 | What kitchen arrangement sounds closest to what you want? | Island, double island, peninsula, no island, open to living, more separate, or not sure |
+| 14 | What pantry or support space do you want? | Cabinet pantry, walk-in pantry, butler pantry, scullery/prep kitchen, none, or not sure |
 | 15 | How should dining work in the home? | Island seating, breakfast area, open dining, formal dining, large-group hosting, or mixed use |
 
 ### 3. Primary Suite
@@ -236,6 +236,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - Ask for requirements and preferences, not final specifications.
 - Use plain homeowner language and explain unfamiliar terms such as scullery or Jack-and-Jill bath.
 - Keep exact brands, model numbers, fixture schedules, and technical documents out of the initial inquiry.
+- Treat the selected finish level as a whole-home package; room questions capture desired features, not package overrides.
 
 ## Information Model
 
@@ -247,7 +248,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - number of stories
 - bedroom and bathroom counts
 - target timeline and investment range
-- overall finish direction
+- one of H&H's three whole-home finish levels
 - customer priorities and constraints
 
 ### Per Room Or Zone
@@ -255,7 +256,7 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - whether the room is needed
 - approximate size or relative size preference
 - key functions and features
-- finish or fixture direction
+- desired features within the selected whole-home finish level
 - storage and adjacency needs
 - accessibility or lifestyle considerations
 - priority level
@@ -281,21 +282,23 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - Do not imply that visuals exactly represent the final material, layout, or price.
 - Avoid presenting an automatic price as authoritative before site, design, and scope review.
 - Let customers skip, go back, and revise without losing work.
+- Keep transitions short, preserve answers during movement, and honor reduced-motion preferences with an immediate alternative.
 - Keep a complete keyboard- and screen-reader-friendly form path alongside visual navigation.
 - Make the experience practical on a phone, where many customers will first encounter it.
 - Ask only questions that improve qualification or the first H&H conversation.
 
 ## Decisions To Resolve
 
-1. Refine and approve the exact question inventory.
-2. Final room-zone set and sequence.
-3. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
+1. Visual room-scene art direction and transition storyboards.
+2. Refine and approve the exact question inventory.
+3. Final room-zone set and sequence.
 4. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
 5. Budget behavior: private intake field, visible guidance, running range, or no calculated feedback.
 6. Inspiration: allowed file types, upload limits, link handling, ownership language, and privacy.
 7. Progress: anonymous session, autosave, email-based resume, account, or one-session completion.
 8. H&H review: raw answers, generated summary, visual home map, lead scoring, and follow-up workflow.
-9. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+9. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+10. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -348,20 +351,35 @@ Most answers should use visual cards, checkboxes, ranges, or steppers. Free text
 - Use structured visual choices for most answers, with optional notes and conditional detail.
 - Capture enough context to prepare H&H for the first conversation without drifting into detailed architectural programming.
 
+### 2026-07-13 — One whole-home finish level
+
+- Offer the three existing finish levels: Builder Grade, Builder+, and Custom.
+- The selected finish level applies to the entire home.
+- Do not ask customers to upgrade, downgrade, or mix finish packages by room.
+- Room questions capture functional features and priorities within the chosen whole-home package.
+
+### 2026-07-13 — Animated room-to-room movement
+
+- Each step should feel connected to the previous one through a brief turn, pan, or doorway movement.
+- Use fixed, predesigned transitions; answers do not generate a different house or alter the route.
+- The motion exists to sustain the feeling of walking through and planning a home, not as decoration between form pages.
+- Defer the technical choice until implementation planning. Remotion is a candidate, not a commitment; the simplest performant approach should win.
+- Provide an immediate reduced-motion path without changing the questions or progress.
+
 ## Current Question
 
-How should finish level work across the home?
+What visual treatment should the fixed room scenes use?
 
-### A. One finish level for the entire home
+### A. Dimensional architectural illustration — recommended
 
-The customer selects Builder Grade, Builder+, or Custom once. Every room inherits that choice with no room-level adjustment.
+Use illustrated interiors with believable depth, restrained materials, architectural linework, warm paper tones, and limited H&H green. Layered scenes can pan or pivot between rooms without looking like a literal final design.
 
-### B. A separate finish level in every room
+### B. Photorealistic architectural renders
 
-Each room asks for its own package. This gives H&H more detail but repeats the same decision and may encourage an unrealistic patchwork of selections.
+Use highly realistic rooms and rendered camera moves. This creates stronger immersion but costs more to produce, is heavier to deliver, and may make customers believe the pictured home or finishes are what they are selecting.
 
-### C. One baseline with optional room upgrades — recommended
+### C. Clean stylized 3D scenes
 
-The customer chooses one overall finish direction, then key rooms such as the kitchen or primary bath can stay at that level, simplify, or move up. This matches the original base-versus-upgraded idea without asking the same question everywhere.
+Use simplified 3D geometry with consistent lighting and materials. This makes camera movement straightforward, but it risks feeling like a configurator or game instead of Howeth and Harp's restrained architectural brand.
 
-The recommendation is **C**. It gives H&H a coherent baseline and clearly shows where the customer wants to concentrate investment. The public labels may need refinement so a **Custom** finish level is not confused with a **custom home**.
+The recommendation is **A**. It aligns with the site's drafting identity, supports simple motion, and preserves enough abstraction that the visuals frame the questions without promising a specific design.
