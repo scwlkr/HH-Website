@@ -125,9 +125,15 @@ describe("Plan Your Home persisted schemas", () => {
         "home.heated-square-feet": "2500-2999",
       },
       progress: {
-        currentQuestionId: "home.stories",
+        location: {
+          kind: "question",
+          questionId: "home.stories",
+          editingFromReview: false,
+        },
         completedZoneIds: [],
+        checkpointedZoneIds: [],
       },
+      contactCheckpoint: null,
       references: [linkReference(1)],
       savedAt: now,
       expiresAt: "2026-08-12T12:00:00.000Z",
@@ -141,9 +147,15 @@ describe("Plan Your Home persisted schemas", () => {
       definitionId: "plan-home-v1",
       welcomeName: "Taylor",
       progress: {
-        currentQuestionId: "home.stories",
+        location: {
+          kind: "question",
+          questionId: "home.stories",
+          editingFromReview: false,
+        },
         completedZoneIds: [],
+        checkpointedZoneIds: [],
       },
+      contactCheckpoint: null,
       references: [],
       savedAt: now,
       expiresAt: "2026-08-12T12:00:00.000Z",

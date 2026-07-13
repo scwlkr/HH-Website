@@ -72,10 +72,39 @@ const completedZoneIdsSchema = z
   .max(planHomeZoneIds.length)
   .refine((values) => new Set(values).size === values.length, "Completed zones must be unique.");
 
-const localProgressSchema = z
+const localTourLocationSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("welcome") }).strict(),
+  z
+    .object({
+      kind: z.literal("question"),
+      questionId: questionIdSchema,
+      editingFromReview: z.boolean(),
+    })
+    .strict(),
+  z.object({ kind: z.literal("contact-gate") }).strict(),
+  z.object({ kind: z.literal("review") }).strict(),
+]);
+
+export const localTourProgressSchema = z
   .object({
-    currentQuestionId: questionIdSchema,
+    location: localTourLocationSchema,
     completedZoneIds: completedZoneIdsSchema,
+    checkpointedZoneIds: completedZoneIdsSchema,
+  })
+  .strict()
+  .refine(
+    (progress) =>
+      progress.checkpointedZoneIds.every((zoneId) =>
+        progress.completedZoneIds.includes(zoneId),
+      ),
+    "Checkpointed zones must already be completed.",
+  );
+
+export const planHomeContactCheckpointSchema = z
+  .object({
+    email: normalizedEmailSchema,
+    phone: normalizedPhoneSchema,
+    manualFollowUpDisclosureAccepted: z.literal(true),
   })
   .strict();
 
@@ -85,7 +114,8 @@ export const localDraftSnapshotSchema = z
     definitionId: z.literal("plan-home-v1"),
     welcomeName: z.string().trim().min(1).max(120),
     answers: partialPlanHomeAnswerMapSchema,
-    progress: localProgressSchema,
+    progress: localTourProgressSchema,
+    contactCheckpoint: planHomeContactCheckpointSchema.nullable(),
     references: planHomeReferenceCollectionSchema,
     savedAt: timestampSchema,
     expiresAt: timestampSchema,
@@ -161,6 +191,10 @@ export const submittedProjectBriefSchema = z
   .strict();
 
 export type LocalDraftSnapshot = z.infer<typeof localDraftSnapshotSchema>;
+export type PlanHomeContactCheckpoint = z.infer<
+  typeof planHomeContactCheckpointSchema
+>;
+export type LocalTourProgress = z.infer<typeof localTourProgressSchema>;
 export type SubmittedProjectBrief = z.infer<typeof submittedProjectBriefSchema>;
 export type PartialPlanHomeAnswerMap = z.infer<
   typeof partialPlanHomeAnswerMapSchema
