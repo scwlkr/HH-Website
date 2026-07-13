@@ -110,7 +110,7 @@ The strongest fit is a middle layer between the two market extremes:
 - broad finish direction rather than exact brands, products, or specifications
 - a clear result that separates requirements, preferences, unknowns, and inspiration
 
-The existing eight-zone route remains a good working hypothesis. Research suggests adding whole-home systems and comfort preferences to the utility zone, keeping lot and site questions prominent, and treating lifestyle and future-use questions as equally important as room features.
+The seven-zone route remains the working hypothesis. Research supports adding whole-home systems and comfort preferences to the utility zone, keeping lot and site questions prominent, and treating lifestyle and future-use questions as equally important as room features.
 
 ### Square-Footage Bracket Check
 
@@ -131,16 +131,15 @@ This is a conversation starter, not an approved flow.
 
 ## Fixed Walkthrough
 
-The walkthrough will use six to eight combined room zones and will not change based on the customer's answers. The following eight-stop route is a provisional starting point until the question inventory is settled:
+The walkthrough will use the following seven combined zones and will not change based on the customer's answers:
 
 1. **Living Room and Home Basics**
 2. **Kitchen and Dining**
 3. **Primary Suite**
 4. **Bedrooms and Shared Bathrooms**
 5. **Laundry, Mudroom, Storage, and Home Systems**
-6. **Garage, Exterior, and Site**
-7. **Outdoor Living and Specialty Spaces**
-8. **Design Desk and Inspiration**
+6. **Garage, Exterior, Site, Outdoor Living, and Specialty Spaces**
+7. **Design Desk and Inspiration**
 
 Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections. Moving forward or backward triggers a brief predesigned transition between the fixed room scenes.
 
@@ -154,7 +153,7 @@ On a phone, the scene automatically frames the current object or area so the ill
 
 ## Research-Informed Draft Question Inventory
 
-This is a working inventory, not approved public copy. It contains 35 short question interactions: the upper edge of the balanced-discovery target. Conditional details can reduce what an individual customer sees, but the eight visual zones remain fixed.
+This is a working inventory, not approved public copy. It contains 35 short question interactions: the upper edge of the balanced-discovery target. Conditional details can reduce what an individual customer sees, but the seven visual zones remain fixed.
 
 Most answers should use visual cards, checkboxes, ranges, or steppers that appear as part of the active room scene. Free text is reserved for details that structured choices cannot capture.
 
@@ -215,22 +214,17 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 | 24 | What storage needs are easy to overlook but important to you? | Linens, seasonal items, sports, hobbies, food, cleaning, outdoor gear, bulk storage, or other |
 | 25 | Which whole-home comfort or system priorities matter? | Energy efficiency, generator, all-electric, smart controls, security, audio, indoor-air quality, low maintenance, or other |
 
-### 6. Garage, Exterior, And Site
+### 6. Garage, Exterior, Site, Outdoor Living, And Specialty Spaces
 
 | # | Working question | Likely response |
 | --- | --- | --- |
 | 26 | What should the garage accommodate? | Vehicle count, truck/SUV, EV charging, boat/RV, workshop, storage, detached/attached, or other |
 | 27 | Which exterior character feels closest to the home you want? | Visual style cards plus materials loved or disliked |
 | 28 | What site relationships matter most? | Views, morning/evening sun, privacy, street presence, trees, outdoor access, future structures, or not sure |
-
-### 7. Outdoor Living And Specialty Spaces
-
-| # | Working question | Likely response |
-| --- | --- | --- |
 | 29 | Which outdoor-living features matter? | Covered porch, screened porch, patio, outdoor kitchen, fireplace, pool, spa, garden, play area, or other |
 | 30 | Which specialty spaces or future additions should be considered? | Office, gym, media room, game room, library, craft room, safe room, guest suite, ADU, workshop, or other |
 
-### 8. Design Desk And Inspiration
+### 7. Design Desk And Inspiration
 
 | # | Working question | Likely response |
 | --- | --- | --- |
@@ -253,7 +247,7 @@ After **Living Room and Home Basics**, ask for email and phone with direct value
 
 ### Question-Design Rules
 
-- Keep all eight zones visible even when a conditional detail is not applicable.
+- Keep all seven zones visible even when a conditional detail is not applicable.
 - Integrate prompts with relevant room objects or areas instead of exposing a separate form column.
 - Guide customers through one active prompt at a time; do not display a field of competing hotspots.
 - Offer **not sure yet** wherever a customer may reasonably need H&H's guidance.
@@ -329,11 +323,10 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 1. Assistive-technology presentation for room-integrated controls.
 2. Transition storyboards and the illustrated asset plan.
 3. Refine and approve the exact question inventory.
-4. Final room-zone set and sequence.
-5. Inspiration: final file types, upload limits, link security, ownership language, and privacy.
-6. Draft retention, expiration, deletion, and resume-link delivery details.
-7. Animation implementation technique, chosen later based on assets, performance, and maintainability.
-8. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
+4. Inspiration: final file types, upload limits, link security, ownership language, and privacy.
+5. Draft retention, expiration, deletion, and resume-link delivery details.
+6. Animation implementation technique, chosen later based on assets, performance, and maintainability.
+7. Success criteria: completion rate, qualified leads, first-call preparedness, or another primary measure.
 
 ## Decision Log
 
@@ -508,20 +501,28 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 - Preserve **Back** and revision controls so acknowledgment does not make an answer feel permanent.
 - Store explicit uncertainty separately from missing or invalid data so H&H can understand the customer's actual level of clarity.
 
+### 2026-07-13 — Seven-zone working route
+
+- Use seven visual stops as the working route.
+- Merge **Garage, Exterior, and Site** with **Outdoor Living and Specialty Spaces** into one combined exterior-oriented zone.
+- Keep the primary suite and secondary bedroom/shared-bath zones separate.
+- Preserve all existing questions; the merge removes one transition rather than removing intake content.
+- Treat this as the settled planning direction unless prototyping later reveals a clear pacing problem.
+
 ## Current Question
 
-Should the final walkthrough use six, seven, or eight visual zones?
+What should be the primary measure of success after launch?
 
-### A. Keep all eight current zones
+### A. Better-prepared first meetings — recommended
 
-Keep Garage/Exterior/Site and Outdoor Living/Specialty Spaces separate. This creates the most room-to-room movement, but two late zones contain only a few questions each.
+H&H should be able to review a submitted brief and begin the first meeting with informed design and fit questions instead of re-asking basic project information. Completion rate and abandonment remain supporting health metrics.
 
-### B. Merge the two exterior-oriented zones into seven — recommended
+### B. Completed project-brief volume
 
-Combine Garage, Exterior, Site, Outdoor Living, and Specialty Spaces into one broader visual stop. All questions remain, but the late walkthrough loses one transition and feels more balanced.
+Optimize primarily for the number and percentage of people who reach final submission. This is easy to measure but may reward shorter, less useful briefs.
 
-### C. Reduce to six zones
+### C. Identifiable draft volume
 
-Also combine Primary Suite with Bedrooms and Shared Bathrooms. This minimizes transitions but makes the bedroom zone denser and loses a distinct primary-suite moment.
+Optimize for how many visitors provide email and phone after the opening questions. This produces more follow-up opportunities but can overvalue incomplete, low-intent inquiries.
 
-The recommendation is **B**. Seven preserves the meaningful interior-room progression while removing the weakest late-stage split.
+The recommendation is **A**. The stated purpose is to give H&H more knowledge before follow-up, so meeting preparedness should lead while conversion metrics guard against excessive friction.
