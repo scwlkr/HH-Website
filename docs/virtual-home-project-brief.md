@@ -54,7 +54,7 @@ This is a conversation starter, not an approved flow.
 
 ## Fixed Walkthrough
 
-The exact rooms and order are unresolved, but the walkthrough itself will not change based on the customer's answers. Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections.
+The walkthrough will use six to eight combined room zones and will not change based on the customer's answers. The exact zones and order are still unresolved. Navigation is intentionally linear: one room at a time, one obvious next action, a visible progress indicator, and a **Back** control for corrections.
 
 - site and exterior
 - entry and living areas
@@ -119,7 +119,7 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 
 ## Decisions To Resolve
 
-1. Fixed room count, set, and sequence.
+1. Fixed room-zone set and sequence.
 2. Selection depth: broad preferences versus detailed fixtures, finishes, dimensions, and brands.
 3. Finish logic: one overall finish level, room-specific finish levels, or a base level with upgrades.
 4. Square footage: customer-entered total only, room-by-room allocation, or guided range recommendations.
@@ -162,20 +162,35 @@ A customer selecting one bedroom sees the same rooms as a customer selecting fiv
 - Show clear progress and the current room so customers always know where they are.
 - Do not use a free-roam house map during the questionnaire.
 
+### 2026-07-13 — Six to eight combined zones
+
+- Keep the walkthrough to six to eight visual stops.
+- Group related rooms so the process does not become tedious.
+- Keep each stop focused enough that it still feels like progressing through the home rather than completing a dense form page.
+
 ## Current Question
 
-How granular should the fixed walkthrough be?
+Which fixed route best matches the experience?
 
-### A. Compact: 6 to 8 combined zones
+### A. Interior-first eight-stop route — recommended
 
-Group related spaces together, such as the primary bedroom and bathroom or the garage and utility areas. This is fastest, but may weaken the room-by-room feeling and crowd each stop with more questions.
+1. **Living Room and Home Basics** — custom or plan-based, total square footage, stories, bedrooms, bathrooms, and how the household lives.
+2. **Kitchen and Dining** — layout, pantry, appliances, entertaining, and finish direction.
+3. **Primary Suite** — bedroom, bathroom, closet, privacy, and accessibility preferences.
+4. **Bedrooms and Shared Bathrooms** — counts, sizes, guest or family use, and shared-bath expectations.
+5. **Laundry, Mudroom, and Storage** — daily entry, utilities, organization, and storage needs.
+6. **Garage, Exterior, and Site** — vehicles, workshop needs, exterior character, lot, and site considerations.
+7. **Outdoor Living and Specialty Spaces** — porches, patios, pool, office, gym, media room, safe room, or other extras.
+8. **Design Desk and Inspiration** — upload plans or images, add links, explain references, and capture final priorities.
 
-### B. Balanced: 9 to 12 room stops — recommended
+The review, contact details, and submission follow the walkthrough and are not counted as room stops.
 
-Give major rooms their own short stop with roughly two to five questions each. This keeps each screen simple while preserving the feeling of moving through a complete home.
+### B. Arrival-first eight-stop route
 
-### C. Detailed: 13 to 18 room stops
+Start with the site, exterior, and front entry before moving into the living room. This feels more like physically arriving at a home, but delays the familiar square-footage and household questions.
 
-Represent most individual spaces separately, including secondary bathrooms, pantry, office, mudroom, and storage. This gathers more detail but raises completion time and abandonment risk.
+### C. Essentials-only six-stop route
 
-The recommendation is **B**. A linear tour stays intuitive when each stop has one clear purpose and only a handful of questions; nine to twelve stops is detailed enough to feel like a home without becoming exhausting.
+Combine the primary and secondary bedroom questions, combine utility spaces with the garage, and fold inspiration into the final review. This is shorter, but gives the most personal and practical areas less breathing room.
+
+The recommendation is **A**. It begins exactly where the original idea began—the living room—then moves through the home in understandable groups. The final design desk gives uploads and references a natural home without interrupting the room questions.
