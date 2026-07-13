@@ -29,6 +29,10 @@ import {
   BedroomHallThresholdScene,
   PrimarySuiteScene,
 } from "@/features/plan-your-home/primary-suite-scene";
+import {
+  ExteriorBackDoorThresholdScene,
+  UtilitySystemsScene,
+} from "@/features/plan-your-home/utility-systems-scene";
 import { createPlanHomeLocalSnapshotAdapter } from "@/features/plan-your-home/local-snapshot";
 import {
   ChoicePrompt,
@@ -104,10 +108,12 @@ const PROJECT_AND_LIVING_LAST_QUESTION = 11;
 const KITCHEN_AND_DINING_LAST_QUESTION = 15;
 const PRIMARY_SUITE_LAST_QUESTION = 19;
 const BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION = 21;
+const UTILITY_AND_SYSTEMS_LAST_QUESTION = 25;
 const PROJECT_AND_LIVING_ZONE = planHomeZones[0];
 const KITCHEN_AND_DINING_ZONE = planHomeZones[1];
 const PRIMARY_SUITE_ZONE = planHomeZones[2];
 const BEDROOMS_AND_SHARED_BATHROOMS_ZONE = planHomeZones[3];
+const UTILITY_AND_SYSTEMS_ZONE = planHomeZones[4];
 
 const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "entry-plans": { xPercent: 1.5, yPercent: 0.4, scale: 1.08 },
@@ -131,6 +137,10 @@ const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "primary-closet": { xPercent: -4.2, yPercent: 0.8, scale: 1.15 },
   "secondary-bedrooms": { xPercent: 2.8, yPercent: -0.4, scale: 1.12 },
   "secondary-bathrooms": { xPercent: -3.4, yPercent: 0.4, scale: 1.14 },
+  "utility-laundry": { xPercent: 4.2, yPercent: -0.3, scale: 1.13 },
+  "utility-mudroom": { xPercent: 1.2, yPercent: -0.8, scale: 1.11 },
+  "utility-storage": { xPercent: -2.8, yPercent: -0.3, scale: 1.13 },
+  "home-systems": { xPercent: -4.4, yPercent: 0.2, scale: 1.15 },
 };
 
 function randomUuidV4() {
@@ -156,7 +166,8 @@ function createIdempotencyKey(
     | "zone:project-and-living"
     | "zone:kitchen-and-dining"
     | "zone:primary-suite"
-    | "zone:bedrooms-and-shared-bathrooms",
+    | "zone:bedrooms-and-shared-bathrooms"
+    | "zone:utility-and-systems",
 ) {
   return `local-${randomUuidV4()}:plan-home-v1:${boundary}`;
 }
@@ -164,7 +175,7 @@ function createIdempotencyKey(
 function initialDraftAnswers() {
   return Object.fromEntries(
     planHomeQuestions
-      .slice(0, BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION)
+      .slice(0, UTILITY_AND_SYSTEMS_LAST_QUESTION)
       .map((question) => [
         question.id,
         structuredClone(question.response.defaultAnswer),
@@ -185,7 +196,10 @@ function sceneForQuestion(question: PlanHomeQuestionDefinition) {
   if (question.number <= PRIMARY_SUITE_LAST_QUESTION) {
     return <PrimarySuiteScene activeAnchor={question.sceneAnchor} />;
   }
-  return <BedroomsSharedBathroomsScene activeAnchor={question.sceneAnchor} />;
+  if (question.number <= BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
+    return <BedroomsSharedBathroomsScene activeAnchor={question.sceneAnchor} />;
+  }
+  return <UtilitySystemsScene activeAnchor={question.sceneAnchor} />;
 }
 
 function actionError(result: Exclude<PlanHomeDraftActionState, { status: "success" }>) {
@@ -484,8 +498,13 @@ function BedroomHallBoundary({
 
 function UtilityHallBoundary({
   onBack,
+  onContinue,
   reducedMotion,
-}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+}: Readonly<{
+  onBack: () => void;
+  onContinue: () => void;
+  reducedMotion?: boolean;
+}>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -508,8 +527,47 @@ function UtilityHallBoundary({
           Bedroom users, arrangement, and bathroom sharing are checkpointed.
           Laundry, everyday entry, storage, and systems continue from here.
         </p>
+        <div className={styles.momentActions}>
+          <Button type="button" variant="secondary" onClick={onBack}>
+            Back to shared bathrooms
+          </Button>
+          <Button type="button" onClick={onContinue}>
+            Turn into the utility hall
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExteriorBackDoorBoundary({
+  onBack,
+  reducedMotion,
+}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+  return (
+    <section
+      className={styles.moment}
+      data-reduced-motion={reducedMotion}
+      data-tour-beat="exterior-back-door-transition"
+    >
+      <div className={styles.momentScene}>
+        <ExteriorBackDoorThresholdScene />
+      </div>
+      <div className={styles.momentSheet}>
+        <p className={styles.eyebrow}>Utility priorities saved</p>
+        <h1 ref={headingRef} tabIndex={-1}>
+          The back door opens to the exterior.
+        </h1>
+        <p className={styles.momentCopy}>
+          Laundry, everyday entry, storage, and broad system priorities are
+          checkpointed. The exterior walkthrough begins beyond this threshold.
+        </p>
         <Button type="button" variant="secondary" onClick={onBack}>
-          Back to shared bathrooms
+          Back to home systems
         </Button>
       </div>
     </section>
@@ -540,6 +598,7 @@ export function PlanYourHomeShell({
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showBedroomHallBoundary, setShowBedroomHallBoundary] = useState(false);
+  const [showUtilityHallBoundary, setShowUtilityHallBoundary] = useState(false);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
@@ -652,7 +711,13 @@ export function PlanYourHomeShell({
                     answerCount: BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION,
                     keyField: "bedroomsAndSharedBathroomsCheckpointKey",
                   } as const)
-              : null;
+                : question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION
+                  ? ({
+                      zoneId: "utility-and-systems",
+                      answerCount: UTILITY_AND_SYSTEMS_LAST_QUESTION,
+                      keyField: "utilityAndSystemsCheckpointKey",
+                    } as const)
+                  : null;
 
     if (checkpointBoundary) {
       commitState(answered.state);
@@ -709,6 +774,9 @@ export function PlanYourHomeShell({
       if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
         setShowBedroomHallBoundary(true);
       }
+      if (question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
+        setShowUtilityHallBoundary(true);
+      }
       return true;
     }
 
@@ -742,6 +810,7 @@ export function PlanYourHomeShell({
         kitchenAndDiningCheckpointKey: null,
         primarySuiteCheckpointKey: null,
         bedroomsAndSharedBathroomsCheckpointKey: null,
+        utilityAndSystemsCheckpointKey: null,
         draftId: null,
         revision: null,
       } satisfies PlanHomeClientDraftState);
@@ -777,6 +846,8 @@ export function PlanYourHomeShell({
         pendingDraft.primarySuiteCheckpointKey ?? null,
       bedroomsAndSharedBathroomsCheckpointKey:
         pendingDraft.bedroomsAndSharedBathroomsCheckpointKey ?? null,
+      utilityAndSystemsCheckpointKey:
+        pendingDraft.utilityAndSystemsCheckpointKey ?? null,
       draftId: result.result.draftId,
       revision: result.result.revision,
     } satisfies PlanHomeClientDraftState;
@@ -796,6 +867,7 @@ export function PlanYourHomeShell({
 
   function backFromBoundary() {
     setShowBedroomHallBoundary(false);
+    setShowUtilityHallBoundary(false);
     const transition = reducePlanHomeTour(tourState, { type: "back" });
     if (!transition.error) commitState(transition.state);
   }
@@ -840,12 +912,20 @@ export function PlanYourHomeShell({
         reducedMotion={reducedMotion}
       />
     );
-  } else if (
-    activeQuestion &&
-    activeQuestion.number > BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION
-  ) {
+  } else if (showUtilityHallBoundary) {
     content = (
       <UtilityHallBoundary
+        onBack={backFromBoundary}
+        onContinue={() => setShowUtilityHallBoundary(false)}
+        reducedMotion={reducedMotion}
+      />
+    );
+  } else if (
+    activeQuestion &&
+    activeQuestion.number > UTILITY_AND_SYSTEMS_LAST_QUESTION
+  ) {
+    content = (
+      <ExteriorBackDoorBoundary
         onBack={backFromBoundary}
         reducedMotion={reducedMotion}
       />
@@ -866,7 +946,9 @@ export function PlanYourHomeShell({
                 ? "kitchen-hall-to-primary"
                 : question.number === 20
                   ? "bedroom-hall-entrance"
-              : "in-room"
+                  : question.number === 22
+                    ? "utility-hall-entrance"
+                    : "in-room"
         }
       >
         <SceneStage
@@ -878,7 +960,9 @@ export function PlanYourHomeShell({
                 ? KITCHEN_AND_DINING_ZONE
                 : question.number <= PRIMARY_SUITE_LAST_QUESTION
                   ? PRIMARY_SUITE_ZONE
-                  : BEDROOMS_AND_SHARED_BATHROOMS_ZONE
+                  : question.number <= BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION
+                    ? BEDROOMS_AND_SHARED_BATHROOMS_ZONE
+                    : UTILITY_AND_SYSTEMS_ZONE
           }
           totalQuestions={planHomeQuestions.length}
           scene={sceneForQuestion(question)}
@@ -905,7 +989,8 @@ export function PlanYourHomeShell({
             question.number === PROJECT_AND_LIVING_LAST_QUESTION ||
             question.number === KITCHEN_AND_DINING_LAST_QUESTION ||
             question.number === PRIMARY_SUITE_LAST_QUESTION ||
-            question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION
+            question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION ||
+            question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION
               ? "Save room"
               : "Next"
           }
@@ -916,7 +1001,10 @@ export function PlanYourHomeShell({
     );
   } else {
     content = (
-      <UtilityHallBoundary onBack={backFromBoundary} reducedMotion={reducedMotion} />
+      <ExteriorBackDoorBoundary
+        onBack={backFromBoundary}
+        reducedMotion={reducedMotion}
+      />
     );
   }
 

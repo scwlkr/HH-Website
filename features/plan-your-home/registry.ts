@@ -1285,6 +1285,7 @@ export const planHomeQuestions = [
     id: "home.systems",
     zoneId: "utility-and-systems",
     prompt: "Which whole-home comfort or system priorities matter?",
+    helper: "Choose up to 6 broad planning priorities. These choices guide a conversation; they are not engineering, equipment specifications, feasibility decisions, or pricing.",
     sceneAnchor: "system-panel",
     cameraKey: "home-systems",
     response: multiChoiceResponse("systems", "Home systems", systemOptions, {

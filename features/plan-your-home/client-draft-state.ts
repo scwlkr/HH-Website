@@ -6,6 +6,7 @@ export type PlanHomeClientDraftState = Readonly<{
   kitchenAndDiningCheckpointKey?: string | null;
   primarySuiteCheckpointKey?: string | null;
   bedroomsAndSharedBathroomsCheckpointKey?: string | null;
+  utilityAndSystemsCheckpointKey?: string | null;
   draftId: string | null;
   revision: number | null;
 }>;
@@ -63,6 +64,13 @@ function isClientDraftState(value: unknown): value is PlanHomeClientDraftState {
       candidate.bedroomsAndSharedBathroomsCheckpointKey.length >= 16 &&
       candidate.bedroomsAndSharedBathroomsCheckpointKey.length <= 200 &&
       uuidV4Pattern.test(candidate.bedroomsAndSharedBathroomsCheckpointKey));
+  const hasValidUtilityCheckpointKey =
+    candidate.utilityAndSystemsCheckpointKey === undefined ||
+    candidate.utilityAndSystemsCheckpointKey === null ||
+    (typeof candidate.utilityAndSystemsCheckpointKey === "string" &&
+      candidate.utilityAndSystemsCheckpointKey.length >= 16 &&
+      candidate.utilityAndSystemsCheckpointKey.length <= 200 &&
+      uuidV4Pattern.test(candidate.utilityAndSystemsCheckpointKey));
 
   return (
     hasValidKey &&
@@ -70,7 +78,8 @@ function isClientDraftState(value: unknown): value is PlanHomeClientDraftState {
     hasValidCheckpointKey &&
     hasValidKitchenCheckpointKey &&
     hasValidPrimarySuiteCheckpointKey &&
-    hasValidBedroomsCheckpointKey
+    hasValidBedroomsCheckpointKey &&
+    hasValidUtilityCheckpointKey
   );
 }
 
