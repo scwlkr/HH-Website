@@ -34,6 +34,7 @@ export type ProjectSummary = {
 export type ProjectDetail = ProjectSummary & {
   fullDescription: string;
   images: ProjectImage[];
+  revision: number;
 };
 
 export type PricingSettings = {

@@ -99,6 +99,18 @@ export async function saveProjectAction(
     typeof formData.get("projectId") === "string"
       ? String(formData.get("projectId"))
       : undefined;
+  const projectRevisionValue = formData.get("projectRevision");
+  const expectedRevision =
+    typeof projectRevisionValue === "string" &&
+    /^\d+$/.test(projectRevisionValue)
+      ? Number.parseInt(projectRevisionValue, 10)
+      : undefined;
+
+  if (projectId && expectedRevision === undefined) {
+    return createProjectServerErrorState(
+      "This project version is invalid. Reload the page before saving again.",
+    );
+  }
   const values = getProjectFormValues(formData);
   const validationResult = validateProjectFormValues(values);
 
@@ -162,6 +174,7 @@ export async function saveProjectAction(
       existingImages: parseExistingProjectImageInputs(formData),
       coverImage: uploads.coverImage,
       galleryImages: uploads.galleryImages,
+      expectedRevision,
     });
   } catch (error) {
     console.error("Project save failed", error);

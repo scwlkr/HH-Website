@@ -51,6 +51,7 @@ type ProjectDocument = {
   featured: boolean;
   createdAt: unknown;
   updatedAt: unknown;
+  revision?: unknown;
   images?: ProjectImageDocument[];
 };
 
@@ -102,6 +103,18 @@ function toOptionalIsoString(value: unknown, fieldName: string) {
   return value === null || value === undefined
     ? null
     : toIsoString(value, fieldName);
+}
+
+function readProjectRevision(value: unknown) {
+  if (value === undefined) {
+    return 0;
+  }
+
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0) {
+    return value;
+  }
+
+  throw new Error("Invalid Firestore project revision.");
 }
 
 function buildFirebaseStorageDownloadUrl(params: {
@@ -197,6 +210,7 @@ function mapProjectDetail(
     ...summary,
     fullDescription: project.fullDescription,
     images: sortProjectImages((project.images ?? []).map(mapProjectImage)),
+    revision: readProjectRevision(project.revision),
   };
 }
 
@@ -519,6 +533,7 @@ export async function saveProject(params: {
   existingImages: ExistingProjectImageFormInput[];
   coverImage: File | null;
   galleryImages: File[];
+  expectedRevision?: number;
 }) {
   if (!isFirebaseAdminConfigured()) {
     throw new Error("Firebase admin credentials are not configured.");
@@ -656,6 +671,20 @@ export async function saveProject(params: {
         throw new Error("The project could not be found.");
       }
 
+      const currentRevision = projectSnapshot.exists
+        ? readProjectRevision(projectSnapshot.get("revision"))
+        : 0;
+
+      if (
+        !isNewProject &&
+        (params.expectedRevision === undefined ||
+          params.expectedRevision !== currentRevision)
+      ) {
+        throw new Error(
+          "This project changed after you opened it. Reload the page and review the latest version before saving again.",
+        );
+      }
+
       const previousSlug = projectSnapshot.exists
         ? (projectSnapshot.get("slug") as unknown)
         : null;
@@ -696,6 +725,7 @@ export async function saveProject(params: {
         featured: params.project.featured,
         createdAt,
         updatedAt: now,
+        revision: currentRevision + 1,
         images: normalizedImages,
       });
       transaction.set(newSlugReference, { projectId });

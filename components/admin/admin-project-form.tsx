@@ -220,7 +220,16 @@ function AdminProjectFormFields({
       className="space-y-8"
       encType="multipart/form-data"
     >
-      {project ? <input type="hidden" name="projectId" value={project.id} /> : null}
+      {project ? (
+        <>
+          <input type="hidden" name="projectId" value={project.id} />
+          <input
+            type="hidden"
+            name="projectRevision"
+            value={project.revision}
+          />
+        </>
+      ) : null}
 
       {state.message ? (
         <AdminNotice
