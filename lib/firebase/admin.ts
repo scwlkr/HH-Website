@@ -7,14 +7,12 @@ import {
 } from "@google-cloud/storage";
 import {
   applicationDefault,
-  cert,
   getApps,
   initializeApp,
   type App,
   type AppOptions,
   type Credential,
   type GoogleOAuthAccessToken,
-  type ServiceAccount,
 } from "firebase-admin/app";
 import { getAuth, type Auth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
@@ -30,20 +28,6 @@ let vercelOidcStorage: GoogleCloudStorage | undefined;
 function readOptionalEnv(name: string) {
   const value = process.env[name]?.trim();
   return value && value.length > 0 ? value : undefined;
-}
-
-function getServiceAccountCredential() {
-  const serviceAccountJson = readOptionalEnv("FIREBASE_SERVICE_ACCOUNT_JSON");
-
-  if (!serviceAccountJson) {
-    return null;
-  }
-
-  try {
-    return cert(JSON.parse(serviceAccountJson) as ServiceAccount);
-  } catch {
-    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON must contain valid JSON.");
-  }
 }
 
 function getVercelOidcClient(): BaseExternalAccountClient | null {
@@ -74,18 +58,14 @@ function getVercelOidcClient(): BaseExternalAccountClient | null {
   }
 
   const providerResource = `//iam.googleapis.com/projects/${config.projectNumber}/locations/global/workloadIdentityPools/${config.workloadIdentityPoolId}/providers/${config.workloadIdentityPoolProviderId}`;
-  const customAudience = readOptionalEnv("GCP_AUDIENCE");
   vercelOidcClient = ExternalAccountClient.fromJSON({
     type: "external_account",
-    audience: customAudience ?? providerResource,
+    audience: providerResource,
     subject_token_type: "urn:ietf:params:oauth:token-type:jwt",
     token_url: "https://sts.googleapis.com/v1/token",
     service_account_impersonation_url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${config.serviceAccountEmail}:generateAccessToken`,
     subject_token_supplier: {
-      getSubjectToken: () =>
-        customAudience
-          ? getVercelOidcToken({ audience: customAudience })
-          : getVercelOidcToken(),
+      getSubjectToken: () => getVercelOidcToken(),
     },
   });
 
@@ -125,20 +105,10 @@ function getVercelOidcCredential(): Credential | null {
 }
 
 function getAdminCredential(): Credential {
-  const serviceAccountCredential = getServiceAccountCredential();
-
-  return (
-    serviceAccountCredential ??
-    getVercelOidcCredential() ??
-    applicationDefault()
-  );
+  return getVercelOidcCredential() ?? applicationDefault();
 }
 
 function getActiveVercelOidcClient() {
-  if (readOptionalEnv("FIREBASE_SERVICE_ACCOUNT_JSON")) {
-    return null;
-  }
-
   return getVercelOidcClient();
 }
 

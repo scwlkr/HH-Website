@@ -15,7 +15,6 @@ export function isFirebaseAdminConfigured() {
       readOptionalEnv("FIREBASE_PROJECT_ID") ??
       readOptionalEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID") ??
       readOptionalEnv("GCP_PROJECT_ID") ??
-      readOptionalEnv("FIREBASE_SERVICE_ACCOUNT_JSON") ??
       readOptionalEnv("GOOGLE_APPLICATION_CREDENTIALS") ??
       readOptionalEnv("GOOGLE_CLOUD_PROJECT") ??
       readOptionalEnv("GCLOUD_PROJECT") ??
