@@ -41,7 +41,7 @@ export default function CatalogPage() {
         }
         detail={
           <div className="space-y-5">
-            <DividerFrame label="Read This Page As" detail="Routing" />
+            <DividerFrame label="Project Types" detail="Four categories" />
             <p className="text-sm leading-7 text-muted">
               {marketingPageContent.catalog.detail}
             </p>
@@ -51,8 +51,8 @@ export default function CatalogPage() {
 
       <Section
         eyebrow="Build Types"
-        title="Four category pages make the scope legible before inquiry."
-        description="Each category stays disciplined: clear summary, project considerations, relevant finish direction, and a direct route into the project brief."
+        title="Work shaped to the project."
+        description="Each category brings different planning, construction, site, and finish priorities into focus."
       >
         <div className="border-b border-line-strong">
           {buildTypes.map((buildType, index) => (
@@ -82,9 +82,9 @@ export default function CatalogPage() {
             trackingLocation: "catalog-band",
           }}
           notes={[
-            `${buildTypes.length} project categories are already modeled with stable slugs and finish-level cross-links.`,
-            "Category pages are meant to clarify scope, not replace the inquiry conversation.",
-            "Final imagery can be added later without touching the route structure.",
+            `${buildTypes.length} project categories spanning residential and commercial work.`,
+            "Project type shapes planning, site strategy, service mix, and finish priorities.",
+            "h and h can help refine the category when a project crosses more than one type.",
           ]}
         />
       </Section>

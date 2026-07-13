@@ -47,6 +47,9 @@ export default async function ProjectDetailPage({
 
   const buildType = getBuildTypeBySlug(project.buildTypeSlug);
   const finishLevel = getFinishLevelBySlug(project.finishLevelSlug);
+  const hasPublishedImages = project.images.some((image) =>
+    Boolean(image.publicUrl),
+  );
   const specs = [
     { label: "Location", value: project.location },
     {
@@ -94,18 +97,20 @@ export default async function ProjectDetailPage({
         }
       />
 
-      <Section
-        eyebrow="Gallery"
-        title="Project imagery."
-        description="Photography stays tied to the completed-work record when it is published."
-      >
-        <ProjectGallery images={project.images} title={project.title} />
-      </Section>
+      {hasPublishedImages ? (
+        <Section
+          eyebrow="Gallery"
+          title="A closer look."
+          description="Selected exterior, interior, and site views."
+        >
+          <ProjectGallery images={project.images} title={project.title} />
+        </Section>
+      ) : null}
 
       <Section
         eyebrow="Project Specs"
         title="Core details."
-        description="The project record keeps only the essential public facts visible."
+        description="Location, scale, configuration, project type, finish level, and current status."
       >
         <dl className="grid border-y border-line text-sm leading-7 text-muted md:grid-cols-2">
           {specs.map((item, index) => (

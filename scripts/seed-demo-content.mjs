@@ -145,6 +145,7 @@ const sampleProjects = [
   {
     slug: "ridgeview-residence",
     title: "Ridgeview Residence",
+    published: false,
     status: "for-sale",
     buildTypeSlug: "single-family",
     finishLevelSlug: "builder-plus",
@@ -167,6 +168,7 @@ const sampleProjects = [
   {
     slug: "market-court-townhomes",
     title: "Market Court Townhomes",
+    published: false,
     status: "sold",
     buildTypeSlug: "townhomes",
     finishLevelSlug: "builder-grade",
@@ -210,6 +212,19 @@ function getFirebaseConfig() {
   }
 
   return { projectId, storageBucket };
+}
+
+function requireFirebaseEmulators() {
+  const firestoreEmulatorHost = readOptionalEnv("FIRESTORE_EMULATOR_HOST");
+  const storageEmulatorHost = readOptionalEnv(
+    "FIREBASE_STORAGE_EMULATOR_HOST",
+  );
+
+  if (!firestoreEmulatorHost || !storageEmulatorHost) {
+    throw new Error(
+      "Refusing to seed demo project records outside the Firebase Emulator Suite. Set both FIRESTORE_EMULATOR_HOST and FIREBASE_STORAGE_EMULATOR_HOST.",
+    );
+  }
 }
 
 function createPlaceholderUrl({
@@ -378,6 +393,7 @@ async function seedSampleProject(database, bucket, project) {
       id: projectId,
       slug: project.slug,
       title: project.title,
+      published: project.published,
       status: project.status,
       buildTypeSlug: project.buildTypeSlug,
       finishLevelSlug: project.finishLevelSlug,
@@ -423,6 +439,8 @@ async function seedProjects() {
 }
 
 async function main() {
+  requireFirebaseEmulators();
+
   await ensureCatalogAssets();
   await seedProjects();
 

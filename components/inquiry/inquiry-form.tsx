@@ -301,7 +301,10 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
             readOnly
             aria-hidden="true"
           />
-          <div className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+          <div
+            className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
+            aria-hidden="true"
+          >
             <label htmlFor="company">
               Company
               <input
@@ -489,8 +492,7 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
           <div className="mt-8 border-t border-line pt-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm leading-6 text-muted">
-                The brief stays concise by design. A rough but direct answer is
-                better than waiting for perfect certainty.
+                Rough answers are welcome—you can refine the details with h and h later.
               </p>
               <div className="flex flex-wrap gap-3">
                 {activeStepIndex > 0 ? (
@@ -528,16 +530,14 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
           </p>
           <ul className="mt-5 space-y-3 text-sm leading-7 text-muted">
             <li className="border-b border-line pb-3">
-              {siteConfig.shortName} reviews the project category, finish direction,
-              location, and timing together instead of treating them as disconnected
-              notes.
+              {siteConfig.shortName} reviews your project type, finish direction,
+              location, and timing before reaching out.
             </li>
             <li className="border-b border-line pb-3">
               The first follow-up uses the contact method selected in the brief.
             </li>
             <li>
-              If a time-sensitive detail should bypass the intake, direct email remains
-              available.
+              For urgent updates, email {siteConfig.shortName} directly.
             </li>
           </ul>
           <a

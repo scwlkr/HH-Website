@@ -6,8 +6,8 @@ Use this language across active docs and public-facing repo copy.
 | --- | --- |
 | Howeth and Harp | Full public business name. |
 | H&H | Short public name after the full name is clear. |
-| Howeth and Harp Advancement, LLC | Full legal name. Use only where legal context is needed. |
-| H&H Advancement, LLC | Short legal name. Use only where legal context is needed. |
+| H and H Advancement LLC | Full legal name. Use only where legal context is needed. |
+| H and H | Short legal name. Use only where legal context is needed. |
 | HHQ | Internal admin workspace name. |
 | Project brief | The structured client intake flow at `/inquire`. Prefer this over generic "contact form". |
 | Inquiry submission | The persisted Firestore document created from a submitted project brief. |

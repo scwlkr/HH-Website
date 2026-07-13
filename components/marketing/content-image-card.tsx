@@ -44,7 +44,7 @@ export function ContentImageCard({
         </figcaption>
         {resolvedImage.isPlaceholder ? (
           <span className="shrink-0 font-mono text-[0.64rem] uppercase tracking-[0.2em] text-muted">
-            Reference Study
+            Design Reference
           </span>
         ) : null}
       </div>

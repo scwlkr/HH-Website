@@ -17,6 +17,7 @@ export type ProjectSummary = {
   id: string;
   slug: string;
   title: string;
+  published: boolean;
   status: ProjectStatus;
   buildTypeSlug: BuildTypeSlug;
   finishLevelSlug: FinishLevelSlug;
@@ -56,6 +57,7 @@ export type ExistingProjectImageFormInput = {
 export type ProjectFormValues = {
   title: string;
   slug: string;
+  published: boolean;
   status: ProjectStatus | "";
   buildTypeSlug: BuildTypeSlug | "";
   finishLevelSlug: FinishLevelSlug | "";
@@ -72,6 +74,7 @@ export type ProjectFormValues = {
 export const emptyProjectFormValues: ProjectFormValues = {
   title: "",
   slug: "",
+  published: false,
   status: "",
   buildTypeSlug: "",
   finishLevelSlug: "",
@@ -93,6 +96,7 @@ export type ProjectWriteInput = {
   id?: string;
   title: string;
   slug: string;
+  published: boolean;
   status: ProjectStatus;
   buildTypeSlug: BuildTypeSlug;
   finishLevelSlug: FinishLevelSlug;

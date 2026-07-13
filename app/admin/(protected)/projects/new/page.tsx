@@ -20,7 +20,8 @@ export default function NewProjectPage() {
         </p>
         <h1 className="mt-3 text-4xl">Add Completed Home</h1>
         <p className="mt-3 max-w-3xl text-base leading-7 text-muted">
-          New projects publish to the public `/projects` routes as soon as they are saved.
+          New projects begin as drafts unless you explicitly mark them as
+          published.
         </p>
       </div>
 

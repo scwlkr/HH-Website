@@ -8,9 +8,9 @@ export type SiteLink = {
 
 export const siteConfig = {
   name: "Howeth and Harp",
-  shortName: "H&H",
-  legalName: "Howeth and Harp Advancement, LLC",
-  legalShortName: "H&H Advancement, LLC",
+  shortName: "h and h",
+  legalName: "H and H Advancement LLC",
+  legalShortName: "H and H",
   description: "Architectural design, building, and land development.",
   descriptor: "Architectural design, building, and land development.",
   primaryCta: {
@@ -38,6 +38,6 @@ export const siteConfig = {
       label: env.contactEmailAddress,
       title: "Email",
     },
-    note: "For new work, the structured project brief remains the clearest starting point.",
+    note: "Planning a project? Share your location, goals, timing, and scope to start the conversation.",
   },
 } as const;

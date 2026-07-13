@@ -50,7 +50,8 @@ export default async function EditProjectPage({
         </p>
         <h1 className="mt-3 text-4xl">Edit {project.title}</h1>
         <p className="mt-3 max-w-3xl text-base leading-7 text-muted">
-          Changes here publish immediately to the live `/projects` pages.
+          Save changes as a draft, or publish the record when it is ready for
+          the live `/projects` pages.
         </p>
       </div>
 

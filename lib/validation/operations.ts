@@ -212,6 +212,7 @@ const coverAltTextSchema = z.preprocess(
 const projectFormSchema = z.object({
   title: titleSchema,
   slug: slugSchema,
+  published: z.preprocess(normalizeBooleanValue, z.boolean()),
   status: statusSchema,
   buildTypeSlug: buildTypeSchema,
   finishLevelSlug: finishLevelSchema,
@@ -289,6 +290,7 @@ export function getProjectFormValues(formData: FormData): ProjectFormValues {
   return {
     title: String(formData.get("title") ?? ""),
     slug: String(formData.get("slug") ?? ""),
+    published: formData.get("published") === "on",
     status: String(formData.get("status") ?? "") as ProjectFormValues["status"],
     buildTypeSlug: String(formData.get("buildTypeSlug") ?? "") as ProjectFormValues["buildTypeSlug"],
     finishLevelSlug: String(formData.get("finishLevelSlug") ?? "") as ProjectFormValues["finishLevelSlug"],
@@ -332,6 +334,7 @@ export function toProjectWriteInput(values: ValidProjectFormValues): ProjectWrit
   return {
     title: normalizeSingleLineText(values.title),
     slug: normalizeSlugValue(values.slug),
+    published: values.published,
     status: values.status,
     buildTypeSlug: values.buildTypeSlug as ProjectWriteInput["buildTypeSlug"],
     finishLevelSlug: values.finishLevelSlug as ProjectWriteInput["finishLevelSlug"],

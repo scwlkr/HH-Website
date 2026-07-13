@@ -18,6 +18,26 @@ const revisionConflictProject = {
   slug: "revision-conflict-smoke",
 };
 
+const publicationFixtures = [
+  {
+    id: "published-project-smoke",
+    slug: "published-project-smoke",
+    title: "Published Project Smoke",
+    published: true,
+  },
+  {
+    id: "draft-project-smoke",
+    slug: "draft-project-smoke",
+    title: "Draft Project Smoke",
+    published: false,
+  },
+  {
+    id: "legacy-project-smoke",
+    slug: "legacy-project-smoke",
+    title: "Legacy Project Smoke",
+  },
+];
+
 function log(message) {
   process.stdout.write(`${message}\n`);
 }
@@ -115,6 +135,7 @@ async function seedRevisionConflictProject(firestore) {
     id: revisionConflictProject.id,
     slug: revisionConflictProject.slug,
     title: "Revision Conflict Smoke Project",
+    published: false,
     status: "for-sale",
     buildTypeSlug: "single-family",
     finishLevelSlug: "builder-plus",
@@ -151,6 +172,47 @@ async function seedRevisionConflictProject(firestore) {
     firestore.collection("projectSlugs").doc(revisionConflictProject.slug),
     { projectId: revisionConflictProject.id },
   );
+  await batch.commit();
+}
+
+async function seedPublicationFixtures(firestore) {
+  log("Seeding project publication fixtures...");
+
+  const now = new Date();
+  const batch = firestore.batch();
+
+  for (const fixture of publicationFixtures) {
+    const project = {
+      id: fixture.id,
+      slug: fixture.slug,
+      title: fixture.title,
+      status: "sold",
+      buildTypeSlug: "single-family",
+      finishLevelSlug: "builder-plus",
+      squareFootage: 2400,
+      bedrooms: 4,
+      bathrooms: 3,
+      location: "Austin, Texas",
+      shortDescription:
+        "A smoke-test project used to verify public publication boundaries.",
+      fullDescription:
+        "This project fixture verifies that only explicitly published project records can appear on public project routes and in the sitemap.",
+      featured: false,
+      createdAt: now,
+      updatedAt: now,
+      revision: 0,
+      images: [],
+      ...(Object.hasOwn(fixture, "published")
+        ? { published: fixture.published }
+        : {}),
+    };
+
+    batch.set(firestore.collection("projects").doc(fixture.id), project);
+    batch.set(firestore.collection("projectSlugs").doc(fixture.slug), {
+      projectId: fixture.id,
+    });
+  }
+
   await batch.commit();
 }
 
@@ -274,6 +336,8 @@ async function verifyRouteStatuses(baseUrl) {
     "/catalog/commercial",
     "/faq",
     "/inquire",
+    "/projects",
+    "/projects/published-project-smoke",
     "/thank-you",
     "/privacy",
     "/terms",
@@ -287,10 +351,48 @@ async function verifyRouteStatuses(baseUrl) {
     assert(response.ok, `Expected ${route} to return 200, received ${response.status}.`);
   }
 
-  for (const route of ["/pricing/not-a-finish", "/catalog/not-a-type"]) {
+  for (const route of [
+    "/pricing/not-a-finish",
+    "/catalog/not-a-type",
+    "/projects/draft-project-smoke",
+    "/projects/legacy-project-smoke",
+  ]) {
     const response = await fetch(`${baseUrl}${route}`);
     assert(response.status === 404, `Expected ${route} to return 404, received ${response.status}.`);
   }
+}
+
+async function verifyProjectPublicationBoundary(baseUrl) {
+  log("Checking project publication boundaries...");
+
+  const [projectsResponse, sitemapResponse] = await Promise.all([
+    fetch(`${baseUrl}/projects`),
+    fetch(`${baseUrl}/sitemap.xml`),
+  ]);
+  const [projectsHtml, sitemapXml] = await Promise.all([
+    projectsResponse.text(),
+    sitemapResponse.text(),
+  ]);
+  const [publishedFixture, draftFixture, legacyFixture] = publicationFixtures;
+
+  assert(
+    projectsHtml.includes(publishedFixture.title),
+    "The public projects page must include explicitly published projects.",
+  );
+  assert(
+    !projectsHtml.includes(draftFixture.title) &&
+      !projectsHtml.includes(legacyFixture.title),
+    "The public projects page must hide draft and legacy projects.",
+  );
+  assert(
+    sitemapXml.includes(`/projects/${publishedFixture.slug}`),
+    "The sitemap must include explicitly published projects.",
+  );
+  assert(
+    !sitemapXml.includes(`/projects/${draftFixture.slug}`) &&
+      !sitemapXml.includes(`/projects/${legacyFixture.slug}`),
+    "The sitemap must hide draft and legacy projects.",
+  );
 }
 
 async function verifyLinkCoverage(page, baseUrl) {
@@ -615,6 +717,11 @@ async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
     await firstPage.getByRole("button", { name: "Sign In" }).click();
     await firstPage.waitForURL(editUrl);
 
+    assert(
+      !(await firstPage.locator('input[name="published"]').isChecked()),
+      "Unpublished projects must load as drafts in the admin form.",
+    );
+
     const stalePage = await context.newPage();
     await stalePage.goto(editUrl, { waitUntil: "networkidle" });
 
@@ -674,6 +781,10 @@ async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
     assert(
       firstSavedProject.title === "Revision Conflict First Save",
       "Expected the first project save to persist its title.",
+    );
+    assert(
+      firstSavedProject.published === false,
+      "Expected an unchecked publication control to persist the project as a draft.",
     );
     assert(
       firstSavedImages.length === 2,
@@ -753,6 +864,19 @@ async function verifyAdminAuth(browser, baseUrl) {
     await page.getByText(smokeAdmin.email).waitFor();
     await page.getByRole("heading", { name: "Completed Homes" }).waitFor();
 
+    for (const fixture of publicationFixtures) {
+      const projectRow = page.getByRole("row").filter({
+        hasText: fixture.title,
+      });
+      await projectRow.waitFor();
+      assert(
+        (await projectRow.textContent())?.includes(
+          fixture.published === true ? "Published" : "Draft",
+        ),
+        `Expected ${fixture.title} to show the correct publication state in HHQ.`,
+      );
+    }
+
     await page.getByRole("button", { name: "Sign Out" }).click();
     await page.waitForURL(`${baseUrl}/admin/login?signed_out=1`);
     await page.getByText("You have been signed out.").waitFor();
@@ -794,6 +918,7 @@ async function main() {
   try {
     adminApp = await seedAdminUser(firebaseEmulators.projectId);
     const firestore = getFirestore(adminApp);
+    await seedPublicationFixtures(firestore);
 
     log("Building the production app under smoke-test env...");
     await runNpmScript({
@@ -807,6 +932,7 @@ async function main() {
     });
 
     await verifyRouteStatuses(nextServer.baseUrl);
+    await verifyProjectPublicationBoundary(nextServer.baseUrl);
 
     browser = await chromium.launch();
     const page = await browser.newPage();

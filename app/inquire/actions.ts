@@ -62,7 +62,7 @@ export async function submitInquiryAction(
     console.error("Inquiry submission failed", error);
 
     return createInquiryServerErrorState(
-      "The project brief could not be sent right now. Please try again in a moment or email H&H directly.",
+      "The project brief could not be sent right now. Please try again in a moment or email h and h directly.",
     );
   }
 

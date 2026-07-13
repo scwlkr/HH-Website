@@ -35,9 +35,9 @@ export const marketingPageContent = {
     ],
     inquirySection: {
       eyebrow: "Project Brief",
-      title: "The primary conversion path is a structured inquiry, not a generic contact form.",
+      title: "Start with the details that shape the work.",
       description:
-        `The intake is meant to surface scope, site context, finish direction, and timing early so ${publicName} can respond from a more informed position.`,
+        `Share the scope, site context, finish direction, and timing so ${publicName} can prepare for a focused first conversation.`,
     },
     footerCta: {
       eyebrow: "Start The Conversation",
@@ -53,18 +53,18 @@ export const marketingPageContent = {
     description:
       "These categories are directional, not fixed-price packages. Final pricing depends on scope, site conditions, systems, and the degree of customization involved.",
     detail:
-      "Use this page to understand the posture of each level, then move into the dedicated finish pages for a clearer read on fit.",
+      "Choose the level that best matches the project's priorities, material expectations, and degree of customization.",
     comparison: {
       eyebrow: "High-Level Comparison",
       title: "The differences are about fit, coordination depth, and customization posture.",
       description:
-        "This comparison stays intentionally high level. The goal is to clarify direction without turning the page into contract language or technical fine print.",
+        "Compare design flexibility, material selection, construction coordination, and long-term value.",
     },
     cta: {
       eyebrow: "Next Step",
       title: "When the finish direction is close enough to discuss, start the project brief.",
       description:
-        `The inquiry form is where ${publicName} can align finish level, build type, site conditions, and timing around the actual scope.`,
+        `${publicName} can align finish level, build type, site conditions, and timing around the actual scope.`,
     },
   },
   catalog: {
@@ -73,14 +73,14 @@ export const marketingPageContent = {
     lede:
       "Planning discipline, finish clarity, and credible execution across four project types.",
     description:
-      `These categories show where ${publicName} works and how the work tends to organize. Each page explains the nature of the category and routes into the inquiry path.`,
+      `From single-family homes to commercial work, each category pairs its priorities with the appropriate design, building, and development approach.`,
     detail:
-      "Project type and finish level are related, but they are not locked together. The category pages help frame that relationship before inquiry.",
+      "Finish direction depends on use, budget, durability, market position, and design ambition—not project type alone.",
     cta: {
-      eyebrow: "Inquiry Route",
-      title: "Once the category is clear enough, the next move is the project brief.",
+      eyebrow: "Ready To Begin",
+      title: "Bring the project into focus.",
       description:
-        "The inquiry flow is designed to capture category, finish direction, location, and timing in one disciplined intake.",
+        `Share the project category, location, finish direction, and timing so ${publicName} can respond with informed next steps.`,
     },
   },
   faq: {
@@ -89,9 +89,9 @@ export const marketingPageContent = {
     lede:
       "Direct answers to the questions most likely to slow down a project decision.",
     description:
-      "The questions stay short, the answers stay direct, and the page keeps practical objections from becoming a wall of copy.",
+      "Find clear answers about services, finish levels, project types, schedules, and starting a project.",
     detail:
-      "If the scope is already taking shape, the structured project brief is available from the header.",
+      "Have a project in mind? Share what you know today, even if some details are still open.",
     cta: {
       eyebrow: "Ready To Proceed",
       title: "Use the inquiry form once the major questions are settled.",
@@ -104,11 +104,11 @@ export const marketingPageContent = {
     title: "Brief Received",
     lede: "The next step is a direct follow-up.",
     description:
-      "This page is the success destination for the inquiry flow. It confirms receipt, sets expectations for next steps, and keeps direct contact accessible if anything important needs to be added.",
+      `Your project brief has been received. ${shortName} will review the details and follow up using your preferred contact method.`,
     nextSteps: [
       `${shortName} reviews the project type, finish direction, site context, and timeline you submitted.`,
-      "Follow-up can then happen through the contact method and details provided in the brief.",
-      "If a time-sensitive detail was missed, direct email remains available as a fallback.",
+      `${shortName} will contact you using the method you selected.`,
+      `If you need to add or correct something, email ${shortName} directly.`,
     ],
   },
 } as const;

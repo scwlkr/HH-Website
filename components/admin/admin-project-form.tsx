@@ -46,6 +46,7 @@ const statusOptions: Option[] = [
 const projectFieldOrder: ProjectFieldName[] = [
   "title",
   "slug",
+  "published",
   "status",
   "buildTypeSlug",
   "finishLevelSlug",
@@ -63,7 +64,8 @@ const projectFieldOrder: ProjectFieldName[] = [
 const projectFieldLabels: Record<ProjectFieldName, string> = {
   title: "Project Title",
   slug: "Slug",
-  status: "Status",
+  published: "Publication",
+  status: "Sales Status",
   buildTypeSlug: "Build Type",
   finishLevelSlug: "Finish Level",
   squareFootage: "Square Footage",
@@ -87,6 +89,7 @@ function createProjectFormValues(
     ...emptyProjectFormValues,
     title: project?.title ?? "",
     slug: project?.slug ?? "",
+    published: project?.published ?? false,
     status: project?.status ?? "for-sale",
     buildTypeSlug:
       project?.buildTypeSlug ??
@@ -291,9 +294,36 @@ function AdminProjectFormFields({
           required
         />
 
+        <div className="flex items-end">
+          <label className="flex w-full items-start gap-3 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised/90 px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              name="published"
+              checked={formValues.published}
+              onChange={(event) => {
+                const nextPublished = event.currentTarget.checked;
+                setFormValues((currentValues) => ({
+                  ...currentValues,
+                  published: nextPublished,
+                }));
+              }}
+            />
+            <span>
+              <span className="block font-medium text-foreground">
+                {formValues.published ? "Published" : "Draft"}
+              </span>
+              <span className="mt-1 block text-muted">
+                {formValues.published
+                  ? "Visible on the public projects page and at its project URL."
+                  : "Only visible in HHQ. Check this box when the record is ready for the public website."}
+              </span>
+            </span>
+          </label>
+        </div>
+
         <Select
           name="status"
-          label="Status"
+          label="Sales Status"
           options={statusOptions}
           value={formValues.status}
           onChange={(event) => {
@@ -309,7 +339,7 @@ function AdminProjectFormFields({
         />
 
         <div className="flex items-end">
-          <label className="flex items-center gap-3 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised/90 px-4 py-3 text-sm">
+          <label className="flex w-full items-center gap-3 rounded-[var(--hh-radius-tight)] border border-line-strong bg-surface-raised/90 px-4 py-3 text-sm">
             <input
               type="checkbox"
               name="featured"

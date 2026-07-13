@@ -34,8 +34,8 @@ export default function FaqPage() {
 
       <Section
         eyebrow="Grouped Questions"
-        title="The page is organized around the questions most likely to block a next step."
-        description="Each group stays compact so visitors can scan the relevant section and move on."
+        title="Questions clients ask before getting started."
+        description="Browse answers about process, finish levels, project types, timing, and next steps."
       >
         <div className="border-t border-line-strong">
           {faqGroups.map((group, groupIndex) => {

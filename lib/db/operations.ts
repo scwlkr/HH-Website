@@ -39,6 +39,7 @@ type ProjectDocument = {
   id?: string;
   slug: string;
   title: string;
+  published?: boolean;
   status: string;
   buildTypeSlug: string;
   finishLevelSlug: string;
@@ -184,6 +185,7 @@ function mapProjectSummary(
     id: projectId,
     slug: project.slug,
     title: project.title,
+    published: project.published === true,
     status: project.status as ProjectSummary["status"],
     buildTypeSlug: project.buildTypeSlug as ProjectSummary["buildTypeSlug"],
     finishLevelSlug:
@@ -278,7 +280,7 @@ async function getProjectDocumentById(projectId: string) {
     : null;
 }
 
-async function queryPublicProjects() {
+async function queryProjects() {
   if (!isFirebaseAdminConfigured()) {
     return [] as ProjectSummary[];
   }
@@ -286,14 +288,24 @@ async function queryPublicProjects() {
   const projectsSnapshot = await getFirebaseDatabase()
     .collection(projectsCollection)
     .get();
-  const projects = projectsSnapshot.docs.map((projectSnapshot) =>
+  return projectsSnapshot.docs.map((projectSnapshot) =>
     mapProjectSummary(
       projectSnapshot.id,
       projectSnapshot.data() as ProjectDocument,
     ),
   );
+}
 
-  return sortProjectSummaries(projects);
+async function queryPublicProjects() {
+  const projects = await queryProjects();
+
+  return sortProjectSummaries(
+    projects.filter((project) => project.published === true),
+  );
+}
+
+async function queryAdminProjects() {
+  return sortProjectSummaries(await queryProjects());
 }
 
 async function queryPublicProjectBySlug(projectSlug: string) {
@@ -327,6 +339,10 @@ async function queryPublicProjectBySlug(projectSlug: string) {
     throw new Error(`Project slug reservation "${projectSlug}" is inconsistent.`);
   }
 
+  if (project.published !== true) {
+    return null;
+  }
+
   return mapProjectDetail(projectId, project);
 }
 
@@ -356,7 +372,7 @@ const getCachedPublicProjects = unstable_cache(
       return [] as ProjectSummary[];
     }
   },
-  ["public-projects"],
+  ["public-projects-v2"],
   {
     tags: [projectCacheTag],
   },
@@ -371,7 +387,7 @@ const getCachedPublicProjectBySlug = unstable_cache(
       return null;
     }
   },
-  ["public-project-by-slug"],
+  ["public-project-by-slug-v2"],
   {
     tags: [projectCacheTag],
   },
@@ -386,7 +402,7 @@ const getCachedPricingSettings = unstable_cache(
       return mapPricingSettings(null);
     }
   },
-  ["pricing-settings"],
+  ["pricing-settings-v2"],
   {
     tags: [pricingSettingsCacheTag],
   },
@@ -405,7 +421,7 @@ export async function getPublicPricingSettings() {
 }
 
 export async function listAdminProjects() {
-  return queryPublicProjects();
+  return queryAdminProjects();
 }
 
 export async function getAdminProjectById(projectId: string) {
@@ -713,6 +729,7 @@ export async function saveProject(params: {
         id: projectId,
         slug: params.project.slug,
         title: params.project.title,
+        published: params.project.published,
         status: params.project.status,
         buildTypeSlug: params.project.buildTypeSlug,
         finishLevelSlug: params.project.finishLevelSlug,

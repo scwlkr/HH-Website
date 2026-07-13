@@ -51,7 +51,7 @@ export async function loginAdminAction(
 
   if (!isFirebaseAuthConfigured()) {
     return createAdminLoginServerErrorState(
-      `Firebase auth is not configured. Add the public Firebase web app settings before using ${adminBrand.name}.`,
+      `${adminBrand.name} login is temporarily unavailable.`,
     );
   }
 

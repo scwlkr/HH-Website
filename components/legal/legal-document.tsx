@@ -46,9 +46,9 @@ export function LegalDocumentPage({ document }: LegalDocumentProps) {
       />
 
       <Section
-        eyebrow="Policy Summary"
-        title="The core terms are organized into short sections instead of one long legal wall."
-        description="The site should keep the legal routes usable and scannable while still covering the public site and inquiry workflow."
+        eyebrow="Document Details"
+        title="What you should know."
+        description="These sections explain website use, project inquiries, submitted information, and your choices."
       >
         <div className="border-t border-line-strong">
           {document.sections.map((section, index) => (
@@ -83,8 +83,8 @@ export function LegalDocumentPage({ document }: LegalDocumentProps) {
 
       <Section
         eyebrow="Questions"
-        title="Direct contact still matters if a legal or project detail needs clarification."
-        description={`The site is designed to route most project work through the brief, but questions about these pages can still go directly to ${siteConfig.shortName}.`}
+        title="Questions about this document?"
+        description={`Contact ${siteConfig.shortName} directly with questions about these terms, privacy, or information submitted through a project inquiry.`}
       >
         <div className="grid border-y border-line-strong lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)]">
           <div className="space-y-4 py-7 text-sm leading-7 text-muted lg:pr-10">

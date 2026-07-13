@@ -31,7 +31,7 @@ export function BuildTypeCard({
           />
           {resolvedHeroImage.isPlaceholder ? (
             <span className="absolute bottom-4 left-4 bg-white/90 px-2 py-1 font-mono text-[0.64rem] uppercase tracking-[0.18em] text-muted">
-              Reference Study
+              Design Reference
             </span>
           ) : null}
         </div>

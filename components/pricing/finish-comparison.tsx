@@ -27,7 +27,7 @@ export function FinishComparison({
             <div className="flex items-start justify-between gap-5">
               <div>
                 <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-accent">
-                  Finish Column
+                  Finish Level
                 </p>
                 <h3 className="mt-3 text-2xl">{finish.shortTitle}</h3>
                 {pricingLabels?.[finish.slug] ? (
@@ -79,7 +79,7 @@ export function FinishComparison({
                 scope="col"
                 className="border-b border-line p-5 align-top font-mono text-[0.68rem] font-normal uppercase tracking-[0.2em] text-muted"
               >
-                Comparison Register
+                Compare By
               </th>
               {finishLevels.map((finish) => (
                 <th
@@ -127,7 +127,7 @@ export function FinishComparison({
                 scope="row"
                 className="p-5 align-middle font-mono text-[0.68rem] font-normal uppercase tracking-[0.14em] text-muted"
               >
-                Detail Pages
+                Explore
               </th>
               {finishLevels.map((finish) => (
                 <td key={finish.slug} className="border-l border-line p-5">

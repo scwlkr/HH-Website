@@ -63,8 +63,8 @@ export default async function PricingPage() {
 
       <Section
         eyebrow="Finish Overview"
-        title="Finish levels explain posture, not packages."
-        description="Use these levels to understand the likely degree of material coordination, flexibility, and customization before a project conversation gets too specific."
+        title="Three levels of finish and coordination."
+        description="Compare the material range, design flexibility, and level of customization that each approach supports."
       >
         <div className="grid border-b border-line lg:grid-cols-3">
           {finishLevels.map((finish) => (

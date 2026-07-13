@@ -1,6 +1,6 @@
 export const adminBrand = {
   name: "HHQ",
-  descriptor: "Howeth & Harp internal control panel",
+  descriptor: "Staff access",
 } as const;
 
 export function formatAdminPageTitle(title: string) {

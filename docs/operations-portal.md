@@ -66,8 +66,8 @@ Public pricing surfaces should read from the shared settings instead of duplicat
 
 | Public route | Managed source |
 | --- | --- |
-| `/projects` | Firestore `projects` with embedded image metadata. |
-| `/projects/[projectSlug]` | Firestore `projectSlugs` lookup plus its project document. |
+| `/projects` | Firestore `projects` explicitly marked `published: true`. |
+| `/projects/[projectSlug]` | Firestore `projectSlugs` lookup plus an explicitly published project document. |
 | Pricing surfaces | Firestore `settings/pricing`. |
 
 Public data helpers live in `lib/db/operations.ts`. They use cache tags so admin saves can refresh project and pricing reads.
@@ -82,16 +82,21 @@ Each HHQ save accepts up to 4 MB of new images combined so the request remains b
 
 ## Demo Seed
 
-The demo utility uses the same embedded-image contract as HHQ. Authenticate with ADC, then run:
+The demo utility uses the same embedded-image contract as HHQ, but it is
+emulator-only. Start the Firestore and Storage emulators, then run the utility
+in another terminal:
 
 ```bash
-gcloud auth application-default login
-FIREBASE_PROJECT_ID=howeth-and-harp \
-FIREBASE_STORAGE_BUCKET=howeth-and-harp.firebasestorage.app \
+FIREBASE_PROJECT_ID=howeth-and-harp-demo \
+FIREBASE_STORAGE_BUCKET=howeth-and-harp-demo.firebasestorage.app \
+FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 \
+FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 \
 node scripts/seed-demo-content.mjs
 ```
 
-The utility replaces its two known demo projects and their Storage objects. Set the emulator variables from `.env.example` first when seeding locally.
+The utility replaces its two known demo projects and their Storage objects as
+unpublished drafts. It refuses all Firebase writes unless both emulator host
+variables are set. Placeholder image files may still be generated locally.
 
 ## Guardrails
 

@@ -15,6 +15,6 @@
 ## Naming
 - Full Public Name: Howeth and Harp
 - Short Public Name: H&H
-- Full Legal Name: Howeth and Harp Advancement, LLC
-- Short Legal Name: H&H Advancement, LLC
+- Full Legal Name: H and H Advancement LLC
+- Short Legal Name: H and H
 - Naming should never be: "HH" "Howeth & Harp" "Howeth-Harp" "HowethHarp" "howeth and harp" "howeth & harp" "howeth-harp" "howethharp"

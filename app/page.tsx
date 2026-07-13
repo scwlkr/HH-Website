@@ -14,7 +14,7 @@ import { siteConfig } from "@/lib/site-config";
 export const metadata: Metadata = createPageMetadata({
   title: "Architectural Design, Building, And Land Development",
   description:
-    "Howeth and Harp provides architectural design, building, and land development with clear finish and project-type paths into inquiry.",
+    "Howeth and Harp provides architectural design, building, and land development grounded in thoughtful planning, site fit, and finish quality.",
   path: "/",
   eyebrow: "Howeth and Harp",
 });
@@ -90,8 +90,8 @@ export default function Home() {
                 A few practical questions, answered directly.
               </h2>
               <p className="mt-5 max-w-lg text-base leading-7 text-muted">
-                The full FAQ stays available from the header. The front page keeps only
-                the questions most likely to clarify fit.
+                Clear answers on services, finish levels, project fit, and what to
+                expect before work begins.
               </p>
             </div>
 

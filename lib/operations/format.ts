@@ -20,7 +20,7 @@ export function formatCurrencyValue(value: number) {
 export function formatDirectionalPrice(value: number | null) {
   return value !== null
     ? `${formatCurrencyValue(value)} / sq ft`
-    : "Pricing benchmark pending";
+    : "Pricing available after scope review";
 }
 
 export function getDirectionalPriceForFinish(

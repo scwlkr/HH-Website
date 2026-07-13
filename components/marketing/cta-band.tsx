@@ -59,7 +59,7 @@ export function CtaBand({
         {notes?.length ? (
           <div className="border-t border-line pt-6 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
-              Why This Route
+              Project Notes
             </p>
             <ul className="mt-5 space-y-3 text-sm leading-7 text-muted">
               {notes.map((note) => (

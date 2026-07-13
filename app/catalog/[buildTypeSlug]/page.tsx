@@ -107,8 +107,8 @@ export default async function BuildTypeDetailPage({
 
       <Section
         eyebrow="Category Visuals"
-        title="Project imagery stays tied to the structure of the category."
-        description="The gallery shows the category in terms of frontage, circulation, shared conditions, and finish posture rather than turning it into a blog post."
+        title="How this work takes shape."
+        description="Representative views highlight frontage, circulation, shared spaces, and finish character."
       >
         <ContentImageGrid images={buildType.gallery} />
       </Section>
@@ -141,8 +141,8 @@ export default async function BuildTypeDetailPage({
             </p>
             <p className="mt-5 text-sm leading-7 text-muted">
               Suggested finish levels reflect where this category commonly lands,
-              not a hard rule. The inquiry process is where that recommendation
-              gets tested against the actual project.
+              not a hard rule. Final direction depends on budget, intended use,
+              durability needs, market position, and project-specific goals.
             </p>
             <ul className="mt-6 border-t border-line">
               {buildType.recommendedFinishLevels.map((slug) => {
@@ -183,8 +183,8 @@ export default async function BuildTypeDetailPage({
       <Section>
         <CtaBand
           eyebrow="Start The Project Brief"
-          title={`Use ${buildType.title} as the starting project category.`}
-          description="The inquiry form can carry this build type into the guided intake so the discussion begins from the right category frame."
+          title={`Planning a ${buildType.title.toLowerCase()} project?`}
+          description="Share the site, size, timing, priorities, and finish direction so h and h can evaluate the right path forward."
           primaryAction={{
             href: getBuildTypeInquiryHref(buildType.slug),
             label: "Start With This Category",
@@ -199,7 +199,7 @@ export default async function BuildTypeDetailPage({
           notes={[
             buildType.tagline,
             "Project category shapes planning, finish strategy, and the relevant service mix.",
-            "The brief is where H&H can connect the category to site conditions, size, and timing.",
+            "The brief is where h and h can connect the category to site conditions, size, and timing.",
           ]}
         />
       </Section>

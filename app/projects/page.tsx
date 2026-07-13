@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 import { PageIntro } from "@/components/layout/page-intro";
 import { Section } from "@/components/layout/section";
+import { ActionLink } from "@/components/marketing/action-link";
 import { ProjectCard } from "@/components/projects/project-card";
 import { DividerFrame } from "@/components/ui/divider-frame";
 import { createPageMetadata } from "@/lib/metadata";
 import { getPublicProjects } from "@/lib/db/operations";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Completed Homes",
+  title: "Selected Work",
   description:
-    "Review completed Howeth and Harp homes with live for-sale and sold status.",
+    "Explore selected Howeth and Harp work across architecture, building, and land development.",
   path: "/projects",
-  eyebrow: "Completed Homes",
+  eyebrow: "Selected Work",
 });
 
-function ProjectArchivePreview() {
+function ProjectInquiryPrompt() {
   return (
     <div className="grid gap-7 border-y border-line-strong py-7 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.55fr)] lg:gap-10">
       <div className="relative aspect-[16/9] overflow-hidden border border-line bg-white" aria-hidden="true">
@@ -25,12 +26,19 @@ function ProjectArchivePreview() {
       </div>
       <div className="flex flex-col justify-between border-t border-line pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
         <p className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-accent">
-          Archive Reserved
+          Selected Work
         </p>
         <p className="mt-5 max-w-md text-sm leading-7 text-muted">
-          Published project photography and completed-work records will appear
-          here once approved.
+          For examples aligned with your project type, scale, and finish goals,
+          start with a conversation about the work you are planning.
         </p>
+        <div className="mt-6">
+          <ActionLink
+            href="/inquire"
+            label="Discuss Your Project"
+            variant="secondary"
+          />
+        </div>
       </div>
     </div>
   );
@@ -42,17 +50,17 @@ export default async function ProjectsPage() {
   return (
     <>
       <PageIntro
-        eyebrow="Completed Homes"
+        eyebrow="Selected Work"
         title="Completed Work"
-        lede="A quiet archive of completed homes and project records."
-        description="Projects are the primary proof surface for Howeth and Harp. The page stays image-led, minimal, and tied to published records."
+        lede="Architecture, construction, and development shaped by site, scope, and long-term use."
+        description="h and h works across single-family, multifamily, townhome, commercial, and land-development projects."
         detail={
           <div className="space-y-5">
-            <DividerFrame label="Archive" detail="Managed records" />
+            <DividerFrame label="Project Focus" detail="Built around scope" />
             <ul className="space-y-3 text-sm leading-7 text-muted">
-              <li>Completed-home records are managed internally.</li>
-              <li>For-sale and sold status remain visible when present.</li>
-              <li>Final photography will strengthen the archive as records mature.</li>
+              <li>Residential and commercial work.</li>
+              <li>Architectural design, building, and land development.</li>
+              <li>Finish direction matched to use, budget, and long-term value.</li>
             </ul>
           </div>
         }
@@ -60,8 +68,8 @@ export default async function ProjectsPage() {
 
       <Section
         eyebrow="Projects"
-        title="An archival view of finished work."
-        description="Copy stays secondary here. Imagery, status, location, and a few essential facts do the work."
+        title="Work shaped by real constraints."
+        description="Browse completed work by location, scale, project type, finish level, and availability."
       >
         {projects.length > 0 ? (
           <div className="border-b border-line-strong">
@@ -75,7 +83,7 @@ export default async function ProjectsPage() {
             ))}
           </div>
         ) : (
-          <ProjectArchivePreview />
+          <ProjectInquiryPrompt />
         )}
       </Section>
     </>

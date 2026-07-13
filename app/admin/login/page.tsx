@@ -9,7 +9,7 @@ import { createPageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createPageMetadata({
   title: formatAdminPageTitle("Login"),
-  description: "Internal access to HHQ, the Howeth and Harp admin workspace.",
+  description: "Authorized staff access.",
   path: "/admin/login",
   noIndex: true,
 });
@@ -47,15 +47,13 @@ export default async function AdminLoginPage({
 
           <h1 className="mt-6 text-4xl">Staff Login</h1>
           <p className="mt-3 text-base leading-7 text-muted">
-            Use your named internal account to access HHQ and manage completed homes
-            and pricing.
+            Authorized staff only.
           </p>
 
           <div className="mt-6 space-y-4">
             {!isFirebaseAuthConfigured() ? (
               <AdminNotice tone="error">
-                Firebase auth is not configured yet. Add the public Firebase web
-                app settings before using HHQ.
+                Staff login is temporarily unavailable.
               </AdminNotice>
             ) : null}
 

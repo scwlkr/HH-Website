@@ -65,7 +65,7 @@ export default async function InquirePage({
         eyebrow="Project Brief"
         title="Start a Project"
         lede={`Share enough context to give ${siteConfig.shortName} something real to respond to.`}
-        description="This intake is structured to move from contact basics into category, finish direction, site context, and priorities without turning the process into a cold generic form."
+        description="Tell us what you are planning, where the project stands, and what matters most. Rough answers are welcome."
         actions={
           <ActionLink
             href="/pricing"
@@ -97,9 +97,9 @@ export default async function InquirePage({
       />
 
       <Section
-        eyebrow="Inquiry Flow"
-        title="The brief stays lean, but it should still be useful."
-        description={`Each section collects a small set of decisions so ${siteConfig.shortName} can review project type, finish direction, site realities, and timing as one coherent intake.`}
+        eyebrow="Project Details"
+        title="Tell us what you're planning."
+        description={`Share the project type, finish direction, location, priorities, and timeline so ${siteConfig.shortName} can prepare for the first conversation.`}
       >
         <InquiryForm initialValues={initialValues} />
       </Section>

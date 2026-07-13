@@ -15,7 +15,7 @@ export function InquiryProgress({ currentStepIndex }: InquiryProgressProps) {
           id="inquiry-progress-title"
           className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent"
         >
-          Intake Progress
+          Your Progress
         </p>
         <p id="inquiry-progress-status" className="sr-only" aria-live="polite">
           Current step: {activeStep.title}. Step {currentStepIndex + 1} of{" "}

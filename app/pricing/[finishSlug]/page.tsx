@@ -127,8 +127,8 @@ export default async function FinishDetailPage({
 
       <Section
         eyebrow="Gallery"
-        title="A visual read on the character of this finish level."
-        description="Imagery supports a directional read on material posture and finish character."
+        title="Materials and character."
+        description="Representative exterior and interior references show the typical material range and detailing."
       >
         <ContentImageGrid images={finish.gallery} />
       </Section>
@@ -136,7 +136,7 @@ export default async function FinishDetailPage({
       <Section
         eyebrow="Included Characteristics"
         title="What typically defines this level in practice."
-        description="These are directional characteristics intended to clarify fit. They are not contract language."
+        description="Exact selections are confirmed for each project's scope, budget, and site conditions."
       >
         <div className="grid border-y border-line-strong lg:grid-cols-2">
           <div className="py-7 lg:pr-10">
@@ -175,8 +175,8 @@ export default async function FinishDetailPage({
 
       <Section
         eyebrow="Other Finish Levels"
-        title="Cross-check the neighboring finish paths before committing to inquiry."
-        description="The finish levels are designed to help users orient themselves, not trap them in the first option they open."
+        title="Compare other finish levels."
+        description="Review the adjacent levels to find the right balance of cost, coordination, and customization."
       >
         <div className="grid border-b border-line lg:grid-cols-2">
           {otherFinishLevels.map((item) => (

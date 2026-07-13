@@ -39,8 +39,8 @@ export default async function AdminProjectsPage({
           </p>
           <h1 className="mt-3 text-4xl">Completed Homes</h1>
           <p className="mt-3 max-w-3xl text-base leading-7 text-muted">
-            Create, edit, and reorder the completed homes shown on the public
-            `/projects` routes.
+            Create and edit completed-home records, then publish only the ones
+            ready for the public `/projects` routes.
           </p>
         </div>
 
@@ -74,7 +74,10 @@ export default async function AdminProjectsPage({
                   Specs
                 </th>
                 <th className="px-4 py-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
-                  Status
+                  Publication
+                </th>
+                <th className="px-4 py-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
+                  Sales Status
                 </th>
                 <th className="px-4 py-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-strong">
                   Edit
@@ -114,6 +117,18 @@ export default async function AdminProjectsPage({
                         {formatProjectBathrooms(project.bathrooms)} ba
                       </td>
                       <td className="px-4 py-4">
+                        <span
+                          className={cn(
+                            "inline-flex rounded-[var(--hh-radius-tight)] border px-2 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em]",
+                            project.published
+                              ? "border-accent/40 bg-accent/10 text-accent"
+                              : "border-line-strong bg-background/70 text-muted-strong",
+                          )}
+                        >
+                          {project.published ? "Published" : "Draft"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
                         <ProjectStatusBadge status={project.status} />
                       </td>
                       <td className="px-4 py-4">
@@ -135,7 +150,7 @@ export default async function AdminProjectsPage({
                 })
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-muted">
+                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted">
                     No completed homes have been added yet.
                   </td>
                 </tr>

@@ -39,14 +39,14 @@ export const faqItems = [
     group: "process",
     question: "Do you handle both design and construction?",
     answer:
-      `${publicName} is positioned around architectural design, building, and land development. The exact mix depends on the project, but the inquiry process is intended to identify whether you need one service or a coordinated combination.`,
+      `${publicName} provides architectural design, building, and land development. Depending on the project, h and h can provide one service or coordinate several.`,
   },
   {
     id: "process-land-first",
     group: "process",
     question: "Can I start an inquiry if I only have land or a target area?",
     answer:
-      "Yes. You do not need a complete brief to begin the conversation. If you already own a lot, are evaluating a site, or are still narrowing the location, that context can be captured in the inquiry and used to shape the next step.",
+      "Yes. You can begin with a lot you own, a site you are evaluating, or simply a target area. Share what you know, and h and h can help determine the next useful step.",
   },
   {
     id: "pricing-finish-levels",
@@ -60,14 +60,14 @@ export const faqItems = [
     group: "pricing",
     question: "How should I choose between Builder Grade, Builder+, and Custom?",
     answer:
-      "The right finish level depends on how much customization the project needs, how visible the finish decisions are to the overall experience, and where you want to place the budget emphasis. The inquiry form is designed to surface that fit early instead of forcing a guess.",
+      "The right finish level depends on how much customization the project needs, how visible the finish decisions are to the overall experience, and where you want to place the budget emphasis. If you are unsure, choose the closest direction and h and h can help refine it around your priorities and budget.",
   },
   {
     id: "project-types-residential",
     group: "project-types",
     question: "Do you only work on custom homes?",
     answer:
-      `No. ${shortName} is intended to cover single-family, multifamily, townhome, and commercial work. Some projects will be highly custom, while others are better served by disciplined, repeatable solutions.`,
+      `No. ${shortName} works across single-family, multifamily, townhome, and commercial projects. Some projects are highly custom, while others are better served by disciplined, repeatable solutions.`,
   },
   {
     id: "project-types-finish-fit",
@@ -88,21 +88,21 @@ export const faqItems = [
     group: "timeline",
     question: "What information is most helpful at the start?",
     answer:
-      "The most useful inputs are the project type, approximate size, location, intended timeline, finish-level direction, and a short description of the goals or constraints. Even partial information is enough to begin the intake.",
+      "The most useful inputs are the project type, approximate size, location, intended timeline, finish-level direction, and a short description of the goals or constraints. Even partial information is enough to start the conversation.",
   },
   {
     id: "next-steps-follow-up",
     group: "next-steps",
     question: "What happens after I submit an inquiry?",
     answer:
-      `The thank-you state will confirm receipt, and ${shortName} can follow up based on the preferred contact method and project details you provided. The goal is to move from general interest into a more structured project conversation without unnecessary back-and-forth.`,
+      `${shortName} reviews the information you submitted, then follows up using your preferred contact method to discuss fit and next steps.`,
   },
   {
     id: "next-steps-contact-method",
     group: "next-steps",
     question: "Can I still call or email directly?",
     answer:
-      "Yes. Direct phone and email contact can remain available, but the primary path is the structured inquiry so the team receives enough context to respond intelligently.",
+      "Yes. You can call or email directly. For a new project, the project brief helps you share the key details up front.",
   },
 ] satisfies ReadonlyArray<FAQItem>;
 

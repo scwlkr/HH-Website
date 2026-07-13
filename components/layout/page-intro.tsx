@@ -60,7 +60,7 @@ export function PageIntro({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line py-4 font-mono text-[0.62rem] uppercase tracking-[0.24em] text-muted">
-          <span>Public Sheet</span>
+          <span>{siteConfig.name}</span>
           <span>{eyebrow}</span>
         </div>
       </Container>

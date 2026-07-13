@@ -171,7 +171,7 @@ export function GET(request: Request) {
                   color: "#5d564b",
                 }}
               >
-                <span>Project Route</span>
+                <span>Design · Build · Develop</span>
                 <span
                   style={{
                     flex: 1,
@@ -179,7 +179,7 @@ export function GET(request: Request) {
                     background: "rgba(17, 17, 15, 0.34)",
                   }}
                 />
-                <span>Preview</span>
+                <span>{siteConfig.shortName}</span>
               </div>
 
               <div
@@ -267,7 +267,7 @@ export function GET(request: Request) {
             >
               <div>Measured composition.</div>
               <div>Clear finish direction.</div>
-              <div>Structured path into inquiry.</div>
+              <div>Disciplined execution.</div>
             </div>
           </div>
         </div>
