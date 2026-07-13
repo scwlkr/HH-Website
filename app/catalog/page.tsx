@@ -53,9 +53,13 @@ export default function CatalogPage() {
         title="Four category pages make the scope legible before inquiry."
         description="Each category stays disciplined: clear summary, project considerations, relevant finish direction, and a direct route into the project brief."
       >
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {buildTypes.map((buildType) => (
-            <BuildTypeCard key={buildType.slug} buildType={buildType} />
+        <div className="border-b border-line-strong">
+          {buildTypes.map((buildType, index) => (
+            <BuildTypeCard
+              key={buildType.slug}
+              buildType={buildType}
+              index={index}
+            />
           ))}
         </div>
       </Section>

@@ -6,7 +6,6 @@ import { ActionLink } from "@/components/marketing/action-link";
 import { ContentImageGrid } from "@/components/marketing/content-image-grid";
 import { CtaBand } from "@/components/marketing/cta-band";
 import { FinishCard } from "@/components/marketing/finish-card";
-import { CardShell } from "@/components/ui/card-shell";
 import {
   buildTypeSlugs,
   finishLevels,
@@ -119,8 +118,8 @@ export default async function BuildTypeDetailPage({
         title="What usually needs to be solved inside this category."
         description="These are the recurring planning and execution considerations that shape the work early."
       >
-        <div className="grid gap-6 lg:grid-cols-2">
-          <CardShell>
+        <div className="grid border-y border-line-strong lg:grid-cols-2">
+          <div className="py-7 lg:pr-10">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
               Category Considerations
             </p>
@@ -134,9 +133,9 @@ export default async function BuildTypeDetailPage({
                 </li>
               ))}
             </ul>
-          </CardShell>
+          </div>
 
-          <CardShell tone="muted">
+          <div className="border-t border-line py-7 lg:border-l lg:border-t-0 lg:pl-10">
             <p className="font-mono text-[0.72rem] uppercase tracking-[0.28em] text-accent">
               Finish Direction
             </p>
@@ -145,7 +144,7 @@ export default async function BuildTypeDetailPage({
               not a hard rule. The inquiry process is where that recommendation
               gets tested against the actual project.
             </p>
-            <div className="mt-6 flex flex-wrap gap-2">
+            <ul className="mt-6 border-t border-line">
               {buildType.recommendedFinishLevels.map((slug) => {
                 const finish = finishLevels.find((item) => item.slug === slug);
 
@@ -154,16 +153,13 @@ export default async function BuildTypeDetailPage({
                 }
 
                 return (
-                  <span
-                    key={slug}
-                    className="rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted"
-                  >
+                  <li key={slug} className="border-b border-line py-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
                     {finish.shortTitle}
-                  </span>
+                  </li>
                 );
               })}
-            </div>
-          </CardShell>
+            </ul>
+          </div>
         </div>
       </Section>
 
@@ -172,9 +168,14 @@ export default async function BuildTypeDetailPage({
         title="Relevant finish paths for this category."
         description="These recommendations help connect project type to specification posture before the inquiry begins."
       >
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid border-b border-line lg:grid-cols-3">
           {recommendedFinishes.map((finish) => (
-            <FinishCard key={finish.slug} finish={finish} variant="preview" />
+            <FinishCard
+              key={finish.slug}
+              finish={finish}
+              variant="preview"
+              className="lg:border-l lg:px-8 lg:first:border-l-0 lg:first:pl-0 lg:last:pr-0"
+            />
           ))}
         </div>
       </Section>
