@@ -29,8 +29,10 @@ import {
 import {
   PlanHomeDraftAuthorizationError,
   PlanHomeDraftConflictError,
+  PLAN_HOME_SUBMITTED_RETENTION_MS,
   createPlanHomeDraftRepository,
 } from "../features/plan-your-home/server-draft-repository.ts";
+import { PLAN_HOME_INQUIRY_CONSENT_VERSION } from "../features/plan-your-home/server-draft-contract.ts";
 import {
   planHomeQuestions,
   summarizePlanHomeAnswer,
@@ -465,6 +467,84 @@ test(
         PlanHomeDraftConflictError,
       );
 
+      const designDeskCheckpoint = {
+        draftId: created.draftId,
+        expectedRevision: 7,
+        idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:design-desk-and-review`,
+        completedZoneId: "design-desk-and-review",
+        answers: answersThrough(34),
+      };
+      const designDeskCheckpointResult = await repository.checkpointDraft(
+        designDeskCheckpoint,
+        sessionTokenHash,
+      );
+      assert.equal(designDeskCheckpointResult.revision, 8);
+      assert.equal(designDeskCheckpointResult.applied, true);
+      assert.deepEqual(designDeskCheckpointResult.progress.completedZoneIds, [
+        "project-and-living",
+        "kitchen-and-dining",
+        "primary-suite",
+        "bedrooms-and-shared-bathrooms",
+        "utility-and-systems",
+        "exterior-and-site",
+        "design-desk-and-review",
+      ]);
+
+      const submissionKey = `local-${randomUUID()}:plan-home-v1:submission`;
+      const submissionInput = {
+        draftId: created.draftId,
+        expectedRevision: 8,
+        idempotencyKey: submissionKey,
+        answers: answersThrough(35),
+        references: [],
+        consent: {
+          version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
+          inquiryAndProjectContactAccepted: true,
+        },
+      };
+      await assert.rejects(
+        repository.submitDraft(submissionInput, "f".repeat(64)),
+        PlanHomeDraftAuthorizationError,
+      );
+      await assert.rejects(
+        repository.submitDraft(
+          { ...submissionInput, expectedRevision: 7 },
+          sessionTokenHash,
+        ),
+        PlanHomeDraftConflictError,
+      );
+      await assert.rejects(
+        repository.submitDraft(
+          {
+            ...submissionInput,
+            answers: answersThrough(34),
+          },
+          sessionTokenHash,
+        ),
+      );
+
+      const submitted = await repository.submitDraft(
+        submissionInput,
+        sessionTokenHash,
+      );
+      assert.equal(submitted.applied, true);
+      assert.equal(submitted.revision, 9);
+      assert.equal(submitted.notificationIntentCount, 0);
+      assert.deepEqual(
+        await repository.submitDraft(submissionInput, sessionTokenHash),
+        { ...submitted, applied: false },
+      );
+      await assert.rejects(
+        repository.submitDraft(
+          {
+            ...submissionInput,
+            idempotencyKey: `local-${randomUUID()}:plan-home-v1:submission`,
+          },
+          sessionTokenHash,
+        ),
+        PlanHomeDraftConflictError,
+      );
+
       const finalDraft = (
         await firestore
           .collection("inquirySubmissions")
@@ -472,15 +552,16 @@ test(
           .get()
       ).data();
       assert(finalDraft, "The final draft must exist.");
-      assert.equal(finalDraft.revision, 7);
+      assert.equal(finalDraft.revision, 9);
+      assert.equal(finalDraft.status, "submitted");
       assert.equal(
         finalDraft.answers["home.heated-square-feet"],
         createInput.answers["home.heated-square-feet"],
       );
       assert.equal(finalDraft.derived.finishLevel, "builder-grade");
-      assert.equal(Object.keys(finalDraft.answers).length, 30);
+      assert.equal(Object.keys(finalDraft.answers).length, 35);
       assert.deepEqual(finalDraft.progress, {
-        currentPromptId: "design.feeling",
+        currentQuestionId: "contact.follow-up",
         currentZoneId: "design-desk-and-review",
         completedZoneIds: [
           "project-and-living",
@@ -489,8 +570,30 @@ test(
           "bedrooms-and-shared-bathrooms",
           "utility-and-systems",
           "exterior-and-site",
+          "design-desk-and-review",
         ],
       });
+      assert.equal(
+        finalDraft.contact.preferredFollowUp,
+        "email",
+      );
+      assert.equal(
+        finalDraft.acceptedConsentVersion,
+        PLAN_HOME_INQUIRY_CONSENT_VERSION,
+      );
+      assert.equal(
+        finalDraft.acceptedConsentAt.toDate().toISOString(),
+        submitted.submittedAt,
+      );
+      assert.equal(
+        finalDraft.submittedAt.toDate().toISOString(),
+        submitted.submittedAt,
+      );
+      assert.equal(
+        finalDraft.expiresAt.toMillis() - finalDraft.submittedAt.toMillis(),
+        PLAN_HOME_SUBMITTED_RETENTION_MS,
+      );
+      assert.deepEqual(finalDraft.notificationIntents, []);
       assert.equal(
         summarizePlanHomeAnswer(
           "kitchen.arrangement",
@@ -598,7 +701,7 @@ test(
       );
       assert.equal(
         Object.keys(finalDraft.checkpointIdempotency).length,
-        6,
+        7,
       );
 
       const legacyDocument = (
@@ -680,7 +783,7 @@ test(
       }
 
       process.stdout.write(
-        `Plan Home emulator evidence: records=${collectionAfterCreate.size}, planHomeDrafts=${planHomeDraftCount}, draftId=${created.draftId}, revision=${finalDraft.revision}, currentPrompt=${finalDraft.progress.currentPromptId}, completedZones=${finalDraft.progress.completedZoneIds.length}, checkpointKeys=${Object.keys(finalDraft.checkpointIdempotency).length}, rawSessionStored=false, browserFirestoreDenied=true, browserStorageDenied=true\n`,
+        `Plan Home emulator evidence: records=${collectionAfterCreate.size}, planHomeDrafts=${planHomeDraftCount}, draftId=${created.draftId}, status=${finalDraft.status}, answerCount=${Object.keys(finalDraft.answers).length}, revision=${finalDraft.revision}, currentPrompt=${finalDraft.progress.currentQuestionId}, completedZones=${finalDraft.progress.completedZoneIds.length}, checkpointKeys=${Object.keys(finalDraft.checkpointIdempotency).length}, consentVersion=${finalDraft.acceptedConsentVersion}, submittedAt=${finalDraft.submittedAt.toDate().toISOString()}, notificationIntents=${finalDraft.notificationIntents.length}, rawSessionStored=false, browserFirestoreDenied=true, browserStorageDenied=true\n`,
       );
     } finally {
       await deleteAdminApp(adminApp);

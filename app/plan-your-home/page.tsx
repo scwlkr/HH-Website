@@ -12,6 +12,7 @@ import {
   issuePlanHomeReferenceUploadAction,
   removePlanHomeReferenceAction,
   syncPlanHomeReferenceNotesAction,
+  submitPlanHomeDraftAction,
 } from "@/app/plan-your-home/actions";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -35,6 +36,7 @@ export default function PlanYourHomePage() {
       addReferenceLink={addPlanHomeReferenceLinkAction}
       removeReference={removePlanHomeReferenceAction}
       syncReferenceNotes={syncPlanHomeReferenceNotesAction}
+      submitDraft={submitPlanHomeDraftAction}
     />
   );
 }

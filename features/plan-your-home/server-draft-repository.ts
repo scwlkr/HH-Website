@@ -6,15 +6,18 @@ import {
   createContactGateProgress,
   createPlanHomeDraftContact,
   createPlanHomeDraftDerived,
+  PlanHomeDraftValidationError,
   parseCheckpointPlanHomeDraftInput,
   parseCreatePlanHomeDraftInput,
+  parseSubmitPlanHomeDraftInput,
   type PlanHomeDraftProgress,
 } from "./server-draft-contract.ts";
-import type { PlanHomeAnswerMap } from "./registry.ts";
+import { planHomeQuestions, planHomeZoneIds, type PlanHomeAnswerMap } from "./registry.ts";
 import type { PlanHomeReferenceMetadata } from "./references.ts";
 
 const inquirySubmissionsCollection = "inquirySubmissions";
 export const PLAN_HOME_DRAFT_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
+export const PLAN_HOME_SUBMITTED_RETENTION_MS = 730 * 24 * 60 * 60 * 1000;
 
 type StoredIdempotencyResult = Readonly<{
   requestHash: string;
@@ -61,6 +64,14 @@ export type PlanHomeDraftWriteResult = Readonly<{
   revision: number;
   progress: PlanHomeDraftProgress;
   applied: boolean;
+}>;
+
+export type PlanHomeSubmissionWriteResult = Readonly<{
+  draftId: string;
+  revision: number;
+  submittedAt: string;
+  applied: boolean;
+  notificationIntentCount: 0;
 }>;
 
 export class PlanHomeDraftAuthorizationError extends Error {
@@ -156,8 +167,45 @@ function readStoredDraft(value: unknown): StoredPlanHomeDraft {
   return value as StoredPlanHomeDraft;
 }
 
+type StoredPlanHomeRecord = Omit<StoredPlanHomeDraft, "status" | "submittedAt"> & {
+  status: "draft" | "submitted";
+  submittedAt: null | Date;
+  submissionIdempotency?: Readonly<{
+    keyHash: string;
+    requestHash: string;
+    resultRevision: number;
+    submittedAt: string;
+  }>;
+};
+
+function readStoredPlanHomeRecord(value: unknown): StoredPlanHomeRecord {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    !("schemaVersion" in value) ||
+    value.schemaVersion !== 2 ||
+    !("experience" in value) ||
+    value.experience !== "plan-your-home" ||
+    !("status" in value) ||
+    (value.status !== "draft" && value.status !== "submitted") ||
+    !("revision" in value) ||
+    typeof value.revision !== "number" ||
+    !Number.isInteger(value.revision) ||
+    value.revision < 1
+  ) {
+    throw new PlanHomeDraftConflictError(
+      "The stored inquiry is incompatible with submission.",
+    );
+  }
+
+  return value as StoredPlanHomeRecord;
+}
+
 function assertAuthorized(
-  document: StoredPlanHomeDraft,
+  document: Readonly<{
+    draftSession: StoredPlanHomeDraft["draftSession"];
+    expiresAt: Date;
+  }>,
   sessionTokenHash: string,
   checkedAt: Date,
 ) {
@@ -407,6 +455,134 @@ export function createPlanHomeDraftRepository(
           revision,
           progress,
           applied: true,
+        };
+      });
+    },
+
+    async submitDraft(
+      input: unknown,
+      sessionTokenHash: string,
+    ): Promise<PlanHomeSubmissionWriteResult> {
+      const parsed = parseSubmitPlanHomeDraftInput(input);
+      const documentReference = database
+        .collection(inquirySubmissionsCollection)
+        .doc(parsed.draftId);
+      const idempotencyKeyHash = sha256(parsed.idempotencyKey);
+      const submitRequestHash = requestHash({
+        draftId: parsed.draftId,
+        expectedRevision: parsed.expectedRevision,
+        answers: parsed.answers,
+        references: parsed.references,
+        consent: parsed.consent,
+      });
+
+      return database.runTransaction(async (transaction) => {
+        const snapshot = await transaction.get(documentReference);
+        if (!snapshot.exists) {
+          throw new PlanHomeDraftNotFoundError();
+        }
+
+        const existing = readStoredPlanHomeRecord(snapshot.data());
+        const writtenAt = now();
+        assertAuthorized(existing, sessionTokenHash, writtenAt);
+
+        if (existing.status === "submitted") {
+          if (
+            existing.submissionIdempotency?.keyHash !== idempotencyKeyHash ||
+            existing.submissionIdempotency.requestHash !== submitRequestHash
+          ) {
+            throw new PlanHomeDraftConflictError(
+              "This inquiry was already submitted with a different request.",
+              existing.revision,
+            );
+          }
+
+          return {
+            draftId: parsed.draftId,
+            revision: existing.submissionIdempotency.resultRevision,
+            submittedAt: existing.submissionIdempotency.submittedAt,
+            applied: false,
+            notificationIntentCount: 0,
+          };
+        }
+
+        if (parsed.expectedRevision !== existing.revision) {
+          throw new PlanHomeDraftConflictError(
+            "This draft changed after submission was prepared. Review the latest saved revision and try again.",
+            existing.revision,
+          );
+        }
+
+        if (
+          existing.progress.currentPromptId !== "review" ||
+          existing.progress.completedZoneIds.length !== planHomeZoneIds.length ||
+          existing.progress.completedZoneIds.some(
+            (zoneId, index) => zoneId !== planHomeZoneIds[index],
+          )
+        ) {
+          throw new PlanHomeDraftConflictError(
+            "All seven saved room checkpoints are required before submission.",
+            existing.revision,
+          );
+        }
+
+        if (JSON.stringify(existing.references) !== JSON.stringify(parsed.references)) {
+          throw new PlanHomeDraftConflictError(
+            "Reference metadata changed before submission. Review the latest saved references and try again.",
+            existing.revision,
+          );
+        }
+
+        const revision = existing.revision + 1;
+        const submittedAt = writtenAt.toISOString();
+        const preferredFollowUp = parsed.answers["contact.follow-up"];
+        if (typeof preferredFollowUp !== "string") {
+          throw new PlanHomeDraftValidationError([
+            "A canonical follow-up preference is required.",
+          ]);
+        }
+        const derived = createPlanHomeDraftDerived(existing.contact, parsed.answers);
+
+        transaction.update(documentReference, {
+          status: "submitted",
+          contact: {
+            ...existing.contact,
+            preferredFollowUp,
+          },
+          answers: parsed.answers,
+          progress: {
+            currentQuestionId: planHomeQuestions.at(-1)?.id,
+            currentZoneId: "design-desk-and-review",
+            completedZoneIds: [...planHomeZoneIds],
+          },
+          references: parsed.references,
+          derived: {
+            ...derived,
+            lastActivityAt: writtenAt,
+          },
+          revision,
+          acceptedConsentVersion: parsed.consent.version,
+          acceptedConsentAt: writtenAt,
+          submittedAt: writtenAt,
+          updatedAt: writtenAt,
+          expiresAt: new Date(
+            writtenAt.getTime() + PLAN_HOME_SUBMITTED_RETENTION_MS,
+          ),
+          notificationIntents: [],
+          submissionIdempotency: {
+            keyHash: idempotencyKeyHash,
+            requestHash: submitRequestHash,
+            resultRevision: revision,
+            submittedAt,
+          },
+        });
+
+        return {
+          draftId: parsed.draftId,
+          revision,
+          submittedAt,
+          applied: true,
+          notificationIntentCount: 0,
         };
       });
     },

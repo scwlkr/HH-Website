@@ -270,10 +270,7 @@ describe("plan-home-v1 registry", () => {
       false,
     );
     assert.equal(
-      validatePlanHomeAnswer("contact.follow-up", {
-        method: "email",
-        projectContactConsent: false,
-      }).success,
+      validatePlanHomeAnswer("contact.follow-up", "marketing-email").success,
       false,
     );
   });

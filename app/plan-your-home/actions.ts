@@ -4,16 +4,19 @@ import {
   PlanHomeDraftValidationError,
   parseCheckpointPlanHomeDraftInput,
   parseCreatePlanHomeDraftInput,
+  parseSubmitPlanHomeDraftInput,
 } from "@/features/plan-your-home/server-draft-contract";
 import {
   PlanHomeDraftAuthorizationError,
   PlanHomeDraftConflictError,
   PlanHomeDraftNotFoundError,
   type PlanHomeDraftWriteResult,
+  type PlanHomeSubmissionWriteResult,
 } from "@/features/plan-your-home/server-draft-repository";
 import {
   checkpointPlanHomeDraft,
   createPlanHomeDraft,
+  submitPlanHomeDraft,
 } from "@/lib/db/plan-home-drafts";
 import {
   getPlanHomeDraftSession,
@@ -49,6 +52,13 @@ export type PlanHomeDraftActionState =
       message: string;
       currentRevision?: number;
     }>;
+
+export type PlanHomeSubmitActionState =
+  | Readonly<{
+      status: "success";
+      result: PlanHomeSubmissionWriteResult;
+    }>
+  | Exclude<PlanHomeDraftActionState, { status: "success" }>;
 
 export type PlanHomeReferenceActionState<Result> =
   | Readonly<{ status: "success"; result: Result }>
@@ -198,6 +208,35 @@ export async function checkpointPlanHomeDraftAction(
     return {
       status: "server-error",
       message: "Draft saving is temporarily unavailable.",
+    };
+  }
+}
+
+export async function submitPlanHomeDraftAction(
+  input: unknown,
+): Promise<PlanHomeSubmitActionState> {
+  try {
+    const parsed = parseSubmitPlanHomeDraftInput(input);
+    const session = await getPlanHomeDraftSession();
+    if (!session || session.draftId !== parsed.draftId) {
+      return {
+        status: "authorization-error",
+        message: "This draft session is missing or no longer valid.",
+      };
+    }
+
+    const result = await submitPlanHomeDraft(
+      parsed,
+      session.sessionTokenHash,
+    );
+    return { status: "success", result };
+  } catch (error) {
+    const knownError = knownActionError(error);
+    if (knownError && knownError.status !== "success") return knownError;
+    console.error("Plan Your Home submission failed", error);
+    return {
+      status: "server-error",
+      message: "Your project brief could not be submitted right now.",
     };
   }
 }

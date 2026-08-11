@@ -183,6 +183,7 @@ export const submittedProjectBriefSchema = z
     derived: derivedSchema,
     revision: z.number().int().nonnegative(),
     acceptedConsentVersion: z.string().trim().min(1).max(80),
+    acceptedConsentAt: timestampSchema,
     createdAt: timestampSchema,
     updatedAt: timestampSchema,
     submittedAt: timestampSchema,

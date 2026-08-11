@@ -4,6 +4,8 @@ import {
   planHomeContactCheckpointSchema,
   type PlanHomeContactCheckpoint,
 } from "./schemas.ts";
+import { planHomeReferenceCollectionSchema } from "./references.ts";
+import type { PlanHomeReferenceMetadata } from "./references.ts";
 import {
   planHomeQuestions,
   planHomeZoneIds,
@@ -65,6 +67,25 @@ const checkpointEnvelopeSchema = z
   })
   .strict();
 
+export const PLAN_HOME_INQUIRY_CONSENT_VERSION =
+  "plan-home-inquiry-contact-v1";
+
+const submitEnvelopeSchema = z
+  .object({
+    draftId: draftIdSchema,
+    expectedRevision: z.number().int().positive(),
+    idempotencyKey: idempotencyKeySchema,
+    answers: z.record(z.string(), z.unknown()),
+    references: planHomeReferenceCollectionSchema,
+    consent: z
+      .object({
+        version: z.literal(PLAN_HOME_INQUIRY_CONSENT_VERSION),
+        inquiryAndProjectContactAccepted: z.literal(true),
+      })
+      .strict(),
+  })
+  .strict();
+
 export type PlanHomeDraftProgress = Readonly<{
   currentPromptId: PlanHomeQuestionId | "review";
   currentZoneId: PlanHomeZoneId;
@@ -106,6 +127,18 @@ export type ParsedCheckpointPlanHomeDraftInput = Readonly<{
   idempotencyKey: string;
   completedZoneId: PlanHomeZoneId;
   answers: PlanHomeAnswerMap;
+}>;
+
+export type ParsedSubmitPlanHomeDraftInput = Readonly<{
+  draftId: string;
+  expectedRevision: number;
+  idempotencyKey: string;
+  answers: PlanHomeAnswerMap;
+  references: readonly PlanHomeReferenceMetadata[];
+  consent: Readonly<{
+    version: typeof PLAN_HOME_INQUIRY_CONSENT_VERSION;
+    inquiryAndProjectContactAccepted: true;
+  }>;
 }>;
 
 export class PlanHomeDraftValidationError extends Error {
@@ -230,6 +263,31 @@ export function parseCheckpointPlanHomeDraftInput(
       questionCountThroughZone(parsed.completedZoneId),
     ),
   };
+}
+
+export function parseSubmitPlanHomeDraftInput(
+  input: unknown,
+): ParsedSubmitPlanHomeDraftInput {
+  const parsed = parseEnvelope(submitEnvelopeSchema.safeParse(input));
+  const answers = parseCanonicalAnswerPrefix(
+    parsed.answers,
+    planHomeQuestions.length,
+  );
+  const referenceAnswer = answers["design.references"];
+  const answerReferences =
+    referenceAnswer &&
+    typeof referenceAnswer === "object" &&
+    "references" in referenceAnswer
+      ? referenceAnswer.references
+      : null;
+
+  if (JSON.stringify(answerReferences) !== JSON.stringify(parsed.references)) {
+    throw new PlanHomeDraftValidationError([
+      "Submitted reference metadata must match the canonical reference answer.",
+    ]);
+  }
+
+  return { ...parsed, answers };
 }
 
 export function createContactGateProgress(): PlanHomeDraftProgress {

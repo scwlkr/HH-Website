@@ -1006,28 +1006,11 @@ const followUpOptions = [
   option("phone-call", "Phone call"),
   option("text-message", "Text message"),
 ] as const;
-const followUpResponseSchema = z.object({
-  method: optionEnum(followUpOptions).nullable(),
-  projectContactConsent: z.boolean(),
-});
-const followUpAnswerSchema = z.object({
-  method: optionEnum(followUpOptions),
-  projectContactConsent: z.literal(true),
-});
-const followUpResponse = groupedResponse({
-  optionGroups: [{ id: "method", label: "Follow-up method", options: followUpOptions }],
-  responseSchema: followUpResponseSchema,
-  answerSchema: followUpAnswerSchema,
-  defaultAnswer: { method: null, projectContactConsent: false },
-  exampleAnswer: { method: "email", projectContactConsent: true },
-  summarize: (answer) => {
-    const value = followUpAnswerSchema.parse(answer);
-    return formatParts([
-      ["Follow-up", optionLabel(followUpOptions, value.method)],
-      ["Project-related contact", "Confirmed"],
-    ]);
-  },
-});
+const followUpResponse = choiceResponse(
+  "method",
+  "Follow-up method",
+  followUpOptions,
+);
 
 export const planHomeQuestions = [
   {

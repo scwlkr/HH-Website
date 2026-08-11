@@ -24,3 +24,10 @@ export async function checkpointPlanHomeDraft(
 ) {
   return getPlanHomeDraftRepository().checkpointDraft(input, sessionTokenHash);
 }
+
+export async function submitPlanHomeDraft(
+  input: unknown,
+  sessionTokenHash: string,
+) {
+  return getPlanHomeDraftRepository().submitDraft(input, sessionTokenHash);
+}

@@ -3,11 +3,13 @@ import { describe, it } from "node:test";
 
 import {
   PlanHomeDraftValidationError,
+  PLAN_HOME_INQUIRY_CONSENT_VERSION,
   createCompletedZoneProgress,
   createPlanHomeDraftContact,
   createPlanHomeDraftDerived,
   parseCheckpointPlanHomeDraftInput,
   parseCreatePlanHomeDraftInput,
+  parseSubmitPlanHomeDraftInput,
 } from "../features/plan-your-home/server-draft-contract.ts";
 import { createPlanHomeDraftRepository } from "../features/plan-your-home/server-draft-repository.ts";
 import { planHomeQuestions } from "../features/plan-your-home/registry.ts";
@@ -169,6 +171,42 @@ describe("Plan Your Home server draft contract", () => {
         parseCheckpointPlanHomeDraftInput({
           ...parsed,
           answers: answersThrough(14),
+        }),
+      PlanHomeDraftValidationError,
+    );
+  });
+
+  it("requires 35 canonical answers, matching references, and the versioned inquiry consent", () => {
+    const parsed = parseSubmitPlanHomeDraftInput({
+      draftId: `draft-${"c".repeat(40)}`,
+      expectedRevision: 8,
+      idempotencyKey: `local-${localDraftId}:plan-home-v1:submission`,
+      answers: answersThrough(35),
+      references: [],
+      consent: {
+        version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
+        inquiryAndProjectContactAccepted: true,
+      },
+    });
+
+    assert.equal(Object.keys(parsed.answers).length, 35);
+    assert.equal(parsed.answers["contact.follow-up"], "email");
+    assert.throws(
+      () =>
+        parseSubmitPlanHomeDraftInput({
+          ...parsed,
+          answers: answersThrough(34),
+        }),
+      PlanHomeDraftValidationError,
+    );
+    assert.throws(
+      () =>
+        parseSubmitPlanHomeDraftInput({
+          ...parsed,
+          consent: {
+            version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
+            inquiryAndProjectContactAccepted: false,
+          },
         }),
       PlanHomeDraftValidationError,
     );
