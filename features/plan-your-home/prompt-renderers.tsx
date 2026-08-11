@@ -39,6 +39,15 @@ type MultiChoicePromptProps = PromptFieldProps &
     columns?: 1 | 2 | 3;
   }>;
 
+type ExteriorStylePromptProps = PromptFieldProps &
+  Readonly<{
+    options: readonly PlanHomeOption[];
+    value: readonly string[];
+    onChange: (value: readonly string[]) => void;
+    maxSelections: number;
+    exclusiveOptionSlugs?: readonly string[];
+  }>;
+
 export type GroupedChoiceValue = Readonly<
   Record<string, string | null | readonly string[]>
 >;
@@ -313,6 +322,93 @@ export function MultiChoicePrompt({
             />
             <OptionMark multiple />
             <span>{option.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+export function ExteriorStylePrompt({
+  id,
+  legend,
+  instructions,
+  error,
+  options,
+  value,
+  onChange,
+  maxSelections,
+  exclusiveOptionSlugs = [],
+}: ExteriorStylePromptProps) {
+  const ids = useFieldIds(id);
+  const [limitError, setLimitError] = useState<string | null>(null);
+  const displayedError = error || limitError;
+  const limitInstruction = `Choose up to ${maxSelections} direction samples. ${instructions ?? ""}`.trim();
+
+  function toggle(slug: string) {
+    if (value.includes(slug)) {
+      setLimitError(null);
+      onChange(value.filter((item) => item !== slug));
+      return;
+    }
+
+    if (exclusiveOptionSlugs.includes(slug)) {
+      setLimitError(null);
+      onChange([slug]);
+      return;
+    }
+
+    const withoutExclusive = value.filter(
+      (item) => !exclusiveOptionSlugs.includes(item),
+    );
+    if (withoutExclusive.length >= maxSelections) {
+      setLimitError(`Choose no more than ${maxSelections} style directions.`);
+      return;
+    }
+
+    setLimitError(null);
+    onChange([...withoutExclusive, slug]);
+  }
+
+  return (
+    <fieldset
+      className={styles.fieldset}
+      aria-describedby={describedBy(limitInstruction, displayedError, ids)}
+      aria-invalid={Boolean(displayedError)}
+    >
+      <legend className={styles.legend}>{legend}</legend>
+      <FieldSupport
+        instructions={limitInstruction}
+        error={displayedError}
+        ids={ids}
+      />
+      <div className={styles.visualCardGrid}>
+        {options.map((option) => (
+          <label
+            className={styles.visualCard}
+            data-style-card={option.slug}
+            key={option.slug}
+          >
+            <input
+              className={styles.nativeControl}
+              type="checkbox"
+              value={option.slug}
+              checked={value.includes(option.slug)}
+              onChange={() => toggle(option.slug)}
+            />
+            <span
+              className={styles.visualCardArt}
+              data-style-card-art={option.slug}
+              aria-hidden="true"
+            >
+              <span className={styles.visualRoof} />
+              <span className={styles.visualFacade} />
+              <span className={styles.visualDetail} />
+            </span>
+            <span className={styles.visualCardLabel}>
+              <OptionMark multiple />
+              <span>{option.label}</span>
+            </span>
           </label>
         ))}
       </div>

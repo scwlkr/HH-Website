@@ -19,6 +19,10 @@ import {
   WelcomeExteriorScene,
 } from "@/features/plan-your-home/first-zone-scenes";
 import {
+  BlueprintDesignDeskThresholdScene,
+  ExteriorSiteScene,
+} from "@/features/plan-your-home/exterior-site-scene";
+import {
   KitchenDiningScene,
 } from "@/features/plan-your-home/kitchen-dining-scene";
 import {
@@ -37,6 +41,7 @@ import { createPlanHomeLocalSnapshotAdapter } from "@/features/plan-your-home/lo
 import {
   ChoicePrompt,
   CountPrompt,
+  ExteriorStylePrompt,
   GroupedChoicePrompt,
   MultiChoicePrompt,
   PromptStack,
@@ -109,11 +114,13 @@ const KITCHEN_AND_DINING_LAST_QUESTION = 15;
 const PRIMARY_SUITE_LAST_QUESTION = 19;
 const BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION = 21;
 const UTILITY_AND_SYSTEMS_LAST_QUESTION = 25;
+const EXTERIOR_AND_SITE_LAST_QUESTION = 30;
 const PROJECT_AND_LIVING_ZONE = planHomeZones[0];
 const KITCHEN_AND_DINING_ZONE = planHomeZones[1];
 const PRIMARY_SUITE_ZONE = planHomeZones[2];
 const BEDROOMS_AND_SHARED_BATHROOMS_ZONE = planHomeZones[3];
 const UTILITY_AND_SYSTEMS_ZONE = planHomeZones[4];
+const EXTERIOR_AND_SITE_ZONE = planHomeZones[5];
 
 const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "entry-plans": { xPercent: 1.5, yPercent: 0.4, scale: 1.08 },
@@ -141,6 +148,11 @@ const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "utility-mudroom": { xPercent: 1.2, yPercent: -0.8, scale: 1.11 },
   "utility-storage": { xPercent: -2.8, yPercent: -0.3, scale: 1.13 },
   "home-systems": { xPercent: -4.4, yPercent: 0.2, scale: 1.15 },
+  "exterior-garage": { xPercent: -3.8, yPercent: 0.1, scale: 1.12 },
+  "exterior-style": { xPercent: 4.5, yPercent: -1.4, scale: 1.14 },
+  "site-context": { xPercent: -4.3, yPercent: 0.2, scale: 1.12 },
+  "outdoor-living": { xPercent: 0.2, yPercent: -2.8, scale: 1.14 },
+  "specialty-spaces": { xPercent: -4.4, yPercent: -2.8, scale: 1.15 },
 };
 
 function randomUuidV4() {
@@ -167,7 +179,8 @@ function createIdempotencyKey(
     | "zone:kitchen-and-dining"
     | "zone:primary-suite"
     | "zone:bedrooms-and-shared-bathrooms"
-    | "zone:utility-and-systems",
+    | "zone:utility-and-systems"
+    | "zone:exterior-and-site",
 ) {
   return `local-${randomUuidV4()}:plan-home-v1:${boundary}`;
 }
@@ -175,7 +188,7 @@ function createIdempotencyKey(
 function initialDraftAnswers() {
   return Object.fromEntries(
     planHomeQuestions
-      .slice(0, UTILITY_AND_SYSTEMS_LAST_QUESTION)
+      .slice(0, EXTERIOR_AND_SITE_LAST_QUESTION)
       .map((question) => [
         question.id,
         structuredClone(question.response.defaultAnswer),
@@ -199,7 +212,10 @@ function sceneForQuestion(question: PlanHomeQuestionDefinition) {
   if (question.number <= BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
     return <BedroomsSharedBathroomsScene activeAnchor={question.sceneAnchor} />;
   }
-  return <UtilitySystemsScene activeAnchor={question.sceneAnchor} />;
+  if (question.number <= UTILITY_AND_SYSTEMS_LAST_QUESTION) {
+    return <UtilitySystemsScene activeAnchor={question.sceneAnchor} />;
+  }
+  return <ExteriorSiteScene activeAnchor={question.sceneAnchor} />;
 }
 
 function actionError(result: Exclude<PlanHomeDraftActionState, { status: "success" }>) {
@@ -257,6 +273,59 @@ function renderQuestionPrompt(
         value={answer as Record<string, string | null>}
         onChange={updateAnswer}
         instructions="Choose one exact range for each count."
+      />
+    );
+  }
+
+  if (question.id === "exterior.garage") {
+    const value = answer as {
+      bays: string | null;
+      needs: readonly string[];
+      other: string;
+    };
+    const needsGroup = question.response.optionGroups[1] as PlanHomeOptionGroup;
+    return (
+      <PromptStack>
+        <ChoicePrompt
+          id={`${question.id}-bays`}
+          legend={firstGroup.label}
+          options={firstGroup.options}
+          value={value.bays}
+          onChange={(bays) => updateAnswer({ ...value, bays })}
+        />
+        <MultiChoicePrompt
+          id={`${question.id}-needs`}
+          legend={needsGroup.label}
+          options={needsGroup.options}
+          value={value.needs}
+          onChange={(needs) => updateAnswer({ ...value, needs })}
+          instructions="Choose any needs that apply, or leave this group blank."
+        />
+        <ShortTextPrompt
+          id={`${question.id}-other`}
+          legend="Other garage need"
+          label="Other"
+          value={value.other}
+          maxLength={120}
+          optional
+          instructions="Add one short garage need not listed above."
+          onChange={(other) => updateAnswer({ ...value, other })}
+        />
+      </PromptStack>
+    );
+  }
+
+  if (question.id === "exterior.style") {
+    return (
+      <ExteriorStylePrompt
+        id={question.id}
+        legend={firstGroup.label}
+        options={firstGroup.options}
+        value={answer as readonly string[]}
+        maxSelections={firstGroup.maxSelections ?? 2}
+        exclusiveOptionSlugs={firstGroup.exclusiveOptionSlugs}
+        instructions="Use these only to communicate broad exterior character, not a promised design."
+        onChange={updateAnswer}
       />
     );
   }
@@ -542,8 +611,13 @@ function UtilityHallBoundary({
 
 function ExteriorBackDoorBoundary({
   onBack,
+  onContinue,
   reducedMotion,
-}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+}: Readonly<{
+  onBack: () => void;
+  onContinue: () => void;
+  reducedMotion?: boolean;
+}>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -566,8 +640,48 @@ function ExteriorBackDoorBoundary({
           Laundry, everyday entry, storage, and broad system priorities are
           checkpointed. The exterior walkthrough begins beyond this threshold.
         </p>
+        <div className={styles.momentActions}>
+          <Button type="button" variant="secondary" onClick={onBack}>
+            Back to home systems
+          </Button>
+          <Button type="button" onClick={onContinue}>
+            Step through the back door
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BlueprintDesignDeskBoundary({
+  onBack,
+  reducedMotion,
+}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+  return (
+    <section
+      className={styles.moment}
+      data-reduced-motion={reducedMotion}
+      data-tour-beat="blueprint-design-desk-transition"
+    >
+      <div className={styles.momentScene}>
+        <BlueprintDesignDeskThresholdScene />
+      </div>
+      <div className={styles.momentSheet}>
+        <p className={styles.eyebrow}>Exterior and site priorities saved</p>
+        <h1 ref={headingRef} tabIndex={-1}>
+          The site sheet becomes the design desk.
+        </h1>
+        <p className={styles.momentCopy}>
+          Garage, exterior direction, site relationships, outdoor living, and
+          specialty-space priorities are checkpointed. The blueprint marks the
+          threshold to inspiration and project planning.
+        </p>
         <Button type="button" variant="secondary" onClick={onBack}>
-          Back to home systems
+          Back to specialty spaces
         </Button>
       </div>
     </section>
@@ -599,7 +713,10 @@ export function PlanYourHomeShell({
   const [saving, setSaving] = useState(false);
   const [showBedroomHallBoundary, setShowBedroomHallBoundary] = useState(false);
   const [showUtilityHallBoundary, setShowUtilityHallBoundary] = useState(false);
+  const [showExteriorBackDoorBoundary, setShowExteriorBackDoorBoundary] =
+    useState(false);
   const utilityCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
+  const exteriorCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
@@ -615,6 +732,13 @@ export function PlanYourHomeShell({
           utilityCheckpointAnswers.current = Object.fromEntries(
             planHomeQuestions
               .slice(0, UTILITY_AND_SYSTEMS_LAST_QUESTION)
+              .map((question) => [question.id, restored.answers[question.id]]),
+          );
+        }
+        if (restored.checkpointedZoneIds.includes("exterior-and-site")) {
+          exteriorCheckpointAnswers.current = Object.fromEntries(
+            planHomeQuestions
+              .slice(0, EXTERIOR_AND_SITE_LAST_QUESTION)
               .map((question) => [question.id, restored.answers[question.id]]),
           );
         }
@@ -725,7 +849,13 @@ export function PlanYourHomeShell({
                       answerCount: UTILITY_AND_SYSTEMS_LAST_QUESTION,
                       keyField: "utilityAndSystemsCheckpointKey",
                     } as const)
-                  : null;
+                  : question.number === EXTERIOR_AND_SITE_LAST_QUESTION
+                    ? ({
+                        zoneId: "exterior-and-site",
+                        answerCount: EXTERIOR_AND_SITE_LAST_QUESTION,
+                        keyField: "exteriorAndSiteCheckpointKey",
+                      } as const)
+                    : null;
 
     if (checkpointBoundary) {
       commitState(answered.state);
@@ -747,6 +877,17 @@ export function PlanYourHomeShell({
         checkpointBoundary.zoneId === "utility-and-systems" &&
         utilityCheckpointAnswers.current &&
         JSON.stringify(utilityCheckpointAnswers.current) ===
+          JSON.stringify(checkpointAnswers)
+      ) {
+        setError(null);
+        commitState(advanced.state);
+        setShowExteriorBackDoorBoundary(true);
+        return true;
+      }
+      if (
+        checkpointBoundary.zoneId === "exterior-and-site" &&
+        exteriorCheckpointAnswers.current &&
+        JSON.stringify(exteriorCheckpointAnswers.current) ===
           JSON.stringify(checkpointAnswers)
       ) {
         setError(null);
@@ -791,6 +932,9 @@ export function PlanYourHomeShell({
       if (checkpointBoundary.zoneId === "utility-and-systems") {
         utilityCheckpointAnswers.current = structuredClone(checkpointAnswers);
       }
+      if (checkpointBoundary.zoneId === "exterior-and-site") {
+        exteriorCheckpointAnswers.current = structuredClone(checkpointAnswers);
+      }
       setError(null);
       commitState(checkpointed.state);
       if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
@@ -798,6 +942,9 @@ export function PlanYourHomeShell({
       }
       if (question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
         setShowUtilityHallBoundary(true);
+      }
+      if (question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION) {
+        setShowExteriorBackDoorBoundary(true);
       }
       return true;
     }
@@ -833,6 +980,7 @@ export function PlanYourHomeShell({
         primarySuiteCheckpointKey: null,
         bedroomsAndSharedBathroomsCheckpointKey: null,
         utilityAndSystemsCheckpointKey: null,
+        exteriorAndSiteCheckpointKey: null,
         draftId: null,
         revision: null,
       } satisfies PlanHomeClientDraftState);
@@ -870,6 +1018,8 @@ export function PlanYourHomeShell({
         pendingDraft.bedroomsAndSharedBathroomsCheckpointKey ?? null,
       utilityAndSystemsCheckpointKey:
         pendingDraft.utilityAndSystemsCheckpointKey ?? null,
+      exteriorAndSiteCheckpointKey:
+        pendingDraft.exteriorAndSiteCheckpointKey ?? null,
       draftId: result.result.draftId,
       revision: result.result.revision,
     } satisfies PlanHomeClientDraftState;
@@ -890,8 +1040,11 @@ export function PlanYourHomeShell({
   function backFromBoundary() {
     setShowBedroomHallBoundary(false);
     setShowUtilityHallBoundary(false);
+    setShowExteriorBackDoorBoundary(false);
     const transition = reducePlanHomeTour(tourState, { type: "back" });
-    if (!transition.error) commitState(transition.state);
+    if (transition.error) return false;
+    commitState(transition.state);
+    return true;
   }
 
   function backFromExteriorBoundary() {
@@ -903,7 +1056,19 @@ export function PlanYourHomeShell({
       createPlanHomeClientDraftAdapter(window.localStorage).save(editableDraft);
       setClientDraft(editableDraft);
     }
-    backFromBoundary();
+    return backFromBoundary();
+  }
+
+  function backFromBlueprintBoundary() {
+    if (clientDraft) {
+      const editableDraft = {
+        ...clientDraft,
+        exteriorAndSiteCheckpointKey: null,
+      } satisfies PlanHomeClientDraftState;
+      createPlanHomeClientDraftAdapter(window.localStorage).save(editableDraft);
+      setClientDraft(editableDraft);
+    }
+    return backFromBoundary();
   }
 
   const activeQuestion =
@@ -954,13 +1119,21 @@ export function PlanYourHomeShell({
         reducedMotion={reducedMotion}
       />
     );
-  } else if (
-    activeQuestion &&
-    activeQuestion.number > UTILITY_AND_SYSTEMS_LAST_QUESTION
-  ) {
+  } else if (showExteriorBackDoorBoundary) {
     content = (
       <ExteriorBackDoorBoundary
         onBack={backFromExteriorBoundary}
+        onContinue={() => setShowExteriorBackDoorBoundary(false)}
+        reducedMotion={reducedMotion}
+      />
+    );
+  } else if (
+    activeQuestion &&
+    activeQuestion.number > EXTERIOR_AND_SITE_LAST_QUESTION
+  ) {
+    content = (
+      <BlueprintDesignDeskBoundary
+        onBack={backFromBlueprintBoundary}
         reducedMotion={reducedMotion}
       />
     );
@@ -982,7 +1155,9 @@ export function PlanYourHomeShell({
                   ? "bedroom-hall-entrance"
                   : question.number === 22
                     ? "utility-hall-entrance"
-                    : "in-room"
+                    : question.number === 26
+                      ? "exterior-back-door-entrance"
+                      : "in-room"
         }
       >
         <SceneStage
@@ -996,7 +1171,9 @@ export function PlanYourHomeShell({
                   ? PRIMARY_SUITE_ZONE
                   : question.number <= BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION
                     ? BEDROOMS_AND_SHARED_BATHROOMS_ZONE
-                    : UTILITY_AND_SYSTEMS_ZONE
+                    : question.number <= UTILITY_AND_SYSTEMS_LAST_QUESTION
+                      ? UTILITY_AND_SYSTEMS_ZONE
+                      : EXTERIOR_AND_SITE_ZONE
           }
           totalQuestions={planHomeQuestions.length}
           scene={sceneForQuestion(question)}
@@ -1016,7 +1193,11 @@ export function PlanYourHomeShell({
             yPercent: 0,
             scale: 1,
           }}
-          onBack={backFromQuestion}
+          onBack={
+            question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION + 1
+              ? backFromExteriorBoundary
+              : backFromQuestion
+          }
           onNext={() => nextFromQuestion(question)}
           canGoBack
           nextLabel={
@@ -1024,7 +1205,8 @@ export function PlanYourHomeShell({
             question.number === KITCHEN_AND_DINING_LAST_QUESTION ||
             question.number === PRIMARY_SUITE_LAST_QUESTION ||
             question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION ||
-            question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION
+            question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION ||
+            question.number === EXTERIOR_AND_SITE_LAST_QUESTION
               ? "Save room"
               : "Next"
           }
@@ -1035,8 +1217,8 @@ export function PlanYourHomeShell({
     );
   } else {
     content = (
-      <ExteriorBackDoorBoundary
-        onBack={backFromExteriorBoundary}
+      <BlueprintDesignDeskBoundary
+        onBack={backFromBlueprintBoundary}
         reducedMotion={reducedMotion}
       />
     );

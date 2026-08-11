@@ -122,11 +122,19 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "e247fae877364d96c6854a8f7c69a35eee596d795c8bb04d64a5356370a9c361",
+      "f581b8809748e3d7424cb46d5cab5f0033695d17d69614cfb99a6347a019310f",
     );
     assert.equal(
       question("home.systems").helper,
       "Choose up to 6 broad planning priorities. These choices guide a conversation; they are not engineering, equipment specifications, feasibility decisions, or pricing.",
+    );
+    assert.match(
+      question("exterior.style").helper ?? "",
+      /not promised designs/,
+    );
+    assert.match(
+      question("site.relationships").helper ?? "",
+      /not checking zoning, setbacks, site feasibility, or engineering/,
     );
   });
 

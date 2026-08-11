@@ -95,6 +95,177 @@
   background: var(--hh-accent-soft);
 }
 
+.visualCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+}
+
+.visualCard {
+  position: relative;
+  display: grid;
+  grid-template-rows: 7rem minmax(2.75rem, auto);
+  overflow: hidden;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-tight);
+  background: color-mix(in srgb, var(--hh-surface) 84%, var(--hh-paper));
+  color: var(--hh-ink);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.visualCard:hover,
+.visualCard:focus-within {
+  border-color: var(--hh-accent);
+}
+
+.visualCard:focus-within {
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+}
+
+.visualCard:has(.nativeControl:checked) {
+  border-color: var(--hh-accent);
+  background: var(--hh-accent-soft);
+}
+
+.visualCard:has(.nativeControl:checked) .checkboxMark {
+  border-color: var(--hh-accent);
+  background:
+    linear-gradient(135deg, transparent 0 42%, white 42% 52%, transparent 52%) 0.02rem 0.05rem / 0.58rem 0.66rem no-repeat,
+    linear-gradient(45deg, transparent 0 47%, white 47% 58%, transparent 58%) 0.42rem 0.02rem / 0.68rem 0.8rem no-repeat,
+    var(--hh-accent);
+}
+
+.visualCardArt {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-bottom: 1px solid var(--hh-line);
+  background:
+    linear-gradient(var(--hh-draft-ink-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hh-draft-ink-faint) 1px, transparent 1px),
+    color-mix(in srgb, var(--hh-paper) 76%, #dce7e1);
+  background-size: 1.2rem 1.2rem;
+}
+
+.visualRoof,
+.visualFacade,
+.visualDetail {
+  position: absolute;
+  display: block;
+  border: 1px solid color-mix(in srgb, var(--hh-ink) 72%, transparent);
+}
+
+.visualRoof {
+  right: 14%;
+  bottom: 48%;
+  left: 14%;
+  height: 30%;
+  border-bottom: 0;
+  transform: skewX(-35deg) rotate(-5deg);
+  transform-origin: bottom;
+}
+
+.visualFacade {
+  right: 18%;
+  bottom: 15%;
+  left: 18%;
+  height: 36%;
+  background: color-mix(in srgb, var(--hh-paper) 78%, transparent);
+}
+
+.visualDetail {
+  right: 37%;
+  bottom: 15%;
+  width: 18%;
+  height: 27%;
+  background: color-mix(in srgb, var(--hh-accent) 16%, var(--hh-paper));
+}
+
+.visualCardArt[data-style-card-art="modern-farmhouse"] .visualRoof {
+  right: 20%;
+  left: 20%;
+  height: 38%;
+  transform: skewX(-28deg) rotate(-2deg);
+}
+
+.visualCardArt[data-style-card-art="traditional"] .visualRoof {
+  height: 25%;
+  transform: skewX(-25deg) rotate(-3deg);
+}
+
+.visualCardArt[data-style-card-art="transitional"] .visualRoof {
+  right: 9%;
+  left: 22%;
+  height: 22%;
+  transform: skewX(-18deg) rotate(-2deg);
+}
+
+.visualCardArt[data-style-card-art="modern-or-contemporary"] .visualRoof {
+  right: 12%;
+  bottom: 54%;
+  left: 12%;
+  height: 6%;
+  transform: none;
+}
+
+.visualCardArt[data-style-card-art="modern-or-contemporary"] .visualFacade {
+  right: 12%;
+  left: 12%;
+  height: 42%;
+}
+
+.visualCardArt[data-style-card-art="barndominium"] .visualRoof {
+  right: 16%;
+  left: 16%;
+  height: 42%;
+  transform: skewX(-24deg) rotate(-1deg);
+}
+
+.visualCardArt[data-style-card-art="barndominium"] .visualFacade {
+  right: 12%;
+  left: 12%;
+}
+
+.visualCardArt[data-style-card-art="spanish-or-mediterranean"] .visualRoof {
+  right: 11%;
+  left: 11%;
+  height: 18%;
+  border-radius: 50% 50% 0 0;
+  transform: none;
+}
+
+.visualCardArt[data-style-card-art="spanish-or-mediterranean"] .visualDetail {
+  border-radius: 50% 50% 0 0;
+}
+
+.visualCardArt[data-style-card-art="not-sure-yet"]::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--hh-muted-strong);
+  content: "?";
+  font-family: var(--font-code), monospace;
+  font-size: 2.6rem;
+}
+
+.visualCardArt[data-style-card-art="not-sure-yet"] > span {
+  display: none;
+}
+
+.visualCardLabel {
+  display: grid;
+  grid-template-columns: 1.1rem minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
 .nativeControl {
   position: absolute;
   width: 1px;
@@ -391,10 +562,15 @@
   .referenceHeading {
     align-items: stretch;
   }
+
+  .visualCardGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .option {
+  .option,
+  .visualCard {
     transition: none;
   }
 }

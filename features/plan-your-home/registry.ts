@@ -1298,6 +1298,7 @@ export const planHomeQuestions = [
     id: "exterior.garage",
     zoneId: "exterior-and-site",
     prompt: "What should the garage accommodate?",
+    helper: "Choose a bay count. Garage needs and a short Other note are optional planning context.",
     sceneAnchor: "garage",
     cameraKey: "exterior-garage",
     response: garageNeedsResponse,
@@ -1320,6 +1321,7 @@ export const planHomeQuestions = [
     id: "site.relationships",
     zoneId: "exterior-and-site",
     prompt: "Which relationships to the site matter most?",
+    helper: "These are planning priorities only. h and h is not checking zoning, setbacks, site feasibility, or engineering here.",
     sceneAnchor: "sun-compass-trees",
     cameraKey: "site-context",
     response: multiChoiceResponse("relationships", "Site relationships", siteRelationshipOptions, {
@@ -1332,6 +1334,7 @@ export const planHomeQuestions = [
     id: "exterior.outdoor-living",
     zoneId: "exterior-and-site",
     prompt: "Which outdoor-living features matter?",
+    helper: "Choose any features worth discussing. This does not create a site plan or confirm feasibility.",
     sceneAnchor: "patio",
     cameraKey: "outdoor-living",
     response: multiChoiceResponse("features", "Outdoor-living features", outdoorLivingOptions, {
@@ -1343,6 +1346,7 @@ export const planHomeQuestions = [
     id: "home.specialty-spaces",
     zoneId: "exterior-and-site",
     prompt: "Which specialty spaces or future additions should be considered?",
+    helper: "Including a future space records direction; it does not confirm zoning, permitting, engineering, or feasibility.",
     sceneAnchor: "outbuilding-plan",
     cameraKey: "specialty-spaces",
     response: multiChoiceResponse("spaces", "Specialty spaces", specialtySpaceOptions, {

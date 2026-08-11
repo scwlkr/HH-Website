@@ -229,6 +229,16 @@
   transform-origin: 92% 50%;
 }
 
+.sceneBeat[data-tour-beat="exterior-back-door-entrance"] {
+  animation: exterior-site-arrive 420ms ease both;
+  transform-origin: 82% 52%;
+}
+
+.moment[data-tour-beat="blueprint-design-desk-transition"] .momentScene {
+  animation: blueprint-match-cut 420ms ease both;
+  transform-origin: 84% 82%;
+}
+
 @keyframes exterior-arrive {
   from { opacity: 0; transform: scale(1.018); }
   to { opacity: 1; transform: scale(1); }
@@ -262,6 +272,16 @@
 @keyframes exterior-door-open {
   from { opacity: 0.72; transform: translateX(-1.5%) scale(1.018); }
   to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes exterior-site-arrive {
+  from { opacity: 0.74; transform: translateX(-1.5%) scale(1.016); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes blueprint-match-cut {
+  from { opacity: 0.72; transform: translate(1.5%, 1%) scale(1.025); }
+  to { opacity: 1; transform: translate(0) scale(1); }
 }
 
 @media (max-width: 40rem) {
