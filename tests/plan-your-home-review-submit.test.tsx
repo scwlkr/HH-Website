@@ -48,7 +48,7 @@ const references: readonly PlanHomeReferenceMetadata[] = [
 ];
 
 function seedFinalQuestion() {
-  const answers = Object.fromEntries(
+  const answers: Record<string, unknown> = Object.fromEntries(
     planHomeQuestions.slice(0, 34).map((question) => [
       question.id,
       structuredClone(question.response.exampleAnswer),
