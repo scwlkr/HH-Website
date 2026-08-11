@@ -908,6 +908,9 @@ async function main() {
     NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST: firebaseEmulators.authHost,
     PLAN_HOME_DRAFT_SESSION_SECRET:
       "qa-smoke-plan-home-draft-session-secret-only",
+    PLAN_HOME_RESUME_SECRET: "qa-smoke-plan-home-resume-secret-only",
+    PLAN_HOME_PUBLIC_ORIGIN: `http://127.0.0.1:${appPort}`,
+    PLAN_HOME_RESUME_MAIL_TRANSPORT: "fake",
     HH_CONTACT_PHONE_HREF: "tel:+15125550199",
     HH_CONTACT_PHONE_LABEL: "(512) 555-0199",
   };
@@ -929,6 +932,15 @@ async function main() {
     });
     if (draftTestResult.stdout.trim()) {
       log(draftTestResult.stdout.trim());
+    }
+
+    log("Running focused Plan Your Home resume emulator tests...");
+    const resumeTestResult = await runNpmScript({
+      script: "test:plan-home-resume:emulator",
+      env: qaEnv,
+    });
+    if (resumeTestResult.stdout.trim()) {
+      log(resumeTestResult.stdout.trim());
     }
 
     log("Building the production app under smoke-test env...");

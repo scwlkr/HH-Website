@@ -18,6 +18,16 @@ export async function createPlanHomeDraft(
   return getPlanHomeDraftRepository().createDraft(input, sessionTokenHash);
 }
 
+export async function readPlanHomeDraftBoundary(
+  draftId: string,
+  sessionTokenHash: string,
+) {
+  return getPlanHomeDraftRepository().readDraftBoundary(
+    draftId,
+    sessionTokenHash,
+  );
+}
+
 export async function checkpointPlanHomeDraft(
   input: unknown,
   sessionTokenHash: string,

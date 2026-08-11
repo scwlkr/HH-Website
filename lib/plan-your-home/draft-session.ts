@@ -12,7 +12,7 @@ import {
   serializePlanHomeDraftSession,
 } from "@/lib/plan-your-home/draft-session-token";
 
-function draftSessionCookieOptions() {
+export function planHomeDraftSessionCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -42,7 +42,7 @@ export async function setPlanHomeDraftSessionCookie(params: {
   cookieStore.set(
     planHomeDraftSessionCookieName,
     serializePlanHomeDraftSession(params),
-    draftSessionCookieOptions(),
+    planHomeDraftSessionCookieOptions(),
   );
 }
 

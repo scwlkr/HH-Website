@@ -1,4 +1,4 @@
-import { createHash, createHmac } from "node:crypto";
+import { createHash, createHmac, randomBytes } from "node:crypto";
 
 const draftSessionVersion = "v1";
 const draftIdPattern = /^draft-[a-f0-9]{40}$/;
@@ -39,6 +39,10 @@ export function derivePlanHomeDraftSessionSecret(
 
 export function hashPlanHomeDraftSessionSecret(sessionSecret: string) {
   return createHash("sha256").update(sessionSecret).digest("hex");
+}
+
+export function createRandomPlanHomeDraftSessionSecret() {
+  return randomBytes(32).toString("base64url");
 }
 
 export function serializePlanHomeDraftSession(params: {

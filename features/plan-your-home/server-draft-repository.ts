@@ -14,6 +14,7 @@ import {
 } from "./server-draft-contract.ts";
 import { planHomeZoneIds, type PlanHomeAnswerMap } from "./registry.ts";
 import type { PlanHomeReferenceMetadata } from "./references.ts";
+import type { PlanHomeServerBoundary } from "./draft-resume-contract.ts";
 
 const inquirySubmissionsCollection = "inquirySubmissions";
 export const PLAN_HOME_DRAFT_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
@@ -253,6 +254,37 @@ export function createPlanHomeDraftRepository(
   const now = dependencies.now ?? (() => new Date());
 
   return {
+    async readDraftBoundary(
+      draftId: string,
+      sessionTokenHash: string,
+    ): Promise<PlanHomeServerBoundary> {
+      if (!/^draft-[a-f0-9]{40}$/.test(draftId)) {
+        throw new PlanHomeDraftAuthorizationError();
+      }
+      const snapshot = await database
+        .collection(inquirySubmissionsCollection)
+        .doc(draftId)
+        .get();
+      if (!snapshot.exists) throw new PlanHomeDraftNotFoundError();
+
+      const existing = readStoredDraft(snapshot.data());
+      assertAuthorized(existing, sessionTokenHash, now());
+
+      return {
+        draftId,
+        revision: existing.revision,
+        welcomeName: existing.contact.name,
+        contact: {
+          email: existing.contact.email,
+          phone: existing.contact.phone,
+          manualFollowUpDisclosureAccepted: true,
+        },
+        answers: existing.answers,
+        progress: existing.progress,
+        references: existing.references,
+      };
+    },
+
     async createDraft(
       input: unknown,
       sessionTokenHash: string,
