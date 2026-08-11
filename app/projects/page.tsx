@@ -34,7 +34,7 @@ function ProjectInquiryPrompt() {
         </p>
         <div className="mt-6">
           <ActionLink
-            href="/inquire"
+            href="/start"
             label="Discuss Your Project"
             variant="secondary"
           />

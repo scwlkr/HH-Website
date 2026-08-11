@@ -14,7 +14,7 @@ export const siteConfig = {
   description: "Architectural design, building, and land development.",
   descriptor: "Architectural design, building, and land development.",
   primaryCta: {
-    href: "/inquire" as Route,
+    href: "/start" as Route,
     label: "Start a Project",
   },
   nav: [

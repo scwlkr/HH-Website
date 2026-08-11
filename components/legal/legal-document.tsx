@@ -18,7 +18,7 @@ export function LegalDocumentPage({ document }: LegalDocumentProps) {
         actions={
           <>
             <ActionLink
-              href="/inquire"
+              href="/start"
               label="Start A Project"
               trackingLocation="legal-page"
             />

@@ -245,5 +245,9 @@ export function getBuildTypeHref(slug: BuildTypeSlug) {
 }
 
 export function getBuildTypeInquiryHref(slug: BuildTypeSlug) {
+  if (slug === "single-family") {
+    return "/plan-your-home";
+  }
+
   return `/inquire?buildType=${slug}`;
 }

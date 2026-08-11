@@ -39,7 +39,7 @@ export default function ThankYouPage() {
               trackingLocation="thank-you-actions"
             />
             <ActionLink
-              href="/inquire"
+              href="/start"
               label="Start Another Project"
               trackingLocation="thank-you-actions"
             />

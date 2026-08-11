@@ -11,6 +11,7 @@ const staticRoutes = [
   { path: "/pricing", priority: 0.9, changeFrequency: "weekly" },
   { path: "/projects", priority: 0.9, changeFrequency: "weekly" },
   { path: "/faq", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/start", priority: 0.85, changeFrequency: "monthly" },
   { path: "/inquire", priority: 0.8, changeFrequency: "monthly" },
 ] as const satisfies ReadonlyArray<{
   path: string;

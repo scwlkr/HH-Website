@@ -27,7 +27,7 @@ export default function CatalogPage() {
         actions={
           <>
             <ActionLink
-              href="/inquire"
+              href="/start"
               label="Start a Project"
               trackingLocation="catalog-intro"
             />
@@ -71,7 +71,7 @@ export default function CatalogPage() {
           title={marketingPageContent.catalog.cta.title}
           description={marketingPageContent.catalog.cta.description}
           primaryAction={{
-            href: "/inquire",
+            href: "/start",
             label: "Start a Project",
             trackingLocation: "catalog-band",
           }}

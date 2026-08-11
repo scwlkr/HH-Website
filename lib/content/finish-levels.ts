@@ -254,5 +254,5 @@ export function getFinishLevelHref(slug: FinishLevelSlug) {
 }
 
 export function getFinishLevelInquiryHref(slug: FinishLevelSlug) {
-  return `/inquire?finish=${slug}`;
+  return `/start?finish=${slug}`;
 }
