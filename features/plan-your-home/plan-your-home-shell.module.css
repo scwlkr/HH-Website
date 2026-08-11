@@ -105,6 +105,15 @@
   text-wrap: balance;
 }
 
+.momentSheet h1:focus {
+  outline: none;
+}
+
+.momentSheet h1:focus-visible {
+  border-radius: var(--hh-radius-tight);
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+}
+
 .momentCopy {
   max-width: 31rem;
   margin-top: 0.75rem;
