@@ -95,8 +95,9 @@ the emulator cleanup proof before changing production state. Provider setup,
 credentials, and schedule frequency require separate approval.
 
 The published Privacy and Terms copy remains pending owner and counsel approval.
-Do not treat the proposed 30-day draft, 180-day resume-request, and 24-month
-submitted-inquiry windows as approved production policy until that review is
-recorded. Cleanup configuration does not itself satisfy the legal review gate.
+Do not treat the proposed 30-day local-snapshot, 180-day identified unfinished
+server-draft, and 24-month submitted-inquiry windows as approved production
+policy until that review is recorded. Cleanup configuration does not itself
+satisfy the legal review gate.
 
 Agent rule: inspect the changed-route screenshots before claiming UI completion. Never put secrets or private client data in screenshots.

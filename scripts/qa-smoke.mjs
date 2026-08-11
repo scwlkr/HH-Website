@@ -537,7 +537,10 @@ async function verifyRouteStatuses(baseUrl) {
     "/catalog/townhomes",
     "/catalog/commercial",
     "/faq",
+    "/start",
     "/inquire",
+    "/plan-your-home",
+    "/plan-your-home/resume",
     "/projects",
     "/projects/published-project-smoke",
     "/thank-you",
@@ -561,6 +564,17 @@ async function verifyRouteStatuses(baseUrl) {
   ]) {
     const response = await fetch(`${baseUrl}${route}`);
     assert(response.status === 404, `Expected ${route} to return 404, received ${response.status}.`);
+  }
+
+  for (const method of ["GET", "POST"]) {
+    const response = await fetch(
+      `${baseUrl}/api/internal/plan-your-home/cleanup`,
+      { method },
+    );
+    assert(
+      response.status === 401 && response.headers.get("cache-control") === "no-store",
+      `Expected unauthorized cleanup ${method} to fail closed with an uncached 401.`,
+    );
   }
 }
 
@@ -607,7 +621,7 @@ async function verifyLinkCoverage(page, baseUrl) {
     'header a[href="/projects"]',
     'header a[href="/pricing"]',
     'header a[href="/faq"]',
-    'header a[href="/inquire"]',
+    'header a[href="/start"]',
     'footer a[href="/privacy"]',
     'footer a[href="/terms"]',
     'footer a[href="mailto:hello@howethandharp.com"]',
@@ -638,6 +652,95 @@ async function verifyLinkCoverage(page, baseUrl) {
   assert(
     !homeHtml.includes("Legal route shell is established."),
     "Home page should no longer reference legal placeholder copy.",
+  );
+  assert(
+    (await page.locator('main a[href="/plan-your-home"]').count()) > 0 &&
+      (await page.locator('main a[href="/inquire"]').count()) > 0,
+    "The home page must make both the new-home tour and generic inquiry paths explicit.",
+  );
+}
+
+async function verifyProjectEntryAndPrivacy(page, baseUrl) {
+  log("Checking project entry, pre-collection disclosures, and Plan Home analytics...");
+
+  await page.goto(
+    `${baseUrl}/start?buildType=townhomes&utm_source=smoke&email=private%40example.com`,
+    { waitUntil: "networkidle" },
+  );
+  const planLink = page.getByRole("link", { name: "Plan Your Home", exact: true });
+  const genericLink = page.getByRole("link", {
+    name: "Start Another Project Type",
+  });
+  assert(
+    (await planLink.getAttribute("href")) === "/plan-your-home",
+    "The new detached-home path must enter Plan Your Home without query data.",
+  );
+  const genericHref = new URL(
+    await genericLink.getAttribute("href"),
+    baseUrl,
+  );
+  assert(
+    genericHref.pathname === "/inquire" &&
+      genericHref.searchParams.get("buildType") === "townhomes" &&
+      genericHref.searchParams.get("utm_source") === "smoke" &&
+      !genericHref.searchParams.has("email"),
+    "The generic path must preserve only approved non-contact prefill parameters.",
+  );
+
+  await Promise.all([
+    page.waitForURL(`${baseUrl}/plan-your-home`),
+    planLink.click(),
+  ]);
+  const planPrivacyLink = page.getByRole("link", {
+    name: "privacy and retention policy",
+  });
+  const planNameInput = page.getByLabel("Your name");
+  assert(
+    await page.evaluate(
+      ([privacy, input]) =>
+        Boolean(
+          privacy.compareDocumentPosition(input) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      [await planPrivacyLink.elementHandle(), await planNameInput.elementHandle()],
+    ),
+    "Plan Your Home privacy and retention disclosure must precede the name field.",
+  );
+  await planNameInput.fill("Browser Proof Visitor");
+  await page.getByRole("button", { name: "Open the front door" }).click();
+  await page.locator('[data-tour-beat="front-door"]').waitFor();
+  const startEvent = await page.evaluate(() =>
+    window.dataLayer?.find((entry) => entry.event === "plan_home_start"),
+  );
+  assert(startEvent, "Opening the Plan Home tour must emit plan_home_start.");
+  assert(
+    Object.keys(startEvent).every((key) =>
+      [
+        "event",
+        "anonymous_session_id",
+        "prompt_index",
+        "device_category",
+        "source_tag",
+      ].includes(key),
+    ) && !JSON.stringify(startEvent).includes("Browser Proof Visitor"),
+    "The browser-emitted Plan Home start event must contain only allowlisted non-PII fields.",
+  );
+
+  await page.goto(`${baseUrl}/inquire`, { waitUntil: "networkidle" });
+  const genericPrivacyLink = page.getByRole("link", {
+    name: "privacy and retention policy",
+  });
+  const genericNameInput = page.getByLabel("Name");
+  assert(
+    await page.evaluate(
+      ([privacy, input]) =>
+        Boolean(
+          privacy.compareDocumentPosition(input) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ),
+      [await genericPrivacyLink.elementHandle(), await genericNameInput.elementHandle()],
+    ),
+    "Generic inquiry privacy and retention disclosure must precede the first contact field.",
   );
 }
 
@@ -674,7 +777,16 @@ async function verifyResponsiveLayouts(browser, baseUrl) {
     },
   ];
 
-  const routes = ["/", "/pricing", "/catalog", "/faq", "/inquire"];
+  const routes = [
+    "/",
+    "/pricing",
+    "/catalog",
+    "/faq",
+    "/start",
+    "/plan-your-home",
+    "/inquire",
+    "/privacy",
+  ];
 
   for (const viewportTest of viewportTests) {
     const context = await browser.newContext({
@@ -702,6 +814,22 @@ async function verifyResponsiveLayouts(browser, baseUrl) {
         !hasHorizontalOverflow,
         `Detected horizontal overflow for ${route} at ${viewportTest.name}.`,
       );
+
+      if (["/start", "/plan-your-home", "/inquire", "/privacy"].includes(route)) {
+        await page.addScriptTag({ path: axePath });
+        const violations = await page.evaluate(async () => {
+          const audit = await window.axe.run(document, {
+            runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag22aa"] },
+          });
+          return audit.violations
+            .filter((violation) => ["serious", "critical"].includes(violation.impact))
+            .map((violation) => violation.id);
+        });
+        assert(
+          violations.length === 0,
+          `${route} has serious or critical axe findings at ${viewportTest.name}: ${violations.join(", ")}.`,
+        );
+      }
     }
 
     await context.close();
@@ -1417,6 +1545,7 @@ async function main() {
     const page = await browser.newPage();
 
     await verifyLinkCoverage(page, nextServer.baseUrl);
+    await verifyProjectEntryAndPrivacy(page, nextServer.baseUrl);
     await verifyPrefillBehavior(page, nextServer.baseUrl);
     await verifyResponsiveLayouts(browser, nextServer.baseUrl);
     await page.close();
