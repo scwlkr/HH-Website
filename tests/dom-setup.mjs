@@ -6,6 +6,7 @@ export const dom = new JSDOM("<!doctype html><html><body></body></html>", {
 
 Object.assign(globalThis, {
   window: dom.window,
+  self: dom.window,
   document: dom.window.document,
   Node: dom.window.Node,
   HTMLElement: dom.window.HTMLElement,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { AdminInquiryQueue } from "@/components/admin/admin-inquiry-queue";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import {
   parseAdminInquiryStatusFilter,
   type AdminInquiryQueueItem,
@@ -21,6 +22,7 @@ export const metadata: Metadata = createPageMetadata({
 type AdminInquiriesPageProps = {
   searchParams: Promise<{
     status?: string | string[];
+    deleted?: string;
   }>;
 };
 
@@ -54,6 +56,12 @@ export default async function AdminInquiriesPage({
           activity-ordered queue. Legacy project briefs remain visible here.
         </p>
       </div>
+
+      {resolvedSearchParams.deleted === "1" ? (
+        <AdminNotice tone="success">
+          Inquiry, resume links, and private files were deleted.
+        </AdminNotice>
+      ) : null}
 
       <AdminInquiryQueue
         inquiries={inquiries}

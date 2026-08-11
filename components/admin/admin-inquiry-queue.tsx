@@ -1,3 +1,6 @@
+import Link from "next/link";
+import type { Route } from "next";
+
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { buttonVariants } from "@/components/ui/button";
 import type {
@@ -79,7 +82,14 @@ function InquiryRow({ inquiry }: Readonly<{ inquiry: AdminInquiryQueueItem }>) {
   return (
     <li className="grid gap-5 border-b border-line px-4 py-5 last:border-b-0 xl:grid-cols-[minmax(10rem,1.25fr)_minmax(10rem,1.25fr)_minmax(7.5rem,0.75fr)_minmax(11rem,1.3fr)_minmax(9rem,0.9fr)_minmax(9rem,0.9fr)] xl:items-center xl:gap-4 xl:py-4">
       <QueueField label="Inquiry">
-        <p className="font-medium text-foreground">{inquiry.name}</p>
+        <p className="font-medium text-foreground">
+          <Link
+            href={`/admin/inquiries/${encodeURIComponent(inquiry.id)}` as Route}
+            className="hh-link inline-flex min-h-11 items-center underline decoration-line-ink underline-offset-4"
+          >
+            {inquiry.name}
+          </Link>
+        </p>
         <p className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted">
           {inquiry.source === "legacy" ? "Legacy inquiry" : "Plan Your Home"}
         </p>
@@ -181,7 +191,7 @@ export function AdminInquiryQueue({
               Apply Filter
             </button>
             {statusFilter !== "all" ? (
-              <a
+              <Link
                 href="/admin/inquiries"
                 className={cn(
                   buttonVariants({ variant: "secondary" }),
@@ -189,7 +199,7 @@ export function AdminInquiryQueue({
                 )}
               >
                 Clear
-              </a>
+              </Link>
             ) : null}
           </div>
         </form>

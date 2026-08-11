@@ -110,6 +110,10 @@ test("responsive inquiry list, empty state, and error state are semantic and acc
   assert.ok(query.getByRole("button", { name: "Apply Filter" }));
   assert.ok(query.getByRole("list", { name: "Inquiries" }));
   assert.equal(query.getAllByRole("listitem").length, 2);
+  assert.equal(
+    query.getByRole("link", { name: "Jordan Draft" }).getAttribute("href"),
+    "/admin/inquiries/draft-inquiry",
+  );
   assert.ok(query.getByText("Legacy inquiry"));
   assert.ok(query.getByText("Newest activity first"));
 
