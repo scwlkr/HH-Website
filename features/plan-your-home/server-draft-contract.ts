@@ -188,6 +188,11 @@ function parseCanonicalAnswerPrefix(
 }
 
 function questionCountThroughZone(zoneId: PlanHomeZoneId) {
+  if (zoneId === "design-desk-and-review") {
+    return planHomeQuestions.findIndex(
+      (question) => question.id === "project.budget-timing",
+    ) + 1;
+  }
   const lastQuestionIndex = planHomeQuestions.findLastIndex(
     (question) => question.zoneId === zoneId,
   );

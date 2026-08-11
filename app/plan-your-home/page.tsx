@@ -4,8 +4,14 @@ import {
   PlanYourHomeShell,
 } from "@/features/plan-your-home";
 import {
+  abandonPlanHomeReferenceUploadAction,
+  addPlanHomeReferenceLinkAction,
   checkpointPlanHomeDraftAction,
   createPlanHomeDraftAction,
+  finalizePlanHomeReferenceUploadAction,
+  issuePlanHomeReferenceUploadAction,
+  removePlanHomeReferenceAction,
+  syncPlanHomeReferenceNotesAction,
 } from "@/app/plan-your-home/actions";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -23,6 +29,12 @@ export default function PlanYourHomePage() {
     <PlanYourHomeShell
       createDraft={createPlanHomeDraftAction}
       checkpointDraft={checkpointPlanHomeDraftAction}
+      issueReferenceUpload={issuePlanHomeReferenceUploadAction}
+      finalizeReferenceUpload={finalizePlanHomeReferenceUploadAction}
+      abandonReferenceUpload={abandonPlanHomeReferenceUploadAction}
+      addReferenceLink={addPlanHomeReferenceLinkAction}
+      removeReference={removePlanHomeReferenceAction}
+      syncReferenceNotes={syncPlanHomeReferenceNotesAction}
     />
   );
 }

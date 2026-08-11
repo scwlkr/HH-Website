@@ -118,6 +118,11 @@ export type ReferencePromptItem = Readonly<{
   label: string;
   detail: string;
   note: string;
+  href?: string;
+  sizeBytes?: number;
+  status?: "ready" | "uploading" | "error";
+  progress?: number;
+  error?: string;
 }>;
 
 type ReferencesPromptProps = PromptFieldProps &
@@ -129,6 +134,7 @@ type ReferencesPromptProps = PromptFieldProps &
     onLinkAdded: (url: string) => void;
     onNoteChange: (id: string, note: string) => void;
     onRemove: (id: string) => void;
+    onRetry?: (id: string) => void;
     limits?: Readonly<{
       total: number;
       files: number;
@@ -159,6 +165,15 @@ const APPROVED_REFERENCE_TYPES = new Set([
   "image/webp",
   "image/heic",
   "image/heif",
+]);
+
+const APPROVED_REFERENCE_EXTENSIONS = new Set([
+  "pdf",
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "heic",
 ]);
 
 function useFieldIds(id: string) {
@@ -752,6 +767,7 @@ export function ReferencesPrompt({
   onLinkAdded,
   onNoteChange,
   onRemove,
+  onRetry,
   limits = DEFAULT_REFERENCE_LIMITS,
 }: ReferencesPromptProps) {
   const ids = useFieldIds(id);
@@ -760,6 +776,10 @@ export function ReferencesPrompt({
   const displayedError = error || localError;
   const fileCount = items.filter((item) => item.kind === "file").length;
   const linkCount = items.length - fileCount;
+  const fileBytes = items.reduce(
+    (total, item) => total + (item.kind === "file" ? item.sizeBytes ?? 0 : 0),
+    0,
+  );
   const limitsText = `Up to ${limits.total} references total: ${limits.files} files and ${limits.links} links. Files may be PDF, JPEG, PNG, WebP, or HEIC, up to ${megabytes(limits.bytesPerFile)} MB each and ${megabytes(limits.totalFileBytes)} MB total. Notes are optional.`;
 
   function addFiles(event: ChangeEvent<HTMLInputElement>) {
@@ -772,12 +792,30 @@ export function ReferencesPrompt({
       setLocalError(`Add no more than ${limits.files} files.`);
       return;
     }
-    if (files.some((file) => !APPROVED_REFERENCE_TYPES.has(file.type))) {
+    if (
+      files.some((file) => {
+        const extension = file.name.split(".").at(-1)?.toLowerCase();
+        return (
+          !APPROVED_REFERENCE_TYPES.has(file.type) ||
+          !extension ||
+          !APPROVED_REFERENCE_EXTENSIONS.has(extension)
+        );
+      })
+    ) {
       setLocalError("Choose a PDF, JPEG, PNG, WebP, or HEIC file.");
       return;
     }
     if (files.some((file) => file.size > limits.bytesPerFile)) {
       setLocalError(`Each file must be ${megabytes(limits.bytesPerFile)} MB or smaller.`);
+      return;
+    }
+    if (
+      fileBytes + files.reduce((total, file) => total + file.size, 0) >
+      limits.totalFileBytes
+    ) {
+      setLocalError(
+        `Reference files may total no more than ${megabytes(limits.totalFileBytes)} MB.`,
+      );
       return;
     }
 
@@ -858,9 +896,36 @@ export function ReferencesPrompt({
             <li key={item.id}>
               <div className={styles.referenceHeading}>
                 <div>
-                  <strong>{item.label}</strong>
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <strong>{item.label}</strong>
+                  )}
                   <span>{item.detail}</span>
+                  {item.status === "uploading" ? (
+                    <progress
+                      aria-label={`Uploading ${item.label}`}
+                      max={100}
+                      value={item.progress ?? 0}
+                    />
+                  ) : null}
+                  {item.status === "error" ? (
+                    <span className={styles.referenceError} role="alert">
+                      {item.error || "Upload failed."}
+                    </span>
+                  ) : null}
                 </div>
+                {item.status === "error" && onRetry ? (
+                  <button type="button" onClick={() => onRetry(item.id)}>
+                    Retry <span className={styles.srOnly}>{item.label}</span>
+                  </button>
+                ) : null}
                 <button type="button" onClick={() => onRemove(item.id)}>
                   Remove <span className={styles.srOnly}>{item.label}</span>
                 </button>
@@ -873,6 +938,7 @@ export function ReferencesPrompt({
                 rows={2}
                 maxLength={500}
                 value={item.note}
+                disabled={item.status === "uploading"}
                 onChange={(event) => onNoteChange(item.id, event.target.value)}
               />
             </li>

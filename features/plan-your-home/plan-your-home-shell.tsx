@@ -23,6 +23,10 @@ import {
   ExteriorSiteScene,
 } from "@/features/plan-your-home/exterior-site-scene";
 import {
+  DesignDeskScene,
+  ReviewBriefThresholdScene,
+} from "@/features/plan-your-home/design-desk-scene";
+import {
   KitchenDiningScene,
 } from "@/features/plan-your-home/kitchen-dining-scene";
 import {
@@ -44,9 +48,13 @@ import {
   ExteriorStylePrompt,
   GroupedChoicePrompt,
   MultiChoicePrompt,
+  PriorityPrompt,
   PromptStack,
+  ReferencesPrompt,
   ShortTextPrompt,
   type GroupedChoiceValue,
+  type PriorityPromptValue,
+  type ReferencePromptItem,
 } from "@/features/plan-your-home/prompt-renderers";
 import {
   getPlanHomeQuestion,
@@ -56,6 +64,11 @@ import {
   type PlanHomeQuestionDefinition,
   type PlanHomeQuestionId,
 } from "@/features/plan-your-home/registry";
+import type { PlanHomeReferenceMetadata } from "@/features/plan-your-home/references";
+import type {
+  PlanHomeReferenceMutationResult,
+  PlanHomeUploadCapability,
+} from "@/features/plan-your-home/reference-upload-contract";
 import {
   SceneStage,
   type SceneCameraFrame,
@@ -92,9 +105,37 @@ export type PlanHomeDraftAction = (
   input: unknown,
 ) => Promise<PlanHomeDraftActionState>;
 
+export type PlanHomeReferenceAction<Result> = (
+  input: unknown,
+) => Promise<
+  | Readonly<{ status: "success"; result: Result }>
+  | Readonly<{
+      status:
+        | "validation-error"
+        | "authorization-error"
+        | "conflict"
+        | "server-error";
+      message: string;
+      currentRevision?: number;
+    }>
+>;
+
+export type PlanHomeDirectUploader = (
+  capability: PlanHomeUploadCapability,
+  file: File,
+  onProgress: (percent: number) => void,
+) => Promise<void>;
+
 type PlanYourHomeShellProps = Readonly<{
   createDraft?: PlanHomeDraftAction;
   checkpointDraft?: PlanHomeDraftAction;
+  issueReferenceUpload?: PlanHomeReferenceAction<PlanHomeUploadCapability>;
+  finalizeReferenceUpload?: PlanHomeReferenceAction<PlanHomeReferenceMutationResult>;
+  abandonReferenceUpload?: PlanHomeReferenceAction<Readonly<{ applied: boolean }>>;
+  addReferenceLink?: PlanHomeReferenceAction<PlanHomeReferenceMutationResult>;
+  removeReference?: PlanHomeReferenceAction<PlanHomeReferenceMutationResult>;
+  syncReferenceNotes?: PlanHomeReferenceAction<PlanHomeReferenceMutationResult>;
+  directUploader?: PlanHomeDirectUploader;
   reducedMotion?: boolean;
 }>;
 
@@ -115,12 +156,14 @@ const PRIMARY_SUITE_LAST_QUESTION = 19;
 const BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION = 21;
 const UTILITY_AND_SYSTEMS_LAST_QUESTION = 25;
 const EXTERIOR_AND_SITE_LAST_QUESTION = 30;
+const DESIGN_DESK_LAST_QUESTION = 34;
 const PROJECT_AND_LIVING_ZONE = planHomeZones[0];
 const KITCHEN_AND_DINING_ZONE = planHomeZones[1];
 const PRIMARY_SUITE_ZONE = planHomeZones[2];
 const BEDROOMS_AND_SHARED_BATHROOMS_ZONE = planHomeZones[3];
 const UTILITY_AND_SYSTEMS_ZONE = planHomeZones[4];
 const EXTERIOR_AND_SITE_ZONE = planHomeZones[5];
+const DESIGN_DESK_ZONE = planHomeZones[6];
 
 const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "entry-plans": { xPercent: 1.5, yPercent: 0.4, scale: 1.08 },
@@ -153,6 +196,10 @@ const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "site-context": { xPercent: -4.3, yPercent: 0.2, scale: 1.12 },
   "outdoor-living": { xPercent: 0.2, yPercent: -2.8, scale: 1.14 },
   "specialty-spaces": { xPercent: -4.4, yPercent: -2.8, scale: 1.15 },
+  "design-feeling": { xPercent: 4.2, yPercent: -1.1, scale: 1.13 },
+  "design-references": { xPercent: -4.5, yPercent: -0.5, scale: 1.14 },
+  "design-priorities": { xPercent: 3.8, yPercent: -2.4, scale: 1.14 },
+  "budget-timing": { xPercent: -3.9, yPercent: -2.6, scale: 1.15 },
 };
 
 function randomUuidV4() {
@@ -180,7 +227,8 @@ function createIdempotencyKey(
     | "zone:primary-suite"
     | "zone:bedrooms-and-shared-bathrooms"
     | "zone:utility-and-systems"
-    | "zone:exterior-and-site",
+    | "zone:exterior-and-site"
+    | "zone:design-desk-and-review",
 ) {
   return `local-${randomUuidV4()}:plan-home-v1:${boundary}`;
 }
@@ -188,7 +236,7 @@ function createIdempotencyKey(
 function initialDraftAnswers() {
   return Object.fromEntries(
     planHomeQuestions
-      .slice(0, EXTERIOR_AND_SITE_LAST_QUESTION)
+      .slice(0, DESIGN_DESK_LAST_QUESTION)
       .map((question) => [
         question.id,
         structuredClone(question.response.defaultAnswer),
@@ -215,8 +263,92 @@ function sceneForQuestion(question: PlanHomeQuestionDefinition) {
   if (question.number <= UTILITY_AND_SYSTEMS_LAST_QUESTION) {
     return <UtilitySystemsScene activeAnchor={question.sceneAnchor} />;
   }
-  return <ExteriorSiteScene activeAnchor={question.sceneAnchor} />;
+  if (question.number <= EXTERIOR_AND_SITE_LAST_QUESTION) {
+    return <ExteriorSiteScene activeAnchor={question.sceneAnchor} />;
+  }
+  return <DesignDeskScene activeAnchor={question.sceneAnchor} />;
 }
+
+const unavailableReferenceAction = async () => ({
+  status: "server-error" as const,
+  message: "References are temporarily unavailable.",
+});
+
+function uploadDirectly(
+  capability: PlanHomeUploadCapability,
+  file: File,
+  onProgress: (percent: number) => void,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open(capability.method, capability.uploadUrl);
+    for (const [name, value] of Object.entries(capability.headers)) {
+      request.setRequestHeader(name, value);
+    }
+    request.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) {
+        onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    });
+    request.addEventListener("load", () => {
+      if (request.status >= 200 && request.status < 300) {
+        onProgress(100);
+        resolve();
+      } else {
+        reject(new Error(`Direct upload failed with status ${request.status}.`));
+      }
+    });
+    request.addEventListener("error", () =>
+      reject(new Error("The direct upload was interrupted.")),
+    );
+    request.addEventListener("abort", () =>
+      reject(new Error("The direct upload was canceled.")),
+    );
+    request.send(file);
+  });
+}
+
+type PendingReferenceUpload = Readonly<{
+  id: string;
+  file: File;
+  referenceId: string | null;
+  status: "uploading" | "error";
+  progress: number;
+  error: string | null;
+}>;
+
+function selectedPriorityItems(answers: Readonly<Record<string, unknown>>) {
+  const labels: string[] = [];
+  for (const question of planHomeQuestions.slice(0, EXTERIOR_AND_SITE_LAST_QUESTION)) {
+    const answer = answers[question.id];
+    for (const group of question.response.optionGroups) {
+      const selected =
+        answer && typeof answer === "object" && group.id in answer
+          ? (answer as Record<string, unknown>)[group.id]
+          : answer;
+      const values = Array.isArray(selected)
+        ? selected
+        : typeof selected === "string"
+          ? [selected]
+          : [];
+      for (const value of values) {
+        const option = group.options.find(({ slug }) => slug === value);
+        if (option && !option.semantic) labels.push(option.label);
+      }
+    }
+  }
+  return [...new Set(labels)];
+}
+
+type DesignDeskPromptContext = Readonly<{
+  priorityItems: readonly string[];
+  referenceItems: readonly ReferencePromptItem[];
+  onFilesSelected: (files: readonly File[]) => void;
+  onLinkAdded: (url: string) => void;
+  onReferenceNoteChange: (id: string, note: string) => void;
+  onReferenceRemove: (id: string) => void;
+  onReferenceRetry: (id: string) => void;
+}>;
 
 function actionError(result: Exclude<PlanHomeDraftActionState, { status: "success" }>) {
   if (result.status === "conflict") {
@@ -229,6 +361,7 @@ function renderQuestionPrompt(
   question: PlanHomeQuestionDefinition,
   answer: unknown,
   updateAnswer: (answer: unknown) => void,
+  designDesk?: DesignDeskPromptContext,
 ) {
   const firstGroup = question.response.optionGroups[0] as PlanHomeOptionGroup;
 
@@ -325,6 +458,84 @@ function renderQuestionPrompt(
         maxSelections={firstGroup.maxSelections ?? 2}
         exclusiveOptionSlugs={firstGroup.exclusiveOptionSlugs}
         instructions="Use these only to communicate broad exterior character, not a promised design."
+        onChange={updateAnswer}
+      />
+    );
+  }
+
+  if (question.id === "design.feeling") {
+    const value = answer as {
+      feelings: readonly string[];
+      likesAndDislikes: string;
+    };
+    return (
+      <PromptStack>
+        <MultiChoicePrompt
+          id={`${question.id}-feelings`}
+          legend={firstGroup.label}
+          options={firstGroup.options}
+          value={value.feelings}
+          maxSelections={3}
+          onChange={(feelings) => updateAnswer({ ...value, feelings })}
+        />
+        <ShortTextPrompt
+          id={`${question.id}-current-home`}
+          legend="Current home"
+          label="What do you like or dislike now?"
+          value={value.likesAndDislikes}
+          maxLength={500}
+          optional
+          multiline
+          onChange={(likesAndDislikes) =>
+            updateAnswer({ ...value, likesAndDislikes })
+          }
+        />
+      </PromptStack>
+    );
+  }
+
+  if (question.id === "design.references" && designDesk) {
+    const value = answer as {
+      references: readonly PlanHomeReferenceMetadata[];
+      noReferencesYet: boolean;
+    };
+    return (
+      <ReferencesPrompt
+        id={question.id}
+        legend="Plans, images, and links"
+        items={designDesk.referenceItems}
+        noReferencesYet={value.noReferencesYet}
+        onNoReferencesYetChange={(noReferencesYet) =>
+          updateAnswer({
+            references: noReferencesYet ? [] : value.references,
+            noReferencesYet,
+          })
+        }
+        onFilesSelected={designDesk.onFilesSelected}
+        onLinkAdded={designDesk.onLinkAdded}
+        onNoteChange={designDesk.onReferenceNoteChange}
+        onRemove={designDesk.onReferenceRemove}
+        onRetry={designDesk.onReferenceRetry}
+        limits={question.response.limits as {
+          total: number;
+          files: number;
+          links: number;
+          bytesPerFile: number;
+          totalFileBytes: number;
+        }}
+        instructions="Files upload directly to private Cloud Storage. h and h may review submitted material for this inquiry; ownership stays with you."
+      />
+    );
+  }
+
+  if (question.id === "design.priorities" && designDesk) {
+    return (
+      <PriorityPrompt
+        id={question.id}
+        legend="Priority groups"
+        items={designDesk.priorityItems}
+        value={answer as PriorityPromptValue}
+        limits={{ mustHave: 5, niceToHave: 5, dealBreaker: 3 }}
         onChange={updateAnswer}
       />
     );
@@ -655,8 +866,13 @@ function ExteriorBackDoorBoundary({
 
 function BlueprintDesignDeskBoundary({
   onBack,
+  onContinue,
   reducedMotion,
-}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+}: Readonly<{
+  onBack: () => void;
+  onContinue: () => void;
+  reducedMotion?: boolean;
+}>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -680,8 +896,48 @@ function BlueprintDesignDeskBoundary({
           specialty-space priorities are checkpointed. The blueprint marks the
           threshold to inspiration and project planning.
         </p>
+        <div className={styles.momentActions}>
+          <Button type="button" variant="secondary" onClick={onBack}>
+            Back to specialty spaces
+          </Button>
+          <Button type="button" onClick={onContinue}>
+            Open the design desk
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ReviewBriefBoundary({
+  onBack,
+  reducedMotion,
+}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+  return (
+    <section
+      className={styles.moment}
+      data-reduced-motion={reducedMotion}
+      data-tour-beat="design-desk-review-transition"
+    >
+      <div className={styles.momentScene}>
+        <ReviewBriefThresholdScene />
+      </div>
+      <div className={styles.momentSheet}>
+        <p className={styles.eyebrow}>Design desk saved</p>
+        <h1 ref={headingRef} tabIndex={-1}>
+          Your selected sheets are bound into the project brief.
+        </h1>
+        <p className={styles.momentCopy}>
+          Feel, references, priorities, budget context, and timing are
+          checkpointed. Review and submission continue in the next step of the
+          build.
+        </p>
         <Button type="button" variant="secondary" onClick={onBack}>
-          Back to specialty spaces
+          Back to budget and timing
         </Button>
       </div>
     </section>
@@ -691,6 +947,13 @@ function BlueprintDesignDeskBoundary({
 export function PlanYourHomeShell({
   createDraft = unavailableDraftAction,
   checkpointDraft = unavailableDraftAction,
+  issueReferenceUpload = unavailableReferenceAction,
+  finalizeReferenceUpload = unavailableReferenceAction,
+  abandonReferenceUpload = unavailableReferenceAction,
+  addReferenceLink = unavailableReferenceAction,
+  removeReference = unavailableReferenceAction,
+  syncReferenceNotes = unavailableReferenceAction,
+  directUploader = uploadDirectly,
   reducedMotion,
 }: PlanYourHomeShellProps = {}) {
   const [tourState, setTourState] = useState<PlanHomeTourState>(() =>
@@ -715,8 +978,15 @@ export function PlanYourHomeShell({
   const [showUtilityHallBoundary, setShowUtilityHallBoundary] = useState(false);
   const [showExteriorBackDoorBoundary, setShowExteriorBackDoorBoundary] =
     useState(false);
+  const [showBlueprintDesignDeskBoundary, setShowBlueprintDesignDeskBoundary] =
+    useState(false);
+  const [showReviewBriefBoundary, setShowReviewBriefBoundary] = useState(false);
+  const [pendingUploads, setPendingUploads] = useState<
+    readonly PendingReferenceUpload[]
+  >([]);
   const utilityCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const exteriorCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
+  const designCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     const restore = window.setTimeout(() => {
@@ -739,6 +1009,13 @@ export function PlanYourHomeShell({
           exteriorCheckpointAnswers.current = Object.fromEntries(
             planHomeQuestions
               .slice(0, EXTERIOR_AND_SITE_LAST_QUESTION)
+              .map((question) => [question.id, restored.answers[question.id]]),
+          );
+        }
+        if (restored.checkpointedZoneIds.includes("design-desk-and-review")) {
+          designCheckpointAnswers.current = Object.fromEntries(
+            planHomeQuestions
+              .slice(0, DESIGN_DESK_LAST_QUESTION)
               .map((question) => [question.id, restored.answers[question.id]]),
           );
         }
@@ -765,6 +1042,234 @@ export function PlanYourHomeShell({
   function commitState(state: PlanHomeTourState) {
     setTourState(state);
     saveLocal(state);
+  }
+
+  function currentClientDraft() {
+    return createPlanHomeClientDraftAdapter(window.localStorage).load();
+  }
+
+  function updateClientDraftRevision(revision: number) {
+    const current = currentClientDraft();
+    if (!current) return;
+    const updated = { ...current, revision } satisfies PlanHomeClientDraftState;
+    createPlanHomeClientDraftAdapter(window.localStorage).save(updated);
+    setClientDraft(updated);
+  }
+
+  function referenceAnswer() {
+    return draftAnswers["design.references"] as {
+      references: readonly PlanHomeReferenceMetadata[];
+      noReferencesYet: boolean;
+    };
+  }
+
+  function setCanonicalReferences(
+    references: readonly PlanHomeReferenceMetadata[],
+    noReferencesYet = false,
+  ) {
+    const answer = { references, noReferencesYet };
+    setDraftAnswers((current) => ({
+      ...current,
+      "design.references": answer,
+    }));
+    if (
+      tourState.location.kind === "question" &&
+      tourState.location.questionId === "design.references"
+    ) {
+      const transition = reducePlanHomeTour(tourState, {
+        type: "answer-question",
+        questionId: "design.references",
+        answer,
+      });
+      if (!transition.error) commitState(transition.state);
+    }
+  }
+
+  async function uploadReferenceFile(file: File, pendingId: string) {
+    const draft = currentClientDraft();
+    if (!draft?.draftId || !draft.revision) {
+      setPendingUploads((current) =>
+        current.map((upload) =>
+          upload.id === pendingId
+            ? {
+                ...upload,
+                status: "error",
+                error: "Return to the contact checkpoint before adding files.",
+              }
+            : upload,
+        ),
+      );
+      return;
+    }
+
+    const issued = await issueReferenceUpload({
+      draftId: draft.draftId,
+      expectedRevision: draft.revision,
+      originalName: file.name,
+      mimeType: file.type,
+      sizeBytes: file.size,
+    });
+    if (issued.status !== "success") {
+      setPendingUploads((current) =>
+        current.map((upload) =>
+          upload.id === pendingId
+            ? { ...upload, status: "error", error: issued.message }
+            : upload,
+        ),
+      );
+      return;
+    }
+
+    const capability = issued.result;
+    setPendingUploads((current) =>
+      current.map((upload) =>
+        upload.id === pendingId
+          ? { ...upload, referenceId: capability.referenceId, progress: 0 }
+          : upload,
+      ),
+    );
+
+    try {
+      await directUploader(capability, file, (progress) =>
+        setPendingUploads((current) =>
+          current.map((upload) =>
+            upload.id === pendingId ? { ...upload, progress } : upload,
+          ),
+        ),
+      );
+      const latestDraft = currentClientDraft();
+      if (!latestDraft?.draftId || !latestDraft.revision) {
+        throw new Error("The draft session changed during upload.");
+      }
+      const finalized = await finalizeReferenceUpload({
+        draftId: latestDraft.draftId,
+        expectedRevision: latestDraft.revision,
+        referenceId: capability.referenceId,
+        note: "",
+      });
+      if (finalized.status !== "success") {
+        throw new Error(finalized.message);
+      }
+      updateClientDraftRevision(finalized.result.revision);
+      setCanonicalReferences(finalized.result.references);
+      setPendingUploads((current) =>
+        current.filter((upload) => upload.id !== pendingId),
+      );
+      setError(null);
+    } catch (uploadError) {
+      await abandonReferenceUpload({
+        draftId: capability.draftId,
+        referenceId: capability.referenceId,
+      });
+      setPendingUploads((current) =>
+        current.map((upload) =>
+          upload.id === pendingId
+            ? {
+                ...upload,
+                referenceId: null,
+                status: "error",
+                error:
+                  uploadError instanceof Error
+                    ? uploadError.message
+                    : "The upload failed. Try again.",
+              }
+            : upload,
+        ),
+      );
+    }
+  }
+
+  async function addFiles(files: readonly File[]) {
+    for (const file of files) {
+      const pendingId = `pending-${randomUuidV4()}`;
+      setPendingUploads((current) => [
+        ...current,
+        {
+          id: pendingId,
+          file,
+          referenceId: null,
+          status: "uploading",
+          progress: 0,
+          error: null,
+        },
+      ]);
+      await uploadReferenceFile(file, pendingId);
+    }
+  }
+
+  async function addLink(url: string) {
+    const draft = currentClientDraft();
+    if (!draft?.draftId || !draft.revision) return;
+    const result = await addReferenceLink({
+      draftId: draft.draftId,
+      expectedRevision: draft.revision,
+      url,
+      note: "",
+    });
+    if (result.status !== "success") {
+      setError({ code: "invalid-answer", message: result.message });
+      return;
+    }
+    updateClientDraftRevision(result.result.revision);
+    setCanonicalReferences(result.result.references);
+    setError(null);
+  }
+
+  function changeReferenceNote(id: string, note: string) {
+    const answer = referenceAnswer();
+    setCanonicalReferences(
+      answer.references.map((reference) => {
+        if (reference.id !== id) return reference;
+        const withoutNote = { ...reference };
+        delete withoutNote.note;
+        return note ? { ...withoutNote, note } : withoutNote;
+      }),
+      false,
+    );
+  }
+
+  async function removeReferenceItem(id: string) {
+    const pending = pendingUploads.find((upload) => upload.id === id);
+    if (pending) {
+      const draft = currentClientDraft();
+      if (draft?.draftId && pending.referenceId) {
+        await abandonReferenceUpload({
+          draftId: draft.draftId,
+          referenceId: pending.referenceId,
+        });
+      }
+      setPendingUploads((current) =>
+        current.filter((upload) => upload.id !== id),
+      );
+      return;
+    }
+    const draft = currentClientDraft();
+    if (!draft?.draftId || !draft.revision) return;
+    const result = await removeReference({
+      draftId: draft.draftId,
+      expectedRevision: draft.revision,
+      referenceId: id,
+    });
+    if (result.status !== "success") {
+      setError({ code: "invalid-answer", message: result.message });
+      return;
+    }
+    updateClientDraftRevision(result.result.revision);
+    setCanonicalReferences(result.result.references);
+    setError(null);
+  }
+
+  async function retryReferenceUpload(id: string) {
+    const pending = pendingUploads.find((upload) => upload.id === id);
+    if (!pending) return;
+    setPendingUploads((current) =>
+      current.map((upload) =>
+        upload.id === id
+          ? { ...upload, status: "uploading", progress: 0, error: null }
+          : upload,
+      ),
+    );
+    await uploadReferenceFile(pending.file, id);
   }
 
   function submitWelcome(event: FormEvent<HTMLFormElement>) {
@@ -802,10 +1307,48 @@ export function PlanYourHomeShell({
   }
 
   async function nextFromQuestion(question: PlanHomeQuestionDefinition) {
+    let activeAnswer = draftAnswers[question.id];
+    if (question.id === "design.references") {
+      if (pendingUploads.length > 0) {
+        setError({
+          code: "invalid-answer",
+          message: "Finish, retry, or remove each upload before continuing.",
+        });
+        return false;
+      }
+      const draft = currentClientDraft();
+      const value = activeAnswer as {
+        references: readonly PlanHomeReferenceMetadata[];
+        noReferencesYet: boolean;
+      };
+      if (draft?.draftId && draft.revision && value.references.length > 0) {
+        const result = await syncReferenceNotes({
+          draftId: draft.draftId,
+          expectedRevision: draft.revision,
+          notes: value.references.map((reference) => ({
+            referenceId: reference.id,
+            note: reference.note ?? "",
+          })),
+        });
+        if (result.status !== "success") {
+          setError({ code: "invalid-answer", message: result.message });
+          return false;
+        }
+        updateClientDraftRevision(result.result.revision);
+        activeAnswer = {
+          references: result.result.references,
+          noReferencesYet: false,
+        };
+        setDraftAnswers((current) => ({
+          ...current,
+          "design.references": activeAnswer,
+        }));
+      }
+    }
     const answered = reducePlanHomeTour(tourState, {
       type: "answer-question",
       questionId: question.id as PlanHomeQuestionId,
-      answer: draftAnswers[question.id],
+      answer: activeAnswer,
     });
     if (answered.error) {
       setError(answered.error);
@@ -855,7 +1398,13 @@ export function PlanYourHomeShell({
                         answerCount: EXTERIOR_AND_SITE_LAST_QUESTION,
                         keyField: "exteriorAndSiteCheckpointKey",
                       } as const)
-                    : null;
+                    : question.number === DESIGN_DESK_LAST_QUESTION
+                      ? ({
+                          zoneId: "design-desk-and-review",
+                          answerCount: DESIGN_DESK_LAST_QUESTION,
+                          keyField: "designDeskCheckpointKey",
+                        } as const)
+                      : null;
 
     if (checkpointBoundary) {
       commitState(answered.state);
@@ -892,6 +1441,18 @@ export function PlanYourHomeShell({
       ) {
         setError(null);
         commitState(advanced.state);
+        setShowBlueprintDesignDeskBoundary(true);
+        return true;
+      }
+      if (
+        checkpointBoundary.zoneId === "design-desk-and-review" &&
+        designCheckpointAnswers.current &&
+        JSON.stringify(designCheckpointAnswers.current) ===
+          JSON.stringify(checkpointAnswers)
+      ) {
+        setError(null);
+        commitState(advanced.state);
+        setShowReviewBriefBoundary(true);
         return true;
       }
       const checkpointKey =
@@ -935,6 +1496,9 @@ export function PlanYourHomeShell({
       if (checkpointBoundary.zoneId === "exterior-and-site") {
         exteriorCheckpointAnswers.current = structuredClone(checkpointAnswers);
       }
+      if (checkpointBoundary.zoneId === "design-desk-and-review") {
+        designCheckpointAnswers.current = structuredClone(checkpointAnswers);
+      }
       setError(null);
       commitState(checkpointed.state);
       if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
@@ -945,6 +1509,12 @@ export function PlanYourHomeShell({
       }
       if (question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION) {
         setShowExteriorBackDoorBoundary(true);
+      }
+      if (question.number === EXTERIOR_AND_SITE_LAST_QUESTION) {
+        setShowBlueprintDesignDeskBoundary(true);
+      }
+      if (question.number === DESIGN_DESK_LAST_QUESTION) {
+        setShowReviewBriefBoundary(true);
       }
       return true;
     }
@@ -981,6 +1551,7 @@ export function PlanYourHomeShell({
         bedroomsAndSharedBathroomsCheckpointKey: null,
         utilityAndSystemsCheckpointKey: null,
         exteriorAndSiteCheckpointKey: null,
+        designDeskCheckpointKey: null,
         draftId: null,
         revision: null,
       } satisfies PlanHomeClientDraftState);
@@ -1020,6 +1591,8 @@ export function PlanYourHomeShell({
         pendingDraft.utilityAndSystemsCheckpointKey ?? null,
       exteriorAndSiteCheckpointKey:
         pendingDraft.exteriorAndSiteCheckpointKey ?? null,
+      designDeskCheckpointKey:
+        pendingDraft.designDeskCheckpointKey ?? null,
       draftId: result.result.draftId,
       revision: result.result.revision,
     } satisfies PlanHomeClientDraftState;
@@ -1041,6 +1614,8 @@ export function PlanYourHomeShell({
     setShowBedroomHallBoundary(false);
     setShowUtilityHallBoundary(false);
     setShowExteriorBackDoorBoundary(false);
+    setShowBlueprintDesignDeskBoundary(false);
+    setShowReviewBriefBoundary(false);
     const transition = reducePlanHomeTour(tourState, { type: "back" });
     if (transition.error) return false;
     commitState(transition.state);
@@ -1060,6 +1635,7 @@ export function PlanYourHomeShell({
   }
 
   function backFromBlueprintBoundary() {
+    setShowBlueprintDesignDeskBoundary(false);
     if (clientDraft) {
       const editableDraft = {
         ...clientDraft,
@@ -1071,10 +1647,70 @@ export function PlanYourHomeShell({
     return backFromBoundary();
   }
 
+  function backFromReviewBriefBoundary() {
+    setShowReviewBriefBoundary(false);
+    if (clientDraft) {
+      const editableDraft = {
+        ...clientDraft,
+        designDeskCheckpointKey: null,
+      } satisfies PlanHomeClientDraftState;
+      createPlanHomeClientDraftAdapter(window.localStorage).save(editableDraft);
+      setClientDraft(editableDraft);
+    }
+    return backFromBoundary();
+  }
+
+  function backFromDesignDeskQuestion() {
+    const moved = backFromQuestion();
+    if (moved) setShowBlueprintDesignDeskBoundary(true);
+    return moved;
+  }
+
   const activeQuestion =
     tourState.location.kind === "question"
       ? getPlanHomeQuestion(tourState.location.questionId)
       : undefined;
+  const referencesValue = draftAnswers["design.references"] as {
+    references: readonly PlanHomeReferenceMetadata[];
+    noReferencesYet: boolean;
+  };
+  const referenceItems: readonly ReferencePromptItem[] = [
+    ...referencesValue.references.map((reference) =>
+      reference.kind === "file"
+        ? {
+            id: reference.id,
+            kind: "file" as const,
+            label: reference.originalName,
+            detail: `${reference.extension.toUpperCase()} · ${Math.max(1, Math.round(reference.sizeBytes / 1024))} KB · private`,
+            note: reference.note ?? "",
+            sizeBytes: reference.sizeBytes,
+            status: "ready" as const,
+          }
+        : {
+            id: reference.id,
+            kind: "link" as const,
+            label: reference.hostname,
+            detail: reference.url,
+            note: reference.note ?? "",
+            href: reference.url,
+            status: "ready" as const,
+          },
+    ),
+    ...pendingUploads.map((upload) => ({
+      id: upload.id,
+      kind: "file" as const,
+      label: upload.file.name,
+      detail:
+        upload.status === "uploading"
+          ? `Uploading directly · ${upload.progress}%`
+          : "Upload needs attention",
+      note: "",
+      sizeBytes: upload.file.size,
+      status: upload.status,
+      progress: upload.progress,
+      error: upload.error ?? undefined,
+    })),
+  ];
   let content: ReactNode;
   if (tourState.location.kind === "welcome") {
     content = (
@@ -1127,13 +1763,18 @@ export function PlanYourHomeShell({
         reducedMotion={reducedMotion}
       />
     );
-  } else if (
-    activeQuestion &&
-    activeQuestion.number > EXTERIOR_AND_SITE_LAST_QUESTION
-  ) {
+  } else if (showBlueprintDesignDeskBoundary) {
     content = (
       <BlueprintDesignDeskBoundary
         onBack={backFromBlueprintBoundary}
+        onContinue={() => setShowBlueprintDesignDeskBoundary(false)}
+        reducedMotion={reducedMotion}
+      />
+    );
+  } else if (showReviewBriefBoundary) {
+    content = (
+      <ReviewBriefBoundary
+        onBack={backFromReviewBriefBoundary}
         reducedMotion={reducedMotion}
       />
     );
@@ -1157,6 +1798,8 @@ export function PlanYourHomeShell({
                     ? "utility-hall-entrance"
                     : question.number === 26
                       ? "exterior-back-door-entrance"
+                      : question.number === 31
+                        ? "design-desk-entrance"
                       : "in-room"
         }
       >
@@ -1173,7 +1816,9 @@ export function PlanYourHomeShell({
                     ? BEDROOMS_AND_SHARED_BATHROOMS_ZONE
                     : question.number <= UTILITY_AND_SYSTEMS_LAST_QUESTION
                       ? UTILITY_AND_SYSTEMS_ZONE
-                      : EXTERIOR_AND_SITE_ZONE
+                      : question.number <= EXTERIOR_AND_SITE_LAST_QUESTION
+                        ? EXTERIOR_AND_SITE_ZONE
+                        : DESIGN_DESK_ZONE
           }
           totalQuestions={planHomeQuestions.length}
           scene={sceneForQuestion(question)}
@@ -1187,6 +1832,15 @@ export function PlanYourHomeShell({
               }));
               setError(null);
             },
+            {
+              priorityItems: selectedPriorityItems(draftAnswers),
+              referenceItems,
+              onFilesSelected: addFiles,
+              onLinkAdded: addLink,
+              onReferenceNoteChange: changeReferenceNote,
+              onReferenceRemove: removeReferenceItem,
+              onReferenceRetry: retryReferenceUpload,
+            },
           )}
           cameraFrame={CAMERA_FRAMES[question.cameraKey] ?? {
             xPercent: 0,
@@ -1196,6 +1850,8 @@ export function PlanYourHomeShell({
           onBack={
             question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION + 1
               ? backFromExteriorBoundary
+              : question.number === EXTERIOR_AND_SITE_LAST_QUESTION + 1
+                ? backFromDesignDeskQuestion
               : backFromQuestion
           }
           onNext={() => nextFromQuestion(question)}
@@ -1207,6 +1863,7 @@ export function PlanYourHomeShell({
             question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION ||
             question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION ||
             question.number === EXTERIOR_AND_SITE_LAST_QUESTION
+            || question.number === DESIGN_DESK_LAST_QUESTION
               ? "Save room"
               : "Next"
           }
@@ -1219,6 +1876,7 @@ export function PlanYourHomeShell({
     content = (
       <BlueprintDesignDeskBoundary
         onBack={backFromBlueprintBoundary}
+        onContinue={() => setShowBlueprintDesignDeskBoundary(false)}
         reducedMotion={reducedMotion}
       />
     );

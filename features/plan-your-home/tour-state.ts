@@ -306,7 +306,9 @@ export function reducePlanHomeTour(
 
       const nextQuestion = planHomeQuestions[questionIndex + 1];
       const crossedZoneBoundary =
-        !nextQuestion || nextQuestion.zoneId !== question.zoneId;
+        question.id === "project.budget-timing" ||
+        !nextQuestion ||
+        nextQuestion.zoneId !== question.zoneId;
       const completion = crossedZoneBoundary
         ? completeCurrentZone(state, question.zoneId)
         : { state, events: [] as PlanHomeTourEvent[] };

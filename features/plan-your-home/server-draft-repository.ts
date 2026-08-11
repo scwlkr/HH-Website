@@ -11,6 +11,7 @@ import {
   type PlanHomeDraftProgress,
 } from "./server-draft-contract.ts";
 import type { PlanHomeAnswerMap } from "./registry.ts";
+import type { PlanHomeReferenceMetadata } from "./references.ts";
 
 const inquirySubmissionsCollection = "inquirySubmissions";
 export const PLAN_HOME_DRAFT_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
@@ -30,7 +31,7 @@ type StoredPlanHomeDraft = Readonly<{
   contact: ReturnType<typeof createPlanHomeDraftContact>;
   answers: PlanHomeAnswerMap;
   progress: PlanHomeDraftProgress;
-  references: readonly [];
+  references: readonly PlanHomeReferenceMetadata[];
   source: Readonly<{
     path: string;
     attribution: Readonly<Record<string, never>>;
@@ -356,6 +357,24 @@ export function createPlanHomeDraftRepository(
           ...existing.answers,
           ...parsed.answers,
         } satisfies PlanHomeAnswerMap;
+        if (parsed.completedZoneId === "design-desk-and-review") {
+          const referenceAnswer = parsed.answers["design.references"];
+          const answerReferences =
+            referenceAnswer &&
+            typeof referenceAnswer === "object" &&
+            "references" in referenceAnswer
+              ? referenceAnswer.references
+              : null;
+          if (
+            JSON.stringify(answerReferences) !==
+            JSON.stringify(existing.references)
+          ) {
+            throw new PlanHomeDraftConflictError(
+              "Reference metadata changed before the Design Desk checkpoint.",
+              existing.revision,
+            );
+          }
+        }
         const revision = existing.revision + 1;
         const derived = createPlanHomeDraftDerived(existing.contact, answers);
         const idempotencyResult: StoredIdempotencyResult = {

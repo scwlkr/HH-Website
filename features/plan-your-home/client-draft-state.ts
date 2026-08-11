@@ -8,6 +8,7 @@ export type PlanHomeClientDraftState = Readonly<{
   bedroomsAndSharedBathroomsCheckpointKey?: string | null;
   utilityAndSystemsCheckpointKey?: string | null;
   exteriorAndSiteCheckpointKey?: string | null;
+  designDeskCheckpointKey?: string | null;
   draftId: string | null;
   revision: number | null;
 }>;
@@ -79,6 +80,13 @@ function isClientDraftState(value: unknown): value is PlanHomeClientDraftState {
       candidate.exteriorAndSiteCheckpointKey.length >= 16 &&
       candidate.exteriorAndSiteCheckpointKey.length <= 200 &&
       uuidV4Pattern.test(candidate.exteriorAndSiteCheckpointKey));
+  const hasValidDesignDeskCheckpointKey =
+    candidate.designDeskCheckpointKey === undefined ||
+    candidate.designDeskCheckpointKey === null ||
+    (typeof candidate.designDeskCheckpointKey === "string" &&
+      candidate.designDeskCheckpointKey.length >= 16 &&
+      candidate.designDeskCheckpointKey.length <= 200 &&
+      uuidV4Pattern.test(candidate.designDeskCheckpointKey));
 
   return (
     hasValidKey &&
@@ -88,7 +96,8 @@ function isClientDraftState(value: unknown): value is PlanHomeClientDraftState {
     hasValidPrimarySuiteCheckpointKey &&
     hasValidBedroomsCheckpointKey &&
     hasValidUtilityCheckpointKey &&
-    hasValidExteriorCheckpointKey
+    hasValidExteriorCheckpointKey &&
+    hasValidDesignDeskCheckpointKey
   );
 }
 

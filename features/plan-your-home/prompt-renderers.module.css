@@ -330,6 +330,23 @@
   font: inherit;
 }
 
+.referenceHeading a {
+  color: var(--hh-accent-strong);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.referenceHeading progress {
+  width: min(14rem, 100%);
+  accent-color: var(--hh-accent);
+}
+
+.referenceError {
+  color: var(--hh-danger, #8b2e25);
+  font-weight: 650;
+}
+
 .textControl {
   width: 100%;
   margin-top: 0.45rem;
