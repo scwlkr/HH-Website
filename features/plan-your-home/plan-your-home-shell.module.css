@@ -256,32 +256,76 @@
 }
 
 .review,
-.confirmation,
-.restoreBoundary {
+.confirmation {
   width: min(100% - 2rem, 68rem);
   margin-inline: auto;
 }
 
 .restoreBoundary {
-  min-height: clamp(32rem, 70svh, 46rem);
-  padding-block: clamp(5rem, 14vw, 10rem);
+  position: relative;
+  width: min(100%, 78rem);
+  margin-inline: auto;
+  overflow: clip;
+  border-block: 1px solid var(--hh-line-strong);
+  background: color-mix(in srgb, var(--hh-surface) 54%, var(--hh-paper));
 }
 
-.restoreBoundary h1 {
+.restoreRail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7.5rem, 24rem);
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.5rem;
+  padding: 0.7rem clamp(0.75rem, 3.8vw, 2.25rem);
+  border-bottom: 1px solid var(--hh-line);
+}
+
+.restoreRail span {
+  display: block;
+  height: 0.35rem;
+  background: var(--hh-line);
+}
+
+.restoreRail span:first-child {
+  width: min(14rem, 70%);
+}
+
+.restoreScene {
+  min-height: clamp(17rem, 52svh, 32rem);
+  background:
+    linear-gradient(var(--hh-draft-ink-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hh-draft-ink-faint) 1px, transparent 1px),
+    color-mix(in srgb, var(--hh-paper-deep) 55%, var(--hh-surface));
+  background-size: var(--hh-grid-size) var(--hh-grid-size);
+}
+
+.restoreSheet {
+  position: relative;
+  width: min(calc(100% - clamp(1.5rem, 7.6vw, 4.5rem)), 48rem);
+  min-height: clamp(28rem, 40svh, 34rem);
+  margin: clamp(-2.75rem, -5vw, -1.5rem) auto 0;
+  padding: clamp(1.1rem, 4vw, 2rem);
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  background: color-mix(in srgb, var(--hh-surface) 96%, var(--hh-paper));
+  box-shadow: var(--hh-shadow-panel);
+}
+
+.restoreSheet h1 {
   max-width: 48rem;
   margin-top: 0.5rem;
   font-size: clamp(2rem, 6vw, 4.4rem);
   line-height: 0.98;
 }
 
-.restoreBoundary > p:last-of-type {
+.restoreSheet > p:last-of-type {
   max-width: 42rem;
   margin-top: 1rem;
   color: var(--hh-muted-strong);
   line-height: 1.65;
 }
 
-.restoreBoundary button {
+.restoreSheet button {
   min-height: 2.75rem;
   margin-top: 1.25rem;
 }
@@ -595,6 +639,21 @@
   }
 
   .experienceHeader span { text-align: right; }
+
+  .restoreRail {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .restoreScene {
+    min-height: min(44svh, 23rem);
+  }
+
+  .restoreSheet {
+    width: calc(100% - 1rem);
+    min-height: 34rem;
+    margin-top: -1.75rem;
+  }
 
   .moment {
     min-height: calc(100svh - 5.5rem);

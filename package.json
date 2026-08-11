@@ -17,6 +17,7 @@
     "test:plan-home-cleanup:emulator": "node --import tsx --test tests/plan-your-home-cleanup-emulator.test.mts",
     "proof:plan-home-resume": "node scripts/plan-home-resume-proof.mjs",
     "proof:plan-home-scene-budget": "node scripts/plan-home-scene-budget.mjs",
+    "proof:plan-home-final": "node --import tsx scripts/plan-home-final-proof.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "review": "node scripts/review.mjs",

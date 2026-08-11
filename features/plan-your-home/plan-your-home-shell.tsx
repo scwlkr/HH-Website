@@ -1235,20 +1235,29 @@ function DraftRestoreBoundary({
 }: Readonly<{ unavailable: boolean; onRetry: () => void }>) {
   return (
     <main className={styles.restoreBoundary} aria-labelledby="draft-restore-title">
-      <p className={styles.eyebrow}>Plan Your Home</p>
-      <h1 id="draft-restore-title" tabIndex={-1}>
-        {unavailable ? "Your saved plan is still protected." : "Checking this browser’s saved plan…"}
-      </h1>
-      <p role="status">
-        {unavailable
-          ? "We could not safely verify the saved boundary right now. Nothing stored in this browser was removed. Try again when the connection is available."
-          : "We’re matching this browser with the latest trusted room checkpoint before opening the tour."}
-      </p>
-      {unavailable ? (
-        <Button type="button" onClick={onRetry}>
-          Try verification again
-        </Button>
-      ) : null}
+      <div className={styles.restoreRail} aria-hidden="true">
+        <span />
+        <span />
+      </div>
+      <div className={styles.restoreScene} aria-hidden="true" />
+      <section className={styles.restoreSheet}>
+        <p className={styles.eyebrow}>Plan Your Home</p>
+        <h1 id="draft-restore-title" tabIndex={-1}>
+          {unavailable
+            ? "Your saved plan is still protected."
+            : "Checking this browser’s saved plan…"}
+        </h1>
+        <p role="status">
+          {unavailable
+            ? "We could not safely verify the saved boundary right now. Nothing stored in this browser was removed. Try again when the connection is available."
+            : "We’re matching this browser with the latest trusted room checkpoint before opening the tour."}
+        </p>
+        {unavailable ? (
+          <Button type="button" onClick={onRetry}>
+            Try verification again
+          </Button>
+        ) : null}
+      </section>
     </main>
   );
 }

@@ -32,6 +32,28 @@ Plan Your Home has a public project-entry path in this build. Open it directly a
 npm run review -- /plan-your-home
 ```
 
+For final local qualification, run the complete browser scenario inside the
+pinned Firebase emulator suite:
+
+```bash
+/tmp/hh-firebase-tools-15.26.0/node_modules/.bin/firebase emulators:exec \
+  --only auth,firestore,storage \
+  "npm run proof:plan-home-final" \
+  --project demo-hh-website
+```
+
+The proof exercises all 35 questions, refresh/resume, the fake local email,
+private references, review editing, submission, HHQ actions/deletion,
+keyboard-only reduced-motion paths at phone and desktop widths, and a commercial
+generic inquiry. It retains its sanitized report, summary, screenshots, and
+traces under `output/playwright/issue-18/final/`.
+
+Run `npm run proof:plan-home-scene-budget` after changing a scene. Each lazy
+scene group is limited to 24 KiB of compressed JavaScript and CSS, and every
+current-plus-next pair is limited to 48 KiB. The issue-18 baseline measured
+2.21–3.57 KiB per group and 4.79–6.39 KiB per adjacent pair, so no exception is
+currently required.
+
 `npm run review` with no routes checks `/`, `/pricing`, `/projects`, `/faq`, and `/inquire`. It reuses the live server on port `3000`, or starts and stops an isolated dev server. Each route is checked at desktop and mobile sizes for HTTP failure, browser errors, and horizontal overflow.
 
 Review these ignored artifacts:

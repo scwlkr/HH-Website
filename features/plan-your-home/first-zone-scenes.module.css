@@ -179,7 +179,7 @@
 }
 
 @media (max-width: 40rem) {
-  .addressPlaque { top: 42%; }
+  .addressPlaque { top: 24%; }
   .sceneDisclaimer { display: none; }
   .sceneCaption { left: 5%; bottom: 7%; }
 }
