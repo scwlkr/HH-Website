@@ -122,7 +122,7 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "f581b8809748e3d7424cb46d5cab5f0033695d17d69614cfb99a6347a019310f",
+      "04f6403c84ea73bfdbc688a03bb3cb1c3e5c2956452f0086ea3b49c0c96a3657",
     );
     assert.equal(
       question("home.systems").helper,
