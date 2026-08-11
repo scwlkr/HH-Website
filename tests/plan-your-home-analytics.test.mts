@@ -101,6 +101,18 @@ test("runtime validation drops invalid Plan Your Home values and unknown events"
         source_tag: "private@example.com",
       },
     });
+    trackEvent({
+      name: "plan_home_start",
+      payload: {
+        source_tag: "john-smith",
+      },
+    });
+    trackEvent({
+      name: "plan_home_start",
+      payload: {
+        source_tag: "2145550199",
+      },
+    });
     (trackEvent as (event: { name: string; payload: Record<string, string> }) => void)(
       { name: "not_a_product_event", payload: { email: "private@example.com" } },
     );
@@ -108,5 +120,9 @@ test("runtime validation drops invalid Plan Your Home values and unknown events"
     window.removeEventListener("hh:analytics", listener);
   }
 
-  assert.deepEqual(received, [{ event: "reference_added" }]);
+  assert.deepEqual(received, [
+    { event: "reference_added" },
+    { event: "plan_home_start" },
+    { event: "plan_home_start" },
+  ]);
 });

@@ -78,15 +78,6 @@ async function listObjectPage(
   };
 }
 
-async function mapWithConcurrency<T>(
-  items: readonly T[],
-  worker: (item: T) => Promise<void>,
-) {
-  for (let index = 0; index < items.length; index += objectDeleteConcurrency) {
-    await Promise.all(items.slice(index, index + objectDeleteConcurrency).map(worker));
-  }
-}
-
 export type PlanHomeCleanupResult = Readonly<{
   recordsDeleted: number;
   recordsPending: number;
@@ -257,8 +248,18 @@ export function createPlanHomeCleanupRepository(
     const ticketSnapshot = ticketReference ? await ticketReference.get() : null;
     const ticket = readRecord(ticketSnapshot?.data());
     const ticketExpiry = timestampMillis(ticket.expiresAt);
-    if (ticketSnapshot?.exists && ticketExpiry !== null && ticketExpiry > cutoff.getTime()) {
-      return { deleted: false, ticketDeleted: false, protected: true };
+    if (ticketSnapshot?.exists) {
+      const ticketMatchesObject =
+        ticket.draftId === identity.draftId &&
+        ticket.referenceId === referenceId &&
+        ticket.objectPath === file.name;
+      if (
+        !ticketMatchesObject ||
+        ticketExpiry === null ||
+        ticketExpiry > cutoff.getTime()
+      ) {
+        return { deleted: false, ticketDeleted: false, protected: true };
+      }
     }
 
     if ((await parentReference.get()).exists) {
@@ -293,12 +294,22 @@ export function createPlanHomeCleanupRepository(
     let pageToken: string | undefined;
     do {
       const page = await listObjectPage(bucket, pageToken);
-      await mapWithConcurrency(page.files, async (file) => {
-        const result = await cleanupOrphanObject(file, cutoff);
-        if (result.deleted) orphanObjectsDeleted += 1;
-        if (result.ticketDeleted) orphanTicketsDeleted += 1;
-        if (result.protected) protectedObjects += 1;
-      });
+      for (
+        let index = 0;
+        index < page.files.length;
+        index += objectDeleteConcurrency
+      ) {
+        await Promise.all(
+          page.files
+            .slice(index, index + objectDeleteConcurrency)
+            .map(async (file) => {
+              const result = await cleanupOrphanObject(file, cutoff);
+              if (result.deleted) orphanObjectsDeleted += 1;
+              if (result.ticketDeleted) orphanTicketsDeleted += 1;
+              if (result.protected) protectedObjects += 1;
+            }),
+        );
+      }
       pageToken = page.pageToken;
     } while (pageToken);
     return { orphanObjectsDeleted, orphanTicketsDeleted, protectedObjects };

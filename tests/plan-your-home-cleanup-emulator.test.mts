@@ -94,10 +94,12 @@ test(
     const bulkOrphanId = draftId(1, "b");
     const activeOrphanId = draftId(1, "d");
     const expiredOrphanId = draftId(1, "c");
+    const unreadableOrphanId = draftId(1, "9");
     const pendingReferenceId = `file-${randomUUID()}`;
     const liveReferenceId = `file-${randomUUID()}`;
     const activeOrphanReferenceId = `file-${randomUUID()}`;
     const expiredOrphanReferenceId = `file-${randomUUID()}`;
+    const unreadableOrphanReferenceId = `file-${randomUUID()}`;
     const objectlessOrphanReferenceId = `file-${randomUUID()}`;
     const activeObjectlessReferenceId = `file-${randomUUID()}`;
     const liveExpiredReferenceId = `file-${randomUUID()}`;
@@ -227,6 +229,16 @@ test(
           },
         },
         {
+          path: `inquirySubmissions/${unreadableOrphanId}/referenceUploads/${unreadableOrphanReferenceId}`,
+          value: {
+            draftId: unreadableOrphanId,
+            referenceId: unreadableOrphanReferenceId,
+            objectPath: `inquiryReferences/${unreadableOrphanId}/unreadable-expiry-object`,
+            uploadProtection: "reserving-generation-v1",
+            expiresAt: "not-a-timestamp",
+          },
+        },
+        {
           path: `inquirySubmissions/${draftId(2, "c")}/referenceUploads/${objectlessOrphanReferenceId}`,
           value: {
             draftId: draftId(2, "c"),
@@ -300,6 +312,10 @@ test(
           path: `inquiryReferences/${expiredOrphanId}/expired-ticket-object`,
           referenceId: expiredOrphanReferenceId,
         },
+        {
+          path: `inquiryReferences/${unreadableOrphanId}/unreadable-expiry-object`,
+          referenceId: unreadableOrphanReferenceId,
+        },
         { path: "inquiryReferences/unrelated-prefix/preserved-object" },
         { path: "otherPrivateObjects/preserved-object" },
       ]);
@@ -337,6 +353,26 @@ test(
           await firestore
             .collection("inquirySubmissions")
             .doc("unrelated-legacy-record")
+            .get()
+        ).exists,
+        true,
+      );
+      assert.equal(
+        (
+          await bucket
+            .file(
+              `inquiryReferences/${unreadableOrphanId}/unreadable-expiry-object`,
+            )
+            .exists()
+        )[0],
+        true,
+      );
+      assert.equal(
+        (
+          await firestore
+            .doc(
+              `inquirySubmissions/${unreadableOrphanId}/referenceUploads/${unreadableOrphanReferenceId}`,
+            )
             .get()
         ).exists,
         true,
@@ -451,7 +487,7 @@ test(
       assert.equal(third.orphanObjectsDeleted, 0);
       assert.equal(third.orphanTicketsDeleted, 0);
       process.stdout.write(
-        `Plan Home cleanup evidence: expiredRecordPages=2, recordsDeleted=${first.recordsDeleted + second.recordsDeleted}, pendingTombstoneRetained=true, lateCapabilityRecreationDeleted=true, expiredTokenBatches=2, resumeTokensDeleted=${first.resumeTokensDeleted}, parentPrefixObjectsDeleted=${expiredPrefixObjects.length}, orphanTicketPages=2, orphanTicketsDeleted=${first.orphanTicketsDeleted}, orphanObjectPages=2, orphanObjectsDeleted=${first.orphanObjectsDeleted}, objectlessOrphanTicketDeleted=true, activeOrphanCapabilityPreserved=true, liveParentPreserved=true, unrelatedPreserved=true, idempotent=true\n`,
+        `Plan Home cleanup evidence: expiredRecordPages=2, recordsDeleted=${first.recordsDeleted + second.recordsDeleted}, pendingTombstoneRetained=true, lateCapabilityRecreationDeleted=true, expiredTokenBatches=2, resumeTokensDeleted=${first.resumeTokensDeleted}, parentPrefixObjectsDeleted=${expiredPrefixObjects.length}, orphanTicketPages=2, orphanTicketsDeleted=${first.orphanTicketsDeleted}, orphanObjectPages=2, orphanObjectsDeleted=${first.orphanObjectsDeleted}, objectlessOrphanTicketDeleted=true, activeOrphanCapabilityPreserved=true, unreadableTicketPreserved=true, liveParentPreserved=true, unrelatedPreserved=true, idempotent=true\n`,
       );
     } finally {
       await firestore.recursiveDelete(firestore.collection("inquirySubmissions"));

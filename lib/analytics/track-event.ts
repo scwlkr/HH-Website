@@ -74,6 +74,13 @@ const planHomeZoneIds = new Set([
   "design-desk-and-review",
 ]);
 
+const planHomeSourceTags = new Set([
+  "direct",
+  "homepage",
+  "project-start",
+  "single-family-catalog",
+]);
+
 function isAnalyticsPayloadValue(value: unknown) {
   return (
     typeof value === "string" ||
@@ -104,10 +111,7 @@ function isAllowedPlanHomeValue(key: string, value: unknown) {
     return value === "phone" || value === "tablet" || value === "desktop";
   }
   if (key === "source_tag") {
-    return (
-      typeof value === "string" &&
-      /^[a-z0-9][a-z0-9:_-]{0,63}$/i.test(value)
-    );
+    return typeof value === "string" && planHomeSourceTags.has(value);
   }
   return false;
 }

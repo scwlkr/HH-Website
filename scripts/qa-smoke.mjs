@@ -671,6 +671,13 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
   const genericLink = page.getByRole("link", {
     name: "Start Another Project Type",
   });
+  for (const entryLink of [planLink, genericLink]) {
+    const target = await entryLink.boundingBox();
+    assert(
+      target && target.width >= 44 && target.height >= 44,
+      "Each project-start action must provide at least a 44 by 44 pixel target.",
+    );
+  }
   assert(
     (await planLink.getAttribute("href")) === "/plan-your-home",
     "The new detached-home path must enter Plan Your Home without query data.",
@@ -688,8 +695,18 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
   );
 
   await Promise.all([
+    page.waitForURL((url) => url.pathname === "/inquire"),
+    genericLink.click(),
+  ]);
+  assert(
+    new URL(page.url()).searchParams.get("buildType") === "townhomes",
+    "The generic project-start action must navigate to the working prefilled inquiry.",
+  );
+  await page.goBack({ waitUntil: "networkidle" });
+
+  await Promise.all([
     page.waitForURL(`${baseUrl}/plan-your-home`),
-    planLink.click(),
+    page.getByRole("link", { name: "Plan Your Home", exact: true }).click(),
   ]);
   const planPrivacyLink = page.getByRole("link", {
     name: "privacy and retention policy",
@@ -705,6 +722,17 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
       [await planPrivacyLink.elementHandle(), await planNameInput.elementHandle()],
     ),
     "Plan Your Home privacy and retention disclosure must precede the name field.",
+  );
+  let planPrivacyKeyboardFocused = false;
+  for (let press = 0; press < 20 && !planPrivacyKeyboardFocused; press += 1) {
+    await page.keyboard.press("Tab");
+    planPrivacyKeyboardFocused = await planPrivacyLink.evaluate(
+      (link) => document.activeElement === link,
+    );
+  }
+  assert(
+    planPrivacyKeyboardFocused,
+    "The inline Plan Home privacy link must be keyboard focusable.",
   );
   await planNameInput.fill("Browser Proof Visitor");
   await page.getByRole("button", { name: "Open the front door" }).click();
@@ -741,6 +769,17 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
       [await genericPrivacyLink.elementHandle(), await genericNameInput.elementHandle()],
     ),
     "Generic inquiry privacy and retention disclosure must precede the first contact field.",
+  );
+  let genericPrivacyKeyboardFocused = false;
+  for (let press = 0; press < 20 && !genericPrivacyKeyboardFocused; press += 1) {
+    await page.keyboard.press("Tab");
+    genericPrivacyKeyboardFocused = await genericPrivacyLink.evaluate(
+      (link) => document.activeElement === link,
+    );
+  }
+  assert(
+    genericPrivacyKeyboardFocused,
+    "The inline generic-inquiry privacy link must be keyboard focusable.",
   );
 }
 

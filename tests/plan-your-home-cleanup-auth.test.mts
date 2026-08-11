@@ -36,7 +36,32 @@ test("scheduled cleanup fails closed and accepts only an exact bearer secret", (
     ),
     "utf8",
   );
+  const indexes = JSON.parse(
+    readFileSync(
+      new URL("../firestore.indexes.json", import.meta.url),
+      "utf8",
+    ),
+  ) as {
+    fieldOverrides?: Array<{
+      collectionGroup?: string;
+      fieldPath?: string;
+      indexes?: Array<{ order?: string; queryScope?: string }>;
+    }>;
+  };
   assert.match(authSource, /timingSafeEqual/);
   assert.match(routeSource, /status: 401/);
   assert.doesNotMatch(routeSource, /console\.(?:log|error)\([^)]*(?:secret|authorization)/i);
+  assert(
+    indexes.fieldOverrides?.some(
+      (override) =>
+        override.collectionGroup === "referenceUploads" &&
+        override.fieldPath === "expiresAt" &&
+        override.indexes?.some(
+          (index) =>
+            index.order === "ASCENDING" &&
+            index.queryScope === "COLLECTION_GROUP",
+        ),
+    ),
+    "The production index manifest must support expired upload-ticket cleanup.",
+  );
 });
