@@ -65,7 +65,7 @@ function QueueField({
 }>) {
   return (
     <div className={className}>
-      <p className="mb-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted xl:hidden">
+      <p className="mb-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted xl:sr-only">
         {label}
       </p>
       {children}

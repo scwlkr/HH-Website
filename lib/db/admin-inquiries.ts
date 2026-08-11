@@ -11,15 +11,15 @@ import { requireAdminUser } from "@/lib/firebase/auth";
 export async function getAuthorizedAdminInquiryQueue() {
   await requireAdminUser();
 
-  if (!isFirebaseAdminConfigured()) {
-    throw new Error("Firebase admin credentials are not configured.");
-  }
-
-  const repository = createAdminInquiryQueueRepository(getFirebaseDatabase());
-
   return {
     list(statusFilter: AdminInquiryStatusFilter) {
-      return repository.list(statusFilter);
+      if (!isFirebaseAdminConfigured()) {
+        throw new Error("Firebase admin credentials are not configured.");
+      }
+
+      return createAdminInquiryQueueRepository(getFirebaseDatabase()).list(
+        statusFilter,
+      );
     },
   };
 }
