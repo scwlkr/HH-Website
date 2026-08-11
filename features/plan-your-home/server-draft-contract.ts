@@ -253,7 +253,10 @@ export function createCompletedZoneProgress(
   const nextQuestion = planHomeQuestions[answerCount];
 
   return {
-    currentPromptId: nextQuestion?.id ?? "review",
+    currentPromptId:
+      completedZoneId === "design-desk-and-review"
+        ? "review"
+        : nextQuestion?.id ?? "review",
     currentZoneId: nextQuestion?.zoneId ?? completedZoneId,
     completedZoneIds: planHomeZoneIds.slice(0, completedZoneIndex + 1),
   };

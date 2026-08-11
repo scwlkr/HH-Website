@@ -950,9 +950,13 @@ export function ReferencesPrompt({
         <input
           type="checkbox"
           checked={noReferencesYet}
+          disabled={items.length > 0}
           onChange={(event) => onNoReferencesYetChange(event.target.checked)}
         />
-        <span>I do not have references yet</span>
+        <span>
+          I do not have references yet
+          {items.length > 0 ? " (remove added references first)" : ""}
+        </span>
       </label>
     </fieldset>
   );

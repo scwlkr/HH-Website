@@ -195,10 +195,33 @@ function mutationResult(
 export function createPlanHomeReferenceRepository(
   database: Firestore,
   bucket: Bucket,
-  dependencies: Readonly<{ now?: () => Date; uuid?: () => string }> = {},
+  dependencies: Readonly<{
+    now?: () => Date;
+    uuid?: () => string;
+    signUpload?: (
+      objectPath: string,
+      settings: Readonly<{
+        expiresAt: Date;
+        mimeType: string;
+        headers: Readonly<Record<string, string>>;
+      }>,
+    ) => Promise<string>;
+  }> = {},
 ) {
   const now = dependencies.now ?? (() => new Date());
   const uuid = dependencies.uuid ?? randomUUID;
+  const signUpload =
+    dependencies.signUpload ??
+    (async (objectPath, settings) => {
+      const [uploadUrl] = await bucket.file(objectPath).getSignedUrl({
+        version: "v4",
+        action: "write",
+        expires: settings.expiresAt,
+        contentType: settings.mimeType,
+        extensionHeaders: settings.headers,
+      });
+      return uploadUrl;
+    });
 
   async function authorizedDraft(draftId: string, sessionTokenHash: string) {
     const draftReference = database
@@ -296,18 +319,15 @@ export function createPlanHomeReferenceRepository(
 
       const headers = {
         "content-type": parsed.mimeType,
-        "x-goog-content-length-range": `${parsed.sizeBytes},${parsed.sizeBytes}`,
         "x-goog-meta-plan-home-draft": parsed.draftId,
         "x-goog-meta-plan-home-reference": referenceId,
       };
 
       try {
-        const [uploadUrl] = await bucket.file(objectPath).getSignedUrl({
-          version: "v4",
-          action: "write",
-          expires: expiresAt,
-          contentType: parsed.mimeType,
-          extensionHeaders: headers,
+        const uploadUrl = await signUpload(objectPath, {
+          expiresAt,
+          mimeType: parsed.mimeType,
+          headers,
         });
         return {
           draftId: parsed.draftId,
