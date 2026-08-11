@@ -534,7 +534,12 @@ export function validatePlanHomeTourState(state: PlanHomeTourState) {
 
   for (const zoneId of state.completedZoneIds) {
     const zoneQuestions = planHomeQuestions.filter(
-      (question) => question.zoneId === zoneId,
+      (question) =>
+        question.zoneId === zoneId &&
+        !(
+          zoneId === "design-desk-and-review" &&
+          question.id === "contact.follow-up"
+        ),
     );
     if (zoneQuestions.some((question) => !answerIsValid(state, question.id))) {
       issues.push(`Completed zone ${zoneId} contains an invalid answer.`);

@@ -317,32 +317,35 @@ type PendingReferenceUpload = Readonly<{
   error: string | null;
 }>;
 
+const PRIORITY_SOURCE_GROUPS = new Map<string, ReadonlySet<string>>([
+  ["home.daily-life", new Set(["dailyLife"])],
+  ["living.features", new Set(["features"])],
+  ["kitchen.use", new Set(["kitchenUse"])],
+  ["kitchen.arrangement", new Set(["workCenter", "connection"])],
+  ["kitchen.support", new Set(["supportSpaces"])],
+  ["dining.use", new Set(["diningUse"])],
+  ["primary.bedroom-features", new Set(["features"])],
+  ["primary.bath-features", new Set(["features"])],
+  ["primary.closet-access", new Set(["closetAccess"])],
+  ["secondary.bath-sharing", new Set(["bathSharing"])],
+  ["utility.laundry", new Set(["laundry"])],
+  ["utility.mudroom", new Set(["mudroom"])],
+  ["utility.storage", new Set(["storage"])],
+  ["home.systems", new Set(["systems"])],
+  ["exterior.garage", new Set(["needs"])],
+  ["site.relationships", new Set(["relationships"])],
+  ["exterior.outdoor-living", new Set(["features"])],
+  ["home.specialty-spaces", new Set(["spaces"])],
+]);
+
 function selectedPriorityItems(answers: Readonly<Record<string, unknown>>) {
   const labels: string[] = [];
-  const sourceIds = new Set([
-    "home.daily-life",
-    "living.features",
-    "kitchen.use",
-    "kitchen.arrangement",
-    "kitchen.support",
-    "dining.use",
-    "primary.bedroom-features",
-    "primary.bath-features",
-    "primary.closet-access",
-    "secondary.bath-sharing",
-    "utility.laundry",
-    "utility.mudroom",
-    "utility.storage",
-    "home.systems",
-    "exterior.garage",
-    "site.relationships",
-    "exterior.outdoor-living",
-    "home.specialty-spaces",
-  ]);
   for (const question of planHomeQuestions) {
-    if (!sourceIds.has(question.id)) continue;
+    const sourceGroups = PRIORITY_SOURCE_GROUPS.get(question.id);
+    if (!sourceGroups) continue;
     const answer = answers[question.id];
     for (const group of question.response.optionGroups) {
+      if (!sourceGroups.has(group.id)) continue;
       const selected =
         answer && typeof answer === "object" && group.id in answer
           ? (answer as Record<string, unknown>)[group.id]
@@ -1799,6 +1802,16 @@ export function PlanYourHomeShell({
         reducedMotion={reducedMotion}
       />
     );
+  } else if (
+    activeQuestion &&
+    activeQuestion.number > DESIGN_DESK_LAST_QUESTION
+  ) {
+    content = (
+      <ReviewBriefBoundary
+        onBack={backFromReviewBriefBoundary}
+        reducedMotion={reducedMotion}
+      />
+    );
   } else if (tourState.location.kind === "question") {
     const question = activeQuestion;
     if (!question) throw new Error("The active Plan Your Home question is missing.");
@@ -1895,9 +1908,8 @@ export function PlanYourHomeShell({
     );
   } else {
     content = (
-      <BlueprintDesignDeskBoundary
-        onBack={backFromBlueprintBoundary}
-        onContinue={() => setShowBlueprintDesignDeskBoundary(false)}
+      <ReviewBriefBoundary
+        onBack={backFromReviewBriefBoundary}
         reducedMotion={reducedMotion}
       />
     );

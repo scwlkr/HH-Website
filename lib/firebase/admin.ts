@@ -161,10 +161,30 @@ export function getFirebaseAdminStorage() {
   if (oidcClient) {
     // Storage 7 wraps this v10 client with google-auth-library 9, which expects
     // enumerable header properties rather than a WHATWG Headers instance.
+    const serviceAccountEmail = readOptionalEnv("GCP_SERVICE_ACCOUNT_EMAIL");
+    if (!serviceAccountEmail) {
+      throw new Error("Vercel OIDC Storage signing requires GCP_SERVICE_ACCOUNT_EMAIL.");
+    }
     const storageAuthClient = {
       async getRequestHeaders() {
         const headers = await oidcClient.getRequestHeaders();
         return Object.fromEntries(headers.entries());
+      },
+      async getCredentials() {
+        return { client_email: serviceAccountEmail };
+      },
+      async sign(blobToSign: string) {
+        const response = await oidcClient.request<{ signedBlob: string }>({
+          url: `https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${encodeURIComponent(serviceAccountEmail)}:signBlob`,
+          method: "POST",
+          data: {
+            payload: Buffer.from(blobToSign).toString("base64"),
+          },
+        });
+        if (!response.data.signedBlob) {
+          throw new Error("IAM Credentials did not return a signed blob.");
+        }
+        return response.data.signedBlob;
       },
     } as unknown as StorageOptions["authClient"];
 

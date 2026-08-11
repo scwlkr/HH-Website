@@ -65,10 +65,18 @@ function seedDesignDesk(questionId = "design.feeling") {
   const completedZoneIds = planHomeZones
     .slice(0, 6)
     .map(({ id }) => id) as PlanHomeTourState["completedZoneIds"];
+  const answers = answersThrough(30);
+  answers["home.daily-life"] = ["not-sure-yet"];
+  answers["living.features"] = ["none"];
+  answers["exterior.garage"] = {
+    bays: "2",
+    needs: ["storage"],
+    other: "",
+  };
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(30),
+    answers,
     location: {
       kind: "question",
       questionId: questionId as "design.feeling",
@@ -291,6 +299,10 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   await user.type(noteFields[0], "Kitchen layout reference");
   await user.click(query.getByRole("button", { name: "Next" }));
 
+  assert.ok(query.getByLabelText("Storage"));
+  assert.equal(query.queryByLabelText("2"), null);
+  assert.equal(query.queryByLabelText("None"), null);
+  assert.equal(query.queryByLabelText("Not sure yet"), null);
   await user.click(query.getByRole("checkbox", { name: "No strong priorities yet" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   assert.match(
