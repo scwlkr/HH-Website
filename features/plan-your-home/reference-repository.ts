@@ -500,31 +500,29 @@ export function createPlanHomeReferenceRepository(
       sessionTokenHash: string,
     ): Promise<PlanHomeReferenceMutationResult> {
       const parsed = parseOrThrow(planHomeRemoveReferenceSchema.safeParse(input));
-      const { draft, draftReference } = await authorizedDraft(
-        parsed.draftId,
-        sessionTokenHash,
-      );
-      assertRevision(draft, parsed.expectedRevision);
-      const reference = draft.references.find(
-        ({ id }) => id === parsed.referenceId,
-      );
-      if (!reference) {
-        return mutationResult(
-          parsed.draftId,
-          draft.revision,
-          draft.references,
-          false,
-        );
-      }
-      if (reference.kind === "file") {
-        await deleteObjectIfPresent(bucket, reference.objectPath);
-      }
-      return database.runTransaction(async (transaction) => {
+      const draftReference = database
+        .collection(inquirySubmissionsCollection)
+        .doc(parsed.draftId);
+      const removal = await database.runTransaction(async (transaction) => {
         const draftSnapshot = await transaction.get(draftReference);
         if (!draftSnapshot.exists) throw new PlanHomeDraftNotFoundError();
         const currentDraft = readDraft(draftSnapshot.data());
         assertAuthorized(currentDraft, sessionTokenHash, now());
         assertRevision(currentDraft, parsed.expectedRevision);
+        const reference = currentDraft.references.find(
+          ({ id }) => id === parsed.referenceId,
+        );
+        if (!reference) {
+          return {
+            result: mutationResult(
+              parsed.draftId,
+              currentDraft.revision,
+              currentDraft.references,
+              false,
+            ),
+            objectPath: null,
+          } as const;
+        }
         const references = currentDraft.references.filter(
           ({ id }) => id !== parsed.referenceId,
         );
@@ -534,8 +532,15 @@ export function createPlanHomeReferenceRepository(
           revision,
           updatedAt: now(),
         });
-        return mutationResult(parsed.draftId, revision, references, true);
+        return {
+          result: mutationResult(parsed.draftId, revision, references, true),
+          objectPath: reference.kind === "file" ? reference.objectPath : null,
+        } as const;
       });
+      if (removal.objectPath) {
+        await deleteObjectIfPresent(bucket, removal.objectPath);
+      }
+      return removal.result;
     },
 
     async syncNotes(

@@ -11,7 +11,10 @@ import { getStorage } from "firebase-admin/storage";
 
 import { createPlanHomeReferenceRepository } from "../features/plan-your-home/reference-repository.ts";
 import { PlanHomeReferenceValidationError } from "../features/plan-your-home/reference-upload-contract.ts";
-import { createPlanHomeDraftRepository } from "../features/plan-your-home/server-draft-repository.ts";
+import {
+  createPlanHomeDraftRepository,
+  PlanHomeDraftConflictError,
+} from "../features/plan-your-home/server-draft-repository.ts";
 import { planHomeQuestions } from "../features/plan-your-home/registry.ts";
 import { hashPlanHomeDraftSessionSecret } from "../lib/plan-your-home/draft-session-token.ts";
 
@@ -115,6 +118,26 @@ test(
       assert.equal(storedAfterFinalize?.references.length, 1);
       assert.equal(storedAfterFinalize?.references[0].objectPath, capability.objectPath);
       assert.equal(storedAfterFinalize?.references[0].downloadToken, undefined);
+      await assert.rejects(
+        repository.removeReference(
+          {
+            draftId: created.draftId,
+            expectedRevision: 1,
+            referenceId: capability.referenceId,
+          },
+          sessionHash,
+        ),
+        PlanHomeDraftConflictError,
+      );
+      assert.equal((await bucket.file(capability.objectPath).exists())[0], true);
+      const storedAfterStaleRemove = (
+        await firestore.collection("inquirySubmissions").doc(created.draftId).get()
+      ).data();
+      assert.equal(storedAfterStaleRemove?.references.length, 1);
+      assert.equal(
+        storedAfterStaleRemove?.references[0].objectPath,
+        capability.objectPath,
+      );
 
       const imageBody = Buffer.from([
         0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00,
@@ -230,6 +253,16 @@ test(
       assert.equal(removed.revision, 5);
       assert.equal((await bucket.file(capability.objectPath).exists())[0], false);
       assert.equal(removed.references.length, 2);
+      const storedAfterValidRemove = (
+        await firestore.collection("inquirySubmissions").doc(created.draftId).get()
+      ).data();
+      assert.equal(storedAfterValidRemove?.references.length, 2);
+      assert.equal(
+        storedAfterValidRemove?.references.some(
+          (reference: { id: string }) => reference.id === capability.referenceId,
+        ),
+        false,
+      );
 
       const orphanBody = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00]);
       const orphan = await repository.issueUpload(
@@ -260,7 +293,7 @@ test(
       assert.equal((await bucket.file(orphan.objectPath).exists())[0], false);
 
       process.stdout.write(
-        `Plan Home reference emulator evidence: draftId=${created.draftId}, signedCapability=true, privatePath=${capability.objectPath}, finalizedPdf=true, finalizedImage=true, finalizedMetadata=2, mismatchDeleted=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}\n`,
+        `Plan Home reference emulator evidence: draftId=${created.draftId}, signedCapability=true, privatePath=${capability.objectPath}, finalizedPdf=true, finalizedImage=true, finalizedMetadata=2, mismatchDeleted=true, staleRemovePreserved=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}\n`,
       );
     } finally {
       await firestore.recursiveDelete(
