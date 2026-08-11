@@ -41,6 +41,30 @@ function reservedGeneration(capability: PlanHomeUploadCapability) {
   return generation;
 }
 
+function emulatorMultipartBody(
+  capability: PlanHomeUploadCapability,
+  body: Buffer,
+  mimeType: string,
+  metadata: Readonly<Record<string, string>> = {
+    "plan-home-draft": capability.draftId,
+    "plan-home-reference": capability.referenceId,
+  },
+) {
+  assert(capability.emulatorMultipartBoundary);
+  const resource = JSON.stringify({
+    name: capability.objectPath,
+    contentType: mimeType,
+    metadata,
+  });
+  return Buffer.concat([
+    Buffer.from(
+      `--${capability.emulatorMultipartBoundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${resource}\r\n--${capability.emulatorMultipartBoundary}\r\nContent-Type: ${mimeType}\r\n\r\n`,
+    ),
+    body,
+    Buffer.from(`\r\n--${capability.emulatorMultipartBoundary}--\r\n`),
+  ]);
+}
+
 test(
   "private reference objects finalize, mismatch-delete, remove, and orphan-clean in Firebase emulators",
   { skip: !hasEmulators },
@@ -96,6 +120,8 @@ test(
         sessionHash,
       );
       assert.match(capability.uploadUrl, /signed=true/);
+      assert.equal(capability.method, "PUT");
+      assert.equal(capability.emulatorMultipartBoundary, undefined);
       assert.equal(signed[0]?.headers["content-type"], "application/pdf");
       assert.equal(
         signed[0]?.headers["x-goog-meta-plan-home-draft"],
@@ -326,8 +352,132 @@ test(
       assert.equal(cleanup.deleted, 1);
       assert.equal((await bucket.file(orphan.objectPath).exists())[0], false);
 
+      const storageEmulatorHost =
+        process.env.FIREBASE_STORAGE_EMULATOR_HOST ??
+        process.env.STORAGE_EMULATOR_HOST;
+      assert(storageEmulatorHost);
+      const rulesDenied = await fetch(
+        `http://${storageEmulatorHost}/v0/b/${encodeURIComponent(bucketName)}/o?name=${encodeURIComponent(`plan-home/${created.draftId}/arbitrary.pdf`)}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/pdf" },
+          body: Buffer.from("%PDF-1.7\narbitrary-browser-write"),
+        },
+      );
+      assert.equal(rulesDenied.status, 403);
+      assert.throws(
+        () =>
+          createPlanHomeReferenceRepository(
+            firestore,
+            getStorage(app).bucket("production-hh-website.firebasestorage.app"),
+            { storageEmulatorHost },
+          ),
+        /loopback HTTP host and demo project bucket/,
+      );
+      const directRepository = createPlanHomeReferenceRepository(
+        firestore,
+        bucket,
+        {
+          now: () => currentTime,
+          storageEmulatorHost,
+        },
+      );
+      const mismatchedBody = Buffer.from("%PDF-1.7\nmismatched-metadata");
+      const mismatchedCapability = await directRepository.issueUpload(
+        {
+          draftId: created.draftId,
+          expectedRevision: 5,
+          originalName: "mismatched.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: mismatchedBody.byteLength,
+        },
+        sessionHash,
+      );
+      const mismatchedUpload = await fetch(mismatchedCapability.uploadUrl, {
+        method: mismatchedCapability.method,
+        headers: mismatchedCapability.headers,
+        body: emulatorMultipartBody(
+          mismatchedCapability,
+          mismatchedBody,
+          "application/pdf",
+          {
+            "plan-home-draft": created.draftId,
+            "plan-home-reference": "wrong-reference",
+          },
+        ),
+      });
+      assert.equal(mismatchedUpload.ok, true);
+      await assert.rejects(
+        directRepository.finalizeUpload(
+          {
+            draftId: created.draftId,
+            expectedRevision: 5,
+            referenceId: mismatchedCapability.referenceId,
+            note: "Must be rejected",
+          },
+          sessionHash,
+        ),
+        PlanHomeReferenceValidationError,
+      );
+      assert.equal(
+        (await bucket.file(mismatchedCapability.objectPath).exists())[0],
+        false,
+      );
+      const directBody = Buffer.from("%PDF-1.7\ndirect-browser-upload");
+      const directCapability = await directRepository.issueUpload(
+        {
+          draftId: created.draftId,
+          expectedRevision: 5,
+          originalName: "direct.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: directBody.byteLength,
+        },
+        sessionHash,
+      );
+      assert.equal(directCapability.method, "POST");
+      assert.match(directCapability.uploadUrl, /uploadType=multipart/);
+      assert.match(directCapability.uploadUrl, /ifGenerationMatch=\d+/);
+      assert(directCapability.emulatorMultipartBoundary);
+      const directUpload = await fetch(directCapability.uploadUrl, {
+        method: directCapability.method,
+        headers: directCapability.headers,
+        body: emulatorMultipartBody(
+          directCapability,
+          directBody,
+          "application/pdf",
+        ),
+      });
+      assert.equal(
+        directUpload.ok,
+        true,
+        `Storage multipart upload failed (${directUpload.status}): ${await directUpload.text()}`,
+      );
+      const directFinalized = await directRepository.finalizeUpload(
+        {
+          draftId: created.draftId,
+          expectedRevision: 5,
+          referenceId: directCapability.referenceId,
+          note: "Direct local upload",
+        },
+        sessionHash,
+      );
+      assert.equal(directFinalized.revision, 6);
+      const directRemoved = await directRepository.removeReference(
+        {
+          draftId: created.draftId,
+          expectedRevision: 6,
+          referenceId: directCapability.referenceId,
+        },
+        sessionHash,
+      );
+      assert.equal(directRemoved.revision, 7);
+      assert.equal(
+        (await bucket.file(directCapability.objectPath).exists())[0],
+        false,
+      );
+
       process.stdout.write(
-        `Plan Home reference emulator evidence: draftCreated=true, signedCapability=true, privatePathScoped=true, finalizedPdf=true, finalizedImage=true, finalizedMetadata=2, mismatchDeleted=true, staleRemovePreserved=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}\n`,
+        `Plan Home reference emulator evidence: draftCreated=true, productionSignedPut=true, privatePathScoped=true, finalizedPdf=true, finalizedImage=true, finalizedMetadata=2, signatureMismatchDeleted=true, emulatorMetadataMismatchDeleted=true, storageRulesDeniedArbitraryWrite=true, nonDemoEmulatorRejected=true, staleRemovePreserved=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}, directEmulatorUpload=true\n`,
       );
     } finally {
       await firestore.recursiveDelete(

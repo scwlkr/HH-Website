@@ -140,8 +140,9 @@ export type PlanHomeUploadCapability = Readonly<{
   referenceId: string;
   objectPath: string;
   uploadUrl: string;
-  method: "PUT";
+  method: "PUT" | "POST";
   headers: Readonly<Record<string, string>>;
+  emulatorMultipartBoundary?: string;
   expiresAt: string;
 }>;
 

@@ -22,7 +22,7 @@ function PrimaryNav({ mobile = false }: { mobile?: boolean }) {
           key={item.href}
           href={item.href as Route}
           className={cn(
-            "hh-link shrink-0 rounded-[var(--hh-radius-pill)] font-mono uppercase tracking-[0.1em]",
+            "hh-link inline-flex min-h-12 shrink-0 items-center rounded-[var(--hh-radius-pill)] font-mono uppercase tracking-[0.1em]",
             mobile
               ? "border border-line bg-white px-4 py-3 text-[0.72rem] text-foreground hover:border-accent hover:bg-background"
               : "border border-transparent px-3 py-2 text-[0.72rem] text-muted hover:border-line-strong hover:bg-background",
@@ -78,7 +78,7 @@ export function SiteHeader() {
           <Link
             href="/"
             aria-label={siteConfig.name}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            className="absolute left-1/2 top-1/2 flex min-h-12 min-w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
           >
             <BrandWordmark
               decorative

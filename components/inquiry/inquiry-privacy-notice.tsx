@@ -8,7 +8,7 @@ export function InquiryPrivacyNotice({
         you send it so h and h can follow up personally. Sending begins a
         conversation, not a design, price, feasibility decision, or contract.
         Review the{" "}
-        <a className="hh-link text-foreground" href="/privacy">
+        <a className="hh-link hh-touch-target text-foreground" href="/privacy">
           privacy and retention policy
         </a>
         .
@@ -20,7 +20,7 @@ export function InquiryPrivacyNotice({
     <p className="text-sm leading-6 text-muted">
       Rough answers are welcome. Sending permits project-related follow-up under
       the{" "}
-      <a className="hh-link text-foreground" href="/privacy">
+      <a className="hh-link hh-touch-target text-foreground" href="/privacy">
         privacy policy
       </a>
       ; it is not marketing consent or a contract.

@@ -150,6 +150,14 @@
     color: var(--hh-accent);
   }
 
+  .hh-touch-target {
+    display: inline-flex;
+    min-width: 3rem;
+    min-height: 3rem;
+    align-items: center;
+    vertical-align: middle;
+  }
+
   .hh-admin-theme {
     --hh-paper: #090d12;
     --hh-paper-deep: #10151b;

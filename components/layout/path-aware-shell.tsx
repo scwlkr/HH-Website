@@ -22,7 +22,7 @@ export function PathAwareShell({
       {!isAdminRoute ? (
         <a
           href="#main-content"
-          className="absolute left-4 top-4 z-[60] -translate-y-24 rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-4 py-2 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-foreground shadow-[0_14px_20px_-24px_rgba(17,17,15,0.45)] transition-transform focus:translate-y-0 focus-visible:translate-y-0"
+          className="absolute left-4 top-4 z-[60] inline-flex min-h-12 items-center -translate-y-24 rounded-[var(--hh-radius-pill)] border border-line-strong bg-white px-4 py-2 font-mono text-[0.72rem] uppercase tracking-[0.22em] text-foreground shadow-[0_14px_20px_-24px_rgba(17,17,15,0.45)] transition-transform focus:translate-y-0 focus-visible:translate-y-0"
         >
           Skip to content
         </a>

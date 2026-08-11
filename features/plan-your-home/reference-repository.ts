@@ -212,10 +212,28 @@ export function createPlanHomeReferenceRepository(
         headers: Readonly<Record<string, string>>;
       }>,
     ) => Promise<string>;
+    storageEmulatorHost?: string;
   }> = {},
 ) {
   const now = dependencies.now ?? (() => new Date());
   const uuid = dependencies.uuid ?? randomUUID;
+  const storageEmulatorUrl = (() => {
+    if (!dependencies.storageEmulatorHost) return null;
+    const rawHost = dependencies.storageEmulatorHost.includes("://")
+      ? dependencies.storageEmulatorHost
+      : `http://${dependencies.storageEmulatorHost}`;
+    const parsed = new URL(rawHost);
+    if (
+      parsed.protocol !== "http:" ||
+      !["127.0.0.1", "localhost", "::1", "[::1]"].includes(parsed.hostname) ||
+      !bucket.name.startsWith("demo-")
+    ) {
+      throw new Error(
+        "Storage emulator uploads require a loopback HTTP host and demo project bucket.",
+      );
+    }
+    return parsed.origin;
+  })();
   const signUpload =
     dependencies.signUpload ??
     (async (objectPath, settings) => {
@@ -384,18 +402,32 @@ export function createPlanHomeReferenceRepository(
           "x-goog-meta-plan-home-draft": parsed.draftId,
           "x-goog-meta-plan-home-reference": referenceId,
         };
-        const uploadUrl = await signUpload(objectPath, {
-          expiresAt,
-          mimeType: parsed.mimeType,
-          headers,
-        });
+        const emulatorMultipartBoundary = storageEmulatorUrl
+          ? `plan-home-${referenceId}`
+          : null;
+        const uploadUrl = storageEmulatorUrl
+          ? `${storageEmulatorUrl}/upload/storage/v1/b/${encodeURIComponent(
+              bucket.name,
+            )}/o?uploadType=multipart&ifGenerationMatch=${generation}`
+          : await signUpload(objectPath, {
+              expiresAt,
+              mimeType: parsed.mimeType,
+              headers,
+            });
         return {
           draftId: parsed.draftId,
           referenceId,
           objectPath,
           uploadUrl,
-          method: "PUT",
-          headers,
+          method: storageEmulatorUrl ? "POST" : "PUT",
+          headers: storageEmulatorUrl
+            ? {
+                "content-type": `multipart/related; boundary=${emulatorMultipartBoundary}`,
+              }
+            : headers,
+          ...(emulatorMultipartBoundary
+            ? { emulatorMultipartBoundary }
+            : {}),
           expiresAt: expiresAt.toISOString(),
         };
       } catch (error) {

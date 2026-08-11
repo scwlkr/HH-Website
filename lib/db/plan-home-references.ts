@@ -14,6 +14,11 @@ function getPlanHomeReferenceRepository() {
   return createPlanHomeReferenceRepository(
     getFirebaseDatabase(),
     getFirebaseStorageBucket(),
+    {
+      storageEmulatorHost:
+        process.env.FIREBASE_STORAGE_EMULATOR_HOST ??
+        process.env.STORAGE_EMULATOR_HOST,
+    },
   );
 }
 

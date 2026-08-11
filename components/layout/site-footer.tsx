@@ -16,7 +16,10 @@ function FooterLink({
   }
 
   return (
-    <a href={href} className="hh-link text-sm leading-7 text-muted">
+    <a
+      href={href}
+      className="hh-link hh-touch-target text-sm leading-7 text-muted"
+    >
       {label}
     </a>
   );
@@ -102,7 +105,7 @@ export function SiteFooter() {
                 <li key={item.href}>
                   <Link
                     href={item.href as Route}
-                    className="hh-link text-sm leading-7 text-muted"
+                    className="hh-link hh-touch-target text-sm leading-7 text-muted"
                   >
                     {item.label}
                   </Link>
@@ -118,7 +121,7 @@ export function SiteFooter() {
                 <li key={item.href}>
                   <Link
                     href={item.href as Route}
-                    className="hh-link text-sm leading-7 text-muted"
+                    className="hh-link hh-touch-target text-sm leading-7 text-muted"
                   >
                     {item.label}
                   </Link>

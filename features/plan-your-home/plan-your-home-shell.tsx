@@ -306,12 +306,28 @@ const unavailableReferenceAction = async () => ({
   message: "References are temporarily unavailable.",
 });
 
-function uploadDirectly(
+async function uploadDirectly(
   capability: PlanHomeUploadCapability,
   file: File,
   onProgress: (percent: number) => void,
 ) {
-  return new Promise<void>((resolve, reject) => {
+  const uploadBody = capability.emulatorMultipartBoundary
+    ? new Blob([
+        `--${capability.emulatorMultipartBoundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(
+          {
+            name: capability.objectPath,
+            contentType: file.type,
+            metadata: {
+              "plan-home-draft": capability.draftId,
+              "plan-home-reference": capability.referenceId,
+            },
+          },
+        )}\r\n--${capability.emulatorMultipartBoundary}\r\nContent-Type: ${file.type}\r\n\r\n`,
+        file,
+        `\r\n--${capability.emulatorMultipartBoundary}--\r\n`,
+      ])
+    : file;
+  await new Promise<void>((resolve, reject) => {
     const request = new XMLHttpRequest();
     request.open(capability.method, capability.uploadUrl);
     for (const [name, value] of Object.entries(capability.headers)) {
@@ -324,7 +340,6 @@ function uploadDirectly(
     });
     request.addEventListener("load", () => {
       if (request.status >= 200 && request.status < 300) {
-        onProgress(100);
         resolve();
       } else {
         reject(new Error(`Direct upload failed with status ${request.status}.`));
@@ -336,8 +351,9 @@ function uploadDirectly(
     request.addEventListener("abort", () =>
       reject(new Error("The direct upload was canceled.")),
     );
-    request.send(file);
+    request.send(uploadBody);
   });
+  onProgress(100);
 }
 
 type PendingReferenceUpload = Readonly<{
@@ -668,7 +684,9 @@ function WelcomeStep({
           Before you enter a name, answers save in this browser for up to 30
           days. If you later save contact details, h and h keeps a private draft
           and any references under the retention schedule. Read the{" "}
-          <a href="/privacy">privacy and retention policy</a>.
+          <a className="hh-touch-target" href="/privacy">
+            privacy and retention policy
+          </a>{"."}
         </p>
         <label className={styles.textLabel} htmlFor="plan-home-welcome-name">
           Your name
@@ -745,7 +763,10 @@ function ContactCheckpoint({
           Saving creates a private server draft kept up to 180 days after last
           activity, including private references you add later. h and h may
           follow up manually. A one-time resume email is sent only when you
-          request it. See the <a href="/privacy">privacy policy</a>.
+          request it. See the{" "}
+          <a className="hh-touch-target" href="/privacy">
+            privacy policy
+          </a>{"."}
         </p>
         <div className={styles.contactGrid}>
           <label className={styles.textLabel} htmlFor="plan-home-contact-email">
@@ -1160,7 +1181,10 @@ function ProjectBriefReview({
           Under the proposed retention schedule, a submitted brief and private
           references are kept up to 24 months unless h and h retains or deletes
           them sooner. You may request deletion. Review the{" "}
-          <a href="/privacy">privacy and retention policy</a> before submitting.
+          <a className="hh-touch-target" href="/privacy">
+            privacy and retention policy
+          </a>{" "}
+          before submitting.
         </p>
         <label className={styles.disclosure}>
           <input
