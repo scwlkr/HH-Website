@@ -13,6 +13,7 @@ type AdminShellProps = {
 };
 
 const adminNavItems = [
+  { href: "/admin/inquiries", label: "Inquiries" },
   { href: "/admin/projects", label: "Projects" },
   { href: "/admin/settings/pricing", label: "Pricing" },
 ] as const;
@@ -44,8 +45,8 @@ export function AdminShell({
                   className="h-7 w-[10.5rem] sm:h-8 sm:w-[12rem]"
                 />
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
-                  Internal workspace for completed homes, pricing controls, and live
-                  content updates.
+                  Internal workspace for project inquiries, completed homes,
+                  pricing controls, and live content updates.
                 </p>
               </div>
             </div>
@@ -60,7 +61,7 @@ export function AdminShell({
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:flex-col xl:items-stretch">
                 <nav
-                  className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1"
+                  className="grid gap-2 sm:grid-cols-3 xl:grid-cols-1"
                   aria-label={`${adminBrand.name} navigation`}
                 >
                   {adminNavItems.map((item) => (
