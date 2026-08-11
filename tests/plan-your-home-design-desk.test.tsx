@@ -246,6 +246,9 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: "How should the new home feel?" })),
   );
+  await waitFor(() =>
+    assert.ok(view.container.querySelector('[data-scene-variant="design-desk"]')),
+  );
   const scene = view.container.querySelector('[data-scene-variant="design-desk"]');
   assert.ok(scene);
   assert.deepEqual(

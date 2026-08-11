@@ -119,6 +119,9 @@ async function renderUtility(checkpointDraft?: PlanHomeDraftAction) {
       query.getByRole("heading", { name: "Where and how should laundry work?" }),
     ),
   );
+  await waitFor(() =>
+    assert.ok(view.container.querySelector('[data-scene-variant="utility-hall"]')),
+  );
   return { view, query };
 }
 
@@ -377,7 +380,9 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
       '[data-tour-beat="exterior-back-door-transition"][data-reduced-motion="true"]',
     ),
   );
-  assert.ok(view.container.querySelector("[data-scene-variant='utility-hall']"));
+  await waitFor(() =>
+    assert.ok(view.container.querySelector("[data-scene-variant='utility-hall']")),
+  );
   assert.equal(
     view.container.querySelector("[data-scene-variant='exterior']"),
     null,

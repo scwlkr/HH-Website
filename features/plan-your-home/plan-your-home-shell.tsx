@@ -20,33 +20,23 @@ import {
   type PlanHomeServerBoundary,
 } from "@/features/plan-your-home/draft-resume-contract";
 import {
-  EntryScene,
-  LivingRoomScene,
-  WelcomeExteriorScene,
-} from "@/features/plan-your-home/first-zone-scenes";
-import {
   BlueprintDesignDeskThresholdScene,
-  ExteriorSiteScene,
-} from "@/features/plan-your-home/exterior-site-scene";
-import {
-  DesignDeskScene,
-  ReviewBriefThresholdScene,
-} from "@/features/plan-your-home/design-desk-scene";
-import {
-  KitchenDiningScene,
-} from "@/features/plan-your-home/kitchen-dining-scene";
-import {
-  BedroomsSharedBathroomsScene,
-  UtilityHallThresholdScene,
-} from "@/features/plan-your-home/bedrooms-shared-bathrooms-scene";
-import {
   BedroomHallThresholdScene,
-  PrimarySuiteScene,
-} from "@/features/plan-your-home/primary-suite-scene";
-import {
+  BedroomsSharedBathroomsScene,
+  DesignDeskScene,
+  EntryScene,
   ExteriorBackDoorThresholdScene,
+  ExteriorSiteScene,
+  KitchenDiningScene,
+  LivingRoomScene,
+  PlanHomeSceneSuspense,
+  PrimarySuiteScene,
+  ReviewBriefThresholdScene,
+  UtilityHallThresholdScene,
   UtilitySystemsScene,
-} from "@/features/plan-your-home/utility-systems-scene";
+  WelcomeExteriorScene,
+  preloadNextPlanHomeScene,
+} from "@/features/plan-your-home/scene-loader";
 import { createPlanHomeLocalSnapshotAdapter } from "@/features/plan-your-home/local-snapshot";
 import {
   ChoicePrompt,
@@ -286,32 +276,29 @@ function initialDraftAnswers() {
 }
 
 function sceneForQuestion(question: PlanHomeQuestionDefinition) {
+  let scene: ReactNode;
   if (question.number <= 3) {
-    return <EntryScene activeAnchor={question.sceneAnchor} />;
+    scene = <EntryScene activeAnchor={question.sceneAnchor} />;
+  } else if (question.number <= PROJECT_AND_LIVING_LAST_QUESTION) {
+    scene = <LivingRoomScene activeAnchor={question.sceneAnchor} />;
+  } else if (question.number <= KITCHEN_AND_DINING_LAST_QUESTION) {
+    scene = <KitchenDiningScene activeAnchor={question.sceneAnchor} />;
+  } else if (question.number <= PRIMARY_SUITE_LAST_QUESTION) {
+    scene = <PrimarySuiteScene activeAnchor={question.sceneAnchor} />;
+  } else if (question.number <= BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
+    scene = <BedroomsSharedBathroomsScene activeAnchor={question.sceneAnchor} />;
+  } else if (question.number <= UTILITY_AND_SYSTEMS_LAST_QUESTION) {
+    scene = <UtilitySystemsScene activeAnchor={question.sceneAnchor} />;
+  } else if (question.number <= EXTERIOR_AND_SITE_LAST_QUESTION) {
+    scene = <ExteriorSiteScene activeAnchor={question.sceneAnchor} />;
+  } else {
+    scene = question.number === planHomeQuestions.length ? (
+      <ReviewBriefThresholdScene />
+    ) : (
+      <DesignDeskScene activeAnchor={question.sceneAnchor} />
+    );
   }
-  if (question.number <= PROJECT_AND_LIVING_LAST_QUESTION) {
-    return <LivingRoomScene activeAnchor={question.sceneAnchor} />;
-  }
-  if (question.number <= KITCHEN_AND_DINING_LAST_QUESTION) {
-    return <KitchenDiningScene activeAnchor={question.sceneAnchor} />;
-  }
-  if (question.number <= PRIMARY_SUITE_LAST_QUESTION) {
-    return <PrimarySuiteScene activeAnchor={question.sceneAnchor} />;
-  }
-  if (question.number <= BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
-    return <BedroomsSharedBathroomsScene activeAnchor={question.sceneAnchor} />;
-  }
-  if (question.number <= UTILITY_AND_SYSTEMS_LAST_QUESTION) {
-    return <UtilitySystemsScene activeAnchor={question.sceneAnchor} />;
-  }
-  if (question.number <= EXTERIOR_AND_SITE_LAST_QUESTION) {
-    return <ExteriorSiteScene activeAnchor={question.sceneAnchor} />;
-  }
-  return question.number === planHomeQuestions.length ? (
-    <ReviewBriefThresholdScene />
-  ) : (
-    <DesignDeskScene activeAnchor={question.sceneAnchor} />
-  );
+  return <PlanHomeSceneSuspense>{scene}</PlanHomeSceneSuspense>;
 }
 
 const unavailableReferenceAction = async () => ({
@@ -666,7 +653,9 @@ function WelcomeStep({
   return (
     <section className={styles.moment} data-tour-beat="welcome">
       <div className={styles.momentScene}>
-        <WelcomeExteriorScene name={name} />
+        <PlanHomeSceneSuspense>
+          <WelcomeExteriorScene name={name} />
+        </PlanHomeSceneSuspense>
       </div>
       <form className={styles.momentSheet} onSubmit={onSubmit}>
         <p className={styles.eyebrow}>Plan your home</p>
@@ -735,7 +724,9 @@ function ContactCheckpoint({
   return (
     <section className={styles.moment} data-tour-beat="contact-checkpoint">
       <div className={styles.momentScene}>
-        <LivingRoomScene activeAnchor="hall-doors" />
+        <PlanHomeSceneSuspense>
+          <LivingRoomScene activeAnchor="hall-doors" />
+        </PlanHomeSceneSuspense>
       </div>
       <form
         className={styles.momentSheet}
@@ -836,7 +827,9 @@ function BedroomHallBoundary({
       data-tour-beat="bedroom-hall-transition"
     >
       <div className={styles.momentScene}>
-        <BedroomHallThresholdScene />
+        <PlanHomeSceneSuspense>
+          <BedroomHallThresholdScene />
+        </PlanHomeSceneSuspense>
       </div>
       <div className={styles.momentSheet}>
         <p className={styles.eyebrow}>Primary suite saved</p>
@@ -880,7 +873,9 @@ function UtilityHallBoundary({
       data-tour-beat="utility-hall-transition"
     >
       <div className={styles.momentScene}>
-        <UtilityHallThresholdScene />
+        <PlanHomeSceneSuspense>
+          <UtilityHallThresholdScene />
+        </PlanHomeSceneSuspense>
       </div>
       <div className={styles.momentSheet}>
         <p className={styles.eyebrow}>Bedrooms and shared bathrooms saved</p>
@@ -924,7 +919,9 @@ function ExteriorBackDoorBoundary({
       data-tour-beat="exterior-back-door-transition"
     >
       <div className={styles.momentScene}>
-        <ExteriorBackDoorThresholdScene />
+        <PlanHomeSceneSuspense>
+          <ExteriorBackDoorThresholdScene />
+        </PlanHomeSceneSuspense>
       </div>
       <div className={styles.momentSheet}>
         <p className={styles.eyebrow}>Utility priorities saved</p>
@@ -968,7 +965,9 @@ function BlueprintDesignDeskBoundary({
       data-tour-beat="blueprint-design-desk-transition"
     >
       <div className={styles.momentScene}>
-        <BlueprintDesignDeskThresholdScene />
+        <PlanHomeSceneSuspense>
+          <BlueprintDesignDeskThresholdScene />
+        </PlanHomeSceneSuspense>
       </div>
       <div className={styles.momentSheet}>
         <p className={styles.eyebrow}>Exterior and site priorities saved</p>
@@ -1013,7 +1012,9 @@ function ReviewBriefBoundary({
       data-tour-beat="design-desk-review-transition"
     >
       <div className={styles.momentScene}>
-        <ReviewBriefThresholdScene />
+        <PlanHomeSceneSuspense>
+          <ReviewBriefThresholdScene />
+        </PlanHomeSceneSuspense>
       </div>
       <div className={styles.momentSheet}>
         <p className={styles.eyebrow}>Design desk saved</p>
@@ -1281,6 +1282,16 @@ export function PlanYourHomeShell({
   const exteriorCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const designCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const resumeAnalyticsTracked = useRef(false);
+
+  useEffect(() => {
+    const questionNumber =
+      tourState.location.kind === "question"
+        ? (getPlanHomeQuestion(tourState.location.questionId)?.number ?? null)
+        : tourState.location.kind === "welcome"
+          ? null
+          : planHomeQuestions.length;
+    preloadNextPlanHomeScene(questionNumber);
+  }, [tourState.location]);
 
   useEffect(() => {
     let cancelled = false;

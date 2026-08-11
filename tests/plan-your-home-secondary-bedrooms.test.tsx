@@ -117,6 +117,13 @@ async function renderSecondary(
       }),
     ),
   );
+  await waitFor(() =>
+    assert.ok(
+      view.container.querySelector(
+        '[data-scene-variant="representative-bedroom-hall"]',
+      ),
+    ),
+  );
   return { view, query };
 }
 

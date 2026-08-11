@@ -97,6 +97,9 @@ async function renderPrimary(checkpointDraft?: PlanHomeDraftAction) {
       }),
     ),
   );
+  await waitFor(() =>
+    assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 4),
+  );
   return { view, query };
 }
 

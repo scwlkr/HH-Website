@@ -113,6 +113,11 @@ async function renderExterior(checkpointDraft?: PlanHomeDraftAction) {
       query.getByRole("heading", { name: "What should the garage accommodate?" }),
     ),
   );
+  await waitFor(() =>
+    assert.ok(
+      view.container.querySelector('[data-scene-variant="exterior-site-study"]'),
+    ),
+  );
   return { view, query };
 }
 
@@ -178,6 +183,11 @@ test("the utility threshold opens into one fixed exterior study with every regis
   assert.ok(
     view.container.querySelector(
       '[data-tour-beat="exterior-back-door-entrance"][data-reduced-motion="true"]',
+    ),
+  );
+  await waitFor(() =>
+    assert.ok(
+      view.container.querySelector('[data-scene-variant="exterior-site-study"]'),
     ),
   );
   const scene = view.container.querySelector(
@@ -419,7 +429,11 @@ test("question 30 retries one canonical checkpoint and match-cuts to the design 
       '[data-tour-beat="blueprint-design-desk-transition"][data-reduced-motion="true"]',
     ),
   );
-  assert.ok(view.container.querySelector("[data-scene-variant='exterior-site-study']"));
+  await waitFor(() =>
+    assert.ok(
+      view.container.querySelector("[data-scene-variant='exterior-site-study']"),
+    ),
+  );
   assert.equal(view.container.querySelector("[data-scene-variant='design-desk']"), null);
 
   await user.click(query.getByRole("button", { name: "Back to specialty spaces" }));
