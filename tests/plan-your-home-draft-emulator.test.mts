@@ -90,11 +90,13 @@ test(
     const idempotencyKey = `local-${randomUUID()}:plan-home-v1:contact-gate`;
     const rawSessionSecret = `raw-session-${randomUUID()}`;
     const sessionTokenHash = hashPlanHomeDraftSessionSecret(rawSessionSecret);
+    const fixtureEmailInput = `Taylor+${randomUUID()}@Example.COM`;
+    const fixtureEmail = fixtureEmailInput.toLowerCase();
     const createInput = {
       idempotencyKey,
       welcomeName: "  Taylor   Homeowner  ",
       contact: {
-        email: "Taylor@Example.COM",
+        email: fixtureEmailInput,
         phone: "+1 (214) 555-0100",
         manualFollowUpDisclosureAccepted: true,
       },
@@ -111,7 +113,10 @@ test(
       });
 
       const countBeforeInvalidCreate = (
-        await firestore.collection("inquirySubmissions").get()
+        await firestore
+          .collection("inquirySubmissions")
+          .where("contact.email", "==", fixtureEmail)
+          .get()
       ).size;
       const incompleteInput = {
         ...createInput,
@@ -122,7 +127,12 @@ test(
         repository.createDraft(incompleteInput, sessionTokenHash),
       );
       assert.equal(
-        (await firestore.collection("inquirySubmissions").get()).size,
+        (
+          await firestore
+            .collection("inquirySubmissions")
+            .where("contact.email", "==", fixtureEmail)
+            .get()
+        ).size,
         countBeforeInvalidCreate,
         "Invalid pre-contact data must not create a record.",
       );
@@ -142,6 +152,7 @@ test(
 
       const collectionAfterCreate = await firestore
         .collection("inquirySubmissions")
+        .where("contact.email", "==", fixtureEmail)
         .get();
       const draftSnapshot = await firestore
         .collection("inquirySubmissions")
@@ -153,11 +164,11 @@ test(
       assert.equal(createdDocument.schemaVersion, 2);
       assert.equal(createdDocument.experience, "plan-your-home");
       assert.equal(createdDocument.status, "draft");
-      assert.equal(createdDocument.contact.email, "taylor@example.com");
+      assert.equal(createdDocument.contact.email, fixtureEmail);
       assert.equal(createdDocument.contact.phone, "+12145550100");
       assert.deepEqual(createdDocument.contact.search, {
         name: "taylor homeowner",
-        email: "taylor@example.com",
+        email: fixtureEmail,
         phone: "12145550100",
       });
       assert.equal(createdDocument.derived.targetLocation, "Denton County");
@@ -609,9 +620,11 @@ test(
       const planHomeDraftCount = (
         await firestore
           .collection("inquirySubmissions")
-          .where("experience", "==", "plan-your-home")
+          .where("contact.email", "==", fixtureEmail)
           .get()
-      ).size;
+      ).docs.filter(
+        (document) => document.data().experience === "plan-your-home",
+      ).length;
       assert.equal(planHomeDraftCount, 1);
 
       const firestoreHost = parseHost(
