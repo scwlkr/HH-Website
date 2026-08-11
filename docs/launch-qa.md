@@ -40,6 +40,7 @@ Set real values in preview and production:
 - `PLAN_HOME_DRAFT_SESSION_SECRET`
 - `PLAN_HOME_RESUME_SECRET`
 - `PLAN_HOME_PUBLIC_ORIGIN`
+- `PLAN_HOME_CLEANUP_SECRET` (unique, server-only, at least 32 characters)
 - `HH_CONTACT_PHONE_HREF`
 - `HH_CONTACT_PHONE_LABEL`
 - `HH_CONTACT_EMAIL`
@@ -55,6 +56,15 @@ outside local Firebase emulator proof, and do not change provider or DNS state a
 part of local QA.
 
 Keep secret values out of docs, issues, screenshots, and chat.
+
+Configure an approved HTTPS scheduler to call
+`/api/internal/plan-your-home/cleanup` with the cleanup secret in a Bearer
+authorization header. Do not place the secret in the URL. Confirm the deployed
+Firebase server identity can query and delete the scoped Firestore records and
+list, inspect, and delete the scoped Storage objects; confirm required indexes;
+and alert on generic cleanup failures without logging credentials or private
+client data. Provider selection, credentials, schedule frequency, and the first
+production run remain manual launch prerequisites.
 
 Vercel server access is keyless. Configure:
 
@@ -117,6 +127,10 @@ Do not treat the site as launch-ready until:
 
 - final phone and email values are confirmed
 - owner-approved legal content is in place
+- counsel has approved the Plan Your Home privacy, retention/deletion, and
+  non-contract disclosures; the repository copy is currently a proposal only
+- the authenticated retention cleanup schedule, Firebase permissions, indexes,
+  and failure monitoring are configured and verified in the production provider
 - privacy and terms noindex behavior is intentionally resolved
 - final production imagery replaces placeholders where required
 - Firebase Auth, Firestore, Storage, OIDC, and environment values are confirmed in production

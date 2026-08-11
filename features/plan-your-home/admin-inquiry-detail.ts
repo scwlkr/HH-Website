@@ -682,6 +682,91 @@ export function createAdminInquiryDetailRepository(
     });
   const deletePrefix = dependencies.deletePrefix ?? deleteEveryPrefixObject;
 
+  async function deleteInquiryArtifacts(
+    inquiryId: string,
+    actor: AdminInquiryActor,
+    expiredBefore?: Date,
+  ) {
+    assertActor(actor);
+    assertInquiryId(inquiryId);
+    const reference = database
+      .collection(inquiriesCollection)
+      .doc(inquiryId);
+    const prepared = await database.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(reference);
+      if (!snapshot.exists) return false;
+      const record = readRecord(snapshot.data());
+      const { source, status } = readCanonicalStatus(record);
+      if (expiredBefore && status !== "deleting") {
+        const expiresAt = timestampMillis(record.expiresAt);
+        if (
+          source !== "plan-your-home" ||
+          expiresAt === null ||
+          expiresAt > expiredBefore.getTime()
+        ) {
+          return false;
+        }
+      }
+      const uploadTickets = await transaction.get(
+        reference.collection(referenceUploadsCollection),
+      );
+      const uploadCapabilitiesExpireAt = pendingUploadCapabilityUntil(
+        record,
+        uploadTickets,
+      );
+      if (status !== "deleting") {
+        const requestedAt = now();
+        transaction.update(reference, {
+          status: "deleting",
+          adminDeletion: {
+            previousStatus: record.status,
+            requestedAt,
+            uploadCapabilitiesExpireAt,
+            ...actorAudit(actor),
+          },
+        });
+      }
+      return { uploadCapabilitiesExpireAt } as const;
+    });
+    if (!prepared) return { applied: false, deletedObjects: 0 } as const;
+
+    const prefix = `inquiryReferences/${inquiryId}/`;
+    const deletedObjects = await deletePrefix(bucket, prefix);
+    await deleteDocumentsInBatches(database, () =>
+      reference.collection(referenceUploadsCollection).limit(deleteBatchSize).get(),
+    );
+    await deleteDocumentsInBatches(database, () =>
+      database
+        .collection(resumeTokensCollection)
+        .where("draftId", "==", inquiryId)
+        .limit(deleteBatchSize)
+        .get(),
+    );
+
+    if (
+      prepared.uploadCapabilitiesExpireAt &&
+      prepared.uploadCapabilitiesExpireAt.getTime() > now().getTime()
+    ) {
+      return {
+        applied: false,
+        pending: true,
+        pendingUntil: prepared.uploadCapabilitiesExpireAt.toISOString(),
+        deletedObjects,
+      } as const;
+    }
+
+    await database.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(reference);
+      if (!snapshot.exists) return;
+      const record = readRecord(snapshot.data());
+      if (record.status !== "deleting") {
+        throw new AdminInquiryConflictError();
+      }
+      transaction.delete(reference);
+    });
+    return { applied: true, deletedObjects } as const;
+  }
+
   return {
     async read(inquiryId: string, actor: AdminInquiryActor) {
       assertActor(actor);
@@ -788,74 +873,18 @@ export function createAdminInquiryDetailRepository(
     },
 
     async deleteInquiry(inquiryId: string, actor: AdminInquiryActor) {
-      assertActor(actor);
-      assertInquiryId(inquiryId);
-      const reference = database
-        .collection(inquiriesCollection)
-        .doc(inquiryId);
-      const prepared = await database.runTransaction(async (transaction) => {
-        const snapshot = await transaction.get(reference);
-        if (!snapshot.exists) return false;
-        const record = readRecord(snapshot.data());
-        const { status } = readCanonicalStatus(record);
-        const uploadTickets = await transaction.get(
-          reference.collection(referenceUploadsCollection),
-        );
-        const uploadCapabilitiesExpireAt = pendingUploadCapabilityUntil(
-          record,
-          uploadTickets,
-        );
-        if (status !== "deleting") {
-          const requestedAt = now();
-          transaction.update(reference, {
-            status: "deleting",
-            adminDeletion: {
-              previousStatus: record.status,
-              requestedAt,
-              uploadCapabilitiesExpireAt,
-              ...actorAudit(actor),
-            },
-          });
-        }
-        return { uploadCapabilitiesExpireAt } as const;
-      });
-      if (!prepared) return { applied: false, deletedObjects: 0 } as const;
+      return deleteInquiryArtifacts(inquiryId, actor);
+    },
 
-      const prefix = `inquiryReferences/${inquiryId}/`;
-      const deletedObjects = await deletePrefix(bucket, prefix);
-      await deleteDocumentsInBatches(database, () =>
-        reference.collection(referenceUploadsCollection).limit(deleteBatchSize).get(),
-      );
-      await deleteDocumentsInBatches(database, () =>
-        database
-          .collection(resumeTokensCollection)
-          .where("draftId", "==", inquiryId)
-          .limit(deleteBatchSize)
-          .get(),
-      );
-
-      if (
-        prepared.uploadCapabilitiesExpireAt &&
-        prepared.uploadCapabilitiesExpireAt.getTime() > now().getTime()
-      ) {
-        return {
-          applied: false,
-          pending: true,
-          pendingUntil: prepared.uploadCapabilitiesExpireAt.toISOString(),
-          deletedObjects,
-        } as const;
+    async deleteExpiredInquiry(
+      inquiryId: string,
+      actor: AdminInquiryActor,
+      expiredBefore: Date,
+    ) {
+      if (!Number.isFinite(expiredBefore.getTime())) {
+        throw new AdminInquiryConflictError();
       }
-
-      await database.runTransaction(async (transaction) => {
-        const snapshot = await transaction.get(reference);
-        if (!snapshot.exists) return;
-        const record = readRecord(snapshot.data());
-        if (record.status !== "deleting") {
-          throw new AdminInquiryConflictError();
-        }
-        transaction.delete(reference);
-      });
-      return { applied: true, deletedObjects } as const;
+      return deleteInquiryArtifacts(inquiryId, actor, expiredBefore);
     },
   } as const;
 }
