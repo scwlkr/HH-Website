@@ -93,7 +93,7 @@ export function SiteHeader() {
             <summary
               className={cn(
                 buttonVariants({ variant: "secondary", size: "sm" }),
-                "w-14 cursor-pointer justify-center px-0 select-none",
+                "hh-touch-target w-14 cursor-pointer justify-center px-0 select-none",
               )}
             >
               Menu

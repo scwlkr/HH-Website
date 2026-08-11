@@ -138,7 +138,11 @@ async function preparePage(page) {
         if (!entry.hadRecentInput) {
           window.__hhLayoutShift += entry.value;
           window.__hhLayoutShiftEntries.push({
+            startTime: entry.startTime,
             value: entry.value,
+            scrollY: window.scrollY,
+            documentHeight: document.documentElement.scrollHeight,
+            tourBeat: document.querySelector("[data-tour-beat]")?.getAttribute("data-tour-beat") ?? null,
             sources: (entry.sources ?? []).map((source) => ({
               node: source.node?.outerHTML?.slice(0, 180) ?? "",
               previousRect: source.previousRect,
@@ -171,7 +175,7 @@ async function pageQuality(page, label) {
     };
     const controls = Array.from(
       document.querySelectorAll(
-        'a[href], button, input:not([type="hidden"]), select, textarea',
+        'a[href], button, input:not([type="hidden"]), select, summary, textarea',
       ),
     ).filter(visible);
     const missingNames = controls
