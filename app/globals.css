@@ -266,6 +266,30 @@
     color: var(--hh-ink);
   }
 
+  .hh-admin-button-danger {
+    border-color: rgba(253, 164, 175, 0.45);
+    background: rgba(253, 164, 175, 0.12);
+    color: #ffe4e6;
+  }
+
+  .hh-admin-button-danger:hover {
+    border-color: rgba(254, 205, 211, 0.75);
+    background: rgba(253, 164, 175, 0.2);
+    color: #fff1f2;
+  }
+
+  .hh-admin-button-danger-filled {
+    border-color: #fda4af;
+    background: #fda4af;
+    color: #28090d;
+  }
+
+  .hh-admin-button-danger-filled:hover {
+    border-color: #fecdd3;
+    background: #fecdd3;
+    color: #28090d;
+  }
+
   .hh-admin-theme input[type="checkbox"],
   .hh-admin-theme input[type="radio"] {
     accent-color: var(--hh-accent);

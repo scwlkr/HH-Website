@@ -31,6 +31,7 @@ type AdminInquiryDetailPageProps = Readonly<{
   searchParams: Promise<{
     updated?: string;
     file?: string;
+    deletion?: string;
   }>;
 }>;
 
@@ -40,7 +41,7 @@ export default async function AdminInquiryDetailPage({
 }: AdminInquiryDetailPageProps) {
   const admin = await requireAdminUser();
   const { id } = await params;
-  const { updated, file } = await searchParams;
+  const { updated, file, deletion } = await searchParams;
   let inquiry: AdminInquiryDetail | null = null;
   let missing = false;
   let errorMessage: string | null = null;
@@ -68,7 +69,10 @@ export default async function AdminInquiryDetailPage({
           {errorMessage ??
             "This inquiry could not be loaded right now. Return to the queue and try again."}
         </AdminNotice>
-        <Link className="hh-link text-sm text-muted-strong" href="/admin/inquiries">
+        <Link
+          className="hh-link inline-flex min-h-11 items-center text-sm text-muted-strong"
+          href="/admin/inquiries"
+        >
           Return to inquiries
         </Link>
       </div>
@@ -86,6 +90,13 @@ export default async function AdminInquiryDetailPage({
         <AdminNotice tone="error">
           The private file could not be opened. It may be missing or no longer
           match the saved reference.
+        </AdminNotice>
+      ) : null}
+      {deletion === "pending" ? (
+        <AdminNotice tone="info">
+          Deletion is pending while a recently issued private upload link
+          expires. Return to this detail and choose Delete Inquiry again shortly
+          to complete the final private-file sweep.
         </AdminNotice>
       ) : null}
       <AdminInquiryDetailView

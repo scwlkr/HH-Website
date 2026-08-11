@@ -118,6 +118,12 @@ test(
       assert.equal(storedAfterFinalize?.references.length, 1);
       assert.equal(storedAfterFinalize?.references[0].objectPath, capability.objectPath);
       assert.equal(storedAfterFinalize?.references[0].downloadToken, undefined);
+      assert.equal(
+        storedAfterFinalize?.referenceUploadCapabilityExpiresAt
+          .toDate()
+          .toISOString(),
+        capability.expiresAt,
+      );
       await assert.rejects(
         repository.removeReference(
           {
@@ -293,7 +299,7 @@ test(
       assert.equal((await bucket.file(orphan.objectPath).exists())[0], false);
 
       process.stdout.write(
-        `Plan Home reference emulator evidence: draftId=${created.draftId}, signedCapability=true, privatePath=${capability.objectPath}, finalizedPdf=true, finalizedImage=true, finalizedMetadata=2, mismatchDeleted=true, staleRemovePreserved=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}\n`,
+        `Plan Home reference emulator evidence: draftCreated=true, signedCapability=true, privatePathScoped=true, finalizedPdf=true, finalizedImage=true, finalizedMetadata=2, mismatchDeleted=true, staleRemovePreserved=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}\n`,
       );
     } finally {
       await firestore.recursiveDelete(

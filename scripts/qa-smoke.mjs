@@ -409,6 +409,7 @@ async function seedInquiryQueueFixtures(firestore) {
       acceptedConsentAt: fixture.status === "draft" ? null : activity,
       submittedAt: fixture.status === "draft" ? null : activity,
       expiresAt: new Date("2028-08-10T15:00:00.000Z"),
+      referenceUploadCapabilityExpiresAt: activity,
       createdAt: activity,
       updatedAt: activity,
     });

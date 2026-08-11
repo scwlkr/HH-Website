@@ -66,9 +66,9 @@ export function AdminInquiryActions({
             type="submit"
             name="status"
             value="spam"
-            variant="secondary"
+            variant="ghost"
             disabled={statusPending || status === "spam"}
-            className="rounded-[var(--hh-radius-tight)] border-rose-300/35 bg-rose-300/10 text-rose-100 hover:border-rose-200 hover:bg-rose-300/20 hover:text-rose-50"
+            className="hh-admin-button hh-admin-button-danger rounded-[var(--hh-radius-tight)]"
           >
             {status === "spam" ? "Marked Spam" : "Mark Spam"}
           </Button>
@@ -137,7 +137,7 @@ export function AdminInquiryActions({
             <Button
               type="submit"
               disabled={deletePending}
-              className="rounded-[var(--hh-radius-tight)] border-rose-300 bg-rose-300 text-[#28090d] hover:border-rose-200 hover:bg-rose-200"
+              className="hh-admin-button hh-admin-button-danger-filled rounded-[var(--hh-radius-tight)]"
             >
               {deletePending ? "Deleting…" : "Delete Inquiry and Files"}
             </Button>

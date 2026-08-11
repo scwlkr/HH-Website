@@ -17,6 +17,7 @@ import {
   planHomeReferenceMetadataSchema,
   type PlanHomeFileReference,
 } from "./references.ts";
+import { PLAN_HOME_UPLOAD_CAPABILITY_MS } from "./reference-repository.ts";
 
 const inquiriesCollection = "inquirySubmissions";
 const resumeTokensCollection = "planHomeResumeTokens";
@@ -24,6 +25,7 @@ const referenceUploadsCollection = "referenceUploads";
 const deleteBatchSize = 400;
 
 export const ADMIN_INQUIRY_SIGNED_READ_TTL_MS = 5 * 60 * 1000;
+export const ADMIN_INQUIRY_UPLOAD_EXPIRY_GRACE_MS = 60 * 1000;
 
 export const adminInquiryMutableStatuses = ["reviewed", "spam"] as const;
 export type AdminInquiryMutableStatus =
@@ -549,6 +551,55 @@ function actorAudit(actor: AdminInquiryActor) {
   };
 }
 
+function timestampMillis(value: unknown) {
+  const timestamp = readTimestamp(value);
+  return timestamp ? new Date(timestamp).getTime() : null;
+}
+
+function pendingUploadCapabilityUntil(
+  record: StoredRecord,
+  uploadTickets: FirebaseFirestore.QuerySnapshot,
+) {
+  const existingDeletion = readRecord(record.adminDeletion);
+  const existingCutoff = timestampMillis(
+    existingDeletion.uploadCapabilitiesExpireAt,
+  );
+  if (existingCutoff !== null) return new Date(existingCutoff);
+
+  const expiries: number[] = [];
+  const trackedExpiry = timestampMillis(
+    record.referenceUploadCapabilityExpiresAt,
+  );
+  if (trackedExpiry !== null) expiries.push(trackedExpiry);
+
+  for (const document of uploadTickets.docs) {
+    const ticketExpiry = timestampMillis(document.data().expiresAt);
+    if (ticketExpiry !== null) expiries.push(ticketExpiry);
+  }
+
+  const references = Array.isArray(record.references) ? record.references : [];
+  for (const candidate of references) {
+    const result = planHomeReferenceMetadataSchema.safeParse(candidate);
+    if (!result.success || result.data.kind !== "file") continue;
+    const finalizedAt = timestampMillis(result.data.createdAt);
+    if (finalizedAt !== null) {
+      expiries.push(finalizedAt + PLAN_HOME_UPLOAD_CAPABILITY_MS);
+    }
+  }
+
+  if (trackedExpiry === null) {
+    const lastUntrackedActivity = timestampMillis(record.updatedAt);
+    if (lastUntrackedActivity !== null) {
+      expiries.push(lastUntrackedActivity + PLAN_HOME_UPLOAD_CAPABILITY_MS);
+    }
+  }
+
+  if (expiries.length === 0) return null;
+  return new Date(
+    Math.max(...expiries) + ADMIN_INQUIRY_UPLOAD_EXPIRY_GRACE_MS,
+  );
+}
+
 async function deleteDocumentsInBatches(
   database: Firestore,
   load: () => Promise<FirebaseFirestore.QuerySnapshot>,
@@ -737,6 +788,13 @@ export function createAdminInquiryDetailRepository(
         if (!snapshot.exists) return false;
         const record = readRecord(snapshot.data());
         const { status } = readCanonicalStatus(record);
+        const uploadTickets = await transaction.get(
+          reference.collection(referenceUploadsCollection),
+        );
+        const uploadCapabilitiesExpireAt = pendingUploadCapabilityUntil(
+          record,
+          uploadTickets,
+        );
         if (status !== "deleting") {
           const requestedAt = now();
           transaction.update(reference, {
@@ -744,11 +802,12 @@ export function createAdminInquiryDetailRepository(
             adminDeletion: {
               previousStatus: record.status,
               requestedAt,
+              uploadCapabilitiesExpireAt,
               ...actorAudit(actor),
             },
           });
         }
-        return true;
+        return { uploadCapabilitiesExpireAt } as const;
       });
       if (!prepared) return { applied: false, deletedObjects: 0 } as const;
 
@@ -764,6 +823,18 @@ export function createAdminInquiryDetailRepository(
           .limit(deleteBatchSize)
           .get(),
       );
+
+      if (
+        prepared.uploadCapabilitiesExpireAt &&
+        prepared.uploadCapabilitiesExpireAt.getTime() > now().getTime()
+      ) {
+        return {
+          applied: false,
+          pending: true,
+          pendingUntil: prepared.uploadCapabilitiesExpireAt.toISOString(),
+          deletedObjects,
+        } as const;
+      }
 
       await database.runTransaction(async (transaction) => {
         const snapshot = await transaction.get(reference);

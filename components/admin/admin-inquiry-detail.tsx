@@ -112,7 +112,7 @@ export function AdminInquiryDetailView({
         href="/admin/inquiries"
         className={cn(
           buttonVariants({ variant: "ghost", size: "sm" }),
-          "rounded-[var(--hh-radius-tight)]",
+          "min-h-11 rounded-[var(--hh-radius-tight)]",
         )}
       >
         Back to Inquiries
@@ -147,7 +147,10 @@ export function AdminInquiryDetailView({
             <DetailField label="Name">{inquiry.name}</DetailField>
             <DetailField label="Email">
               {inquiry.email ? (
-                <a className="hh-link" href={`mailto:${inquiry.email}`}>
+                <a
+                  className="hh-link inline-flex min-h-11 items-center"
+                  href={`mailto:${inquiry.email}`}
+                >
                   {inquiry.email}
                 </a>
               ) : (
@@ -156,7 +159,10 @@ export function AdminInquiryDetailView({
             </DetailField>
             <DetailField label="Phone">
               {inquiry.phone ? (
-                <a className="hh-link" href={`tel:${inquiry.phone}`}>
+                <a
+                  className="hh-link inline-flex min-h-11 items-center"
+                  href={`tel:${inquiry.phone}`}
+                >
                   {inquiry.phone}
                 </a>
               ) : (
@@ -324,7 +330,7 @@ export function AdminInquiryDetailView({
                           type="submit"
                           className={cn(
                             buttonVariants({ variant: "secondary", size: "sm" }),
-                            "hh-admin-button hh-admin-button-secondary w-full rounded-[var(--hh-radius-tight)] sm:w-auto",
+                            "hh-admin-button hh-admin-button-secondary min-h-11 w-full rounded-[var(--hh-radius-tight)] sm:w-auto",
                           )}
                         >
                           Open Private File
@@ -337,7 +343,7 @@ export function AdminInquiryDetailView({
                         rel="noopener noreferrer"
                         className={cn(
                           buttonVariants({ variant: "secondary", size: "sm" }),
-                          "hh-admin-button hh-admin-button-secondary w-full shrink-0 rounded-[var(--hh-radius-tight)] sm:w-auto",
+                          "hh-admin-button hh-admin-button-secondary min-h-11 w-full shrink-0 rounded-[var(--hh-radius-tight)] sm:w-auto",
                         )}
                       >
                         Open {reference.hostname}

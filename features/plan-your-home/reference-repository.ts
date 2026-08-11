@@ -39,6 +39,7 @@ type StoredDraft = Readonly<{
   expiresAt: unknown;
   draftSession: Readonly<{ tokenHash: string }>;
   references: readonly PlanHomeReferenceMetadata[];
+  referenceUploadCapabilityExpiresAt?: unknown;
 }>;
 
 type StoredUploadTicket = Readonly<{
@@ -307,6 +308,9 @@ export function createPlanHomeReferenceRepository(
           .map((document) => document.data() as StoredUploadTicket)
           .filter((ticket) => toMillis(ticket.expiresAt) > issuedAt.getTime());
         assertReferenceCapacity(draft.references, activeTickets, parsed);
+        const previousCapabilityExpiry = toMillis(
+          draft.referenceUploadCapabilityExpiresAt,
+        );
         transaction.create(ticketReference, {
           draftId: parsed.draftId,
           referenceId,
@@ -318,6 +322,16 @@ export function createPlanHomeReferenceRepository(
           issuedRevision: parsed.expectedRevision,
           createdAt: issuedAt,
           expiresAt,
+        });
+        transaction.update(draftReference, {
+          referenceUploadCapabilityExpiresAt: new Date(
+            Math.max(
+              Number.isFinite(previousCapabilityExpiry)
+                ? previousCapabilityExpiry
+                : 0,
+              expiresAt.getTime(),
+            ),
+          ),
         });
       });
 

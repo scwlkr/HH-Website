@@ -8,12 +8,16 @@ import { getStorage } from "firebase-admin/storage";
 
 import {
   ADMIN_INQUIRY_SIGNED_READ_TTL_MS,
+  ADMIN_INQUIRY_UPLOAD_EXPIRY_GRACE_MS,
   AdminInquiryAuthorizationError,
   AdminInquiryReferenceUnavailableError,
   createAdminInquiryDetailRepository,
 } from "../features/plan-your-home/admin-inquiry-detail.ts";
 import { createPlanHomeDraftResumeRepository } from "../features/plan-your-home/draft-resume-repository.ts";
-import { createPlanHomeReferenceRepository } from "../features/plan-your-home/reference-repository.ts";
+import {
+  createPlanHomeReferenceRepository,
+  PLAN_HOME_UPLOAD_CAPABILITY_MS,
+} from "../features/plan-your-home/reference-repository.ts";
 import {
   createPlanHomeDraftRepository,
   PlanHomeDraftConflictError,
@@ -94,9 +98,9 @@ test(
     const statusId = `legacy-status-${randomUUID()}`;
     const privateFileBody = Buffer.from("%PDF-private-test");
     let signedExpiry: Date | null = null;
-    const now = new Date("2026-08-11T18:00:00.000Z");
+    let currentTime = new Date("2026-08-11T18:00:00.000Z");
     const repository = createAdminInquiryDetailRepository(firestore, bucket, {
-      now: () => now,
+      now: () => currentTime,
       signRead: async (_file, expiresAt) => {
         signedExpiry = expiresAt;
         return "https://storage.googleapis.test/private-capability";
@@ -115,21 +119,21 @@ test(
             mimeType: "application/pdf",
             sizeBytes: privateFileBody.byteLength,
             note: "Private test note",
-            createdAt: now.toISOString(),
+            createdAt: currentTime.toISOString(),
           },
           {
             id: "link-44444444-4444-4444-8444-444444444444",
             kind: "link",
             url: "http://example.com/reference",
             hostname: "example.com",
-            createdAt: now.toISOString(),
+            createdAt: currentTime.toISOString(),
           },
           {
             id: "link-55555555-5555-4555-8555-555555555555",
             kind: "link",
             url: "https://example.org/reference",
             hostname: "example.org",
-            createdAt: now.toISOString(),
+            createdAt: currentTime.toISOString(),
           },
         ],
       });
@@ -138,7 +142,7 @@ test(
         name: "Legacy Status Test",
         email: "legacy-status@example.com",
         phone: "+12145550101",
-        createdAt: now,
+        createdAt: currentTime,
       });
       await bucket.file(objectPath).save(privateFileBody, {
         metadata: {
@@ -189,7 +193,7 @@ test(
       assert(capturedExpiry);
       assert.equal(signedRead.expiresAt, capturedExpiry.toISOString());
       assert.equal(
-        capturedExpiry.getTime() - now.getTime(),
+        capturedExpiry.getTime() - currentTime.getTime(),
         ADMIN_INQUIRY_SIGNED_READ_TTL_MS,
       );
       await assert.rejects(
@@ -265,6 +269,9 @@ test(
           },
         })),
       );
+      const uploadCapabilityExpiresAt = new Date(
+        currentTime.getTime() + PLAN_HOME_UPLOAD_CAPABILITY_MS,
+      );
       await writeDocuments(
         firestore,
         Array.from({ length: 3 }, (_, index) => ({
@@ -272,6 +279,7 @@ test(
           value: {
             draftId: inquiryId,
             objectPath: `inquiryReferences/${inquiryId}/orphan-${index}`,
+            ...(index === 0 ? { expiresAt: uploadCapabilityExpiresAt } : {}),
           },
         })),
       );
@@ -348,9 +356,28 @@ test(
         PlanHomeDraftConflictError,
       );
 
+      const pendingDeletion = await repository.deleteInquiry(inquiryId, actor);
+      assert.equal(pendingDeletion.applied, false);
+      assert.equal("pending" in pendingDeletion && pendingDeletion.pending, true);
+      assert.equal(pendingDeletion.deletedObjects, 206);
+      assert.equal(
+        (
+          await firestore.collection("inquirySubmissions").doc(inquiryId).get()
+        ).data()?.status,
+        "deleting",
+      );
+
+      const lateObjectPath =
+        `inquiryReferences/${inquiryId}/late-capability-object`;
+      await bucket.file(lateObjectPath).save(Buffer.from("late upload"));
+      currentTime = new Date(
+        uploadCapabilityExpiresAt.getTime() +
+          ADMIN_INQUIRY_UPLOAD_EXPIRY_GRACE_MS +
+          1,
+      );
       const deletion = await repository.deleteInquiry(inquiryId, actor);
       assert.equal(deletion.applied, true);
-      assert.equal(deletion.deletedObjects, 206);
+      assert.equal(deletion.deletedObjects, 1);
       assert.equal(
         (
           await firestore.collection("inquirySubmissions").doc(inquiryId).get()
@@ -393,7 +420,7 @@ test(
       );
 
       process.stdout.write(
-        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=35, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, tokenPages=2, objectPages=2, deletedPrefixObjects=206, unrelatedPreserved=true\n",
+        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=35, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, tokenPages=2, objectPages=2, deletedPrefixObjects=207, unrelatedPreserved=true\n",
       );
     } finally {
       await firestore.recursiveDelete(

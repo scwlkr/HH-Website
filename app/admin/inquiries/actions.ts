@@ -78,8 +78,9 @@ export async function deleteAdminInquiryAction(
     };
   }
 
+  let result;
   try {
-    await getAdminInquiryDetailRepository().deleteInquiry(inquiryId, {
+    result = await getAdminInquiryDetailRepository().deleteInquiry(inquiryId, {
       uid: admin.uid,
     });
   } catch {
@@ -88,6 +89,10 @@ export async function deleteAdminInquiryAction(
       message:
         "The inquiry was not completely deleted. Choose Delete inquiry again to safely retry.",
     };
+  }
+
+  if ("pending" in result && result.pending) {
+    redirect(`${detailRoute(inquiryId)}?deletion=pending` as Route);
   }
 
   redirect("/admin/inquiries?deleted=1" as Route);
