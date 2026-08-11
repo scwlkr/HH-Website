@@ -146,6 +146,7 @@ function assertReferenceCapacity(
   references: readonly PlanHomeReferenceMetadata[],
   pending: readonly StoredUploadTicket[] = [],
   nextFile?: Readonly<{ sizeBytes: number }>,
+  nextLink = false,
 ) {
   const files = references.filter((reference) => reference.kind === "file");
   const links = references.filter((reference) => reference.kind === "link");
@@ -154,7 +155,10 @@ function assertReferenceCapacity(
   const nextFiles = nextFile ? 1 : 0;
   const nextBytes = nextFile?.sizeBytes ?? 0;
 
-  if (references.length + pending.length + nextFiles > PLAN_HOME_REFERENCE_LIMITS.total) {
+  if (
+    references.length + pending.length + nextFiles + (nextLink ? 1 : 0) >
+    PLAN_HOME_REFERENCE_LIMITS.total
+  ) {
     throw new PlanHomeReferenceValidationError(
       `Add no more than ${PLAN_HOME_REFERENCE_LIMITS.total} references total.`,
     );
@@ -164,7 +168,7 @@ function assertReferenceCapacity(
       `Add no more than ${PLAN_HOME_REFERENCE_LIMITS.files} files.`,
     );
   }
-  if (links.length > PLAN_HOME_REFERENCE_LIMITS.links) {
+  if (links.length + (nextLink ? 1 : 0) > PLAN_HOME_REFERENCE_LIMITS.links) {
     throw new PlanHomeReferenceValidationError(
       `Add no more than ${PLAN_HOME_REFERENCE_LIMITS.links} links.`,
     );
@@ -464,15 +468,13 @@ export function createPlanHomeReferenceRepository(
         const draft = readDraft(draftSnapshot.data());
         assertAuthorized(draft, sessionTokenHash, now());
         assertRevision(draft, parsed.expectedRevision);
-        if (
-          draft.references.length >= PLAN_HOME_REFERENCE_LIMITS.total ||
-          draft.references.filter((reference) => reference.kind === "link").length >=
-            PLAN_HOME_REFERENCE_LIMITS.links
-        ) {
-          throw new PlanHomeReferenceValidationError(
-            "The reference or link limit has been reached.",
-          );
-        }
+        const ticketsSnapshot = await transaction.get(
+          draftReference.collection("referenceUploads"),
+        );
+        const activeTickets = ticketsSnapshot.docs
+          .map((document) => document.data() as StoredUploadTicket)
+          .filter((ticket) => toMillis(ticket.expiresAt) > now().getTime());
+        assertReferenceCapacity(draft.references, activeTickets, undefined, true);
         const references = planHomeReferenceCollectionSchema.parse([
           ...draft.references,
           {

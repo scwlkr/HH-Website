@@ -319,7 +319,28 @@ type PendingReferenceUpload = Readonly<{
 
 function selectedPriorityItems(answers: Readonly<Record<string, unknown>>) {
   const labels: string[] = [];
-  for (const question of planHomeQuestions.slice(0, EXTERIOR_AND_SITE_LAST_QUESTION)) {
+  const sourceIds = new Set([
+    "home.daily-life",
+    "living.features",
+    "kitchen.use",
+    "kitchen.arrangement",
+    "kitchen.support",
+    "dining.use",
+    "primary.bedroom-features",
+    "primary.bath-features",
+    "primary.closet-access",
+    "secondary.bath-sharing",
+    "utility.laundry",
+    "utility.mudroom",
+    "utility.storage",
+    "home.systems",
+    "exterior.garage",
+    "site.relationships",
+    "exterior.outdoor-living",
+    "home.specialty-spaces",
+  ]);
+  for (const question of planHomeQuestions) {
+    if (!sourceIds.has(question.id)) continue;
     const answer = answers[question.id];
     for (const group of question.response.optionGroups) {
       const selected =

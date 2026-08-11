@@ -200,6 +200,12 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
     };
   const checkpointDraft: PlanHomeDraftAction = async (input) => {
     checkpointCalls.push(input);
+    if (checkpointCalls.length === 1) {
+      return {
+        status: "server-error",
+        message: "Saving is unavailable. Try again.",
+      };
+    }
     revision += 1;
     return {
       status: "success",
@@ -295,6 +301,10 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   await user.click(query.getByRole("radio", { name: "Within 3 months" }));
   await user.click(query.getByRole("button", { name: "Save room" }));
   await waitFor(() =>
+    assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
+  );
+  await user.click(query.getByRole("button", { name: "Save room" }));
+  await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
         name: "Your selected sheets are bound into the project brief.",
@@ -302,12 +312,17 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
     ),
   );
 
-  assert.equal(checkpointCalls.length, 1);
-  const checkpoint = checkpointCalls[0] as {
+  assert.equal(checkpointCalls.length, 2);
+  const checkpoint = checkpointCalls[1] as {
     completedZoneId: string;
     answers: Record<string, unknown>;
     expectedRevision: number;
+    idempotencyKey: string;
   };
+  assert.equal(
+    (checkpointCalls[0] as { idempotencyKey: string }).idempotencyKey,
+    checkpoint.idempotencyKey,
+  );
   assert.equal(checkpoint.completedZoneId, "design-desk-and-review");
   assert.equal(Object.keys(checkpoint.answers).length, 34);
   assert.equal(checkpoint.expectedRevision, 10);
@@ -333,6 +348,25 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
       '[data-tour-beat="design-desk-review-transition"][data-reduced-motion="true"]',
     ),
   );
+  await user.click(
+    query.getByRole("button", { name: "Back to budget and timing" }),
+  );
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", {
+        name: "What budget range and design timing are you currently planning around?",
+      }),
+    ),
+  );
+  await user.click(query.getByRole("button", { name: "Save room" }));
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", {
+        name: "Your selected sheets are bound into the project brief.",
+      }),
+    ),
+  );
+  assert.equal(checkpointCalls.length, 2);
   const axeResults = await axe.run(view.container, {
     rules: { "color-contrast": { enabled: false } },
   });
