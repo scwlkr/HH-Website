@@ -116,11 +116,51 @@ test(
       assert.equal(storedAfterFinalize?.references[0].objectPath, capability.objectPath);
       assert.equal(storedAfterFinalize?.references[0].downloadToken, undefined);
 
+      const imageBody = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00,
+      ]);
+      const imageCapability = await repository.issueUpload(
+        {
+          draftId: created.draftId,
+          expectedRevision: 2,
+          originalName: "inspiration.png",
+          mimeType: "image/png",
+          sizeBytes: imageBody.byteLength,
+        },
+        sessionHash,
+      );
+      await bucket.file(imageCapability.objectPath).save(imageBody, {
+        metadata: {
+          contentType: "image/png",
+          metadata: {
+            "plan-home-draft": created.draftId,
+            "plan-home-reference": imageCapability.referenceId,
+          },
+        },
+      });
+      const imageFinalized = await repository.finalizeUpload(
+        {
+          draftId: created.draftId,
+          expectedRevision: 2,
+          referenceId: imageCapability.referenceId,
+          note: "Material palette",
+        },
+        sessionHash,
+      );
+      assert.equal(imageFinalized.revision, 3);
+      assert.equal(imageFinalized.references.length, 2);
+      assert.equal(
+        imageFinalized.references[1]?.kind === "file"
+          ? imageFinalized.references[1].mimeType
+          : null,
+        "image/png",
+      );
+
       const mismatchBody = Buffer.from("<svg>not a png</svg>");
       const mismatch = await repository.issueUpload(
         {
           draftId: created.draftId,
-          expectedRevision: 2,
+          expectedRevision: 3,
           originalName: "wrong.png",
           mimeType: "image/png",
           sizeBytes: mismatchBody.byteLength,
@@ -140,7 +180,7 @@ test(
         repository.finalizeUpload(
           {
             draftId: created.draftId,
-            expectedRevision: 2,
+            expectedRevision: 3,
             referenceId: mismatch.referenceId,
             note: "",
           },
@@ -164,17 +204,17 @@ test(
       const linked = await repository.addLink(
         {
           draftId: created.draftId,
-          expectedRevision: 2,
+          expectedRevision: 3,
           url: "HTTPS://Example.com/House",
           note: "Exterior reference",
         },
         sessionHash,
       );
-      assert.equal(linked.revision, 3);
-      assert.equal(linked.references[1]?.kind, "link");
+      assert.equal(linked.revision, 4);
+      assert.equal(linked.references[2]?.kind, "link");
       assert.equal(
-        linked.references[1]?.kind === "link"
-          ? linked.references[1].hostname
+        linked.references[2]?.kind === "link"
+          ? linked.references[2].hostname
           : null,
         "example.com",
       );
@@ -182,20 +222,20 @@ test(
       const removed = await repository.removeReference(
         {
           draftId: created.draftId,
-          expectedRevision: 3,
+          expectedRevision: 4,
           referenceId: capability.referenceId,
         },
         sessionHash,
       );
-      assert.equal(removed.revision, 4);
+      assert.equal(removed.revision, 5);
       assert.equal((await bucket.file(capability.objectPath).exists())[0], false);
-      assert.equal(removed.references.length, 1);
+      assert.equal(removed.references.length, 2);
 
       const orphanBody = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00]);
       const orphan = await repository.issueUpload(
         {
           draftId: created.draftId,
-          expectedRevision: 4,
+          expectedRevision: 5,
           originalName: "orphan.jpg",
           mimeType: "image/jpeg",
           sizeBytes: orphanBody.byteLength,
@@ -220,7 +260,7 @@ test(
       assert.equal((await bucket.file(orphan.objectPath).exists())[0], false);
 
       process.stdout.write(
-        `Plan Home reference emulator evidence: draftId=${created.draftId}, signedCapability=true, privatePath=${capability.objectPath}, finalizedMetadata=1, mismatchDeleted=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}\n`,
+        `Plan Home reference emulator evidence: draftId=${created.draftId}, signedCapability=true, privatePath=${capability.objectPath}, finalizedPdf=true, finalizedImage=true, finalizedMetadata=2, mismatchDeleted=true, removeDeleted=true, orphanDeleted=${cleanup.deleted}\n`,
       );
     } finally {
       await firestore.recursiveDelete(
