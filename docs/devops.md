@@ -36,10 +36,7 @@ For final local qualification, run the complete browser scenario inside the
 pinned Firebase emulator suite:
 
 ```bash
-/tmp/hh-firebase-tools-15.26.0/node_modules/.bin/firebase emulators:exec \
-  --only auth,firestore,storage \
-  "npm run proof:plan-home-final" \
-  --project demo-hh-website
+npm run proof:plan-home-final:emulator
 ```
 
 The proof exercises all 35 questions, refresh/resume, the fake local email,
@@ -47,8 +44,13 @@ private references, review editing, submission, HHQ actions/deletion,
 representative keyboard-only reduced-motion controls at phone and desktop
 widths, 200%-equivalent reflow, and a commercial generic inquiry. It retains its
 report, summary, screenshots, and traces under
-`output/playwright/issue-18/final/` and audits them for unexpected private email
-addresses or a raw resume token before passing.
+`output/playwright/issue-18/final/`. The scenario enters only generated
+RFC-reserved `.invalid` addresses, while the rendered site may include the exact
+public contact address `hello@howethandharp.com`; it never uses real customer
+contact data. Before passing, the script audits server logs, the summary and
+report, and each retained trace's `trace.trace` and `trace.network` streams for
+any other email-like value or the raw resume token. Screenshots are inspected
+visually but are not OCR-audited.
 
 Run `npm run proof:plan-home-scene-budget` after changing a scene. Each lazy
 scene group is limited to 24 KiB of compressed JavaScript and CSS, and every
