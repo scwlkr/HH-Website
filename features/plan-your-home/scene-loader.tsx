@@ -100,8 +100,11 @@ export function planHomeSceneIndex(questionNumber: number | null) {
   return 6;
 }
 
-export function preloadNextPlanHomeScene(questionNumber: number | null) {
-  const nextLoader = sceneLoaders[planHomeSceneIndex(questionNumber) + 1];
+export function preloadNextPlanHomeScene(
+  questionNumber: number | null,
+  loaders: readonly (() => Promise<unknown>)[] = sceneLoaders,
+) {
+  const nextLoader = loaders[planHomeSceneIndex(questionNumber) + 1];
   if (nextLoader) void nextLoader();
 }
 
