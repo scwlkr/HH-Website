@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
+import { trackPlanHomeEvent } from "@/lib/analytics/plan-home-events";
 import {
   createPlanHomeClientDraftAdapter,
   type PlanHomeClientDraftState,
@@ -674,6 +675,12 @@ function WelcomeStep({
           Walk through a fixed illustrated home and tell us what your real home
           needs. Your answers shape the project brief, not the artwork.
         </p>
+        <p className={styles.privacyNotice}>
+          Before you enter a name, answers save in this browser for up to 30
+          days. If you later save contact details, h and h keeps a private draft
+          and any references under the retention schedule. Read the{" "}
+          <a href="/privacy">privacy and retention policy</a>.
+        </p>
         <label className={styles.textLabel} htmlFor="plan-home-welcome-name">
           Your name
         </label>
@@ -742,6 +749,12 @@ function ContactCheckpoint({
         <p className={styles.momentCopy}>
           We’ll attach these first six answers to {name.trim()} and keep your
           place in the walkthrough.
+        </p>
+        <p className={styles.privacyNotice}>
+          Saving creates a private server draft kept up to 180 days after last
+          activity, including private references you add later. h and h may
+          follow up manually. A one-time resume email is sent only when you
+          request it. See the <a href="/privacy">privacy policy</a>.
         </p>
         <div className={styles.contactGrid}>
           <label className={styles.textLabel} htmlFor="plan-home-contact-email">
@@ -1142,6 +1155,12 @@ function ProjectBriefReview({
           This brief starts a conversation. It is not a design, price,
           feasibility decision, or contract.
         </p>
+        <p>
+          Under the proposed retention schedule, a submitted brief and private
+          references are kept up to 24 months unless h and h retains or deletes
+          them sooner. You may request deletion. Review the{" "}
+          <a href="/privacy">privacy and retention policy</a> before submitting.
+        </p>
         <label className={styles.disclosure}>
           <input
             type="checkbox"
@@ -1261,6 +1280,7 @@ export function PlanYourHomeShell({
   const utilityCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const exteriorCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const designCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
+  const resumeAnalyticsTracked = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -1354,6 +1374,19 @@ export function PlanYourHomeShell({
             phone: restored.contactCheckpoint.phone,
             disclosureAccepted:
               restored.contactCheckpoint.manualFollowUpDisclosureAccepted,
+          });
+        }
+        if (
+          restored.location.kind !== "welcome" &&
+          !resumeAnalyticsTracked.current
+        ) {
+          const activeQuestion =
+            restored.location.kind === "question"
+              ? getPlanHomeQuestion(restored.location.questionId)
+              : null;
+          resumeAnalyticsTracked.current = true;
+          trackPlanHomeEvent("draft_resumed", {
+            prompt_index: activeQuestion?.number ?? 35,
           });
         }
       }
@@ -1489,6 +1522,11 @@ export function PlanYourHomeShell({
         current.filter((upload) => upload.id !== pendingId),
       );
       setError(null);
+      trackPlanHomeEvent("reference_added", {
+        zone_id: "design-desk-and-review",
+        prompt_index: 32,
+        reference_kind: "file",
+      });
     } catch (uploadError) {
       await abandonReferenceUpload({
         draftId: capability.draftId,
@@ -1546,6 +1584,11 @@ export function PlanYourHomeShell({
     updateClientDraftRevision(result.result.revision);
     setCanonicalReferences(result.result.references);
     setError(null);
+    trackPlanHomeEvent("reference_added", {
+      zone_id: "design-desk-and-review",
+      prompt_index: 32,
+      reference_kind: "link",
+    });
   }
 
   function changeReferenceNote(id: string, note: string) {
@@ -1626,6 +1669,7 @@ export function PlanYourHomeShell({
     }
     setFormError(null);
     commitState(opened.state);
+    trackPlanHomeEvent("plan_home_start", { prompt_index: 1 });
   }
 
   function backFromQuestion() {
@@ -1834,6 +1878,10 @@ export function PlanYourHomeShell({
       }
       setError(null);
       commitState(checkpointed.state);
+      trackPlanHomeEvent("zone_complete", {
+        zone_id: checkpointBoundary.zoneId,
+        prompt_index: checkpointBoundary.answerCount,
+      });
       if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
         setShowBedroomHallBoundary(true);
       }
@@ -1936,6 +1984,7 @@ export function PlanYourHomeShell({
     setClientDraft(identifiedDraft);
     setFormError(null);
     commitState(completed.state);
+    trackPlanHomeEvent("contact_checkpoint_saved", { prompt_index: 6 });
   }
 
   function backFromContact() {
@@ -2052,6 +2101,10 @@ export function PlanYourHomeShell({
 
     updateClientDraftRevision(result.result.revision);
     setSubmitted(true);
+    trackPlanHomeEvent("plan_home_submitted", {
+      zone_id: "design-desk-and-review",
+      prompt_index: 35,
+    });
   }
 
   function backFromDesignDeskQuestion() {

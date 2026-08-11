@@ -71,6 +71,11 @@ export default async function PlanHomeResumePage({
                 privacy, the result is the same whether or not a matching draft
                 exists.
               </p>
+              <p className={styles.privacyNote}>
+                Before you enter an email: h and h uses it only to send the
+                one-time resume link you request, never an automatic abandoned-
+                plan reminder. Read the <Link href="/privacy">privacy policy</Link>.
+              </p>
               {unavailable ? (
                 <p className={styles.notice} role="status">
                   That one-time link is unavailable. Request a new link below;

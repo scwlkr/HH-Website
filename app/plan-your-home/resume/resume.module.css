@@ -117,6 +117,24 @@
   line-height: 1.65;
 }
 
+.privacyNote {
+  max-width: 38rem;
+  margin-top: 1rem;
+  border-left: 2px solid var(--hh-accent);
+  padding-left: 0.75rem;
+  color: var(--hh-muted-strong);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.privacyNote a {
+  color: var(--hh-ink);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: var(--hh-accent);
+  text-underline-offset: 0.2em;
+}
+
 .form {
   max-width: 34rem;
   margin-top: 1.75rem;
@@ -144,7 +162,8 @@
 
 .form input:focus-visible,
 .continueLink:focus-visible,
-.backLink:focus-visible {
+.backLink:focus-visible,
+.privacyNote a:focus-visible {
   border-color: var(--hh-accent);
   box-shadow: 0 0 0 3px var(--hh-accent-soft);
   outline: none;

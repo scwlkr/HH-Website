@@ -24,21 +24,38 @@ export const privacyDocument: LegalDocument = {
   title: "Privacy Policy",
   description:
     `${legalName} uses this website to share service information, receive project inquiries, and improve the visitor experience.`,
-  effectiveDate: "March 27, 2026",
+  effectiveDate: "August 11, 2026",
   intro: [
-    `This policy explains what information ${legalName} may collect through the website, how that information is used, and the choices available to people who contact the company through the project brief or direct email.`,
+    `This policy explains what information ${legalName} may collect through the website, how that information is used, and the choices available to people who contact the company through a project brief or direct email.`,
+    "The Plan Your Home retention periods below are product recommendations pending h and h and counsel approval before public launch; they are not represented as counsel-approved policy.",
   ],
   sections: [
     {
       title: "Information Collected",
       paragraphs: [
         `${legalName} may collect contact details and project details that a visitor submits through the inquiry form, including name, phone, email, project type, finish direction, site context, timing, and project notes.`,
+        "Plan Your Home may also collect the answers in a saved or submitted planning brief and metadata for private reference files or links, including the original filename, file type, size, link hostname, URL, and optional note.",
         "The site may also store referral or attribution details, such as the page where an inquiry started and campaign information included in the visit URL.",
       ],
       bullets: [
         "Contact information such as name, phone number, and email address",
         "Project information such as category, finish level, square footage, location, timeline, and budget direction",
         "Technical and referral details such as source page, campaign information, and basic security signals",
+      ],
+    },
+    {
+      title: "Plan Your Home Drafts And References",
+      paragraphs: [
+        "Before the contact checkpoint, Plan Your Home saves answers in this browser only. The local snapshot expires after 30 days and does not contain raw file contents or resume tokens.",
+        "Providing contact details creates a private server draft so progress can be saved. h and h may personally follow up about that project; no automated abandoned-draft reminder is sent.",
+        "Reference files upload to private storage and remain connected to the draft or submitted brief. Links are stored as part of the brief; h and h does not fetch those customer-provided links on the server.",
+      ],
+    },
+    {
+      title: "Requested Resume Email",
+      paragraphs: [
+        "A resume email is sent only after the visitor asks for one. The response does not reveal whether a matching draft exists.",
+        "Any available resume link is single use, expires after 15 minutes, and contains no contact information in the link. h and h does not use this feature for automated abandoned-draft or marketing messages.",
       ],
     },
     {
@@ -65,13 +82,22 @@ export const privacyDocument: LegalDocument = {
       paragraphs: [
         "The website may use analytics tools to understand which pages visitors view and how they interact with project inquiry features.",
         "Browser-level storage, cookies, or similar tracking technologies may be used by the site or its analytics providers. Visitors can usually limit or clear that tracking through their browser settings, though some site behavior may become less accurate as a result.",
+        "Plan Your Home measurement is limited to start, zone completion, saved contact checkpoint, draft resume, reference kind, and submission events. Allowed properties are an anonymous session identifier, zone, prompt number, file-or-link kind, device category, and non-personal source tags; names, contact details, answers, filenames, URLs, object paths, and resume tokens are excluded.",
       ],
     },
     {
       title: "Retention And Security",
       paragraphs: [
-        "Inquiry submissions are kept for business and operational purposes for as long as they remain relevant to active or past project discussions, recordkeeping, fraud prevention, or comparable legitimate needs.",
+        "Under the proposed Plan Your Home schedule, anonymous local snapshots expire after 30 days, identified unfinished drafts and their private files expire 180 days after last activity, and submitted briefs and files expire 24 months after submission unless h and h deliberately retains or deletes them sooner.",
+        "Expired records, saved resume tokens, and orphan private files are removed by protected cleanup. Authorized h and h staff can also delete a Plan Your Home inquiry, its private files, and its saved resume tokens from HHQ.",
         `${legalName} uses reasonable administrative and technical safeguards for the website and project inquiry process, but no internet-based system can guarantee absolute security.`,
+      ],
+    },
+    {
+      title: "Submission Is Not A Contract",
+      paragraphs: [
+        "A generic project brief or Plan Your Home brief starts a conversation. It is not a design, price, estimate, feasibility decision, promise to perform work, or contract.",
+        "Submitting a brief permits project-related contact under the disclosure shown with that brief. It does not provide marketing consent or create a client relationship.",
       ],
     },
     {

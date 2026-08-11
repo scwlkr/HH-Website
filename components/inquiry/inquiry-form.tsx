@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { submitInquiryAction } from "@/app/inquire/actions";
 import { InquiryProgress } from "@/components/inquiry/inquiry-progress";
+import { InquiryPrivacyNotice } from "@/components/inquiry/inquiry-privacy-notice";
 import { InquiryReview } from "@/components/inquiry/inquiry-review";
 import { InquiryStepper } from "@/components/inquiry/inquiry-stepper";
 import { ActionLink } from "@/components/marketing/action-link";
@@ -320,6 +321,8 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
 
           <InquiryStepper currentStepIndex={activeStepIndex} />
 
+          <InquiryPrivacyNotice placement="start" />
+
           {state.message ? (
             <div
               className={cn(
@@ -491,9 +494,7 @@ export function InquiryForm({ initialValues }: InquiryFormProps) {
 
           <div className="mt-8 border-t border-line pt-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm leading-6 text-muted">
-                Rough answers are welcome—you can refine the details with h and h later.
-              </p>
+              <InquiryPrivacyNotice placement="submit" />
               <div className="flex flex-wrap gap-3">
                 {activeStepIndex > 0 ? (
                   <Button

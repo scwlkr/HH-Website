@@ -1,7 +1,21 @@
 export type AnalyticsEventName =
   | "cta_click"
   | "inquiry_start"
-  | "inquiry_success";
+  | "inquiry_success"
+  | "plan_home_start"
+  | "zone_complete"
+  | "contact_checkpoint_saved"
+  | "draft_resumed"
+  | "reference_added"
+  | "plan_home_submitted";
+
+export type PlanHomeAnalyticsEventName =
+  | "plan_home_start"
+  | "zone_complete"
+  | "contact_checkpoint_saved"
+  | "draft_resumed"
+  | "reference_added"
+  | "plan_home_submitted";
 
 export type AnalyticsPayloadValue = string | number | boolean;
 

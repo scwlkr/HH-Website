@@ -122,6 +122,32 @@
   line-height: 1.62;
 }
 
+.privacyNotice {
+  max-width: 31rem;
+  margin-top: 0.75rem;
+  border-left: 2px solid var(--hh-accent);
+  padding-left: 0.75rem;
+  color: var(--hh-muted-strong);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.privacyNotice a,
+.submitPanel a {
+  color: var(--hh-ink);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: var(--hh-accent);
+  text-underline-offset: 0.2em;
+}
+
+.privacyNotice a:focus-visible,
+.submitPanel a:focus-visible {
+  border-radius: var(--hh-radius-tight);
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+  outline: none;
+}
+
 .textLabel {
   display: block;
   margin-top: 1.1rem;
