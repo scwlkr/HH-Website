@@ -60,10 +60,12 @@ import {
   getPlanHomeQuestion,
   planHomeQuestions,
   planHomeZones,
+  summarizePlanHomeAnswer,
   type PlanHomeOptionGroup,
   type PlanHomeQuestionDefinition,
   type PlanHomeQuestionId,
 } from "@/features/plan-your-home/registry";
+import { PLAN_HOME_INQUIRY_CONSENT_VERSION } from "@/features/plan-your-home/server-draft-contract";
 import type { PlanHomeReferenceMetadata } from "@/features/plan-your-home/references";
 import type {
   PlanHomeReferenceMutationResult,
@@ -105,6 +107,23 @@ export type PlanHomeDraftAction = (
   input: unknown,
 ) => Promise<PlanHomeDraftActionState>;
 
+export type PlanHomeSubmitActionState =
+  | Readonly<{
+      status: "success";
+      result: Readonly<{
+        draftId: string;
+        revision: number;
+        submittedAt: string;
+        applied: boolean;
+        notificationIntentCount: 0;
+      }>;
+    }>
+  | Exclude<PlanHomeDraftActionState, { status: "success" }>;
+
+export type PlanHomeSubmitAction = (
+  input: unknown,
+) => Promise<PlanHomeSubmitActionState>;
+
 export type PlanHomeReferenceAction<Result> = (
   input: unknown,
 ) => Promise<
@@ -129,6 +148,7 @@ export type PlanHomeDirectUploader = (
 type PlanYourHomeShellProps = Readonly<{
   createDraft?: PlanHomeDraftAction;
   checkpointDraft?: PlanHomeDraftAction;
+  submitDraft?: PlanHomeSubmitAction;
   issueReferenceUpload?: PlanHomeReferenceAction<PlanHomeUploadCapability>;
   finalizeReferenceUpload?: PlanHomeReferenceAction<PlanHomeReferenceMutationResult>;
   abandonReferenceUpload?: PlanHomeReferenceAction<Readonly<{ applied: boolean }>>;
@@ -148,6 +168,11 @@ type ContactFields = Readonly<{
 const unavailableDraftAction: PlanHomeDraftAction = async () => ({
   status: "server-error",
   message: "Draft saving is temporarily unavailable.",
+});
+
+const unavailableSubmitAction: PlanHomeSubmitAction = async () => ({
+  status: "server-error",
+  message: "Your project brief could not be submitted right now.",
 });
 
 const PROJECT_AND_LIVING_LAST_QUESTION = 11;
@@ -228,7 +253,8 @@ function createIdempotencyKey(
     | "zone:bedrooms-and-shared-bathrooms"
     | "zone:utility-and-systems"
     | "zone:exterior-and-site"
-    | "zone:design-desk-and-review",
+    | "zone:design-desk-and-review"
+    | "submission",
 ) {
   return `local-${randomUuidV4()}:plan-home-v1:${boundary}`;
 }
@@ -236,7 +262,6 @@ function createIdempotencyKey(
 function initialDraftAnswers() {
   return Object.fromEntries(
     planHomeQuestions
-      .slice(0, DESIGN_DESK_LAST_QUESTION)
       .map((question) => [
         question.id,
         structuredClone(question.response.defaultAnswer),
@@ -266,7 +291,11 @@ function sceneForQuestion(question: PlanHomeQuestionDefinition) {
   if (question.number <= EXTERIOR_AND_SITE_LAST_QUESTION) {
     return <ExteriorSiteScene activeAnchor={question.sceneAnchor} />;
   }
-  return <DesignDeskScene activeAnchor={question.sceneAnchor} />;
+  return question.number === planHomeQuestions.length ? (
+    <ReviewBriefThresholdScene />
+  ) : (
+    <DesignDeskScene activeAnchor={question.sceneAnchor} />
+  );
 }
 
 const unavailableReferenceAction = async () => ({
@@ -935,8 +964,13 @@ function BlueprintDesignDeskBoundary({
 
 function ReviewBriefBoundary({
   onBack,
+  onContinue,
   reducedMotion,
-}: Readonly<{ onBack: () => void; reducedMotion?: boolean }>) {
+}: Readonly<{
+  onBack: () => void;
+  onContinue: () => void;
+  reducedMotion?: boolean;
+}>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
@@ -957,20 +991,186 @@ function ReviewBriefBoundary({
         </h1>
         <p className={styles.momentCopy}>
           Feel, references, priorities, budget context, and timing are
-          checkpointed. Review and submission continue in the next step of the
-          build.
+          checkpointed. One final follow-up choice leads to your complete brief.
         </p>
-        <Button type="button" variant="secondary" onClick={onBack}>
-          Back to budget and timing
-        </Button>
+        <div className={styles.momentActions}>
+          <Button type="button" variant="secondary" onClick={onBack}>
+            Back to budget and timing
+          </Button>
+          <Button type="button" onClick={onContinue}>
+            Choose follow-up
+          </Button>
+        </div>
       </div>
     </section>
+  );
+}
+
+function ProjectBriefReview({
+  state,
+  consentAccepted,
+  error,
+  submitting,
+  onConsentChange,
+  onEdit,
+  onSubmit,
+}: Readonly<{
+  state: PlanHomeTourState;
+  consentAccepted: boolean;
+  error: string | null;
+  submitting: boolean;
+  onConsentChange: (accepted: boolean) => void;
+  onEdit: (questionId: PlanHomeQuestionId) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  return (
+    <main className={styles.review} data-tour-beat="project-brief-review">
+      <header className={styles.reviewHeader}>
+        <p className={styles.eyebrow}>Review your project brief</p>
+        <h1 ref={headingRef} tabIndex={-1}>
+          One walkthrough, ready for a real conversation.
+        </h1>
+        <p>
+          Check every answer and reference below. Editing a section returns here
+          directly and keeps the rest of your brief intact.
+        </p>
+      </header>
+
+      <section className={styles.reviewContact} aria-labelledby="review-contact-heading">
+        <h2 id="review-contact-heading">Contact details</h2>
+        <dl>
+          <div><dt>Name</dt><dd>{state.welcomeName}</dd></div>
+          <div><dt>Email</dt><dd>{state.contactCheckpoint?.email}</dd></div>
+          <div><dt>Phone</dt><dd>{state.contactCheckpoint?.phone}</dd></div>
+        </dl>
+      </section>
+
+      <div className={styles.reviewGroups}>
+        {planHomeZones.map((zone) => {
+          const questions = planHomeQuestions.filter(
+            (question) => question.zoneId === zone.id,
+          );
+          const firstQuestion = questions[0];
+          return (
+            <section
+              className={styles.reviewGroup}
+              key={zone.id}
+              data-review-zone={zone.id}
+              aria-labelledby={`review-zone-${zone.id}`}
+            >
+              <div className={styles.reviewGroupHeading}>
+                <div>
+                  <p className={styles.reviewIndex}>Zone {zone.order} of 7</p>
+                  <h2 id={`review-zone-${zone.id}`}>{zone.title}</h2>
+                </div>
+                {firstQuestion ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => onEdit(firstQuestion.id)}
+                    aria-label={`Edit ${zone.title}`}
+                  >
+                    Edit
+                  </Button>
+                ) : null}
+              </div>
+              <dl className={styles.reviewAnswers}>
+                {questions.map((question) => (
+                  <div key={question.id} data-review-question={question.id}>
+                    <dt>
+                      <span>Q{question.number}</span>
+                      {question.prompt}
+                    </dt>
+                    <dd>{summarizePlanHomeAnswer(question.id, state.answers[question.id])}</dd>
+                  </div>
+                ))}
+              </dl>
+              {zone.id === "design-desk-and-review" && state.references.length > 0 ? (
+                <div className={styles.reviewReferences}>
+                  <h3>Files and links</h3>
+                  <ul>
+                    {state.references.map((reference) => (
+                      <li key={reference.id}>
+                        <strong>
+                          {reference.kind === "file"
+                            ? reference.originalName
+                            : reference.hostname}
+                        </strong>
+                        <span>
+                          {reference.kind === "file"
+                            ? `${reference.extension.toUpperCase()} · private file`
+                            : reference.url}
+                        </span>
+                        {reference.note ? <span>Note: {reference.note}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </section>
+          );
+        })}
+      </div>
+
+      <form className={styles.submitPanel} onSubmit={onSubmit}>
+        <p className={styles.eyebrow}>Before you submit</p>
+        <h2>Start the conversation.</h2>
+        <p>
+          This brief starts a conversation. It is not a design, price,
+          feasibility decision, or contract.
+        </p>
+        <label className={styles.disclosure}>
+          <input
+            type="checkbox"
+            required
+            checked={consentAccepted}
+            onChange={(event) => onConsentChange(event.target.checked)}
+          />
+          <span>
+            I am submitting an inquiry and permit h and h to contact me about
+            this project. This is not marketing consent.
+          </span>
+        </label>
+        {error ? <p className={styles.formError} role="alert">{error}</p> : null}
+        <Button type="submit" disabled={submitting || !consentAccepted}>
+          {submitting ? "Submitting…" : "Submit project brief"}
+        </Button>
+      </form>
+    </main>
+  );
+}
+
+function PlanHomeConfirmation({ name }: Readonly<{ name: string }>) {
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true });
+  }, []);
+  return (
+    <main className={styles.confirmation} data-tour-beat="plan-home-confirmation">
+      <div className={styles.confirmationMark} aria-hidden="true">✓</div>
+      <p className={styles.eyebrow}>Project brief received</p>
+      <h1 ref={headingRef} tabIndex={-1}>Thank you, {name}.</h1>
+      <p>
+        h and h has your planning brief. We’ll review it and follow up using the
+        contact method you selected.
+      </p>
+      <p className={styles.confirmationNote}>
+        Your brief begins a conversation; it is not a design, price,
+        feasibility decision, or contract.
+      </p>
+    </main>
   );
 }
 
 export function PlanYourHomeShell({
   createDraft = unavailableDraftAction,
   checkpointDraft = unavailableDraftAction,
+  submitDraft = unavailableSubmitAction,
   issueReferenceUpload = unavailableReferenceAction,
   finalizeReferenceUpload = unavailableReferenceAction,
   abandonReferenceUpload = unavailableReferenceAction,
@@ -1005,6 +1205,9 @@ export function PlanYourHomeShell({
   const [showBlueprintDesignDeskBoundary, setShowBlueprintDesignDeskBoundary] =
     useState(false);
   const [showReviewBriefBoundary, setShowReviewBriefBoundary] = useState(false);
+  const [submissionConsentAccepted, setSubmissionConsentAccepted] =
+    useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [pendingUploads, setPendingUploads] = useState<
     readonly PendingReferenceUpload[]
   >([]);
@@ -1576,6 +1779,7 @@ export function PlanYourHomeShell({
         utilityAndSystemsCheckpointKey: null,
         exteriorAndSiteCheckpointKey: null,
         designDeskCheckpointKey: null,
+        submissionIdempotencyKey: null,
         draftId: null,
         revision: null,
       } satisfies PlanHomeClientDraftState);
@@ -1617,6 +1821,8 @@ export function PlanYourHomeShell({
         pendingDraft.exteriorAndSiteCheckpointKey ?? null,
       designDeskCheckpointKey:
         pendingDraft.designDeskCheckpointKey ?? null,
+      submissionIdempotencyKey:
+        pendingDraft.submissionIdempotencyKey ?? null,
       draftId: result.result.draftId,
       revision: result.result.revision,
     } satisfies PlanHomeClientDraftState;
@@ -1684,6 +1890,64 @@ export function PlanYourHomeShell({
     return backFromBoundary();
   }
 
+  function editReviewZone(questionId: PlanHomeQuestionId) {
+    const transition = reducePlanHomeTour(tourState, {
+      type: "jump-to-review-question",
+      questionId,
+    });
+    if (transition.error) {
+      setFormError(transition.error.message);
+      return;
+    }
+    setFormError(null);
+    commitState(transition.state);
+  }
+
+  async function submitProjectBrief(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (saving) return;
+    if (!submissionConsentAccepted) {
+      setFormError("Confirm that you are submitting an inquiry and permit project-related contact.");
+      return;
+    }
+
+    const latestDraft = currentClientDraft();
+    if (!latestDraft?.draftId || !latestDraft.revision) {
+      setFormError("This saved draft session is missing. Return to the contact checkpoint and try again.");
+      return;
+    }
+    const submissionIdempotencyKey =
+      latestDraft.submissionIdempotencyKey ?? createIdempotencyKey("submission");
+    const preparedDraft = {
+      ...latestDraft,
+      submissionIdempotencyKey,
+    } satisfies PlanHomeClientDraftState;
+    createPlanHomeClientDraftAdapter(window.localStorage).save(preparedDraft);
+    setClientDraft(preparedDraft);
+    setSaving(true);
+    setFormError(null);
+
+    const result = await submitDraft({
+      draftId: preparedDraft.draftId,
+      expectedRevision: preparedDraft.revision,
+      idempotencyKey: submissionIdempotencyKey,
+      answers: tourState.answers,
+      references: tourState.references,
+      consent: {
+        version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
+        inquiryAndProjectContactAccepted: true,
+      },
+    });
+    setSaving(false);
+    if (result.status !== "success") {
+      setFormError(actionError(result));
+      return;
+    }
+
+    updateClientDraftRevision(result.result.revision);
+    setSubmitted(true);
+  }
+
   function backFromDesignDeskQuestion() {
     const moved = backFromQuestion();
     if (moved) setShowBlueprintDesignDeskBoundary(true);
@@ -1736,7 +2000,9 @@ export function PlanYourHomeShell({
     })),
   ];
   let content: ReactNode;
-  if (tourState.location.kind === "welcome") {
+  if (submitted) {
+    content = <PlanHomeConfirmation name={tourState.welcomeName} />;
+  } else if (tourState.location.kind === "welcome") {
     content = (
       <WelcomeStep
         name={welcomeName}
@@ -1799,16 +2065,7 @@ export function PlanYourHomeShell({
     content = (
       <ReviewBriefBoundary
         onBack={backFromReviewBriefBoundary}
-        reducedMotion={reducedMotion}
-      />
-    );
-  } else if (
-    activeQuestion &&
-    activeQuestion.number > DESIGN_DESK_LAST_QUESTION
-  ) {
-    content = (
-      <ReviewBriefBoundary
-        onBack={backFromReviewBriefBoundary}
+        onContinue={() => setShowReviewBriefBoundary(false)}
         reducedMotion={reducedMotion}
       />
     );
@@ -1891,6 +2148,9 @@ export function PlanYourHomeShell({
           onNext={() => nextFromQuestion(question)}
           canGoBack
           nextLabel={
+            question.number === planHomeQuestions.length
+              ? "Review brief"
+              :
             question.number === PROJECT_AND_LIVING_LAST_QUESTION ||
             question.number === KITCHEN_AND_DINING_LAST_QUESTION ||
             question.number === PRIMARY_SUITE_LAST_QUESTION ||
@@ -1906,13 +2166,23 @@ export function PlanYourHomeShell({
         />
       </div>
     );
-  } else {
+  } else if (tourState.location.kind === "review") {
     content = (
-      <ReviewBriefBoundary
-        onBack={backFromReviewBriefBoundary}
-        reducedMotion={reducedMotion}
+      <ProjectBriefReview
+        state={tourState}
+        consentAccepted={submissionConsentAccepted}
+        error={formError}
+        submitting={saving}
+        onConsentChange={(accepted) => {
+          setSubmissionConsentAccepted(accepted);
+          setFormError(null);
+        }}
+        onEdit={editReviewZone}
+        onSubmit={submitProjectBrief}
       />
     );
+  } else {
+    content = null;
   }
 
   return (

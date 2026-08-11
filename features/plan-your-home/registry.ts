@@ -1381,7 +1381,7 @@ export const planHomeQuestions = [
     id: "contact.follow-up",
     zoneId: "design-desk-and-review",
     prompt: "How should h and h follow up after you submit the project brief?",
-    helper: "Confirm that you are submitting an inquiry and permit project-related contact. This is not marketing consent.",
+    helper: "Choose one project-related follow-up method. Final inquiry confirmation is separate and is not marketing consent.",
     sceneAnchor: "review-brief",
     cameraKey: "review-follow-up",
     response: followUpResponse,

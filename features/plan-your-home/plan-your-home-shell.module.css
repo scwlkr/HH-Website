@@ -209,6 +209,228 @@
   min-height: 2.75rem;
 }
 
+.review,
+.confirmation {
+  width: min(100% - 2rem, 68rem);
+  margin-inline: auto;
+}
+
+.reviewHeader {
+  padding: clamp(2rem, 7vw, 5rem) 0 clamp(1.5rem, 4vw, 2.75rem);
+  border-bottom: 1px solid var(--hh-line-strong);
+}
+
+.reviewHeader h1,
+.confirmation h1 {
+  max-width: 48rem;
+  margin-top: 0.5rem;
+  color: var(--hh-ink);
+  font-size: clamp(2rem, 6vw, 4.4rem);
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.reviewHeader h1:focus,
+.confirmation h1:focus {
+  outline: none;
+}
+
+.reviewHeader > p:last-child,
+.confirmation > p {
+  max-width: 44rem;
+  margin-top: 1rem;
+  color: var(--hh-muted-strong);
+  line-height: 1.65;
+}
+
+.reviewContact {
+  margin-block: 1.25rem;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  background: var(--hh-paper-deep);
+}
+
+.reviewContact h2,
+.reviewGroup h2,
+.submitPanel h2 {
+  color: var(--hh-ink);
+  font-size: clamp(1.2rem, 3vw, 1.65rem);
+}
+
+.reviewContact dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.reviewContact dl > div {
+  min-width: 0;
+  border-top: 1px solid var(--hh-line);
+  padding-top: 0.65rem;
+}
+
+.reviewContact dt,
+.reviewIndex,
+.reviewAnswers dt span {
+  color: var(--hh-accent-strong);
+  font-family: var(--font-code), monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.reviewContact dd {
+  margin-top: 0.25rem;
+  overflow-wrap: anywhere;
+  color: var(--hh-ink);
+  font-size: 0.88rem;
+}
+
+.reviewGroups {
+  display: grid;
+  gap: 1rem;
+}
+
+.reviewGroup {
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  background: var(--hh-surface);
+  box-shadow: var(--hh-shadow-panel);
+}
+
+.reviewGroupHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-bottom: 1px solid var(--hh-line);
+}
+
+.reviewGroupHeading h2 {
+  margin-top: 0.25rem;
+}
+
+.reviewGroupHeading button {
+  min-width: 5rem;
+  min-height: 2.75rem;
+}
+
+.reviewAnswers > div {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.9fr) minmax(12rem, 1.1fr);
+  gap: 1rem;
+  padding: 0.9rem clamp(1rem, 3vw, 1.5rem);
+  border-bottom: 1px solid var(--hh-line);
+}
+
+.reviewAnswers > div:last-child {
+  border-bottom: 0;
+}
+
+.reviewAnswers dt {
+  color: var(--hh-muted-strong);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.reviewAnswers dt span {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.reviewAnswers dd {
+  color: var(--hh-ink);
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.reviewReferences {
+  border-top: 1px solid var(--hh-line-strong);
+  padding: 1rem clamp(1rem, 3vw, 1.5rem) 1.5rem;
+  background: var(--hh-paper-deep);
+}
+
+.reviewReferences h3 {
+  color: var(--hh-ink);
+  font-size: 0.9rem;
+}
+
+.reviewReferences ul {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  list-style: none;
+}
+
+.reviewReferences li {
+  display: grid;
+  gap: 0.15rem;
+  overflow-wrap: anywhere;
+  color: var(--hh-muted-strong);
+  font-size: 0.76rem;
+}
+
+.reviewReferences strong {
+  color: var(--hh-ink);
+}
+
+.submitPanel {
+  margin-top: 1.25rem;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: var(--hh-paper-deep);
+}
+
+.submitPanel h2 {
+  margin-top: 0.35rem;
+}
+
+.submitPanel > p:not(.eyebrow) {
+  max-width: 46rem;
+  margin-top: 0.65rem;
+  color: var(--hh-muted-strong);
+  line-height: 1.55;
+}
+
+.submitPanel > button {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 1rem;
+}
+
+.confirmation {
+  min-height: min(46rem, 76svh);
+  border-block: 1px solid var(--hh-line-strong);
+  padding: clamp(3rem, 12vw, 8rem) clamp(1rem, 6vw, 5rem);
+  background:
+    linear-gradient(135deg, transparent 0 78%, color-mix(in srgb, var(--hh-accent-soft) 65%, transparent) 78%),
+    var(--hh-paper-deep);
+}
+
+.confirmationMark {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  place-items: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--hh-accent);
+  border-radius: 50%;
+  color: var(--hh-accent-strong);
+  font-size: 1.4rem;
+}
+
+.confirmationNote {
+  border-left: 3px solid var(--hh-accent);
+  padding-left: 1rem;
+  font-size: 0.85rem;
+}
+
 .moment[data-tour-beat="welcome"] .momentScene {
   animation: exterior-arrive 420ms ease both;
 }
@@ -315,6 +537,20 @@
 
   .contactGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .review,
+  .confirmation {
+    width: calc(100% - 1rem);
+  }
+
+  .reviewContact dl,
+  .reviewAnswers > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reviewAnswers > div {
+    gap: 0.35rem;
   }
 
   .momentActions {
