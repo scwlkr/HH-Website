@@ -1,0 +1,232 @@
+.scene,
+.blueprintThreshold {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #253746;
+}
+
+.scene svg {
+  width: 100%;
+  height: 100%;
+}
+
+.siteWash {
+  fill: rgba(200, 211, 194, 0.48);
+}
+
+.gradeLines,
+.architecturalLine,
+.materialBoard,
+.siteCompass,
+.landscapeLine,
+.patioLine,
+.blueprintRoll,
+.surveyMarks {
+  fill: none;
+  stroke: currentColor;
+  vector-effect: non-scaling-stroke;
+}
+
+.gradeLines {
+  stroke: #52705e;
+  stroke-width: 0.8;
+  opacity: 0.3;
+}
+
+.houseFill {
+  fill: rgba(246, 241, 230, 0.82);
+  stroke: none;
+}
+
+.architecturalLine {
+  stroke-width: 1.2;
+  opacity: 0.74;
+}
+
+.materialBoard {
+  stroke-width: 1;
+  opacity: 0.62;
+}
+
+.materialHatch {
+  fill: url("#exterior-material-hatch");
+  stroke: none;
+  opacity: 0.48;
+}
+
+.siteCompass {
+  stroke: #8b6c3c;
+  stroke-width: 1;
+  opacity: 0.58;
+}
+
+.landscapeLine {
+  stroke: #3f7657;
+  stroke-width: 1.1;
+  opacity: 0.58;
+}
+
+.patioLine {
+  stroke-width: 1;
+  opacity: 0.56;
+}
+
+.blueprintRoll {
+  stroke: #526f7b;
+  stroke-width: 1;
+  opacity: 0.82;
+}
+
+.blueprintGrid {
+  fill: url("#exterior-site-grid");
+  stroke: none;
+  opacity: 0.32;
+}
+
+.surveyMarks {
+  stroke-width: 0.85;
+  opacity: 0.35;
+}
+
+.anchor {
+  position: absolute;
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 1px solid #2a694d;
+  border-radius: 50%;
+  background: #f4efe5;
+  box-shadow: 0 0 0 0.23rem rgba(42, 105, 77, 0.08);
+}
+
+.scene:has([data-scene-anchor][data-active="true"]) .anchor {
+  opacity: 0.35;
+}
+
+.anchor[data-active="true"] {
+  opacity: 1;
+  background: #2a694d;
+  box-shadow: 0 0 0 0.35rem rgba(42, 105, 77, 0.14);
+}
+
+.garage {
+  top: 57%;
+  left: 80%;
+}
+
+.elevationSamples {
+  top: 29%;
+  left: 13%;
+}
+
+.sunCompassTrees {
+  top: 22%;
+  left: 90%;
+}
+
+.patio {
+  top: 77%;
+  left: 55%;
+}
+
+.outbuildingPlan {
+  top: 82%;
+  left: 85%;
+}
+
+.sceneCaption {
+  position: absolute;
+  bottom: 5%;
+  left: 4%;
+  display: grid;
+  gap: 0.2rem;
+  border-left: 2px solid #2a694d;
+  padding-left: 0.65rem;
+  color: rgba(37, 55, 70, 0.65);
+  font-family: var(--font-code), monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.sceneCaption strong {
+  color: #253746;
+  font-size: 0.62rem;
+}
+
+.blueprintThreshold .scene {
+  filter: saturate(0.75);
+  transform: translate(-7%, -1%) scale(1.03);
+  transform-origin: 85% 82%;
+}
+
+.matchCutSheet {
+  position: absolute;
+  inset: 3%;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(37, 55, 70, 0.42);
+  background:
+    linear-gradient(rgba(82, 111, 123, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(82, 111, 123, 0.12) 1px, transparent 1px),
+    rgba(220, 232, 232, 0.9);
+  background-size: 2.2rem 2.2rem;
+  clip-path: polygon(4% 8%, 96% 3%, 100% 92%, 1% 97%);
+}
+
+.matchCutSheet::before,
+.matchCutSheet::after {
+  position: absolute;
+  content: "";
+}
+
+.matchCutSheet::before {
+  inset: 13% 16%;
+  border: 1px solid rgba(37, 55, 70, 0.46);
+}
+
+.matchCutSheet::after {
+  width: 24%;
+  height: 31%;
+  border: 1px solid rgba(37, 55, 70, 0.46);
+  transform: translate(54%, -8%) rotate(-4deg);
+}
+
+.matchCutSheet span {
+  position: relative;
+  z-index: 1;
+  border-block: 1px solid rgba(37, 55, 70, 0.55);
+  padding: 0.7rem 1rem;
+  color: rgba(37, 55, 70, 0.76);
+  font-family: var(--font-code), monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.matchCutSheet div {
+  position: absolute;
+  bottom: 14%;
+  left: 17%;
+  width: 29%;
+  height: 18%;
+  border: 1px solid rgba(37, 55, 70, 0.46);
+  transform: rotate(3deg);
+}
+
+@media (max-width: 40rem) {
+  .sceneCaption {
+    bottom: 7%;
+    left: 5%;
+  }
+
+  .matchCutSheet {
+    inset: 2%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blueprintThreshold .scene {
+    transform: none;
+  }
+}
