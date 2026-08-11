@@ -57,6 +57,8 @@ describe("Plan Your Home client draft metadata", () => {
         "local-12b445d7-d87f-4696-b28d-a1b5d4826e3a:plan-home-v1:zone:bedrooms-and-shared-bathrooms",
       utilityAndSystemsCheckpointKey:
         "local-74927f02-2b85-47e3-9d42-38c94d3ebfe9:plan-home-v1:zone:utility-and-systems",
+      exteriorAndSiteCheckpointKey:
+        "local-8c1f9492-6403-431f-ab14-a2a9b43ff036:plan-home-v1:zone:exterior-and-site",
       draftId: `draft-${"a".repeat(40)}`,
       revision: 2,
     };
@@ -107,6 +109,13 @@ describe("Plan Your Home client draft metadata", () => {
       adapter.save({
         ...issueSixMetadata,
         utilityAndSystemsCheckpointKey: "predictable-utility-key",
+      }),
+      false,
+    );
+    assert.equal(
+      adapter.save({
+        ...issueSixMetadata,
+        exteriorAndSiteCheckpointKey: "predictable-exterior-key",
       }),
       false,
     );

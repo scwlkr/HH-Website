@@ -411,6 +411,49 @@ test(
         PlanHomeDraftConflictError,
       );
 
+      const exteriorCheckpoint = {
+        draftId: created.draftId,
+        expectedRevision: 6,
+        idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:exterior-and-site`,
+        completedZoneId: "exterior-and-site",
+        answers: answersThrough(30),
+      };
+      const exteriorCheckpointResult = await repository.checkpointDraft(
+        exteriorCheckpoint,
+        sessionTokenHash,
+      );
+      assert.equal(exteriorCheckpointResult.applied, true);
+      assert.equal(exteriorCheckpointResult.revision, 7);
+      assert.deepEqual(exteriorCheckpointResult.progress, {
+        currentPromptId: "design.feeling",
+        currentZoneId: "design-desk-and-review",
+        completedZoneIds: [
+          "project-and-living",
+          "kitchen-and-dining",
+          "primary-suite",
+          "bedrooms-and-shared-bathrooms",
+          "utility-and-systems",
+          "exterior-and-site",
+        ],
+      });
+      assert.deepEqual(
+        await repository.checkpointDraft(exteriorCheckpoint, sessionTokenHash),
+        { ...exteriorCheckpointResult, applied: false },
+      );
+
+      const conflictingExteriorAnswers = answersThrough(30);
+      conflictingExteriorAnswers["home.specialty-spaces"] = ["workshop"];
+      await assert.rejects(
+        repository.checkpointDraft(
+          {
+            ...exteriorCheckpoint,
+            answers: conflictingExteriorAnswers,
+          },
+          sessionTokenHash,
+        ),
+        PlanHomeDraftConflictError,
+      );
+
       const finalDraft = (
         await firestore
           .collection("inquirySubmissions")
@@ -418,22 +461,23 @@ test(
           .get()
       ).data();
       assert(finalDraft, "The final draft must exist.");
-      assert.equal(finalDraft.revision, 6);
+      assert.equal(finalDraft.revision, 7);
       assert.equal(
         finalDraft.answers["home.heated-square-feet"],
         createInput.answers["home.heated-square-feet"],
       );
       assert.equal(finalDraft.derived.finishLevel, "builder-grade");
-      assert.equal(Object.keys(finalDraft.answers).length, 25);
+      assert.equal(Object.keys(finalDraft.answers).length, 30);
       assert.deepEqual(finalDraft.progress, {
-        currentPromptId: "exterior.garage",
-        currentZoneId: "exterior-and-site",
+        currentPromptId: "design.feeling",
+        currentZoneId: "design-desk-and-review",
         completedZoneIds: [
           "project-and-living",
           "kitchen-and-dining",
           "primary-suite",
           "bedrooms-and-shared-bathrooms",
           "utility-and-systems",
+          "exterior-and-site",
         ],
       });
       assert.equal(
@@ -507,8 +551,43 @@ test(
         "Energy efficiency",
       );
       assert.equal(
+        summarizePlanHomeAnswer(
+          "exterior.garage",
+          finalDraft.answers["exterior.garage"],
+        ),
+        "Garage bays: 2; Needs: Storage",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "exterior.style",
+          finalDraft.answers["exterior.style"],
+        ),
+        "Hill Country or ranch",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "site.relationships",
+          finalDraft.answers["site.relationships"],
+        ),
+        "Important views",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "exterior.outdoor-living",
+          finalDraft.answers["exterior.outdoor-living"],
+        ),
+        "Covered porch",
+      );
+      assert.equal(
+        summarizePlanHomeAnswer(
+          "home.specialty-spaces",
+          finalDraft.answers["home.specialty-spaces"],
+        ),
+        "Office",
+      );
+      assert.equal(
         Object.keys(finalDraft.checkpointIdempotency).length,
-        5,
+        6,
       );
 
       const legacyDocument = (
