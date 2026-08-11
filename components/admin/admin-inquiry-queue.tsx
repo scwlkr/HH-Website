@@ -65,7 +65,7 @@ function QueueField({
 }>) {
   return (
     <div className={className}>
-      <p className="mb-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted md:hidden">
+      <p className="mb-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-muted xl:hidden">
         {label}
       </p>
       {children}
@@ -77,7 +77,7 @@ function InquiryRow({ inquiry }: Readonly<{ inquiry: AdminInquiryQueueItem }>) {
   const status = statusPresentation[inquiry.status];
 
   return (
-    <li className="grid gap-5 border-b border-line px-4 py-5 last:border-b-0 md:grid-cols-[minmax(10rem,1.25fr)_minmax(10rem,1.25fr)_minmax(7.5rem,0.75fr)_minmax(11rem,1.3fr)_minmax(9rem,0.9fr)_minmax(9rem,0.9fr)] md:items-center md:gap-4 md:py-4">
+    <li className="grid gap-5 border-b border-line px-4 py-5 last:border-b-0 xl:grid-cols-[minmax(10rem,1.25fr)_minmax(10rem,1.25fr)_minmax(7.5rem,0.75fr)_minmax(11rem,1.3fr)_minmax(9rem,0.9fr)_minmax(9rem,0.9fr)] xl:items-center xl:gap-4 xl:py-4">
       <QueueField label="Inquiry">
         <p className="font-medium text-foreground">{inquiry.name}</p>
         <p className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted">
@@ -220,7 +220,7 @@ export function AdminInquiryQueue({
             <>
               <div
                 aria-hidden="true"
-                className="hidden grid-cols-[minmax(10rem,1.25fr)_minmax(10rem,1.25fr)_minmax(7.5rem,0.75fr)_minmax(11rem,1.3fr)_minmax(9rem,0.9fr)_minmax(9rem,0.9fr)] gap-4 border-b border-line-strong px-4 py-3 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-muted md:grid"
+                className="hidden grid-cols-[minmax(10rem,1.25fr)_minmax(10rem,1.25fr)_minmax(7.5rem,0.75fr)_minmax(11rem,1.3fr)_minmax(9rem,0.9fr)_minmax(9rem,0.9fr)] gap-4 border-b border-line-strong px-4 py-3 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-muted xl:grid"
               >
                 <span>Inquiry</span>
                 <span>Contact</span>

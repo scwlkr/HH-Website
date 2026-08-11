@@ -6,7 +6,7 @@ import {
   type AdminInquiryQueueItem,
 } from "@/features/plan-your-home/admin-inquiry-queue";
 import { formatAdminPageTitle } from "@/lib/admin/branding";
-import { listAdminInquiries } from "@/lib/db/admin-inquiries";
+import { getAuthorizedAdminInquiryQueue } from "@/lib/db/admin-inquiries";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
@@ -31,11 +31,12 @@ export default async function AdminInquiriesPage({
   const statusFilter = parseAdminInquiryStatusFilter(
     resolvedSearchParams.status,
   );
+  const inquiryQueue = await getAuthorizedAdminInquiryQueue();
   let inquiries: readonly AdminInquiryQueueItem[] = [];
   let errorMessage: string | undefined;
 
   try {
-    inquiries = await listAdminInquiries(statusFilter);
+    inquiries = await inquiryQueue.list(statusFilter);
   } catch {
     errorMessage =
       "Inquiries could not be loaded right now. Refresh this page to try again.";

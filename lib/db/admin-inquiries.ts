@@ -8,16 +8,18 @@ import {
 import type { AdminInquiryStatusFilter } from "@/features/plan-your-home/admin-inquiry-queue";
 import { requireAdminUser } from "@/lib/firebase/auth";
 
-export async function listAdminInquiries(
-  statusFilter: AdminInquiryStatusFilter,
-) {
+export async function getAuthorizedAdminInquiryQueue() {
   await requireAdminUser();
 
   if (!isFirebaseAdminConfigured()) {
     throw new Error("Firebase admin credentials are not configured.");
   }
 
-  return createAdminInquiryQueueRepository(getFirebaseDatabase()).list(
-    statusFilter,
-  );
+  const repository = createAdminInquiryQueueRepository(getFirebaseDatabase());
+
+  return {
+    list(statusFilter: AdminInquiryStatusFilter) {
+      return repository.list(statusFilter);
+    },
+  };
 }

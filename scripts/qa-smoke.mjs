@@ -1,10 +1,22 @@
 import http from "node:http";
 import { once } from "node:events";
 import { spawn } from "node:child_process";
+import { mkdir, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
 import { deleteApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { chromium } from "playwright";
+
+const require = createRequire(import.meta.url);
+const axePath = require.resolve("axe-core/axe.min.js");
+const inquiryQueueOutputDirectory = path.join(
+  process.cwd(),
+  "output",
+  "playwright",
+  "issue-15",
+);
 
 const smokeAdmin = {
   email: "firebase-admin-smoke@example.com",
@@ -38,6 +50,44 @@ const publicationFixtures = [
   },
 ];
 
+const inquiryQueueFixtures = [
+  {
+    id: "queue-draft-smoke",
+    name: "Queue Draft Smoke",
+    status: "draft",
+    activity: "2026-08-11T15:05:00.000Z",
+    location: "Denton County",
+  },
+  {
+    id: "queue-reviewed-smoke",
+    name: "Queue Reviewed Smoke",
+    status: "reviewed",
+    activity: "2026-08-11T15:04:00.000Z",
+    location: "Cooke County",
+  },
+  {
+    id: "queue-submitted-smoke",
+    name: "Queue Submitted Smoke",
+    status: "submitted",
+    activity: "2026-08-11T15:03:00.000Z",
+    location: "Grayson County",
+  },
+  {
+    id: "queue-spam-smoke",
+    name: "Queue Spam Smoke",
+    status: "spam",
+    activity: "2026-08-11T15:02:00.000Z",
+    location: "Tarrant County",
+  },
+  {
+    id: "queue-legacy-smoke",
+    name: "Queue Legacy Smoke",
+    status: "new",
+    activity: "2026-08-11T15:01:00.000Z",
+    location: "Wise County",
+  },
+];
+
 function log(message) {
   process.stdout.write(`${message}\n`);
 }
@@ -46,6 +96,36 @@ function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+async function captureInquiryQueue(page, name) {
+  await page.screenshot({
+    animations: "disabled",
+    fullPage: true,
+    path: path.join(inquiryQueueOutputDirectory, `${name}.png`),
+  });
+}
+
+async function inspectInquiryQueuePage(page, evidence) {
+  await page.addScriptTag({ path: axePath });
+  const violations = await page.evaluate(async () => {
+    const audit = await window.axe.run(document, {
+      runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag22aa"] },
+    });
+    return audit.violations
+      .filter((violation) => ["serious", "critical"].includes(violation.impact))
+      .map((violation) => violation.id);
+  });
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > window.innerWidth + 1,
+  );
+  evidence.axeSeriousOrCritical.push(...violations);
+  evidence.overflow ||= overflow;
+  assert(
+    violations.length === 0,
+    `The HHQ inquiry queue has serious or critical axe findings: ${violations.join(", ")}.`,
+  );
+  assert(!overflow, "The HHQ inquiry queue must not overflow the viewport.");
 }
 
 async function getAvailablePort() {
@@ -210,6 +290,73 @@ async function seedPublicationFixtures(firestore) {
     batch.set(firestore.collection("projects").doc(fixture.id), project);
     batch.set(firestore.collection("projectSlugs").doc(fixture.slug), {
       projectId: fixture.id,
+    });
+  }
+
+  await batch.commit();
+}
+
+async function seedInquiryQueueFixtures(firestore) {
+  log("Seeding HHQ inquiry queue fixtures...");
+  const batch = firestore.batch();
+
+  for (const fixture of inquiryQueueFixtures) {
+    const reference = firestore
+      .collection("inquirySubmissions")
+      .doc(fixture.id);
+    const activity = new Date(fixture.activity);
+
+    if (fixture.status === "new") {
+      batch.set(reference, {
+        status: "new",
+        name: fixture.name,
+        email: "queue-legacy@example.com",
+        phone: "+1 214 555 0199",
+        projectLocation: fixture.location,
+        projectDescription: "Private legacy description for queue smoke proof.",
+        createdAt: activity,
+      });
+      continue;
+    }
+
+    batch.set(reference, {
+      schemaVersion: 2,
+      experience: "plan-your-home",
+      status: fixture.status,
+      contact: {
+        name: fixture.name,
+        email: `queue-${fixture.status}@example.com`,
+        phone: "+1 214 555 0188",
+      },
+      derived: {
+        name: fixture.name,
+        email: `queue-${fixture.status}@example.com`,
+        phone: "+1 214 555 0188",
+        targetLocation: fixture.location,
+        lastActivityAt: activity,
+      },
+      progress: {
+        currentZoneId:
+          fixture.status === "draft"
+            ? "kitchen-and-dining"
+            : "design-desk-and-review",
+        completedZoneIds:
+          fixture.status === "draft"
+            ? ["project-and-living"]
+            : [
+                "project-and-living",
+                "kitchen-and-dining",
+                "primary-suite",
+                "bedrooms-and-shared-bathrooms",
+                "utility-and-systems",
+                "exterior-and-site",
+                "design-desk-and-review",
+              ],
+      },
+      answers: { private: `${fixture.status}-answer-must-not-render` },
+      references: [{ storagePath: `private/${fixture.status}.pdf` }],
+      createdAt: activity,
+      updatedAt: activity,
     });
   }
 
@@ -618,6 +765,32 @@ async function verifyInquiryFailureState(browser, baseUrl) {
   }
 }
 
+async function verifyAdminInquiryFailureState(browser, baseUrl) {
+  log("Checking the HHQ inquiry queue recoverable error state...");
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+  });
+  const page = await context.newPage();
+
+  try {
+    await page.goto(`${baseUrl}/admin/inquiries`, { waitUntil: "networkidle" });
+    await page.getByLabel("Email").fill(smokeAdmin.email);
+    await page.getByLabel("Password").fill(smokeAdmin.password);
+    await page.getByRole("button", { name: "Sign In" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries`);
+    await page.getByRole("heading", { name: "Project Inquiries" }).waitFor();
+    await page
+      .getByRole("alert")
+      .getByText(
+        "Inquiries could not be loaded right now. Refresh this page to try again.",
+      )
+      .waitFor();
+    await captureInquiryQueue(page, "desktop-error-state");
+  } finally {
+    await context.close();
+  }
+}
+
 async function verifyInquirySuccess(
   browser,
   baseUrl,
@@ -841,11 +1014,24 @@ async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
 
 async function verifyAdminAuth(browser, baseUrl) {
   log("Checking Firebase admin login, protected routes, and logout...");
-  const context = await browser.newContext();
+  await mkdir(inquiryQueueOutputDirectory, { recursive: true });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+  });
   const page = await context.newPage();
+  const evidence = {
+    axeSeriousOrCritical: [],
+    browserErrors: [],
+    overflow: false,
+    unauthorizedRedirect: false,
+  };
+  page.on("pageerror", (error) => evidence.browserErrors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") evidence.browserErrors.push(message.text());
+  });
 
   try {
-    await page.goto(`${baseUrl}/admin/projects`, { waitUntil: "networkidle" });
+    await page.goto(`${baseUrl}/admin/inquiries`, { waitUntil: "networkidle" });
 
     const loginUrl = new URL(page.url());
     assert(
@@ -853,15 +1039,82 @@ async function verifyAdminAuth(browser, baseUrl) {
       "Unauthenticated admin access must redirect to the login page.",
     );
     assert(
-      loginUrl.searchParams.get("next") === "/admin/projects",
+      loginUrl.searchParams.get("next") === "/admin/inquiries",
       "Protected-route redirect must preserve the requested admin path.",
     );
+    evidence.unauthorizedRedirect = true;
+    await captureInquiryQueue(page, "desktop-unauthorized-login");
 
     await page.getByLabel("Email").fill(smokeAdmin.email);
     await page.getByLabel("Password").fill(smokeAdmin.password);
     await page.getByRole("button", { name: "Sign In" }).click();
-    await page.waitForURL(`${baseUrl}/admin/projects`);
+    await page.waitForURL(`${baseUrl}/admin/inquiries`);
     await page.getByText(smokeAdmin.email).waitFor();
+    await page.getByRole("heading", { name: "Project Inquiries" }).waitFor();
+
+    const queueRows = page.getByRole("list", { name: "Inquiries" }).getByRole("listitem");
+    const queueNames = await queueRows.evaluateAll((rows) =>
+      rows.map((row) => row.textContent ?? ""),
+    );
+    const fixturePositions = inquiryQueueFixtures.map((fixture) =>
+      queueNames.findIndex((row) => row.includes(fixture.name)),
+    );
+    assert(
+      fixturePositions.every((position) => position >= 0),
+      "Every seeded legacy and Plan Your Home queue status must be visible.",
+    );
+    assert(
+      fixturePositions.every(
+        (position, index) => index === 0 || position > fixturePositions[index - 1],
+      ),
+      "Seeded inquiries must remain in newest-first activity order.",
+    );
+    assert(
+      (await page.getByText("Legacy inquiry", { exact: true }).count()) >= 1,
+      "Legacy new inquiries must be labeled explicitly.",
+    );
+    assert(
+      (await page.getByText("draft-answer-must-not-render").count()) === 0 &&
+        (await page.getByText("private/draft.pdf").count()) === 0,
+      "Private answers and reference paths must not render in the queue.",
+    );
+    await inspectInquiryQueuePage(page, evidence);
+    await captureInquiryQueue(page, "desktop-all-statuses");
+
+    await page.getByRole("combobox", { name: "Status" }).selectOption("submitted");
+    await page.getByRole("button", { name: "Apply Filter" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries?status=submitted`);
+    await page.getByText("Queue Submitted Smoke", { exact: true }).waitFor();
+    await page.getByText("Queue Legacy Smoke", { exact: true }).waitFor();
+    assert(
+      (await page.getByText("Queue Draft Smoke", { exact: true }).count()) === 0 &&
+        (await page.getByText("Queue Reviewed Smoke", { exact: true }).count()) === 0 &&
+        (await page.getByText("Queue Spam Smoke", { exact: true }).count()) === 0,
+      "Submitted filter must exclude draft, reviewed, and spam inquiries.",
+    );
+    await captureInquiryQueue(page, "desktop-submitted-filter");
+
+    await page.getByRole("link", { name: "Clear" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries`);
+    await page.setViewportSize({ width: 820, height: 1180 });
+    await inspectInquiryQueuePage(page, evidence);
+    await captureInquiryQueue(page, "tablet-all-statuses");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await inspectInquiryQueuePage(page, evidence);
+    await captureInquiryQueue(page, "phone-all-statuses");
+    await page.setViewportSize({ width: 1440, height: 1000 });
+
+    assert(
+      evidence.browserErrors.length === 0,
+      `HHQ inquiry queue browser errors: ${evidence.browserErrors.join(" | ")}.`,
+    );
+    await writeFile(
+      path.join(inquiryQueueOutputDirectory, "summary.json"),
+      `${JSON.stringify(evidence, null, 2)}\n`,
+    );
+
+    await page.getByRole("link", { name: "Projects" }).click();
+    await page.waitForURL(`${baseUrl}/admin/projects`);
     await page.getByRole("heading", { name: "Completed Homes" }).waitFor();
 
     for (const fixture of publicationFixtures) {
@@ -881,7 +1134,7 @@ async function verifyAdminAuth(browser, baseUrl) {
     await page.waitForURL(`${baseUrl}/admin/login?signed_out=1`);
     await page.getByText("You have been signed out.").waitFor();
 
-    await page.goto(`${baseUrl}/admin/projects`, { waitUntil: "networkidle" });
+    await page.goto(`${baseUrl}/admin/inquiries`, { waitUntil: "networkidle" });
     assert(
       new URL(page.url()).pathname === "/admin/login",
       "Logged-out admin access must return to the login page.",
@@ -924,6 +1177,7 @@ async function main() {
     adminApp = await seedAdminUser(firebaseEmulators.projectId);
     const firestore = getFirestore(adminApp);
     await seedPublicationFixtures(firestore);
+    await seedInquiryQueueFixtures(firestore);
 
     log("Running focused Plan Your Home draft emulator tests...");
     const draftTestResult = await runNpmScript({
@@ -941,6 +1195,15 @@ async function main() {
     });
     if (resumeTestResult.stdout.trim()) {
       log(resumeTestResult.stdout.trim());
+    }
+
+    log("Running focused HHQ inquiry queue emulator tests...");
+    const inquiryQueueTestResult = await runNpmScript({
+      script: "test:admin-inquiries:emulator",
+      env: qaEnv,
+    });
+    if (inquiryQueueTestResult.stdout.trim()) {
+      log(inquiryQueueTestResult.stdout.trim());
     }
 
     log("Building the production app under smoke-test env...");
@@ -986,6 +1249,7 @@ async function main() {
       },
     });
     await verifyInquiryFailureState(browser, failureServer.baseUrl);
+    await verifyAdminInquiryFailureState(browser, failureServer.baseUrl);
 
     log("Firebase emulator smoke QA passed.");
   } catch (error) {
