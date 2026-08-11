@@ -12,7 +12,7 @@ import {
   parseSubmitPlanHomeDraftInput,
   type PlanHomeDraftProgress,
 } from "./server-draft-contract.ts";
-import { planHomeQuestions, planHomeZoneIds, type PlanHomeAnswerMap } from "./registry.ts";
+import { planHomeZoneIds, type PlanHomeAnswerMap } from "./registry.ts";
 import type { PlanHomeReferenceMetadata } from "./references.ts";
 
 const inquirySubmissionsCollection = "inquirySubmissions";
@@ -551,7 +551,7 @@ export function createPlanHomeDraftRepository(
           },
           answers: parsed.answers,
           progress: {
-            currentQuestionId: planHomeQuestions.at(-1)?.id,
+            currentPromptId: "review",
             currentZoneId: "design-desk-and-review",
             completedZoneIds: [...planHomeZoneIds],
           },

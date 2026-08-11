@@ -200,7 +200,7 @@ describe("Plan Your Home persisted schemas", () => {
       },
       answers: completeAnswers(),
       progress: {
-        currentQuestionId: "contact.follow-up",
+        currentPromptId: "review",
         currentZoneId: "design-desk-and-review",
         completedZoneIds: planHomeV1Definition.zones.map((zone) => zone.id),
       },
@@ -248,7 +248,7 @@ describe("Plan Your Home persisted schemas", () => {
       },
       answers: completeAnswers(),
       progress: {
-        currentQuestionId: "contact.follow-up",
+        currentPromptId: "review",
         currentZoneId: "design-desk-and-review",
         completedZoneIds: planHomeV1Definition.zones.map((zone) => zone.id),
       },

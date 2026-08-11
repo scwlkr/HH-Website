@@ -561,7 +561,7 @@ test(
       assert.equal(finalDraft.derived.finishLevel, "builder-grade");
       assert.equal(Object.keys(finalDraft.answers).length, 35);
       assert.deepEqual(finalDraft.progress, {
-        currentQuestionId: "contact.follow-up",
+        currentPromptId: "review",
         currentZoneId: "design-desk-and-review",
         completedZoneIds: [
           "project-and-living",
@@ -573,6 +573,7 @@ test(
           "design-desk-and-review",
         ],
       });
+      assert.equal("currentQuestionId" in finalDraft.progress, false);
       assert.equal(
         finalDraft.contact.preferredFollowUp,
         "email",
@@ -783,7 +784,7 @@ test(
       }
 
       process.stdout.write(
-        `Plan Home emulator evidence: records=${collectionAfterCreate.size}, planHomeDrafts=${planHomeDraftCount}, draftId=${created.draftId}, status=${finalDraft.status}, answerCount=${Object.keys(finalDraft.answers).length}, revision=${finalDraft.revision}, currentPrompt=${finalDraft.progress.currentQuestionId}, completedZones=${finalDraft.progress.completedZoneIds.length}, checkpointKeys=${Object.keys(finalDraft.checkpointIdempotency).length}, consentVersion=${finalDraft.acceptedConsentVersion}, submittedAt=${finalDraft.submittedAt.toDate().toISOString()}, notificationIntents=${finalDraft.notificationIntents.length}, rawSessionStored=false, browserFirestoreDenied=true, browserStorageDenied=true\n`,
+        `Plan Home emulator evidence: records=${collectionAfterCreate.size}, planHomeDrafts=${planHomeDraftCount}, draftId=${created.draftId}, status=${finalDraft.status}, answerCount=${Object.keys(finalDraft.answers).length}, revision=${finalDraft.revision}, currentPrompt=${finalDraft.progress.currentPromptId}, completedZones=${finalDraft.progress.completedZoneIds.length}, checkpointKeys=${Object.keys(finalDraft.checkpointIdempotency).length}, consentVersion=${finalDraft.acceptedConsentVersion}, submittedAt=${finalDraft.submittedAt.toDate().toISOString()}, notificationIntents=${finalDraft.notificationIntents.length}, rawSessionStored=false, browserFirestoreDenied=true, browserStorageDenied=true\n`,
       );
     } finally {
       await deleteAdminApp(adminApp);

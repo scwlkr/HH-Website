@@ -134,7 +134,7 @@ const contactSchema = z
 
 const submittedProgressSchema = z
   .object({
-    currentQuestionId: questionIdSchema,
+    currentPromptId: z.literal("review"),
     currentZoneId: zoneIdSchema,
     completedZoneIds: completedZoneIdsSchema,
   })
