@@ -12,6 +12,7 @@
     "test": "node --import ./tests/dom-setup.mjs --import ./tests/register-css-module-loader.mjs --import tsx --test tests/*.test.mts tests/*.test.tsx",
     "test:plan-home-drafts:emulator": "node --test tests/plan-your-home-draft-emulator.test.mts",
     "test:plan-home-resume:emulator": "node --import tsx --test tests/plan-your-home-resume-emulator.test.mts",
+    "proof:plan-home-resume": "node scripts/plan-home-resume-proof.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "review": "node scripts/review.mjs",

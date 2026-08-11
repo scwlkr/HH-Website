@@ -37,6 +37,9 @@ Set real values in preview and production:
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_STORAGE_BUCKET`
+- `PLAN_HOME_DRAFT_SESSION_SECRET`
+- `PLAN_HOME_RESUME_SECRET`
+- `PLAN_HOME_PUBLIC_ORIGIN`
 - `HH_CONTACT_PHONE_HREF`
 - `HH_CONTACT_PHONE_LABEL`
 - `HH_CONTACT_EMAIL`
@@ -44,6 +47,12 @@ Set real values in preview and production:
 Optional:
 
 - `INQUIRY_NOTIFICATION_EMAIL`
+
+Plan Your Home resume email remains a launch hold until the sending domain is
+verified. Then configure `PLAN_HOME_RESUME_MAIL_TRANSPORT=resend`,
+`PLAN_HOME_RESUME_EMAIL_FROM`, and `RESEND_API_KEY`. Do not use the fake transport
+outside local Firebase emulator proof, and do not change provider or DNS state as
+part of local QA.
 
 Keep secret values out of docs, issues, screenshots, and chat.
 
