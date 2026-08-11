@@ -193,6 +193,10 @@ test(
         ADMIN_INQUIRY_SIGNED_READ_TTL_MS,
       );
       await assert.rejects(
+        repository.issueSignedRead(inquiryId, referenceId, null as never),
+        AdminInquiryAuthorizationError,
+      );
+      await assert.rejects(
         repository.issueSignedRead(
           inquiryId,
           "file-99999999-9999-4999-8999-999999999999",
@@ -200,6 +204,37 @@ test(
         ),
         AdminInquiryReferenceUnavailableError,
       );
+      await bucket.file(objectPath).setMetadata({
+        contentType: "image/png",
+      });
+      await assert.rejects(
+        repository.issueSignedRead(inquiryId, referenceId, actor),
+        AdminInquiryReferenceUnavailableError,
+      );
+      await bucket
+        .file(objectPath)
+        .save(Buffer.concat([privateFileBody, Buffer.from("x")]), {
+          metadata: {
+            contentType: "application/pdf",
+            metadata: {
+              "plan-home-draft": inquiryId,
+              "plan-home-reference": referenceId,
+            },
+          },
+        });
+      await assert.rejects(
+        repository.issueSignedRead(inquiryId, referenceId, actor),
+        AdminInquiryReferenceUnavailableError,
+      );
+      await bucket.file(objectPath).save(privateFileBody, {
+        metadata: {
+          contentType: "application/pdf",
+          metadata: {
+            "plan-home-draft": inquiryId,
+            "plan-home-reference": referenceId,
+          },
+        },
+      });
 
       const storageHost = process.env.FIREBASE_STORAGE_EMULATOR_HOST;
       assert(storageHost);
@@ -244,6 +279,11 @@ test(
         draftId: "unrelated-inquiry",
         status: "active",
       });
+
+      await assert.rejects(
+        repository.deleteInquiry(inquiryId, null as never),
+        AdminInquiryAuthorizationError,
+      );
 
       const interruptedRepository = createAdminInquiryDetailRepository(
         firestore,
