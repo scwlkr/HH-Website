@@ -101,6 +101,26 @@ test(
     const objectlessOrphanReferenceId = `file-${randomUUID()}`;
     const activeObjectlessReferenceId = `file-${randomUUID()}`;
     const liveExpiredReferenceId = `file-${randomUUID()}`;
+    const pagedObjectlessOrphanTickets = Array.from(
+      { length: 105 },
+      (_, index) => {
+        const parentId = draftId(index + 10, "8");
+        const referenceId = `file-objectless-${index.toString().padStart(3, "0")}`;
+        return {
+          parentId,
+          referenceId,
+          path: `inquirySubmissions/${parentId}/referenceUploads/${referenceId}`,
+          value: {
+            draftId: parentId,
+            referenceId,
+            objectPath: `inquiryReferences/${parentId}/already-missing-${index}`,
+            uploadProtection: "generation-bound-v1",
+            objectGeneration: "1",
+            expiresAt: expiredAt,
+          },
+        };
+      },
+    );
 
     try {
       await writeDocuments(firestore, [
@@ -236,6 +256,7 @@ test(
             expiresAt: expiredAt,
           },
         },
+        ...pagedObjectlessOrphanTickets,
         ...Array.from({ length: 405 }, (_, index) => ({
           path: `planHomeResumeTokens/expired-${index.toString().padStart(3, "0")}`,
           value: {
@@ -291,7 +312,7 @@ test(
       assert.equal(first.recordsPending, 1);
       assert.equal(first.resumeTokensDeleted, 405);
       assert.equal(first.orphanObjectsDeleted, 206);
-      assert.equal(first.orphanTicketsDeleted, 2);
+      assert.equal(first.orphanTicketsDeleted, 107);
       assert(first.protectedObjects >= 3);
 
       assert.equal(
@@ -320,6 +341,13 @@ test(
         ).exists,
         true,
       );
+      for (const ticket of [
+        pagedObjectlessOrphanTickets[0],
+        pagedObjectlessOrphanTickets.at(-1),
+      ]) {
+        assert(ticket);
+        assert.equal((await firestore.doc(ticket.path).get()).exists, false);
+      }
       assert.equal(
         (
           await firestore
@@ -423,7 +451,7 @@ test(
       assert.equal(third.orphanObjectsDeleted, 0);
       assert.equal(third.orphanTicketsDeleted, 0);
       process.stdout.write(
-        `Plan Home cleanup evidence: expiredRecordPages=2, recordsDeleted=${first.recordsDeleted + second.recordsDeleted}, pendingTombstoneRetained=true, lateCapabilityRecreationDeleted=true, expiredTokenBatches=2, resumeTokensDeleted=${first.resumeTokensDeleted}, parentPrefixObjectsDeleted=${expiredPrefixObjects.length}, orphanObjectPages=2, orphanObjectsDeleted=${first.orphanObjectsDeleted}, objectlessOrphanTicketDeleted=true, activeOrphanCapabilityPreserved=true, liveParentPreserved=true, unrelatedPreserved=true, idempotent=true\n`,
+        `Plan Home cleanup evidence: expiredRecordPages=2, recordsDeleted=${first.recordsDeleted + second.recordsDeleted}, pendingTombstoneRetained=true, lateCapabilityRecreationDeleted=true, expiredTokenBatches=2, resumeTokensDeleted=${first.resumeTokensDeleted}, parentPrefixObjectsDeleted=${expiredPrefixObjects.length}, orphanTicketPages=2, orphanTicketsDeleted=${first.orphanTicketsDeleted}, orphanObjectPages=2, orphanObjectsDeleted=${first.orphanObjectsDeleted}, objectlessOrphanTicketDeleted=true, activeOrphanCapabilityPreserved=true, liveParentPreserved=true, unrelatedPreserved=true, idempotent=true\n`,
       );
     } finally {
       await firestore.recursiveDelete(firestore.collection("inquirySubmissions"));
