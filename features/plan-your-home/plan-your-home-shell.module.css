@@ -166,6 +166,26 @@
   margin-top: 1rem;
 }
 
+.resumeLink {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.55rem;
+  border-radius: var(--hh-radius-input);
+  color: var(--hh-muted-strong);
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: var(--hh-line-ink);
+  text-underline-offset: 0.22em;
+}
+
+.resumeLink:focus-visible {
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+  outline: none;
+}
+
 .contactGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -210,9 +230,34 @@
 }
 
 .review,
-.confirmation {
+.confirmation,
+.restoreBoundary {
   width: min(100% - 2rem, 68rem);
   margin-inline: auto;
+}
+
+.restoreBoundary {
+  min-height: clamp(32rem, 70svh, 46rem);
+  padding-block: clamp(5rem, 14vw, 10rem);
+}
+
+.restoreBoundary h1 {
+  max-width: 48rem;
+  margin-top: 0.5rem;
+  font-size: clamp(2rem, 6vw, 4.4rem);
+  line-height: 0.98;
+}
+
+.restoreBoundary > p:last-of-type {
+  max-width: 42rem;
+  margin-top: 1rem;
+  color: var(--hh-muted-strong);
+  line-height: 1.65;
+}
+
+.restoreBoundary button {
+  min-height: 2.75rem;
+  margin-top: 1.25rem;
 }
 
 .reviewHeader {

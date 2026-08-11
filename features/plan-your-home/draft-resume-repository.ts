@@ -262,11 +262,8 @@ export function createPlanHomeDraftResumeRepository(
         });
       });
 
-      const resumeUrl = new URL(
-        "/plan-your-home/resume/consume",
-        params.publicOrigin,
-      );
-      resumeUrl.searchParams.set("token", rawToken);
+      const resumeUrl = new URL("/plan-your-home/resume", params.publicOrigin);
+      resumeUrl.hash = new URLSearchParams({ token: rawToken }).toString();
       return { to: email, resumeUrl: resumeUrl.toString(), expiresAt };
     },
 

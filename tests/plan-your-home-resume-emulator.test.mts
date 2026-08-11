@@ -44,7 +44,9 @@ test(
     );
     const firestore = getFirestore(app);
     let currentTime = new Date("2026-08-11T12:00:00.000Z");
-    const rawTokens = ["A", "B", "C", "D"].map((value) => value.repeat(43));
+    const rawTokens = ["A", "B", "C", "D", "E", "F", "G"].map((value) =>
+      value.repeat(43),
+    );
     const tokenQueue = [...rawTokens];
     const draftRepository = createPlanHomeDraftRepository(firestore, {
       now: () => currentTime,
@@ -85,6 +87,13 @@ test(
       };
       const first = await resumeRepository.requestResumeLink(request);
       assert(first);
+      const firstResumeUrl = new URL(first.resumeUrl);
+      assert.equal(firstResumeUrl.pathname, "/plan-your-home/resume");
+      assert.equal(firstResumeUrl.search, "");
+      assert.equal(
+        new URLSearchParams(firstResumeUrl.hash.slice(1)).get("token"),
+        rawTokens[0],
+      );
       assert.equal(
         first.expiresAt.getTime() - currentTime.getTime(),
         PLAN_HOME_RESUME_TOKEN_TTL_MS,
@@ -203,8 +212,41 @@ test(
         1,
       );
 
+      const rateEmail = `rate-${randomUUID()}@example.com`;
+      await draftRepository.createDraft(
+        {
+          idempotencyKey: `local-${randomUUID()}:plan-home-v1:contact-gate`,
+          welcomeName: "Rate Taylor",
+          contact: {
+            email: rateEmail,
+            phone: "+12145550102",
+            manualFollowUpDisclosureAccepted: true,
+          },
+          answers: answersThrough(6),
+          sourcePath: "/plan-your-home",
+        },
+        hashPlanHomeDraftSessionSecret("U".repeat(43)),
+      );
+      const simultaneousRequests = await Promise.all(
+        Array.from({ length: 4 }, () =>
+          resumeRepository.requestResumeLink({
+            email: rateEmail,
+            requesterIdentity: "203.0.113.12",
+            publicOrigin: "http://localhost:3000",
+          }),
+        ),
+      );
+      assert.equal(
+        simultaneousRequests.filter((delivery) => delivery !== null).length,
+        PLAN_HOME_RESUME_RATE_LIMIT,
+      );
+      assert.equal(
+        simultaneousRequests.filter((delivery) => delivery === null).length,
+        1,
+      );
+
       process.stdout.write(
-        `Plan Home resume emulator evidence: draftIds=${created.draftId},${secondDraft.draftId}, rawTokenStored=false, tokenTtlMinutes=15, priorTokenRotated=true, singleUse=true, atomicConcurrentUse=true, sessionRotated=true, genericMissingResult=true, emailRateLimit=${PLAN_HOME_RESUME_RATE_LIMIT}\n`,
+        `Plan Home resume emulator evidence: draftIds=${created.draftId},${secondDraft.draftId}, rawTokenStored=false, tokenTtlMinutes=15, priorTokenRotated=true, singleUse=true, atomicConcurrentUse=true, sessionRotated=true, genericMissingResult=true, concurrentEmailRateLimit=${PLAN_HOME_RESUME_RATE_LIMIT}\n`,
       );
     } finally {
       await deleteApp(app);

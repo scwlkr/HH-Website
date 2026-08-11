@@ -11,6 +11,7 @@ import {
   finalizePlanHomeReferenceUploadAction,
   issuePlanHomeReferenceUploadAction,
   removePlanHomeReferenceAction,
+  restorePlanHomeDraftAction,
   syncPlanHomeReferenceNotesAction,
   submitPlanHomeDraftAction,
 } from "@/app/plan-your-home/actions";
@@ -29,6 +30,7 @@ export default function PlanYourHomePage() {
   return (
     <PlanYourHomeShell
       createDraft={createPlanHomeDraftAction}
+      restoreDraft={restorePlanHomeDraftAction}
       checkpointDraft={checkpointPlanHomeDraftAction}
       issueReferenceUpload={issuePlanHomeReferenceUploadAction}
       finalizeReferenceUpload={finalizePlanHomeReferenceUploadAction}

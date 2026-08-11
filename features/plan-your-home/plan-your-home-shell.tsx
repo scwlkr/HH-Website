@@ -14,6 +14,11 @@ import {
   type PlanHomeClientDraftState,
 } from "@/features/plan-your-home/client-draft-state";
 import {
+  reconcilePlanHomeDraft,
+  safeAnonymousLocalState,
+  type PlanHomeServerBoundary,
+} from "@/features/plan-your-home/draft-resume-contract";
+import {
   EntryScene,
   LivingRoomScene,
   WelcomeExteriorScene,
@@ -124,6 +129,11 @@ export type PlanHomeSubmitAction = (
   input: unknown,
 ) => Promise<PlanHomeSubmitActionState>;
 
+export type PlanHomeRestoreAction = () => Promise<
+  | Readonly<{ status: "success"; result: PlanHomeServerBoundary }>
+  | Readonly<{ status: "no-session" | "unavailable" | "skipped" }>
+>;
+
 export type PlanHomeReferenceAction<Result> = (
   input: unknown,
 ) => Promise<
@@ -147,6 +157,7 @@ export type PlanHomeDirectUploader = (
 
 type PlanYourHomeShellProps = Readonly<{
   createDraft?: PlanHomeDraftAction;
+  restoreDraft?: PlanHomeRestoreAction;
   checkpointDraft?: PlanHomeDraftAction;
   submitDraft?: PlanHomeSubmitAction;
   issueReferenceUpload?: PlanHomeReferenceAction<PlanHomeUploadCapability>;
@@ -173,6 +184,10 @@ const unavailableDraftAction: PlanHomeDraftAction = async () => ({
 const unavailableSubmitAction: PlanHomeSubmitAction = async () => ({
   status: "server-error",
   message: "Your project brief could not be submitted right now.",
+});
+
+const skippedRestoreAction: PlanHomeRestoreAction = async () => ({
+  status: "skipped",
 });
 
 const PROJECT_AND_LIVING_LAST_QUESTION = 11;
@@ -680,6 +695,9 @@ function WelcomeStep({
         <Button className={styles.primaryAction} type="submit">
           Open the front door
         </Button>
+        <a className={styles.resumeLink} href="/plan-your-home/resume">
+          Resume a saved plan
+        </a>
       </form>
     </section>
   );
@@ -1167,8 +1185,33 @@ function PlanHomeConfirmation({ name }: Readonly<{ name: string }>) {
   );
 }
 
+function DraftRestoreBoundary({
+  unavailable,
+  onRetry,
+}: Readonly<{ unavailable: boolean; onRetry: () => void }>) {
+  return (
+    <main className={styles.restoreBoundary} aria-labelledby="draft-restore-title">
+      <p className={styles.eyebrow}>Plan Your Home</p>
+      <h1 id="draft-restore-title" tabIndex={-1}>
+        {unavailable ? "Your saved plan is still protected." : "Checking this browser’s saved plan…"}
+      </h1>
+      <p role="status">
+        {unavailable
+          ? "We could not safely verify the saved boundary right now. Nothing stored in this browser was removed. Try again when the connection is available."
+          : "We’re matching this browser with the latest trusted room checkpoint before opening the tour."}
+      </p>
+      {unavailable ? (
+        <Button type="button" onClick={onRetry}>
+          Try verification again
+        </Button>
+      ) : null}
+    </main>
+  );
+}
+
 export function PlanYourHomeShell({
   createDraft = unavailableDraftAction,
+  restoreDraft = skippedRestoreAction,
   checkpointDraft = unavailableDraftAction,
   submitDraft = unavailableSubmitAction,
   issueReferenceUpload = unavailableReferenceAction,
@@ -1208,6 +1251,10 @@ export function PlanYourHomeShell({
   const [submissionConsentAccepted, setSubmissionConsentAccepted] =
     useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [restoreStatus, setRestoreStatus] = useState<
+    "pending" | "ready" | "unavailable"
+  >(restoreDraft === skippedRestoreAction ? "ready" : "pending");
+  const [restoreAttempt, setRestoreAttempt] = useState(0);
   const [pendingUploads, setPendingUploads] = useState<
     readonly PendingReferenceUpload[]
   >([]);
@@ -1216,11 +1263,66 @@ export function PlanYourHomeShell({
   const designCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+    if (restoreDraft !== skippedRestoreAction) setRestoreStatus("pending");
     const restore = window.setTimeout(() => {
+      void (async () => {
       const localAdapter = createPlanHomeLocalSnapshotAdapter({
         storage: window.localStorage,
       });
-      const restored = localAdapter.load();
+      const clientAdapter = createPlanHomeClientDraftAdapter(window.localStorage);
+      const local = localAdapter.load();
+      const storedClientDraft = clientAdapter.load();
+      const serverRestore = await restoreDraft().catch(
+        () => ({ status: "unavailable" as const }),
+      );
+      if (cancelled) return;
+
+      let restored = local;
+      let nextClientDraft = storedClientDraft;
+      if (serverRestore.status === "success") {
+        const reconciled = reconcilePlanHomeDraft({
+          local,
+          localDraftId: storedClientDraft?.draftId ?? null,
+          localRevision: storedClientDraft?.revision ?? null,
+          boundary: serverRestore.result,
+        });
+        restored = reconciled.state;
+        const canReuseLocalKeys =
+          storedClientDraft?.draftId === serverRestore.result.draftId &&
+          storedClientDraft.revision === serverRestore.result.revision;
+        nextClientDraft = canReuseLocalKeys
+          ? { ...storedClientDraft, revision: serverRestore.result.revision }
+          : {
+              createIdempotencyKey: createIdempotencyKey("contact-gate"),
+              projectAndLivingCheckpointKey: null,
+              kitchenAndDiningCheckpointKey: null,
+              primarySuiteCheckpointKey: null,
+              bedroomsAndSharedBathroomsCheckpointKey: null,
+              utilityAndSystemsCheckpointKey: null,
+              exteriorAndSiteCheckpointKey: null,
+              designDeskCheckpointKey: null,
+              submissionIdempotencyKey: null,
+              draftId: serverRestore.result.draftId,
+              revision: serverRestore.result.revision,
+            } satisfies PlanHomeClientDraftState;
+        localAdapter.save(restored);
+        clientAdapter.save(nextClientDraft);
+      } else if (serverRestore.status === "no-session") {
+        restored = safeAnonymousLocalState(local);
+        nextClientDraft = null;
+        if (restored.contactCheckpoint === null && restored.location.kind === "welcome") {
+          localAdapter.clear();
+        } else {
+          localAdapter.save(restored);
+        }
+        clientAdapter.clear();
+      } else if (serverRestore.status === "unavailable") {
+        setClientDraft(null);
+        setRestoreStatus("unavailable");
+        return;
+      }
+
       if (restored) {
         setTourState(restored);
         setWelcomeName(restored.welcomeName);
@@ -1255,12 +1357,16 @@ export function PlanYourHomeShell({
           });
         }
       }
-
-      setClientDraft(createPlanHomeClientDraftAdapter(window.localStorage).load());
+      setClientDraft(nextClientDraft);
+      setRestoreStatus("ready");
+      })();
     }, 0);
 
-    return () => window.clearTimeout(restore);
-  }, []);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(restore);
+    };
+  }, [restoreAttempt, restoreDraft]);
 
   function saveLocal(state: PlanHomeTourState) {
     createPlanHomeLocalSnapshotAdapter({ storage: window.localStorage }).save(state);
@@ -2000,7 +2106,14 @@ export function PlanYourHomeShell({
     })),
   ];
   let content: ReactNode;
-  if (submitted) {
+  if (restoreStatus !== "ready") {
+    content = (
+      <DraftRestoreBoundary
+        unavailable={restoreStatus === "unavailable"}
+        onRetry={() => setRestoreAttempt((attempt) => attempt + 1)}
+      />
+    );
+  } else if (submitted) {
     content = <PlanHomeConfirmation name={tourState.welcomeName} />;
   } else if (tourState.location.kind === "welcome") {
     content = (

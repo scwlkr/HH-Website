@@ -2,6 +2,10 @@ const adminUploadBodySizeLimit = "4.4mb";
 
 const nextConfig = {
   typedRoutes: true,
+  logging: {
+    // Server Action arguments can contain saved-plan contact details.
+    serverFunctions: false,
+  },
   images: {
     remotePatterns: [
       {

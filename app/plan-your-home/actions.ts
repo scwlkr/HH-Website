@@ -16,8 +16,10 @@ import {
 import {
   checkpointPlanHomeDraft,
   createPlanHomeDraft,
+  readPlanHomeDraftBoundary,
   submitPlanHomeDraft,
 } from "@/lib/db/plan-home-drafts";
+import type { PlanHomeServerBoundary } from "@/features/plan-your-home/draft-resume-contract";
 import {
   getPlanHomeDraftSession,
   issuePlanHomeDraftSession,
@@ -59,6 +61,10 @@ export type PlanHomeSubmitActionState =
       result: PlanHomeSubmissionWriteResult;
     }>
   | Exclude<PlanHomeDraftActionState, { status: "success" }>;
+
+export type PlanHomeRestoreActionState =
+  | Readonly<{ status: "success"; result: PlanHomeServerBoundary }>
+  | Readonly<{ status: "no-session" | "unavailable" }>;
 
 export type PlanHomeReferenceActionState<Result> =
   | Readonly<{ status: "success"; result: Result }>
@@ -209,6 +215,22 @@ export async function checkpointPlanHomeDraftAction(
       status: "server-error",
       message: "Draft saving is temporarily unavailable.",
     };
+  }
+}
+
+export async function restorePlanHomeDraftAction(): Promise<PlanHomeRestoreActionState> {
+  const session = await getPlanHomeDraftSession();
+  if (!session) return { status: "no-session" };
+  try {
+    return {
+      status: "success",
+      result: await readPlanHomeDraftBoundary(
+        session.draftId,
+        session.sessionTokenHash,
+      ),
+    };
+  } catch {
+    return { status: "unavailable" };
   }
 }
 
