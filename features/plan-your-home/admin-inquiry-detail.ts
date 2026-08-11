@@ -565,6 +565,7 @@ function pendingUploadCapabilityUntil(
     existingDeletion.uploadCapabilitiesExpireAt,
   );
   if (existingCutoff !== null) return new Date(existingCutoff);
+  if (readSource(record) !== "plan-your-home") return null;
 
   const expiries: number[] = [];
   const trackedExpiry = timestampMillis(

@@ -418,9 +418,17 @@ test(
         ).exists,
         true,
       );
+      const legacyDeletion = await repository.deleteInquiry(statusId, actor);
+      assert.equal(legacyDeletion.applied, true);
+      assert.equal(
+        (
+          await firestore.collection("inquirySubmissions").doc(statusId).get()
+        ).exists,
+        false,
+      );
 
       process.stdout.write(
-        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=35, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, tokenPages=2, objectPages=2, deletedPrefixObjects=207, unrelatedPreserved=true\n",
+        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=35, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, legacyDeleteImmediate=true, tokenPages=2, objectPages=2, deletedPrefixObjects=207, unrelatedPreserved=true\n",
       );
     } finally {
       await firestore.recursiveDelete(
