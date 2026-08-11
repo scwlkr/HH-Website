@@ -8,7 +8,10 @@ import {
 } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-import { createPlanHomeDraftResumeRepository } from "../features/plan-your-home/draft-resume-repository.ts";
+import {
+  createPlanHomeDraftResumeRepository,
+  PlanHomeResumeUnavailableError,
+} from "../features/plan-your-home/draft-resume-repository.ts";
 import { createPlanHomeDraftRepository } from "../features/plan-your-home/server-draft-repository.ts";
 import { planHomeQuestions } from "../features/plan-your-home/registry.ts";
 import {
@@ -26,6 +29,15 @@ function answersThrough(questionNumber: number) {
     planHomeQuestions
       .slice(0, questionNumber)
       .map((question) => [question.id, question.response.exampleAnswer]),
+  );
+}
+
+async function assertUnavailable(result: Promise<unknown>) {
+  await assert.rejects(
+    result,
+    (error) =>
+      error instanceof PlanHomeResumeUnavailableError &&
+      error.message === "The resume request is unavailable.",
   );
 }
 
@@ -117,9 +129,7 @@ test(
         await firestore.collection("planHomeResumeTokens").doc(firstHash).get()
       ).data();
       assert.equal(rotatedFirst?.status, "rotated");
-      await assert.rejects(
-        resumeRepository.consumeResumeToken(rawTokens[0]),
-      );
+      await assertUnavailable(resumeRepository.consumeResumeToken(rawTokens[0]));
 
       const consumed = await resumeRepository.consumeResumeToken(rawTokens[1]);
       assert.equal(consumed.draftId, created.draftId);
@@ -139,13 +149,14 @@ test(
         JSON.stringify(restoredDraft).includes(consumed.sessionSecret),
         false,
       );
-      await assert.rejects(
-        resumeRepository.consumeResumeToken(rawTokens[1]),
-      );
-      await assert.rejects(
+      await assertUnavailable(resumeRepository.consumeResumeToken(rawTokens[1]));
+      await assertUnavailable(
         resumeRepository.consumeResumeToken(`${rawTokens[1].slice(0, -1)}Z`),
       );
-      await assert.rejects(resumeRepository.consumeResumeToken(null));
+      await assertUnavailable(
+        resumeRepository.consumeResumeToken("M".repeat(43)),
+      );
+      await assertUnavailable(resumeRepository.consumeResumeToken(null));
 
       const expiring = await resumeRepository.requestResumeLink(request);
       assert(expiring);
@@ -154,9 +165,7 @@ test(
       currentTime = new Date(
         currentTime.getTime() + PLAN_HOME_RESUME_TOKEN_TTL_MS,
       );
-      await assert.rejects(
-        resumeRepository.consumeResumeToken(rawTokens[2]),
-      );
+      await assertUnavailable(resumeRepository.consumeResumeToken(rawTokens[2]));
 
       const unknown = await resumeRepository.requestResumeLink({
         ...request,
@@ -211,6 +220,15 @@ test(
         concurrent.filter((result) => result.status === "rejected").length,
         1,
       );
+      const repeatedFailure = concurrent.find(
+        (result) => result.status === "rejected",
+      );
+      assert(
+        repeatedFailure?.status === "rejected" &&
+          repeatedFailure.reason instanceof PlanHomeResumeUnavailableError &&
+          repeatedFailure.reason.message ===
+            "The resume request is unavailable.",
+      );
 
       const rateEmail = `rate-${randomUUID()}@example.com`;
       await draftRepository.createDraft(
@@ -246,7 +264,7 @@ test(
       );
 
       process.stdout.write(
-        `Plan Home resume emulator evidence: draftIds=${created.draftId},${secondDraft.draftId}, rawTokenStored=false, tokenTtlMinutes=15, priorTokenRotated=true, singleUse=true, atomicConcurrentUse=true, sessionRotated=true, genericMissingResult=true, concurrentEmailRateLimit=${PLAN_HOME_RESUME_RATE_LIMIT}\n`,
+        `Plan Home resume emulator evidence: draftIds=${created.draftId},${secondDraft.draftId}, rawTokenStored=false, tokenTtlMinutes=15, priorTokenRotated=true, singleUse=true, atomicConcurrentUse=true, sessionRotated=true, genericTokenFailures=missing-expired-used-tampered-repeated, genericMissingResult=true, concurrentEmailRateLimit=${PLAN_HOME_RESUME_RATE_LIMIT}\n`,
       );
     } finally {
       await deleteApp(app);
