@@ -17,6 +17,12 @@ const inquiryQueueOutputDirectory = path.join(
   "playwright",
   "issue-15",
 );
+const inquiryDetailOutputDirectory = path.join(
+  process.cwd(),
+  "output",
+  "playwright",
+  "issue-16",
+);
 
 const smokeAdmin = {
   email: "firebase-admin-smoke@example.com",
@@ -103,6 +109,14 @@ async function captureInquiryQueue(page, name) {
     animations: "disabled",
     fullPage: true,
     path: path.join(inquiryQueueOutputDirectory, `${name}.png`),
+  });
+}
+
+async function captureInquiryDetail(page, name) {
+  await page.screenshot({
+    animations: "disabled",
+    fullPage: true,
+    path: path.join(inquiryDetailOutputDirectory, `${name}.png`),
   });
 }
 
@@ -314,6 +328,14 @@ async function seedInquiryQueueFixtures(firestore) {
         phone: "+1 214 555 0199",
         projectLocation: fixture.location,
         projectDescription: "Private legacy description for queue smoke proof.",
+        preferredContactMethod: "phone",
+        projectType: "single-family",
+        approxSquareFootage: 2400,
+        finishLevel: "builder-plus",
+        servicesNeeded: ["architectural-design", "building"],
+        lotStatus: "already-owned",
+        timeline: "3-6-months",
+        budgetRange: "500k-1m",
         createdAt: activity,
       });
       continue;
@@ -327,6 +349,8 @@ async function seedInquiryQueueFixtures(firestore) {
         name: fixture.name,
         email: `queue-${fixture.status}@example.com`,
         phone: "+1 214 555 0188",
+        preferredFollowUp: "email",
+        manualFollowUpDisclosureAccepted: true,
       },
       derived: {
         name: fixture.name,
@@ -336,6 +360,8 @@ async function seedInquiryQueueFixtures(firestore) {
         lastActivityAt: activity,
       },
       progress: {
+        currentPromptId:
+          fixture.status === "draft" ? "kitchen.use" : "review",
         currentZoneId:
           fixture.status === "draft"
             ? "kitchen-and-dining"
@@ -354,7 +380,35 @@ async function seedInquiryQueueFixtures(firestore) {
               ],
       },
       answers: { private: `${fixture.status}-answer-must-not-render` },
-      references: [{ storagePath: `private/${fixture.status}.pdf` }],
+      references:
+        fixture.status === "submitted"
+          ? [
+              {
+                id: "file-66666666-6666-4666-8666-666666666666",
+                kind: "file",
+                originalName: "private-direction.pdf",
+                objectPath: `inquiryReferences/${fixture.id}/private-direction`,
+                extension: "pdf",
+                mimeType: "application/pdf",
+                sizeBytes: 24,
+                note: "Private direction reference",
+                createdAt: activity.toISOString(),
+              },
+              {
+                id: "link-77777777-7777-4777-8777-777777777777",
+                kind: "link",
+                url: "https://example.com/inspiration",
+                hostname: "example.com",
+                note: "Exterior direction",
+                createdAt: activity.toISOString(),
+              },
+            ]
+          : [],
+      acceptedConsentVersion:
+        fixture.status === "draft" ? null : "plan-home-inquiry-contact-v1",
+      acceptedConsentAt: fixture.status === "draft" ? null : activity,
+      submittedAt: fixture.status === "draft" ? null : activity,
+      expiresAt: new Date("2028-08-10T15:00:00.000Z"),
       createdAt: activity,
       updatedAt: activity,
     });
@@ -1012,9 +1066,10 @@ async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
   }
 }
 
-async function verifyAdminAuth(browser, baseUrl) {
+async function verifyAdminAuth(browser, baseUrl, firestore) {
   log("Checking Firebase admin login, protected routes, and logout...");
   await mkdir(inquiryQueueOutputDirectory, { recursive: true });
+  await mkdir(inquiryDetailOutputDirectory, { recursive: true });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
   });
@@ -1024,6 +1079,19 @@ async function verifyAdminAuth(browser, baseUrl) {
     browserErrors: [],
     overflow: false,
     unauthorizedRedirect: false,
+  };
+  const detailEvidence = {
+    axeSeriousOrCritical: [],
+    browserErrors: evidence.browserErrors,
+    overflow: false,
+    planHomeQuestionsInOrder: false,
+    legacyReadable: false,
+    safeFileAction: false,
+    safeHttpsLink: false,
+    completeAnswerSummaries: false,
+    reviewedAndSpam: false,
+    deleteCancel: false,
+    deleteComplete: false,
   };
   page.on("pageerror", (error) => evidence.browserErrors.push(error.message));
   page.on("console", (message) => {
@@ -1103,6 +1171,121 @@ async function verifyAdminAuth(browser, baseUrl) {
     await inspectInquiryQueuePage(page, evidence);
     await captureInquiryQueue(page, "phone-all-statuses");
     await page.setViewportSize({ width: 1440, height: 1000 });
+
+    await page.getByRole("link", { name: "Taylor Homeowner" }).click();
+    await page.waitForURL((url) =>
+      url.pathname.startsWith("/admin/inquiries/draft-"),
+    );
+    await page.getByRole("heading", { name: "Taylor Homeowner" }).waitFor();
+    assert(
+      (await page.getByText(/^Question \d+$/).count()) === 35 &&
+        (await page.getByText("Not saved yet").count()) === 0 &&
+        (await page.getByText("Saved answer could not be read.").count()) === 0,
+      "Plan Your Home detail must render all 35 readable answer summaries in tour order.",
+    );
+    detailEvidence.planHomeQuestionsInOrder = true;
+    detailEvidence.completeAnswerSummaries = true;
+    await inspectInquiryQueuePage(page, detailEvidence);
+    await captureInquiryDetail(page, "desktop-plan-home-detail");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await inspectInquiryQueuePage(page, detailEvidence);
+    await captureInquiryDetail(page, "phone-plan-home-detail");
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.getByRole("link", { name: "Back to Inquiries" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries`);
+    await page.getByRole("link", { name: "Queue Legacy Smoke" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries/queue-legacy-smoke`);
+    await page.getByText("Private legacy description for queue smoke proof.").waitFor();
+    detailEvidence.legacyReadable = true;
+    await inspectInquiryQueuePage(page, detailEvidence);
+    await captureInquiryDetail(page, "desktop-legacy-detail");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await inspectInquiryQueuePage(page, detailEvidence);
+    await captureInquiryDetail(page, "phone-legacy-detail");
+
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.getByRole("link", { name: "Back to Inquiries" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries`);
+    await page.getByRole("link", { name: "Queue Submitted Smoke" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries/queue-submitted-smoke`);
+    const privateFileForm = page.locator(
+      'form[action="/admin/inquiries/file"]',
+    );
+    await privateFileForm.waitFor();
+    assert(
+      (await privateFileForm.getAttribute("method"))?.toLowerCase() === "post" &&
+        (await privateFileForm.getAttribute("target")) === "_blank" &&
+        (await page.locator("body").textContent())?.includes(
+          "inquiryReferences/queue-submitted-smoke",
+        ) === false,
+      "Private file action must use an authenticated POST without rendering its object path.",
+    );
+    detailEvidence.safeFileAction = true;
+    const safeLink = page.getByRole("link", { name: "Open example.com" });
+    assert(
+      (await safeLink.getAttribute("href")) ===
+        "https://example.com/inspiration" &&
+        (await safeLink.getAttribute("target")) === "_blank" &&
+        (await safeLink.getAttribute("rel")) === "noopener noreferrer",
+      "HTTPS references must use a safe external-link contract.",
+    );
+    detailEvidence.safeHttpsLink = true;
+    await page.getByRole("button", { name: "Mark Reviewed" }).click();
+    await page.waitForURL(
+      `${baseUrl}/admin/inquiries/queue-submitted-smoke?updated=reviewed`,
+    );
+    await page.getByText("Inquiry marked Reviewed.").waitFor();
+    await page.getByRole("button", { name: "Mark Spam" }).click();
+    await page.waitForURL(
+      `${baseUrl}/admin/inquiries/queue-submitted-smoke?updated=spam`,
+    );
+    await page.getByText("Inquiry marked Spam.").waitFor();
+    detailEvidence.reviewedAndSpam = true;
+
+    await page.getByRole("button", { name: "Delete Inquiry" }).click();
+    const deleteDialog = page.getByRole("dialog", {
+      name: "Delete this inquiry?",
+    });
+    await deleteDialog.waitFor();
+    await deleteDialog.getByRole("button", { name: "Cancel" }).click();
+    assert(
+      (await deleteDialog.count()) === 0 || !(await deleteDialog.isVisible()),
+      "Cancel must close the destructive confirmation without deleting.",
+    );
+    assert(
+      (
+        await firestore
+          .collection("inquirySubmissions")
+          .doc("queue-submitted-smoke")
+          .get()
+      ).exists,
+      "Cancel must preserve the inquiry record.",
+    );
+    detailEvidence.deleteCancel = true;
+
+    await page.getByRole("button", { name: "Delete Inquiry" }).click();
+    await page
+      .getByRole("dialog", { name: "Delete this inquiry?" })
+      .getByRole("button", { name: "Delete Inquiry and Files" })
+      .click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries?deleted=1`);
+    await page
+      .getByText("Inquiry, resume links, and private files were deleted.")
+      .waitFor();
+    assert(
+      !(await firestore
+        .collection("inquirySubmissions")
+        .doc("queue-submitted-smoke")
+        .get()).exists,
+      "Confirmed deletion must remove the inquiry record.",
+    );
+    detailEvidence.deleteComplete = true;
+    await captureInquiryDetail(page, "desktop-return-after-delete");
+    await writeFile(
+      path.join(inquiryDetailOutputDirectory, "summary.json"),
+      `${JSON.stringify(detailEvidence, null, 2)}\n`,
+    );
 
     assert(
       evidence.browserErrors.length === 0,
@@ -1206,6 +1389,15 @@ async function main() {
       log(inquiryQueueTestResult.stdout.trim());
     }
 
+    log("Running focused HHQ inquiry detail emulator tests...");
+    const inquiryDetailTestResult = await runNpmScript({
+      script: "test:admin-inquiry-detail:emulator",
+      env: qaEnv,
+    });
+    if (inquiryDetailTestResult.stdout.trim()) {
+      log(inquiryDetailTestResult.stdout.trim());
+    }
+
     log("Building the production app under smoke-test env...");
     await runNpmScript({
       script: "build",
@@ -1237,7 +1429,7 @@ async function main() {
       nextServer.baseUrl,
       firestore,
     );
-    await verifyAdminAuth(browser, nextServer.baseUrl);
+    await verifyAdminAuth(browser, nextServer.baseUrl, firestore);
 
     log("Starting a second app instance against an unavailable Firestore port...");
     failureServer = await startNextServer({
