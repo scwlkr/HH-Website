@@ -81,7 +81,10 @@ export default function ThankYouPage() {
                 If you need to add or correct a detail, email h and h while your project
                 brief is being reviewed.
               </p>
-              <a href={siteConfig.contact.email.href} className="hh-link block text-base text-foreground">
+              <a
+                href={siteConfig.contact.email.href}
+                className="hh-link hh-touch-target text-base text-foreground"
+              >
                 {siteConfig.contact.email.label}
               </a>
               <p className="text-xs leading-6 text-muted">

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
 import { createRequire } from "node:module";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 
@@ -48,10 +48,22 @@ const evidence = {
   failedRequests: [],
   accessibilityViolations: [],
   inaccessibleControls: [],
+  undersizedTargets: [],
   horizontalOverflow: [],
   layoutShift: [],
   transitionMilliseconds: [],
+  motion: {
+    inRoomContractMilliseconds: 300,
+    roomTransitionContractMilliseconds: 420,
+    roomTransitions: [],
+    reducedMotionCssClampMilliseconds: 0.01,
+    reducedMotionMaximumDelayMilliseconds: 0,
+    reducedMotionSpatialMovement: false,
+    reducedMotionMaximumMilliseconds: 0,
+  },
   keyboard: {},
+  zoom200: {},
+  retainedArtifactAudit: {},
   references: {},
   hq: {},
   generic: {},
@@ -120,9 +132,20 @@ function watchPage(page, label) {
 async function preparePage(page) {
   await page.addInitScript(() => {
     window.__hhLayoutShift = 0;
+    window.__hhLayoutShiftEntries = [];
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!entry.hadRecentInput) window.__hhLayoutShift += entry.value;
+        if (!entry.hadRecentInput) {
+          window.__hhLayoutShift += entry.value;
+          window.__hhLayoutShiftEntries.push({
+            value: entry.value,
+            sources: (entry.sources ?? []).map((source) => ({
+              node: source.node?.outerHTML?.slice(0, 180) ?? "",
+              previousRect: source.previousRect,
+              currentRect: source.currentRect,
+            })),
+          });
+        }
       }
     }).observe({ type: "layout-shift", buffered: true });
   });
@@ -176,13 +199,28 @@ async function pageQuality(page, label) {
         ].some((value) => String(value ?? "").trim().length > 0);
       })
       .map((element) => element.outerHTML.slice(0, 180));
+    const undersizedTargets = controls
+      .map((element) => {
+        const wrappingLabel =
+          "labels" in element
+            ? Array.from(element.labels ?? []).find((label) => label.contains(element))
+            : undefined;
+        const target = wrappingLabel ?? element;
+        const rectangle = target.getBoundingClientRect();
+        return {
+          element: element.outerHTML.slice(0, 140),
+          width: rectangle.width,
+          height: rectangle.height,
+        };
+      })
+      .filter(({ width, height }) => width < 44 || height < 44);
     return {
-      violations: results.violations
-        .filter((violation) => ["serious", "critical"].includes(violation.impact))
-        .map((violation) => violation.id),
+      violations: results.violations.map((violation) => violation.id),
       overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
       missingNames,
+      undersizedTargets,
       layoutShift: window.__hhLayoutShift ?? 0,
+      layoutShiftEntries: window.__hhLayoutShiftEntries ?? [],
     };
   });
   if (quality.violations.length > 0) {
@@ -192,11 +230,18 @@ async function pageQuality(page, label) {
   if (quality.missingNames.length > 0) {
     evidence.inaccessibleControls.push(`${label}: ${quality.missingNames.join(" | ")}`);
   }
+  if (quality.undersizedTargets.length > 0) {
+    evidence.undersizedTargets.push(`${label}: ${JSON.stringify(quality.undersizedTargets)}`);
+  }
   evidence.layoutShift.push({ label, value: quality.layoutShift });
-  assert.deepEqual(quality.violations, [], `${label} has serious or critical axe violations.`);
+  assert.deepEqual(quality.violations, [], `${label} has axe violations.`);
   assert.equal(quality.overflow, false, `${label} has horizontal overflow.`);
   assert.deepEqual(quality.missingNames, [], `${label} has unnamed controls.`);
-  assert(quality.layoutShift <= 0.1, `${label} CLS ${quality.layoutShift} exceeds 0.1.`);
+  assert.deepEqual(quality.undersizedTargets, [], `${label} has a target smaller than 44px.`);
+  assert(
+    quality.layoutShift <= 0.1,
+    `${label} CLS ${quality.layoutShift} exceeds 0.1: ${JSON.stringify(quality.layoutShiftEntries)}`,
+  );
 }
 
 async function waitForSceneReady(page) {
@@ -255,16 +300,14 @@ async function answerRegistryQuestion(page, question) {
   });
   await progress.waitFor();
   await waitForSceneReady(page);
+  await pageQuality(page, `question-${question.number}`);
   const zone = planHomeZones.find((item) => item.id === question.zoneId);
   assert(zone);
   if (!evidence.zonesExercised.includes(zone.id)) evidence.zonesExercised.push(zone.id);
   evidence.questionsExercised.push(question.id);
 
   if (question.number === 32) return;
-  if (question.number === 33) {
-    await activate(page.getByRole("checkbox", { name: "No strong priorities yet" }));
-    return;
-  }
+  if (question.number === 33) return;
 
   if (
     question.response.kind === "grouped" &&
@@ -292,6 +335,65 @@ async function answerRegistryQuestion(page, question) {
   }
 }
 
+const roomTransitionQuestions = new Set([11, 15, 19, 21, 25, 30, 34]);
+
+async function assertRoomTransitionMotion(page, fromQuestion) {
+  const beat = page.locator("[data-tour-beat]").first();
+  await beat.waitFor();
+  const { animations, reducedMotion } = await beat.evaluate((element) => ({
+    animations: element.getAnimations({ subtree: true }).map((animation) => {
+      const effect = animation.effect;
+      const frames = effect && "getKeyframes" in effect ? effect.getKeyframes() : [];
+      const spatialFrames = frames.map((frame) => ({
+        transform: frame.transform ?? "none",
+        translate: frame.translate ?? "none",
+        rotate: frame.rotate ?? "none",
+        scale: frame.scale ?? "none",
+      }));
+      return {
+        duration: Number(effect?.getComputedTiming().duration ?? 0),
+        delay: Number(effect?.getTiming().delay ?? 0),
+        spatialMovement:
+          new Set(spatialFrames.map((frame) => JSON.stringify(frame))).size > 1,
+      };
+    }),
+    reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  }));
+  if (reducedMotion) {
+    assert(
+      animations.every(({ duration }) => duration <= evidence.motion.reducedMotionCssClampMilliseconds),
+      `Reduced-motion room transition after question ${fromQuestion} exceeded the CSS clamp: ${JSON.stringify(animations)}.`,
+    );
+    assert(
+      animations.every(({ delay }) => delay === 0),
+      `Reduced-motion room transition after question ${fromQuestion} retained a delay: ${JSON.stringify(animations)}.`,
+    );
+    assert(
+      animations.every(({ spatialMovement }) => !spatialMovement),
+      `Reduced-motion room transition after question ${fromQuestion} retained spatial movement: ${JSON.stringify(animations)}.`,
+    );
+    evidence.motion.roomTransitions.push({
+      from: fromQuestion,
+      duration: 0,
+      cssClampMaximum: Math.max(0, ...animations.map(({ duration }) => duration)),
+      delay: 0,
+      spatialMovement: false,
+      reducedMotion: true,
+    });
+    return;
+  }
+  const durations = animations
+    .map(({ duration }) => duration)
+    .filter((duration) => Number.isFinite(duration) && duration > 0);
+  const contractDuration = durations.find((duration) => duration >= 300 && duration <= 450);
+  assert(
+    contractDuration,
+    `Room transition after question ${fromQuestion} did not expose a 300-450ms animation.`,
+  );
+  assert.equal(contractDuration, evidence.motion.roomTransitionContractMilliseconds);
+  evidence.motion.roomTransitions.push({ from: fromQuestion, duration: contractDuration, reducedMotion: false });
+}
+
 async function advanceQuestion(page, question) {
   const label =
     question.number === 35
@@ -299,6 +401,14 @@ async function advanceQuestion(page, question) {
       : [11, 15, 19, 21, 25, 30, 34].includes(question.number)
         ? "Save room"
         : "Next";
+  const stage = page.locator("[data-transition-state]");
+  if ((await stage.count()) > 0) {
+    const [exitMilliseconds, enterMilliseconds] = await Promise.all([
+      stage.getAttribute("data-in-room-exit-ms"),
+      stage.getAttribute("data-in-room-enter-ms"),
+    ]);
+    assert.equal(Number(exitMilliseconds) + Number(enterMilliseconds), 300);
+  }
   const startedAt = Date.now();
   await page.getByRole("button", { name: label, exact: true }).click();
   const boundaryButtons = {
@@ -310,12 +420,19 @@ async function advanceQuestion(page, question) {
   };
   const boundaryButton = boundaryButtons[question.number];
   if (boundaryButton) {
-    await page.getByRole("button", { name: boundaryButton }).click();
+    const button = page.getByRole("button", { name: boundaryButton });
+    await button.waitFor();
+    await assertRoomTransitionMotion(page, question.number);
+    await button.click();
   }
   const nextQuestion = planHomeQuestions[question.number];
   if (nextQuestion) {
     await page.getByRole("heading", { name: nextQuestion.prompt }).waitFor();
+    if (roomTransitionQuestions.has(question.number) && !boundaryButton) {
+      await assertRoomTransitionMotion(page, question.number);
+    }
     await waitForSceneReady(page);
+    await page.locator('[data-transition-state="idle"]').waitFor();
   } else {
     await page
       .getByRole("heading", { name: "One walkthrough, ready for a real conversation." })
@@ -430,14 +547,19 @@ async function requestResumeInSeparateContext(browser, baseUrl) {
   );
   await capture(restoredPage, "desktop-resume-separate-context");
   assert.equal(serverLogs.includes(rawToken), false, "Raw resume token reached server logs.");
-  return { context: restoredContext, page: restoredPage };
+  return { context: restoredContext, page: restoredPage, rawToken };
 }
 
 async function addReferences(page) {
   const fileInput = page.locator('input[type="file"]');
   const pdf = Buffer.from("%PDF-1.7\nIssue 18 private plan reference");
   const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
-  await fileInput.setInputFiles({
+  const fileInputTabs = await tabTo(page, fileInput);
+  const [fileChooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    page.keyboard.press("Enter"),
+  ]);
+  await fileChooser.setFiles({
     name: "brief.pdf",
     mimeType: "application/pdf",
     buffer: pdf,
@@ -473,6 +595,11 @@ async function addReferences(page) {
     notes: 3,
     removedAndReplaced: true,
   };
+  evidence.keyboard.mainFlow = {
+    ...(evidence.keyboard.mainFlow ?? {}),
+    fileInputActivated: true,
+    fileInputTabs,
+  };
 }
 
 async function tabTo(page, locator, limit = 60) {
@@ -507,16 +634,114 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
   assert.equal(await checkbox.isChecked(), true);
   const next = page.getByRole("button", { name: "Next", exact: true });
   const nextTabs = await tabTo(page, next);
+  const navigationStartedAt = Date.now();
   await page.keyboard.press("Enter");
   await page.getByRole("heading", { name: planHomeQuestions[1].prompt }).waitFor();
+  const navigationMilliseconds = Date.now() - navigationStartedAt;
+  assert(navigationMilliseconds < 100, `Reduced-motion navigation took ${navigationMilliseconds}ms.`);
+  const cameraMotion = await page.locator("[data-camera-key]").evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      animationDuration: style.animationDuration,
+      transitionDuration: style.transitionDuration,
+      runningAnimations: element.getAnimations().length,
+    };
+  });
+  assert.equal(cameraMotion.animationDuration, "0s");
+  assert.equal(cameraMotion.transitionDuration, "0s");
+  assert.equal(cameraMotion.runningAnimations, 0);
+  evidence.motion.reducedMotionMaximumMilliseconds = Math.max(
+    evidence.motion.reducedMotionMaximumMilliseconds,
+    navigationMilliseconds,
+  );
+  const lotStatus = page.locator('input[value="own-it"]');
+  const lotTabs = await tabTo(page, lotStatus);
+  await page.keyboard.press("Space");
+  const location = page.getByLabel("City, county, address, or target area");
+  const locationTabs = await tabTo(page, location);
+  await page.keyboard.type("Keyboard County");
+  const back = page.getByRole("button", { name: "Back", exact: true });
+  const backTabs = await tabTo(page, back);
+  await page.keyboard.press("Enter");
+  await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
+  assert.equal(await radio.isChecked(), true);
+  const retainedNextTabs = await tabTo(page, next);
+  await page.keyboard.press("Enter");
+  await page.getByRole("heading", { name: planHomeQuestions[1].prompt }).waitFor();
+  assert.equal(await location.inputValue(), "Keyboard County");
   await page.keyboard.press("Shift+Tab");
   assert.notEqual(await page.evaluate(() => document.activeElement === document.body), true);
   await capture(page, `${name}-keyboard-reduced-motion`);
   evidence.keyboard[name] = {
     reducedMotion: true,
-    questionsCompleted: 1,
+    questionsCompleted: 2,
+    radio: true,
+    checkbox: true,
+    text: true,
+    backAndRetain: true,
     noTrap: true,
-    tabCounts: [nameTabs, openTabs, radioTabs, checkboxTabs, nextTabs],
+    tabCounts: [
+      nameTabs,
+      openTabs,
+      radioTabs,
+      checkboxTabs,
+      nextTabs,
+      lotTabs,
+      locationTabs,
+      backTabs,
+      retainedNextTabs,
+    ],
+  };
+  await context.close();
+}
+
+async function assignPrioritiesByKeyboard(page) {
+  const selects = page.getByRole("combobox");
+  const first = selects.nth(0);
+  const firstTabs = await tabTo(page, first);
+  await page.keyboard.press("m");
+  await page.waitForFunction(
+    (element) => element.value === "must-have",
+    await first.elementHandle(),
+  );
+  assert.equal(await first.inputValue(), "must-have");
+  const second = selects.nth(1);
+  const secondTabs = await tabTo(page, second);
+  await page.keyboard.press("n");
+  await page.waitForFunction(
+    (element) => element.value === "nice-to-have",
+    await second.elementHandle(),
+  );
+  assert.equal(await second.inputValue(), "nice-to-have");
+  evidence.keyboard.mainFlow = {
+    ...(evidence.keyboard.mainFlow ?? {}),
+    priorityMenus: ["must-have", "nice-to-have"],
+    priorityTabs: [firstTabs, secondTabs],
+  };
+}
+
+async function proveDesktopZoom(browser, baseUrl) {
+  const context = await browser.newContext({
+    viewport: { width: 720, height: 500 },
+    deviceScaleFactor: 2,
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
+  watchPage(page, "desktop-200-percent-zoom");
+  await preparePage(page);
+  await page.goto(`${baseUrl}/plan-your-home`, { waitUntil: "networkidle" });
+  await page.getByLabel("Your name").fill("Zoom Proof");
+  await page.getByRole("button", { name: "Open the front door" }).click();
+  await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
+  await waitForSceneReady(page);
+  assert(await page.locator('input[value="fully-custom"]').isVisible());
+  assert(await page.getByRole("button", { name: "Next", exact: true }).isVisible());
+  await capture(page, "desktop-200-percent-zoom-equivalent");
+  evidence.zoom200 = {
+    cssViewport: { width: 720, height: 500 },
+    deviceScaleFactor: 2,
+    equivalentDesktopPixels: { width: 1440, height: 1000 },
+    contentAndControlsPreserved: true,
   };
   await context.close();
 }
@@ -527,7 +752,7 @@ async function fillGenericInquiry(page) {
   await page.locator('input[name="name"]').fill("Issue 18 Commercial Proof");
   await page.locator('input[name="phone"]').fill("(512) 555-0118");
   await page.locator('input[name="email"]').fill("issue-18-commercial@example.invalid");
-  await page.locator('input[name="preferredContactMethod"][value="email"]').check({ force: true });
+  await activate(page.locator('input[name="preferredContactMethod"][value="email"]'));
   await continueButton.evaluate((button) => button.click());
   await page.locator('select[name="projectType"]').waitFor();
 
@@ -662,6 +887,53 @@ async function writeReport() {
   );
 }
 
+async function auditRetainedArtifacts(rawResumeToken) {
+  const summaryPath = path.join(outputDirectory, "summary.json");
+  const reportPath = path.join(outputDirectory, "report.html");
+  const tracePaths = [
+    path.join(outputDirectory, "trace-before-resume.zip"),
+    path.join(outputDirectory, "trace.zip"),
+  ];
+  const textArtifacts = [
+    serverLogs,
+    await readFile(summaryPath, "utf8"),
+    await readFile(reportPath, "utf8"),
+    ...tracePaths.map((tracePath) =>
+      execFileSync(
+        "unzip",
+        ["-p", tracePath, "trace.trace", "trace.network"],
+        {
+          encoding: "utf8",
+          maxBuffer: 64 * 1024 * 1024,
+        },
+      ).replace(/page@[a-f0-9]+-\d+\.jpe?g/gi, ""),
+    ),
+  ];
+  const emailPattern = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+  const emails = new Set(
+    textArtifacts.flatMap((artifact) => artifact.match(emailPattern) ?? []),
+  );
+  const unexpectedPrivateEmails = [...emails].filter((email) => {
+    const normalized = email.toLowerCase();
+    return normalized !== "hello@howethandharp.com" && !normalized.endsWith(".invalid");
+  });
+  assert.deepEqual(
+    unexpectedPrivateEmails,
+    [],
+    "Retained proof contains a non-public email outside the reserved .invalid fixture domain.",
+  );
+  assert(
+    textArtifacts.every((artifact) => !artifact.includes(rawResumeToken)),
+    "Raw resume token reached a retained artifact or server log.",
+  );
+  evidence.retainedArtifactAudit = {
+    traceCount: tracePaths.length,
+    reservedFixtureEmailsOnly: true,
+    publicContactAllowlisted: true,
+    rawResumeTokenAbsent: true,
+  };
+}
+
 async function main() {
   const projectId =
     process.env.GCLOUD_PROJECT ??
@@ -710,6 +982,7 @@ async function main() {
   server.stderr.on("data", (chunk) => (serverLogs += chunk.toString()));
   let browser;
   let mainContext;
+  let rawResumeToken;
 
   try {
     await waitForServer(baseUrl, server);
@@ -744,6 +1017,9 @@ async function main() {
         await addReferences(page);
         await capture(page, "phone-references-remove-replace");
         evidence.tenSteps[6] = true;
+      }
+      if (question.number === 33) {
+        await assignPrioritiesByKeyboard(page);
       }
       if (question.number === 8) {
         await advanceQuestion(page, question);
@@ -780,6 +1056,7 @@ async function main() {
         const resumed = await requestResumeInSeparateContext(browser, baseUrl);
         mainContext = resumed.context;
         page = resumed.page;
+        rawResumeToken = resumed.rawToken;
         evidence.tenSteps[5] = true;
         await page.setViewportSize(viewports.phone);
       }
@@ -789,13 +1066,24 @@ async function main() {
     assert.equal(new Set(evidence.questionsExercised).size, 35);
     assert.deepEqual(evidence.zonesExercised, planHomeZones.map((zone) => zone.id));
     evidence.tenSteps[2] = true;
+    proofStage = "review edit and submission";
     await capture(page, "phone-complete-review");
     const retainedFollowUp = page.getByText("Email", { exact: true }).last();
     assert(await retainedFollowUp.isVisible());
-    await page.getByRole("button", { name: "Edit Entry, Project Frame, and Living Room" }).click();
+    const editButton = page.getByRole("button", {
+      name: "Edit Entry, Project Frame, and Living Room",
+    });
+    const editTabs = await tabTo(page, editButton);
+    await page.keyboard.press("Enter");
     await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
-    await activate(page.locator('input[value="adapt-existing-plan"]'));
-    await page.getByRole("button", { name: "Next", exact: true }).click();
+    const currentAnswer = page.locator('input[value="fully-custom"]');
+    const editedAnswer = page.locator('input[value="adapt-existing-plan"]');
+    const editedAnswerTabs = await tabTo(page, currentAnswer);
+    await page.keyboard.press("ArrowDown");
+    assert.equal(await editedAnswer.isChecked(), true);
+    const editNext = page.getByRole("button", { name: "Next", exact: true });
+    const editNextTabs = await tabTo(page, editNext);
+    await page.keyboard.press("Enter");
     await page
       .getByRole("heading", { name: "One walkthrough, ready for a real conversation." })
       .waitFor();
@@ -804,8 +1092,12 @@ async function main() {
     evidence.tenSteps[7] = true;
     await page.setViewportSize(viewports.desktop);
     await capture(page, "desktop-review-after-early-edit");
-    await activate(page.getByRole("checkbox", { name: /I am submitting an inquiry/ }));
-    await page.getByRole("button", { name: "Submit project brief" }).click();
+    const consent = page.getByRole("checkbox", { name: /I am submitting an inquiry/ });
+    const consentTabs = await tabTo(page, consent);
+    await page.keyboard.press("Space");
+    const submit = page.getByRole("button", { name: "Submit project brief" });
+    const submitTabs = await tabTo(page, submit);
+    await page.keyboard.press("Enter");
     await page.getByRole("heading", { name: `Thank you, ${visitor.name}.` }).waitFor();
     assert.equal(await page.getByRole("button", { name: "Submit project brief" }).count(), 0);
     await capture(page, "desktop-single-submit-confirmation");
@@ -816,26 +1108,41 @@ async function main() {
     assert.equal(submitted.data.status, "submitted");
     assert.equal(submitted.data.references.length, 3);
     evidence.tenSteps[8] = true;
+    evidence.keyboard.mainFlow = {
+      ...(evidence.keyboard.mainFlow ?? {}),
+      reviewEditReturn: true,
+      consentAndSubmit: true,
+      reviewTabs: [editTabs, editedAnswerTabs, editNextTabs, consentTabs, submitTabs],
+    };
     assert(draftId);
 
+    proofStage = "keyboard and reduced motion";
     await keyboardProof(browser, baseUrl, "phone", viewports.phone);
     await keyboardProof(browser, baseUrl, "desktop", viewports.desktop);
+    proofStage = "200 percent zoom";
+    await proveDesktopZoom(browser, baseUrl);
     evidence.tenSteps[9] = true;
     proofStage = "generic commercial inquiry";
     await proveGeneric(browser, baseUrl, firestore);
     evidence.tenSteps[10] = true;
+    proofStage = "HHQ submitted inquiry";
     await inspectAndDeleteHq(browser, baseUrl, firestore, bucket, draftId);
 
     assert.deepEqual(evidence.browserErrors, []);
     assert.deepEqual(evidence.failedRequests, []);
     assert.deepEqual(evidence.accessibilityViolations, []);
     assert.deepEqual(evidence.inaccessibleControls, []);
+    assert.deepEqual(evidence.undersizedTargets, []);
     assert.deepEqual(evidence.horizontalOverflow, []);
     assert(Object.values(evidence.tenSteps).every(Boolean));
+    assert(rawResumeToken);
     await mainContext.tracing.stop({ path: path.join(outputDirectory, "trace.zip") });
     await writeReport();
+    proofStage = "retained artifact audit";
+    await auditRetainedArtifacts(rawResumeToken);
+    await writeReport();
     log(
-      `Plan Home final proof passed: steps=10/10, questions=35, zones=7, screenshots=${evidence.screenshots.length}, browserErrors=0, failedRequests=0, axeSeriousOrCritical=0, overflow=0, trace=output/playwright/issue-18/final/trace.zip`,
+      `Plan Home final proof passed: steps=10/10, questions=35, zones=7, screenshots=${evidence.screenshots.length}, browserErrors=0, failedRequests=0, axeFindings=0, undersizedTargets=0, overflow=0, trace=output/playwright/issue-18/final/trace.zip`,
     );
   } catch (error) {
     if (mainContext) {

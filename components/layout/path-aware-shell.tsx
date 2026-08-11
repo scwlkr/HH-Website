@@ -16,6 +16,7 @@ export function PathAwareShell({
 }: PathAwareShellProps) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
+  const isPlanHomeTour = pathname === "/plan-your-home";
 
   return (
     <>
@@ -40,7 +41,7 @@ export function PathAwareShell({
         >
           {children}
         </main>
-        {!isAdminRoute ? footer : null}
+        {!isAdminRoute && !isPlanHomeTour ? footer : null}
       </div>
     </>
   );

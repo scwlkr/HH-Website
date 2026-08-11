@@ -44,9 +44,11 @@ pinned Firebase emulator suite:
 
 The proof exercises all 35 questions, refresh/resume, the fake local email,
 private references, review editing, submission, HHQ actions/deletion,
-keyboard-only reduced-motion paths at phone and desktop widths, and a commercial
-generic inquiry. It retains its sanitized report, summary, screenshots, and
-traces under `output/playwright/issue-18/final/`.
+representative keyboard-only reduced-motion controls at phone and desktop
+widths, 200%-equivalent reflow, and a commercial generic inquiry. It retains its
+report, summary, screenshots, and traces under
+`output/playwright/issue-18/final/` and audits them for unexpected private email
+addresses or a raw resume token before passing.
 
 Run `npm run proof:plan-home-scene-budget` after changing a scene. Each lazy
 scene group is limited to 24 KiB of compressed JavaScript and CSS, and every
@@ -90,8 +92,11 @@ PLAN_HOME_PUBLIC_ORIGIN=http://localhost:3000
 
 The fake mailbox is unavailable in production, retains messages only in the
 running process, and removes a captured link when the local proof endpoint reads
-it. Never print a resume link, email address, or raw token to terminal output or
-retain one in screenshots.
+it. Never print or retain a real/customer email address, resume link, or raw
+token. Durable local QA may retain generated identities only under the
+RFC-reserved `.invalid` domain; the final proof allowlists those fixtures and the
+site's public contact address, and rejects any other email-like string or its raw
+resume token in server logs, reports, and traces.
 
 Production delivery is deliberately unconfigured. After h and h provides a
 verified sending domain and API key, set `PLAN_HOME_RESUME_MAIL_TRANSPORT=resend`,

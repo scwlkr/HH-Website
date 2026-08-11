@@ -2027,6 +2027,7 @@ export function PlanYourHomeShell({
     createPlanHomeClientDraftAdapter(window.localStorage).save(identifiedDraft);
     setClientDraft(identifiedDraft);
     setFormError(null);
+    window.scrollTo({ top: 0, behavior: "auto" });
     commitState(completed.state);
     trackPlanHomeEvent("contact_checkpoint_saved", { prompt_index: 6 });
   }

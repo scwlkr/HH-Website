@@ -151,6 +151,8 @@ export function SceneStage({
       data-reduced-motion={prefersReducedMotion}
       data-transition-direction={direction}
       data-transition-state={phase}
+      data-in-room-exit-ms={EXIT_DURATION_MS}
+      data-in-room-enter-ms={ENTER_DURATION_MS}
       aria-busy={isTransitioning}
     >
       <div className={styles.stageRail}>
