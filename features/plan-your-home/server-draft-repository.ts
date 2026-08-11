@@ -132,6 +132,22 @@ function requestHash(value: unknown) {
   return sha256(stableStringify(value));
 }
 
+function hasEveryCanonicalCheckpoint(
+  checkpoints: Readonly<Record<string, StoredIdempotencyResult>>,
+) {
+  const checkpointProgress = Object.values(checkpoints).map(
+    ({ progress }) => progress,
+  );
+
+  return planHomeZoneIds.every((zoneId) => {
+    const requiredProgress = createCompletedZoneProgress(zoneId);
+    const requiredFingerprint = stableStringify(requiredProgress);
+    return checkpointProgress.some(
+      (progress) => stableStringify(progress) === requiredFingerprint,
+    );
+  });
+}
+
 function draftIdForIdempotencyKey(idempotencyKey: string) {
   return `draft-${sha256(`plan-home-create:${idempotencyKey}`).slice(0, 40)}`;
 }
@@ -518,7 +534,8 @@ export function createPlanHomeDraftRepository(
           existing.progress.completedZoneIds.length !== planHomeZoneIds.length ||
           existing.progress.completedZoneIds.some(
             (zoneId, index) => zoneId !== planHomeZoneIds[index],
-          )
+          ) ||
+          !hasEveryCanonicalCheckpoint(existing.checkpointIdempotency)
         ) {
           throw new PlanHomeDraftConflictError(
             "All seven saved room checkpoints are required before submission.",

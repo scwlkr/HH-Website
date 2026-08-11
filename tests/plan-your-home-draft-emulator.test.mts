@@ -523,6 +523,29 @@ test(
         ),
       );
 
+      const completedDraftReference = firestore
+        .collection("inquirySubmissions")
+        .doc(created.draftId);
+      const completedDraft = (await completedDraftReference.get()).data();
+      assert(completedDraft, "The completed draft must exist before submission.");
+      const completeCheckpointIdempotency = completedDraft.checkpointIdempotency;
+      const checkpointKeys = Object.keys(completeCheckpointIdempotency);
+      assert.equal(checkpointKeys.length, 7);
+      const incompleteCheckpointIdempotency = {
+        ...completeCheckpointIdempotency,
+      };
+      delete incompleteCheckpointIdempotency[checkpointKeys[0]!];
+      await completedDraftReference.update({
+        checkpointIdempotency: incompleteCheckpointIdempotency,
+      });
+      await assert.rejects(
+        repository.submitDraft(submissionInput, sessionTokenHash),
+        PlanHomeDraftConflictError,
+      );
+      await completedDraftReference.update({
+        checkpointIdempotency: completeCheckpointIdempotency,
+      });
+
       const submitted = await repository.submitDraft(
         submissionInput,
         sessionTokenHash,
