@@ -799,7 +799,7 @@ async function verifyResponsiveLayouts(browser, baseUrl) {
       await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle" });
 
       assert(
-        await page.locator("header").isVisible(),
+        await page.getByRole("banner").first().isVisible(),
         `Expected header to be visible for ${route} at ${viewportTest.name}.`,
       );
       assert(
