@@ -10,7 +10,10 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 
 import { createPlanHomeReferenceRepository } from "../features/plan-your-home/reference-repository.ts";
-import { PlanHomeReferenceValidationError } from "../features/plan-your-home/reference-upload-contract.ts";
+import {
+  PlanHomeReferenceValidationError,
+  type PlanHomeUploadCapability,
+} from "../features/plan-your-home/reference-upload-contract.ts";
 import {
   createPlanHomeDraftRepository,
   PlanHomeDraftConflictError,
@@ -30,6 +33,12 @@ function answersThrough(questionNumber: number) {
       structuredClone(question.response.exampleAnswer),
     ]),
   );
+}
+
+function reservedGeneration(capability: PlanHomeUploadCapability) {
+  const generation = capability.headers["x-goog-if-generation-match"];
+  assert.match(generation ?? "", /^\d+$/);
+  return generation;
 }
 
 test(
@@ -92,7 +101,15 @@ test(
         signed[0]?.headers["x-goog-meta-plan-home-draft"],
         created.draftId,
       );
+      assert.equal(
+        capability.headers["x-goog-content-length-range"],
+        `${pdfBody.byteLength},${pdfBody.byteLength}`,
+      );
       await bucket.file(capability.objectPath).save(pdfBody, {
+        resumable: false,
+        preconditionOpts: {
+          ifGenerationMatch: reservedGeneration(capability),
+        },
         metadata: {
           contentType: "application/pdf",
           metadata: {
@@ -118,11 +135,10 @@ test(
       assert.equal(storedAfterFinalize?.references.length, 1);
       assert.equal(storedAfterFinalize?.references[0].objectPath, capability.objectPath);
       assert.equal(storedAfterFinalize?.references[0].downloadToken, undefined);
+      assert.equal(storedAfterFinalize?.referenceUploadProtectionVersion, 1);
       assert.equal(
-        storedAfterFinalize?.referenceUploadCapabilityExpiresAt
-          .toDate()
-          .toISOString(),
-        capability.expiresAt,
+        storedAfterFinalize?.legacyUnboundUploadCapabilitiesExpireAt,
+        undefined,
       );
       await assert.rejects(
         repository.removeReference(
@@ -159,6 +175,10 @@ test(
         sessionHash,
       );
       await bucket.file(imageCapability.objectPath).save(imageBody, {
+        resumable: false,
+        preconditionOpts: {
+          ifGenerationMatch: reservedGeneration(imageCapability),
+        },
         metadata: {
           contentType: "image/png",
           metadata: {
@@ -197,6 +217,10 @@ test(
         sessionHash,
       );
       await bucket.file(mismatch.objectPath).save(mismatchBody, {
+        resumable: false,
+        preconditionOpts: {
+          ifGenerationMatch: reservedGeneration(mismatch),
+        },
         metadata: {
           contentType: "image/png",
           metadata: {
@@ -282,6 +306,10 @@ test(
         sessionHash,
       );
       await bucket.file(orphan.objectPath).save(orphanBody, {
+        resumable: false,
+        preconditionOpts: {
+          ifGenerationMatch: reservedGeneration(orphan),
+        },
         metadata: {
           contentType: "image/jpeg",
           metadata: {

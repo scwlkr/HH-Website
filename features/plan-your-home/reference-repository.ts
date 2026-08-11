@@ -39,7 +39,8 @@ type StoredDraft = Readonly<{
   expiresAt: unknown;
   draftSession: Readonly<{ tokenHash: string }>;
   references: readonly PlanHomeReferenceMetadata[];
-  referenceUploadCapabilityExpiresAt?: unknown;
+  referenceUploadProtectionVersion?: unknown;
+  legacyUnboundUploadCapabilitiesExpireAt?: unknown;
 }>;
 
 type StoredUploadTicket = Readonly<{
@@ -308,9 +309,6 @@ export function createPlanHomeReferenceRepository(
           .map((document) => document.data() as StoredUploadTicket)
           .filter((ticket) => toMillis(ticket.expiresAt) > issuedAt.getTime());
         assertReferenceCapacity(draft.references, activeTickets, parsed);
-        const previousCapabilityExpiry = toMillis(
-          draft.referenceUploadCapabilityExpiresAt,
-        );
         transaction.create(ticketReference, {
           draftId: parsed.draftId,
           referenceId,
@@ -319,29 +317,73 @@ export function createPlanHomeReferenceRepository(
           extension: parsed.extension,
           mimeType: parsed.mimeType,
           sizeBytes: parsed.sizeBytes,
+          uploadProtection: "reserving-generation-v1",
           issuedRevision: parsed.expectedRevision,
           createdAt: issuedAt,
           expiresAt,
         });
+        const previousLegacyExpiry = toMillis(
+          draft.legacyUnboundUploadCapabilitiesExpireAt,
+        );
         transaction.update(draftReference, {
-          referenceUploadCapabilityExpiresAt: new Date(
-            Math.max(
-              Number.isFinite(previousCapabilityExpiry)
-                ? previousCapabilityExpiry
-                : 0,
-              expiresAt.getTime(),
-            ),
-          ),
+          referenceUploadProtectionVersion: 1,
+          ...(draft.referenceUploadProtectionVersion === 1
+            ? {}
+            : {
+                legacyUnboundUploadCapabilitiesExpireAt: new Date(
+                  Math.max(
+                    Number.isFinite(previousLegacyExpiry)
+                      ? previousLegacyExpiry
+                      : 0,
+                    expiresAt.getTime(),
+                  ),
+                ),
+              }),
         });
       });
 
-      const headers = {
-        "content-type": parsed.mimeType,
-        "x-goog-meta-plan-home-draft": parsed.draftId,
-        "x-goog-meta-plan-home-reference": referenceId,
-      };
-
+      const object = bucket.file(objectPath);
       try {
+        await object.save(Buffer.alloc(0), {
+          resumable: false,
+          preconditionOpts: { ifGenerationMatch: 0 },
+          metadata: {
+            contentType: parsed.mimeType,
+            metadata: {
+              "plan-home-draft": parsed.draftId,
+              "plan-home-reference": referenceId,
+            },
+          },
+        });
+        const [reservationMetadata] = await object.getMetadata();
+        const generation = reservationMetadata.generation;
+        if (typeof generation !== "string" || !/^\d+$/.test(generation)) {
+          throw new Error("The private upload target could not be reserved.");
+        }
+        await database.runTransaction(async (transaction) => {
+          const [draftSnapshot, ticketSnapshot] = await Promise.all([
+            transaction.get(draftReference),
+            transaction.get(ticketReference),
+          ]);
+          if (!draftSnapshot.exists || !ticketSnapshot.exists) {
+            throw new PlanHomeDraftConflictError(
+              "The private upload target is no longer available.",
+            );
+          }
+          const currentDraft = readDraft(draftSnapshot.data());
+          assertAuthorized(currentDraft, sessionTokenHash, now());
+          transaction.update(ticketReference, {
+            uploadProtection: "generation-bound-v1",
+            objectGeneration: generation,
+          });
+        });
+        const headers = {
+          "content-type": parsed.mimeType,
+          "x-goog-content-length-range": `${parsed.sizeBytes},${parsed.sizeBytes}`,
+          "x-goog-if-generation-match": generation,
+          "x-goog-meta-plan-home-draft": parsed.draftId,
+          "x-goog-meta-plan-home-reference": referenceId,
+        };
         const uploadUrl = await signUpload(objectPath, {
           expiresAt,
           mimeType: parsed.mimeType,
@@ -357,6 +399,7 @@ export function createPlanHomeReferenceRepository(
           expiresAt: expiresAt.toISOString(),
         };
       } catch (error) {
+        await deleteObjectIfPresent(bucket, objectPath).catch(() => undefined);
         await ticketReference.delete().catch(() => undefined);
         throw error;
       }

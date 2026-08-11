@@ -36,6 +36,7 @@ type StoredPlanHomeDraft = Readonly<{
   answers: PlanHomeAnswerMap;
   progress: PlanHomeDraftProgress;
   references: readonly PlanHomeReferenceMetadata[];
+  referenceUploadProtectionVersion: 1;
   source: Readonly<{
     path: string;
     attribution: Readonly<Record<string, never>>;
@@ -349,6 +350,7 @@ export function createPlanHomeDraftRepository(
           answers: parsed.answers,
           progress,
           references: [],
+          referenceUploadProtectionVersion: 1,
           source: {
             path: parsed.sourcePath,
             attribution: {},

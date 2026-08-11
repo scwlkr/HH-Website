@@ -106,8 +106,84 @@ test(
         return "https://storage.googleapis.test/private-capability";
       },
     });
+    const referenceRepository = createPlanHomeReferenceRepository(
+      firestore,
+      bucket,
+      {
+        now: () => currentTime,
+        signUpload: async () => "https://storage.googleapis.test/upload",
+      },
+    );
+    let boundInquiryId: string | null = null;
 
     try {
+      const boundDraft = await draftRepository.createDraft(
+        {
+          idempotencyKey: `local-${randomUUID()}:plan-home-v1:contact-gate`,
+          welcomeName: "Generation Bound Delete Test",
+          contact: {
+            email: `bound-${randomUUID()}@example.com`,
+            phone: "+12145550102",
+            manualFollowUpDisclosureAccepted: true,
+          },
+          answers: answersThrough(6),
+          sourcePath: "/plan-your-home",
+        },
+        sessionHash,
+      );
+      boundInquiryId = boundDraft.draftId;
+      const boundCapability = await referenceRepository.issueUpload(
+        {
+          draftId: boundInquiryId,
+          expectedRevision: 1,
+          originalName: "bound.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: 16,
+        },
+        sessionHash,
+      );
+      const boundGeneration =
+        boundCapability.headers["x-goog-if-generation-match"];
+      assert.match(boundGeneration ?? "", /^\d+$/);
+      assert.equal(
+        boundCapability.headers["x-goog-content-length-range"],
+        "16,16",
+      );
+      const boundDeletion = await repository.deleteInquiry(
+        boundInquiryId,
+        actor,
+      );
+      assert.equal(boundDeletion.applied, true);
+      assert.equal(boundDeletion.deletedObjects, 1);
+      assert.equal(
+        (
+          await firestore
+            .collection("inquirySubmissions")
+            .doc(boundInquiryId)
+            .get()
+        ).exists,
+        false,
+      );
+      // Firebase's Storage emulator does not enforce GCS generation preconditions;
+      // this proves deletion removed the exact generation bound into the capability.
+      assert.equal(
+        (await bucket.file(boundCapability.objectPath).exists())[0],
+        false,
+      );
+
+      const sealedCapability = await referenceRepository.issueUpload(
+        {
+          draftId: inquiryId,
+          expectedRevision: 1,
+          originalName: "sealed.pdf",
+          mimeType: "application/pdf",
+          sizeBytes: 16,
+        },
+        sessionHash,
+      );
+      const sealedGeneration =
+        sealedCapability.headers["x-goog-if-generation-match"];
+      assert.match(sealedGeneration ?? "", /^\d+$/);
       await firestore.collection("inquirySubmissions").doc(inquiryId).update({
         references: [
           {
@@ -279,7 +355,12 @@ test(
           value: {
             draftId: inquiryId,
             objectPath: `inquiryReferences/${inquiryId}/orphan-${index}`,
-            ...(index === 0 ? { expiresAt: uploadCapabilityExpiresAt } : {}),
+            ...(index === 0
+              ? {
+                  uploadProtection: "reserving-generation-v1",
+                  expiresAt: uploadCapabilityExpiresAt,
+                }
+              : {}),
           },
         })),
       );
@@ -335,13 +416,6 @@ test(
         }),
         null,
       );
-      const referenceRepository = createPlanHomeReferenceRepository(
-        firestore,
-        bucket,
-        {
-          signUpload: async () => "https://storage.googleapis.test/upload",
-        },
-      );
       await assert.rejects(
         referenceRepository.issueUpload(
           {
@@ -359,16 +433,19 @@ test(
       const pendingDeletion = await repository.deleteInquiry(inquiryId, actor);
       assert.equal(pendingDeletion.applied, false);
       assert.equal("pending" in pendingDeletion && pendingDeletion.pending, true);
-      assert.equal(pendingDeletion.deletedObjects, 206);
+      assert.equal(pendingDeletion.deletedObjects, 207);
       assert.equal(
         (
           await firestore.collection("inquirySubmissions").doc(inquiryId).get()
         ).data()?.status,
         "deleting",
       );
+      assert.equal(
+        (await bucket.file(sealedCapability.objectPath).exists())[0],
+        false,
+      );
 
-      const lateObjectPath =
-        `inquiryReferences/${inquiryId}/late-capability-object`;
+      const lateObjectPath = `inquiryReferences/${inquiryId}/orphan-0`;
       await bucket.file(lateObjectPath).save(Buffer.from("late upload"));
       currentTime = new Date(
         uploadCapabilityExpiresAt.getTime() +
@@ -428,7 +505,7 @@ test(
       );
 
       process.stdout.write(
-        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=35, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, legacyDeleteImmediate=true, tokenPages=2, objectPages=2, deletedPrefixObjects=207, unrelatedPreserved=true\n",
+        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=35, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, generationBoundDeleteImmediate=true, generationHeaderBound=true, exactUploadSizeBound=true, generationBoundReservationDeleted=true, reservingGenerationPending=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, legacyDeleteImmediate=true, tokenPages=2, objectPages=2, mainDeletedPrefixObjects=208, boundDeletedPrefixObjects=1, unrelatedPreserved=true\n",
       );
     } finally {
       await firestore.recursiveDelete(
@@ -437,6 +514,15 @@ test(
       await firestore.recursiveDelete(
         firestore.collection("inquirySubmissions").doc(statusId),
       );
+      if (boundInquiryId) {
+        await firestore.recursiveDelete(
+          firestore.collection("inquirySubmissions").doc(boundInquiryId),
+        );
+        await bucket.deleteFiles({
+          prefix: `inquiryReferences/${boundInquiryId}/`,
+          force: true,
+        });
+      }
       const tokens = await firestore.collection("planHomeResumeTokens").get();
       for (const document of tokens.docs) await document.ref.delete();
       await bucket.deleteFiles({

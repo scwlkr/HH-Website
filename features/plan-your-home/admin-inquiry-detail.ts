@@ -568,27 +568,36 @@ function pendingUploadCapabilityUntil(
   if (readSource(record) !== "plan-your-home") return null;
 
   const expiries: number[] = [];
-  const trackedExpiry = timestampMillis(
-    record.referenceUploadCapabilityExpiresAt,
+  const trackedLegacyExpiry = timestampMillis(
+    record.legacyUnboundUploadCapabilitiesExpireAt,
   );
-  if (trackedExpiry !== null) expiries.push(trackedExpiry);
+  if (trackedLegacyExpiry !== null) expiries.push(trackedLegacyExpiry);
+  const generationBound = record.referenceUploadProtectionVersion === 1;
 
   for (const document of uploadTickets.docs) {
-    const ticketExpiry = timestampMillis(document.data().expiresAt);
+    const ticket = document.data();
+    if (
+      ticket.uploadProtection === "generation-bound-v1" &&
+      typeof ticket.objectGeneration === "string" &&
+      /^\d+$/.test(ticket.objectGeneration)
+    ) {
+      continue;
+    }
+    const ticketExpiry = timestampMillis(ticket.expiresAt);
     if (ticketExpiry !== null) expiries.push(ticketExpiry);
   }
 
-  const references = Array.isArray(record.references) ? record.references : [];
-  for (const candidate of references) {
-    const result = planHomeReferenceMetadataSchema.safeParse(candidate);
-    if (!result.success || result.data.kind !== "file") continue;
-    const finalizedAt = timestampMillis(result.data.createdAt);
-    if (finalizedAt !== null) {
-      expiries.push(finalizedAt + PLAN_HOME_UPLOAD_CAPABILITY_MS);
+  if (!generationBound) {
+    const references = Array.isArray(record.references) ? record.references : [];
+    for (const candidate of references) {
+      const result = planHomeReferenceMetadataSchema.safeParse(candidate);
+      if (!result.success || result.data.kind !== "file") continue;
+      const finalizedAt = timestampMillis(result.data.createdAt);
+      if (finalizedAt !== null) {
+        expiries.push(finalizedAt + PLAN_HOME_UPLOAD_CAPABILITY_MS);
+      }
     }
-  }
 
-  if (trackedExpiry === null) {
     const lastUntrackedActivity = timestampMillis(record.updatedAt);
     if (lastUntrackedActivity !== null) {
       expiries.push(lastUntrackedActivity + PLAN_HOME_UPLOAD_CAPABILITY_MS);
