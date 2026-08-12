@@ -2,6 +2,8 @@ const adminUploadBodySizeLimit = "4.4mb";
 
 const nextConfig = {
   typedRoutes: true,
+  // Local review tooling and docs use the loopback IP instead of localhost.
+  allowedDevOrigins: ["127.0.0.1"],
   logging: {
     // Server Action arguments can contain saved-plan contact details.
     serverFunctions: false,
