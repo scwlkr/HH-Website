@@ -1074,8 +1074,12 @@ async function main() {
     await capture(page, "phone-complete-review");
     const retainedFollowUp = page.getByText("Email", { exact: true }).last();
     assert(await retainedFollowUp.isVisible());
+    assert.equal(
+      await page.getByRole("button", { name: /^Edit Q\d+:/ }).count(),
+      35,
+    );
     const editButton = page.getByRole("button", {
-      name: "Edit Entry, Project Frame, and Living Room",
+      name: `Edit Q1: ${planHomeQuestions[0].prompt}`,
     });
     const editTabs = await tabTo(page, editButton);
     await page.keyboard.press("Enter");
@@ -1085,8 +1089,8 @@ async function main() {
     const editedAnswerTabs = await tabTo(page, currentAnswer);
     await page.keyboard.press("ArrowDown");
     assert.equal(await editedAnswer.isChecked(), true);
-    const editNext = page.getByRole("button", { name: "Next", exact: true });
-    const editNextTabs = await tabTo(page, editNext);
+    const editSave = page.getByRole("button", { name: "Save", exact: true });
+    const editSaveTabs = await tabTo(page, editSave);
     await page.keyboard.press("Enter");
     await page
       .getByRole("heading", { name: "One walkthrough, ready for a real conversation." })
@@ -1116,7 +1120,7 @@ async function main() {
       ...(evidence.keyboard.mainFlow ?? {}),
       reviewEditReturn: true,
       consentAndSubmit: true,
-      reviewTabs: [editTabs, editedAnswerTabs, editNextTabs, consentTabs, submitTabs],
+      reviewTabs: [editTabs, editedAnswerTabs, editSaveTabs, consentTabs, submitTabs],
     };
     assert(draftId);
 

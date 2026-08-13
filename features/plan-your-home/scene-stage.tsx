@@ -35,6 +35,7 @@ type SceneStageProps = Readonly<{
   onBack: () => SceneStageNavigationResult;
   onNext: () => SceneStageNavigationResult;
   canGoBack?: boolean;
+  backLabel?: string;
   nextLabel?: string;
   error?: PlanHomeTourTransition["error"];
   reducedMotion?: boolean;
@@ -85,6 +86,7 @@ export function SceneStage({
   onBack,
   onNext,
   canGoBack = true,
+  backLabel = "Back",
   nextLabel = "Next",
   error = null,
   reducedMotion,
@@ -225,7 +227,7 @@ export function SceneStage({
               onClick={() => navigate("back", onBack)}
               disabled={!canGoBack || isTransitioning}
             >
-              Back
+              {backLabel}
             </Button>
             <Button
               className={styles.actionButton}

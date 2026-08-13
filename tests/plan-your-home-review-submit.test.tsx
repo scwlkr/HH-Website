@@ -10,6 +10,7 @@ import { createPlanHomeClientDraftAdapter } from "../features/plan-your-home/cli
 import { createPlanHomeLocalSnapshotAdapter } from "../features/plan-your-home/local-snapshot.ts";
 import {
   PlanYourHomeShell,
+  type PlanHomeDraftAction,
   type PlanHomeSubmitAction,
 } from "../features/plan-your-home/plan-your-home-shell.tsx";
 import {
@@ -101,6 +102,14 @@ function seedFinalQuestion() {
 test("Q35 leads to a complete grouped review, direct edit-return, consent, and confirmation", async () => {
   seedFinalQuestion();
   const submitCalls: unknown[] = [];
+  const checkpointCalls: unknown[] = [];
+  const checkpointDraft: PlanHomeDraftAction = async (input) => {
+    checkpointCalls.push(input);
+    return {
+      status: "success",
+      result: { draftId, revision: 9, applied: true },
+    };
+  };
   const submitDraft: PlanHomeSubmitAction = async (input) => {
     submitCalls.push(input);
     return {
@@ -115,7 +124,11 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
     };
   };
   const view = render(
-    <PlanYourHomeShell submitDraft={submitDraft} reducedMotion />,
+    <PlanYourHomeShell
+      checkpointDraft={checkpointDraft}
+      submitDraft={submitDraft}
+      reducedMotion
+    />,
   );
   const query = within(view.container);
   const user = userEvent.setup({ document: window.document });
@@ -142,6 +155,10 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
     35,
   );
   assert.equal(view.container.querySelectorAll("[data-review-zone]").length, 7);
+  assert.equal(
+    query.getAllByRole("button", { name: /^Edit Q\d+:/ }).length,
+    35,
+  );
   assert.ok(query.getByText("taylor@example.com"));
   assert.ok(query.getByText("kitchen-inspiration.pdf"));
   assert.ok(query.getByText("https://example.com/exterior-reference"));
@@ -156,14 +173,14 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
   )?.textContent;
   await user.click(
     query.getByRole("button", {
-      name: "Edit Entry, Project Frame, and Living Room",
+      name: /^Edit Q1:/,
     }),
   );
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /Where are you starting/ })),
   );
   await user.click(query.getByRole("radio", { name: "Adapt an existing plan" }));
-  await user.click(query.getByRole("button", { name: "Next" }));
+  await user.click(query.getByRole("button", { name: "Save" }));
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
   );
@@ -178,17 +195,69 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
     /Adapt an existing plan/,
   );
 
-  assert.match(
-    query.getByText(/This brief starts a conversation/).textContent ?? "",
-    /not a design, price, feasibility decision, or contract/,
+  await user.click(query.getByRole("button", { name: /^Edit Q11:/ }));
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", {
+        name: "Which whole-home finish level feels closest to what you want?",
+      }),
+    ),
   );
-  const submitButton = query.getByRole("button", { name: "Submit project brief" });
-  assert.equal(submitButton.hasAttribute("disabled"), true);
+  await user.click(query.getByRole("radio", { name: "Custom" }));
+  await user.click(query.getByRole("button", { name: "Save" }));
+  await waitFor(() =>
+    assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
+  );
+  assert.equal(checkpointCalls.length, 0);
+  assert.match(
+    view.container.querySelector('[data-review-question="home.finish-level"]')
+      ?.textContent ?? "",
+    /Custom/,
+  );
+
   await user.click(
     query.getByRole("checkbox", {
       name: /I am submitting an inquiry and permit h and h to contact me/,
     }),
   );
+  const readySubmit = query.getByRole("button", {
+    name: "Submit project brief",
+  });
+  assert.equal(readySubmit.hasAttribute("disabled"), false);
+  const storiesBefore = view.container.querySelector(
+    '[data-review-question="home.stories"]',
+  )?.textContent;
+  await user.click(query.getByRole("button", { name: /^Edit Q5:/ }));
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", {
+        name: "How many stories are you considering?",
+      }),
+    ),
+  );
+  await user.click(query.getByRole("radio", { name: "Two" }));
+  await user.click(query.getByRole("button", { name: "Cancel" }));
+  await waitFor(() =>
+    assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
+  );
+  assert.equal(
+    view.container.querySelector('[data-review-question="home.stories"]')
+      ?.textContent,
+    storiesBefore,
+  );
+  assert.equal(
+    query.getByRole("button", { name: "Submit project brief" }).hasAttribute(
+      "disabled",
+    ),
+    false,
+  );
+
+  assert.match(
+    query.getByText(/This brief starts a conversation/).textContent ?? "",
+    /not a design, price, feasibility decision, or contract/,
+  );
+  const submitButton = query.getByRole("button", { name: "Submit project brief" });
+  assert.equal(submitButton.hasAttribute("disabled"), false);
   await user.click(submitButton);
 
   await waitFor(() =>

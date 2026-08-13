@@ -66,6 +66,7 @@ type ShortTextPromptProps = PromptFieldProps &
     label: string;
     value: string;
     onChange: (value: string) => void;
+    onBlur?: (value: string) => void;
     maxLength: number;
     optional?: boolean;
     multiline?: boolean;
@@ -487,6 +488,7 @@ export function ShortTextPrompt({
   error,
   value,
   onChange,
+  onBlur,
   maxLength,
   optional = false,
   multiline = false,
@@ -508,6 +510,8 @@ export function ShortTextPrompt({
     "aria-describedby": describedBy(instructions, error, ids),
     onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       onChange(event.target.value),
+    onBlur: (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      onBlur?.(event.currentTarget.value),
   };
 
   return (

@@ -155,7 +155,7 @@ async function assertNavigation(page, state) {
   if (state === "review") {
     await page.getByRole("button", { name: /Edit/ }).first().click();
     await page.locator('[data-plan-home-refinement-state^="q"]').waitFor();
-    await page.getByRole("button", { name: "Back" }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
     await page.locator('[data-plan-home-refinement-state="review"]').waitFor();
     return;
   }

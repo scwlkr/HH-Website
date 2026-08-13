@@ -168,6 +168,150 @@ test("welcome personalizes decorative plaque and the front-door beat opens exact
   );
 });
 
+test("valid choices persist locally before Next and survive refresh without a server write", async () => {
+  const createCalls: unknown[] = [];
+  const user = userEvent.setup({ document: window.document });
+  const firstView = render(
+    <PlanYourHomeShell
+      createDraft={successfulCreate(createCalls)}
+      reducedMotion
+    />,
+  );
+  const firstQuery = within(firstView.container);
+
+  await beginTour(user, firstQuery);
+  await user.click(firstQuery.getByRole("radio", { name: "Fully custom" }));
+  await user.click(
+    firstQuery.getByRole("checkbox", { name: "Architectural design" }),
+  );
+
+  await waitFor(() => {
+    const snapshot = JSON.parse(
+      window.localStorage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "null",
+    );
+    assert.deepEqual(snapshot.answers["project.starting-services"], {
+      startingPoint: "fully-custom",
+      services: ["architectural-design"],
+    });
+  });
+  assert.equal(createCalls.length, 0);
+
+  firstView.unmount();
+  const refreshedView = render(
+    <PlanYourHomeShell
+      createDraft={successfulCreate(createCalls)}
+      reducedMotion
+    />,
+  );
+  const refreshed = within(refreshedView.container);
+  await waitFor(() =>
+    assert.ok(
+      refreshed.getByRole("heading", {
+        name: "Where are you starting, and what help are you looking for?",
+      }),
+    ),
+  );
+  assert.equal(
+    (refreshed.getByRole("radio", { name: "Fully custom" }) as HTMLInputElement)
+      .checked,
+    true,
+  );
+  assert.equal(
+    (
+      refreshed.getByRole("checkbox", {
+        name: "Architectural design",
+      }) as HTMLInputElement
+    ).checked,
+    true,
+  );
+  assert.equal(createCalls.length, 0);
+});
+
+test("valid text persists after a debounce, on blur, and on navigation", async () => {
+  const createCalls: unknown[] = [];
+  const user = userEvent.setup({ document: window.document });
+  const firstView = render(
+    <PlanYourHomeShell
+      createDraft={successfulCreate(createCalls)}
+      reducedMotion
+    />,
+  );
+  const firstQuery = within(firstView.container);
+
+  await beginTour(user, firstQuery);
+  await user.click(firstQuery.getByRole("radio", { name: "Fully custom" }));
+  await user.click(
+    firstQuery.getByRole("checkbox", { name: "Architectural design" }),
+  );
+  await user.click(firstQuery.getByRole("button", { name: "Next" }));
+  await user.click(firstQuery.getByRole("radio", { name: "Own it" }));
+  const location = firstQuery.getByRole("textbox", {
+    name: "City, county, address, or target area",
+  });
+  await user.type(location, "Denton County");
+
+  await waitFor(
+    () => {
+      const snapshot = JSON.parse(
+        window.localStorage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "null",
+      );
+      assert.equal(
+        snapshot.answers["project.lot-location"].location,
+        "Denton County",
+      );
+    },
+    { timeout: 1_000 },
+  );
+  assert.equal(createCalls.length, 0);
+
+  await user.clear(location);
+  await user.type(location, "Pilot Point");
+  await user.tab();
+  await waitFor(() => {
+    const snapshot = JSON.parse(
+      window.localStorage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "null",
+    );
+    assert.equal(
+      snapshot.answers["project.lot-location"].location,
+      "Pilot Point",
+    );
+  });
+
+  firstView.unmount();
+  const refreshedView = render(
+    <PlanYourHomeShell
+      createDraft={successfulCreate(createCalls)}
+      reducedMotion
+    />,
+  );
+  const refreshed = within(refreshedView.container);
+  await waitFor(() =>
+    assert.equal(
+      (
+        refreshed.getByRole("textbox", {
+          name: "City, county, address, or target area",
+        }) as HTMLInputElement
+      ).value,
+      "Pilot Point",
+    ),
+  );
+
+  const refreshedLocation = refreshed.getByRole("textbox", {
+    name: "City, county, address, or target area",
+  });
+  await user.clear(refreshedLocation);
+  await user.type(refreshedLocation, "Argyle");
+  await user.click(refreshed.getByRole("button", { name: "Next" }));
+  await waitFor(() => {
+    const snapshot = JSON.parse(
+      window.localStorage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "null",
+    );
+    assert.equal(snapshot.answers["project.lot-location"].location, "Argyle");
+    assert.equal(snapshot.progress.location.questionId, "project.site-context");
+  });
+  assert.equal(createCalls.length, 0);
+});
+
 test("no server write occurs before contact and valid contact creates exactly question 1-6", async () => {
   const createCalls: unknown[] = [];
   const user = userEvent.setup({ document: window.document });

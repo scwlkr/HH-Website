@@ -169,6 +169,10 @@ type ContactFields = Readonly<{
   disclosureAccepted: boolean;
 }>;
 
+type AnswerPersistence = "immediate" | "debounced";
+
+const LOCAL_TEXT_SAVE_DEBOUNCE_MS = 300;
+
 const unavailableDraftAction: PlanHomeDraftAction = async () => ({
   status: "server-error",
   message: "Draft saving is temporarily unavailable.",
@@ -434,7 +438,8 @@ function actionError(result: Exclude<PlanHomeDraftActionState, { status: "succes
 function renderQuestionPrompt(
   question: PlanHomeQuestionDefinition,
   answer: unknown,
-  updateAnswer: (answer: unknown) => void,
+  updateAnswer: (answer: unknown, persistence?: AnswerPersistence) => void,
+  flushAnswer: (answer: unknown) => void,
   designDesk?: DesignDeskPromptContext,
 ) {
   const firstGroup = question.response.optionGroups[0] as PlanHomeOptionGroup;
@@ -466,7 +471,10 @@ function renderQuestionPrompt(
           onUncertainChange={(locationUncertain) =>
             updateAnswer({ ...value, locationUncertain })
           }
-          onChange={(location) => updateAnswer({ ...value, location })}
+          onChange={(location) =>
+            updateAnswer({ ...value, location }, "debounced")
+          }
+          onBlur={(location) => flushAnswer({ ...value, location })}
         />
       </PromptStack>
     );
@@ -516,7 +524,10 @@ function renderQuestionPrompt(
           maxLength={120}
           optional
           instructions="Add one short garage need not listed above."
-          onChange={(other) => updateAnswer({ ...value, other })}
+          onChange={(other) =>
+            updateAnswer({ ...value, other }, "debounced")
+          }
+          onBlur={(other) => flushAnswer({ ...value, other })}
         />
       </PromptStack>
     );
@@ -561,7 +572,10 @@ function renderQuestionPrompt(
           optional
           multiline
           onChange={(likesAndDislikes) =>
-            updateAnswer({ ...value, likesAndDislikes })
+            updateAnswer({ ...value, likesAndDislikes }, "debounced")
+          }
+          onBlur={(likesAndDislikes) =>
+            flushAnswer({ ...value, likesAndDislikes })
           }
         />
       </PromptStack>
@@ -1091,7 +1105,7 @@ function ProjectBriefReview({
           One walkthrough, ready for a real conversation.
         </h1>
         <p>
-          Check every answer and reference below. Editing a section returns here
+          Check every answer and reference below. Editing an answer returns here
           directly and keeps the rest of your brief intact.
         </p>
       </header>
@@ -1110,7 +1124,6 @@ function ProjectBriefReview({
           const questions = planHomeQuestions.filter(
             (question) => question.zoneId === zone.id,
           );
-          const firstQuestion = questions[0];
           return (
             <section
               className={styles.reviewGroup}
@@ -1123,16 +1136,6 @@ function ProjectBriefReview({
                   <p className={styles.reviewIndex}>Zone {zone.order} of 7</p>
                   <h2 id={`review-zone-${zone.id}`}>{zone.title}</h2>
                 </div>
-                {firstQuestion ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => onEdit(firstQuestion.id)}
-                    aria-label={`Edit ${zone.title}`}
-                  >
-                    Edit
-                  </Button>
-                ) : null}
               </div>
               <dl className={styles.reviewAnswers}>
                 {questions.map((question) => (
@@ -1141,7 +1144,22 @@ function ProjectBriefReview({
                       <span>Q{question.number}</span>
                       {question.prompt}
                     </dt>
-                    <dd>{summarizePlanHomeAnswer(question.id, state.answers[question.id])}</dd>
+                    <dd>
+                      <span>
+                        {summarizePlanHomeAnswer(
+                          question.id,
+                          state.answers[question.id],
+                        )}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => onEdit(question.id)}
+                        aria-label={`Edit Q${question.number}: ${question.prompt}`}
+                      >
+                        Edit
+                      </Button>
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -1326,6 +1344,21 @@ export function PlanYourHomeShell({
   const exteriorCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const designCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const resumeAnalyticsTracked = useRef(false);
+  const tourStateRef = useRef(tourState);
+  const textSaveTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    tourStateRef.current = tourState;
+  }, [tourState]);
+
+  useEffect(
+    () => () => {
+      if (textSaveTimer.current !== null) {
+        window.clearTimeout(textSaveTimer.current);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     const questionNumber =
@@ -1400,6 +1433,7 @@ export function PlanYourHomeShell({
       }
 
       if (restored) {
+        tourStateRef.current = restored;
         setTourState(restored);
         setWelcomeName(restored.welcomeName);
         setDraftAnswers({ ...initialDraftAnswers(), ...restored.answers });
@@ -1462,8 +1496,69 @@ export function PlanYourHomeShell({
   }
 
   function commitState(state: PlanHomeTourState) {
+    tourStateRef.current = state;
     setTourState(state);
     saveLocal(state);
+  }
+
+  function cancelPendingTextSave() {
+    if (textSaveTimer.current === null) return;
+    window.clearTimeout(textSaveTimer.current);
+    textSaveTimer.current = null;
+  }
+
+  function persistLocalAnswer(questionId: PlanHomeQuestionId, answer: unknown) {
+    const state = tourStateRef.current;
+    if (
+      state.location.kind !== "question" ||
+      state.location.questionId !== questionId ||
+      state.location.editingFromReview
+    ) {
+      return false;
+    }
+
+    const transition = reducePlanHomeTour(state, {
+      type: "answer-question",
+      questionId,
+      answer,
+    });
+    if (transition.error) return false;
+    commitState(transition.state);
+    return true;
+  }
+
+  function scheduleLocalAnswerSave(
+    questionId: PlanHomeQuestionId,
+    answer: unknown,
+  ) {
+    cancelPendingTextSave();
+    textSaveTimer.current = window.setTimeout(() => {
+      textSaveTimer.current = null;
+      persistLocalAnswer(questionId, answer);
+    }, LOCAL_TEXT_SAVE_DEBOUNCE_MS);
+  }
+
+  function updateDraftAnswer(
+    questionId: PlanHomeQuestionId,
+    answer: unknown,
+    persistence: AnswerPersistence = "immediate",
+  ) {
+    setDraftAnswers((current) => ({ ...current, [questionId]: answer }));
+    setError(null);
+
+    if (tourStateRef.current.location.kind !== "question") return;
+    if (tourStateRef.current.location.editingFromReview) return;
+    if (persistence === "debounced") {
+      scheduleLocalAnswerSave(questionId, answer);
+      return;
+    }
+    cancelPendingTextSave();
+    persistLocalAnswer(questionId, answer);
+  }
+
+  function flushDraftAnswer(questionId: PlanHomeQuestionId, answer: unknown) {
+    cancelPendingTextSave();
+    persistLocalAnswer(questionId, answer);
   }
 
   function currentClientDraft() {
@@ -1729,7 +1824,29 @@ export function PlanYourHomeShell({
   }
 
   function backFromQuestion() {
-    const transition = reducePlanHomeTour(tourState, { type: "back" });
+    cancelPendingTextSave();
+    const location = tourStateRef.current.location;
+    if (location.kind === "question" && location.editingFromReview) {
+      setDraftAnswers((current) => ({
+        ...current,
+        [location.questionId]: tourStateRef.current.answers[location.questionId],
+      }));
+      const cancelled = reducePlanHomeTour(tourStateRef.current, {
+        type: "return-to-review",
+      });
+      if (cancelled.error) {
+        setError(cancelled.error);
+        return false;
+      }
+      setError(null);
+      commitState(cancelled.state);
+      return true;
+    }
+
+    if (location.kind === "question") {
+      persistLocalAnswer(location.questionId, draftAnswers[location.questionId]);
+    }
+    const transition = reducePlanHomeTour(tourStateRef.current, { type: "back" });
     if (transition.error) {
       setError(transition.error);
       return false;
@@ -1740,6 +1857,7 @@ export function PlanYourHomeShell({
   }
 
   async function nextFromQuestion(question: PlanHomeQuestionDefinition) {
+    cancelPendingTextSave();
     let activeAnswer = draftAnswers[question.id];
     if (question.id === "design.references") {
       if (pendingUploads.length > 0) {
@@ -1778,7 +1896,7 @@ export function PlanYourHomeShell({
         }));
       }
     }
-    const answered = reducePlanHomeTour(tourState, {
+    const answered = reducePlanHomeTour(tourStateRef.current, {
       type: "answer-question",
       questionId: question.id as PlanHomeQuestionId,
       answer: activeAnswer,
@@ -1792,6 +1910,15 @@ export function PlanYourHomeShell({
     if (advanced.error) {
       setError(advanced.error);
       return false;
+    }
+
+    if (
+      tourStateRef.current.location.kind === "question" &&
+      tourStateRef.current.location.editingFromReview
+    ) {
+      setError(null);
+      commitState(advanced.state);
+      return true;
     }
 
     const checkpointBoundary =
@@ -2116,7 +2243,8 @@ export function PlanYourHomeShell({
     return backFromBoundary();
   }
 
-  function editReviewZone(questionId: PlanHomeQuestionId) {
+  function editReviewQuestion(questionId: PlanHomeQuestionId) {
+    cancelPendingTextSave();
     const transition = reducePlanHomeTour(tourState, {
       type: "jump-to-review-question",
       questionId,
@@ -2125,6 +2253,10 @@ export function PlanYourHomeShell({
       setFormError(transition.error.message);
       return;
     }
+    setDraftAnswers((current) => ({
+      ...current,
+      [questionId]: tourState.answers[questionId],
+    }));
     setFormError(null);
     commitState(transition.state);
   }
@@ -2353,13 +2485,9 @@ export function PlanYourHomeShell({
           prompt={renderQuestionPrompt(
             question,
             draftAnswers[question.id],
-            (answer) => {
-              setDraftAnswers((current) => ({
-                ...current,
-                [question.id]: answer,
-              }));
-              setError(null);
-            },
+            (answer, persistence) =>
+              updateDraftAnswer(question.id, answer, persistence),
+            (answer) => flushDraftAnswer(question.id, answer),
             {
               priorityItems: selectedPriorityItems(draftAnswers),
               referenceItems,
@@ -2376,7 +2504,9 @@ export function PlanYourHomeShell({
             scale: 1,
           }}
           onBack={
-            question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION + 1
+            tourState.location.editingFromReview
+              ? backFromQuestion
+              : question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION + 1
               ? backFromExteriorBoundary
               : question.number === EXTERIOR_AND_SITE_LAST_QUESTION + 1
                 ? backFromDesignDeskQuestion
@@ -2384,8 +2514,11 @@ export function PlanYourHomeShell({
           }
           onNext={() => nextFromQuestion(question)}
           canGoBack
+          backLabel={tourState.location.editingFromReview ? "Cancel" : "Back"}
           nextLabel={
-            question.number === planHomeQuestions.length
+            tourState.location.editingFromReview
+              ? "Save"
+              : question.number === planHomeQuestions.length
               ? "Review brief"
               :
             question.number === PROJECT_AND_LIVING_LAST_QUESTION ||
@@ -2414,7 +2547,7 @@ export function PlanYourHomeShell({
           setSubmissionConsentAccepted(accepted);
           setFormError(null);
         }}
-        onEdit={editReviewZone}
+        onEdit={editReviewQuestion}
         onSubmit={submitProjectBrief}
       />
     );

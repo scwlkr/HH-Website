@@ -458,10 +458,23 @@
 }
 
 .reviewAnswers dd {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   color: var(--hh-ink);
   font-size: 0.86rem;
   font-weight: 650;
   line-height: 1.5;
+}
+
+.reviewAnswers dd > span {
+  min-width: 0;
+}
+
+.reviewAnswers dd button {
+  min-width: 4.5rem;
+  flex: 0 0 auto;
 }
 
 .reviewReferences {
