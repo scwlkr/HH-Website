@@ -16,6 +16,8 @@ export function PathAwareShell({
 }: PathAwareShellProps) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
+  const isPlanHomeWalkthrough = pathname === "/plan-your-home";
+  const showMarketingChrome = !isAdminRoute && !isPlanHomeWalkthrough;
 
   return (
     <>
@@ -28,7 +30,7 @@ export function PathAwareShell({
         </a>
       ) : null}
       <div className="flex min-h-screen flex-col">
-        {!isAdminRoute ? header : null}
+        {showMarketingChrome ? header : null}
         <main
           id="main-content"
           className={
@@ -40,7 +42,7 @@ export function PathAwareShell({
         >
           {children}
         </main>
-        {!isAdminRoute ? footer : null}
+        {showMarketingChrome ? footer : null}
       </div>
     </>
   );

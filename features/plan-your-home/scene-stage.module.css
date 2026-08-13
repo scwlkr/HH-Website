@@ -2,6 +2,7 @@
   --stage-gutter: clamp(0.75rem, 3.8vw, 2.25rem);
   position: relative;
   width: min(100%, 78rem);
+  min-height: calc(100svh - 4.25rem);
   margin-inline: auto;
   overflow: clip;
   border-block: 1px solid var(--hh-line-strong);
@@ -27,7 +28,6 @@
 .zoneLabel,
 .progressLabel,
 .questionNumber,
-.cameraMark,
 .stageError span {
   font-family: var(--font-code), monospace;
   text-transform: uppercase;
@@ -104,21 +104,6 @@
   opacity: 0;
   transform: translate3d(calc(var(--scene-camera-x) + 1.5%), var(--scene-camera-y), 0)
     scale(calc(var(--scene-camera-scale) - 0.018));
-}
-
-.cameraMark {
-  position: absolute;
-  right: var(--stage-gutter);
-  bottom: 1rem;
-  display: flex;
-  min-height: 2.75rem;
-  align-items: center;
-  border-block: 1px solid var(--hh-line-ink);
-  padding-inline: 1.1rem;
-  background: color-mix(in srgb, var(--hh-paper) 86%, transparent);
-  color: var(--hh-muted-strong);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
 }
 
 .promptLayer {
@@ -280,11 +265,6 @@
 
   .sceneWindow {
     min-height: min(44svh, 23rem);
-  }
-
-  .cameraMark {
-    right: 0.75rem;
-    bottom: 0.75rem;
   }
 
   .promptLayer {

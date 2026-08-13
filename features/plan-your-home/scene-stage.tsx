@@ -179,9 +179,6 @@ export function SceneStage({
         >
           {scene}
         </div>
-        <div className={styles.cameraMark} aria-hidden="true">
-          <span>{question.sceneAnchor.replaceAll("-", " ")}</span>
-        </div>
       </div>
 
       <div className={styles.promptLayer}>

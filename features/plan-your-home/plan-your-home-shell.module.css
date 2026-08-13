@@ -1,33 +1,92 @@
 .experience {
-  padding-block: clamp(1.25rem, 4vw, 3rem) clamp(2rem, 6vw, 4.5rem);
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--hh-paper) 94%, var(--hh-surface));
 }
 
 .experienceHeader {
-  display: flex;
-  width: min(100% - 2rem, 78rem);
+  position: sticky;
+  z-index: 30;
+  top: 0;
+  display: grid;
+  width: min(100%, 78rem);
+  min-height: 4.25rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  margin-inline: auto;
+  border-bottom: 1px solid var(--hh-line-strong);
+  padding: 0.55rem clamp(0.75rem, 3.8vw, 2.25rem);
+  background: color-mix(in srgb, var(--hh-surface) 94%, transparent);
+  box-shadow: 0 1rem 2rem -2rem rgba(31, 51, 43, 0.45);
+  backdrop-filter: blur(0.75rem);
+}
+
+.experienceBrand,
+.saveExit {
+  display: inline-flex;
+  min-width: 2.75rem;
   min-height: 2.75rem;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0 auto 0.75rem;
-  border-bottom: 1px solid var(--hh-line-strong);
-  color: var(--hh-muted-strong);
+  justify-content: center;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-tight);
+  background: color-mix(in srgb, var(--hh-surface) 94%, var(--hh-paper));
+}
+
+.experienceBrand:focus-visible,
+.saveExit:focus-visible {
+  box-shadow: 0 0 0 3px var(--hh-accent-soft);
+  outline: none;
+}
+
+.brandMark {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.experienceTitle {
+  display: grid;
+  min-width: 0;
+  gap: 0.12rem;
   font-family: var(--font-code), monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.experienceHeader p {
+.experienceTitle strong {
   color: var(--hh-accent-strong);
+  font-size: 0.62rem;
   font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.experienceTitle span {
+  overflow: hidden;
+  color: var(--hh-muted-strong);
+  font-size: 0.58rem;
+  letter-spacing: 0.09em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saveExit {
+  min-width: 7.5rem;
+  padding-inline: 0.9rem;
+  color: var(--hh-ink);
+  font-family: var(--font-code), monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .moment {
   position: relative;
   display: grid;
   width: min(100%, 78rem);
-  min-height: clamp(39rem, 76svh, 52rem);
+  min-height: calc(100svh - 4.25rem);
+  flex: 1;
   align-items: end;
   margin-inline: auto;
   overflow: clip;
@@ -644,14 +703,19 @@
 }
 
 @media (max-width: 40rem) {
-  .experience { padding-top: 0.75rem; }
-
   .experienceHeader {
-    width: calc(100% - 1.25rem);
-    font-size: 0.55rem;
+    gap: 0.6rem;
+    padding-inline: 0.65rem;
   }
 
-  .experienceHeader span { text-align: right; }
+  .experienceTitle strong { font-size: 0.57rem; }
+  .experienceTitle span { font-size: 0.53rem; }
+
+  .saveExit {
+    min-width: 6.8rem;
+    padding-inline: 0.65rem;
+    font-size: 0.57rem;
+  }
 
   .restoreRail {
     grid-template-columns: 1fr;
@@ -669,7 +733,7 @@
   }
 
   .moment {
-    min-height: calc(100svh - 5.5rem);
+    min-height: calc(100svh - 4.25rem);
   }
 
   .momentSheet {

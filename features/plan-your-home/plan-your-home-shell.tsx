@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   useEffect,
   useRef,
@@ -8,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { BrandMark } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { trackPlanHomeEvent } from "@/lib/analytics/plan-home-events";
 import {
@@ -1823,6 +1825,24 @@ export function PlanYourHomeShell({
     trackPlanHomeEvent("plan_home_start", { prompt_index: 1 });
   }
 
+  function saveBeforeExit() {
+    const current = tourStateRef.current;
+    if (current.location.kind === "question") {
+      persistLocalAnswer(
+        current.location.questionId,
+        draftAnswers[current.location.questionId],
+      );
+      return;
+    }
+    if (current.location.kind === "welcome" && welcomeName.trim().length >= 2) {
+      const named = reducePlanHomeTour(current, {
+        type: "set-welcome-name",
+        name: welcomeName,
+      });
+      if (!named.error) saveLocal(named.state);
+    }
+  }
+
   function backFromQuestion() {
     cancelPendingTextSave();
     const location = tourStateRef.current.location;
@@ -2555,6 +2575,18 @@ export function PlanYourHomeShell({
     content = null;
   }
 
+  const shellProgress = submitted
+    ? "Project brief complete"
+    : restoreStatus !== "ready"
+      ? "Restoring your place"
+      : tourState.location.kind === "question"
+        ? `Question ${activeQuestion?.number ?? 1} of ${planHomeQuestions.length}`
+        : tourState.location.kind === "contact-gate"
+          ? "Contact checkpoint"
+          : tourState.location.kind === "review"
+            ? "Review your brief"
+            : "Welcome";
+
   return (
     <div
       className={styles.experience}
@@ -2571,8 +2603,21 @@ export function PlanYourHomeShell({
       }
     >
       <header className={styles.experienceHeader}>
-        <p>Plan Your Home</p>
-        <span>Howeth and Harp · guided project brief</span>
+        <Link
+          className={styles.experienceBrand}
+          href="/"
+          aria-label="Howeth and Harp home"
+          onClick={saveBeforeExit}
+        >
+          <BrandMark decorative priority sizes="30px" className={styles.brandMark} />
+        </Link>
+        <div className={styles.experienceTitle}>
+          <strong>Plan Your Home</strong>
+          <span>{shellProgress}</span>
+        </div>
+        <Link className={styles.saveExit} href="/" onClick={saveBeforeExit}>
+          Save and exit
+        </Link>
       </header>
       {content}
     </div>

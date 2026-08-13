@@ -147,6 +147,7 @@ test("welcome personalizes decorative plaque and the front-door beat opens exact
   const query = within(view.container);
 
   assert.equal(query.getAllByRole("heading", { level: 1 }).length, 1);
+  assert.ok(query.getByRole("link", { name: "Save and exit" }));
   await waitFor(() =>
     assert.ok(query.getByText("An illustrated walkthrough, not a proposed design")),
   );
@@ -157,6 +158,7 @@ test("welcome personalizes decorative plaque and the front-door beat opens exact
     true,
   );
   await beginTour(user, query);
+  assert.ok(query.getByRole("link", { name: "Save and exit" }));
   assert.equal(query.getByRole("progressbar").getAttribute("value"), "1");
   await waitFor(() =>
     assert.equal(

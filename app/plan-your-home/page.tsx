@@ -54,11 +54,13 @@ export default async function PlanYourHomePage({
     })
       ? createPlanHomeRefinementFixture(requestedState)
       : undefined;
+  const refinementMotion =
+    Boolean(refinementFixture) && resolvedSearchParams.__motion === "1";
 
   return (
     <PlanYourHomeShell
       refinementFixture={refinementFixture}
-      reducedMotion={refinementFixture ? true : undefined}
+      reducedMotion={refinementFixture ? !refinementMotion : undefined}
       createDraft={createPlanHomeDraftAction}
       restoreDraft={restorePlanHomeDraftAction}
       checkpointDraft={checkpointPlanHomeDraftAction}

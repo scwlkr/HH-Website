@@ -208,7 +208,7 @@ export const planHomeZones = [
   {
     order: 1,
     id: "project-and-living",
-    title: "Entry, Project Frame, and Living Room",
+    title: "Entry and Living Room",
     sceneAnchors: [
       "rolled-plans",
       "site-map",

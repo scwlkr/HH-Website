@@ -848,14 +848,23 @@ async function verifyResponsiveLayouts(browser, baseUrl) {
     for (const route of routes) {
       await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle" });
 
-      assert(
-        await page.getByRole("banner").first().isVisible(),
-        `Expected header to be visible for ${route} at ${viewportTest.name}.`,
-      );
-      assert(
-        await page.locator("footer").isVisible(),
-        `Expected footer to be visible for ${route} at ${viewportTest.name}.`,
-      );
+      if (route === "/plan-your-home") {
+        assert(
+          (await page.locator('nav[aria-label="Primary"]').count()) === 0 &&
+            (await page.locator("footer").count()) === 0 &&
+            (await page.getByRole("link", { name: "Save and exit" }).count()) === 1,
+          `Expected focused Plan Your Home chrome for ${viewportTest.name}.`,
+        );
+      } else {
+        assert(
+          await page.getByRole("banner").first().isVisible(),
+          `Expected header to be visible for ${route} at ${viewportTest.name}.`,
+        );
+        assert(
+          await page.locator("footer").isVisible(),
+          `Expected footer to be visible for ${route} at ${viewportTest.name}.`,
+        );
+      }
 
       const hasHorizontalOverflow = await page.evaluate(
         () => document.documentElement.scrollWidth > window.innerWidth + 1,

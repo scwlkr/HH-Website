@@ -3,6 +3,7 @@
   inset: 0;
   overflow: hidden;
   color: #253746;
+  background: #f4efe5;
 }
 
 .scene svg {
@@ -10,60 +11,128 @@
   height: 100%;
 }
 
-.horizon {
-  fill: #dbe4d8;
-  opacity: 0.72;
+.wallWash {
+  fill: rgba(255, 253, 247, 0.46);
 }
 
-.houseFill {
-  fill: rgba(255, 255, 255, 0.74);
+.groundWash,
+.floorWash {
+  fill: rgba(185, 205, 187, 0.36);
 }
 
-.architecturalLine,
-.perspectiveLine,
-.landscapeLine,
-.paperObjects,
-.rugLines,
-.materialBoard,
-.photoFrames {
+.floorWash {
+  stroke: rgba(37, 55, 70, 0.16);
+  stroke-width: 0.9;
+}
+
+.shadowWash {
+  fill: rgba(48, 57, 49, 0.09);
+}
+
+.materialWash {
+  fill: rgba(255, 255, 255, 0.62);
+  stroke: rgba(37, 55, 70, 0.18);
+  stroke-width: 0.8;
+}
+
+.woodWash {
+  fill: rgba(177, 145, 103, 0.18);
+}
+
+.greenWash {
+  fill: rgba(42, 105, 77, 0.14);
+}
+
+.glassWash {
+  fill: rgba(207, 224, 216, 0.42);
+  stroke: rgba(42, 105, 77, 0.28);
+  stroke-width: 0.85;
+}
+
+.stoneWash,
+.hatchWash,
+.rugWash {
+  stroke: rgba(37, 55, 70, 0.34);
+  stroke-width: 0.85;
+}
+
+.stoneWash {
+  color: rgba(37, 55, 70, 0.24);
+}
+
+.hatchWash,
+.rugWash {
+  color: rgba(42, 105, 77, 0.2);
+}
+
+.constructionLine,
+.inkLine,
+.detailLine {
   fill: none;
   stroke: currentColor;
   vector-effect: non-scaling-stroke;
 }
 
-.architecturalLine {
-  stroke-width: 1.5;
-  opacity: 0.72;
+.constructionLine {
+  stroke-width: 0.78;
+  stroke-dasharray: 2.5 5;
+  opacity: 0.23;
 }
 
-.perspectiveLine {
-  stroke-width: 0.9;
-  opacity: 0.18;
+.inkLine {
+  stroke-width: 1.65;
+  stroke-linecap: square;
+  stroke-linejoin: bevel;
+  opacity: 0.82;
 }
 
-.landscapeLine {
-  fill: rgba(42, 105, 77, 0.06);
-  stroke: #2a694d;
-  stroke-width: 1;
-  opacity: 0.58;
+.detailLine {
+  stroke-width: 1.02;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.57;
 }
 
-.stone {
-  stroke: rgba(37, 55, 70, 0.34);
-  stroke-width: 0.7;
+.anchor {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.anchor[data-active="true"] {
+  opacity: 1;
+}
+
+.anchorWash,
+.anchorContour {
+  vector-effect: non-scaling-stroke;
+}
+
+.anchorWash {
+  fill: rgba(42, 105, 77, 0.12);
+  stroke: rgba(42, 105, 77, 0.72);
+  stroke-width: 2.4;
+}
+
+.anchorContour {
+  fill: none;
+  stroke: rgba(42, 105, 77, 0.9);
+  stroke-width: 1.2;
+  stroke-dasharray: 10 7 3 7;
+  filter: drop-shadow(0 5px 7px rgba(42, 105, 77, 0.18));
 }
 
 .addressPlaque {
   position: absolute;
-  top: 33%;
+  top: 31%;
   left: 50%;
   display: grid;
-  min-width: min(18rem, 72vw);
+  min-width: min(19rem, 76vw);
   translate: -50% 0;
-  border: 1px solid rgba(37, 55, 70, 0.5);
-  padding: 0.8rem 1.25rem;
-  background: rgba(246, 242, 232, 0.94);
-  box-shadow: 0 0.65rem 1.8rem rgba(30, 43, 36, 0.12);
+  border: 1px solid rgba(37, 55, 70, 0.58);
+  padding: 0.82rem 1.35rem;
+  background: rgba(247, 243, 233, 0.94);
+  box-shadow: 0 0.8rem 2rem rgba(30, 43, 36, 0.14);
   text-align: center;
 }
 
@@ -71,20 +140,19 @@
 .addressPlaque::after {
   position: absolute;
   top: 50%;
-  width: 0.32rem;
-  height: 0.32rem;
+  width: 0.34rem;
+  height: 0.34rem;
   border-radius: 50%;
   background: #2a694d;
   content: "";
   translate: 0 -50%;
 }
 
-.addressPlaque::before { left: 0.55rem; }
-.addressPlaque::after { right: 0.55rem; }
+.addressPlaque::before { left: 0.58rem; }
+.addressPlaque::after { right: 0.58rem; }
 
 .addressPlaque span,
-.sceneDisclaimer,
-.sceneCaption {
+.sceneDisclaimer {
   font-family: var(--font-code), monospace;
   text-transform: uppercase;
 }
@@ -96,11 +164,11 @@
 }
 
 .addressPlaque strong {
-  margin-top: 0.24rem;
+  margin-top: 0.25rem;
   overflow-wrap: anywhere;
   color: #1f332b;
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(1.05rem, 3vw, 1.55rem);
+  font-size: clamp(1.08rem, 3vw, 1.6rem);
   font-weight: 500;
   letter-spacing: 0.025em;
 }
@@ -109,77 +177,23 @@
   position: absolute;
   right: 3%;
   bottom: 3%;
-  color: rgba(37, 55, 70, 0.62);
+  color: rgba(37, 55, 70, 0.68);
   font-size: 0.52rem;
   letter-spacing: 0.12em;
 }
 
-.lightWash {
-  fill: rgba(255, 255, 255, 0.48);
-  stroke: rgba(37, 55, 70, 0.4);
-  stroke-width: 1;
-}
-
-.paperObjects,
-.rugLines,
-.materialBoard,
-.photoFrames {
-  stroke-width: 1.05;
-  opacity: 0.55;
-}
-
-.anchor {
-  position: absolute;
-  width: 0.62rem;
-  height: 0.62rem;
-  border: 1px solid #2a694d;
-  border-radius: 50%;
-  background: #f4efe5;
-  box-shadow: 0 0 0 0.23rem rgba(42, 105, 77, 0.08);
-}
-
-.scene:has([data-scene-anchor][data-active="true"]) .anchor {
-  opacity: 0.35;
-}
-
-.anchor[data-active="true"] {
-  opacity: 1;
-  background: #2a694d;
-  box-shadow: 0 0 0 0.35rem rgba(42, 105, 77, 0.14);
-}
-
-.rolledPlans { left: 45%; top: 45%; }
-.siteMap { left: 52%; top: 61%; }
-.landscapeWindow { left: 74%; top: 34%; }
-.floorPlanRug { left: 50%; top: 75%; }
-.stair { left: 80%; top: 45%; }
-.hallDoors { left: 86%; top: 30%; }
-.familyPhotos { left: 48%; top: 38%; }
-.seating { left: 49%; top: 57%; }
-.kitchenOpening { left: 89%; top: 60%; }
-.fireplaceWindow { left: 25%; top: 43%; }
-.finishBoard { left: 62%; top: 33%; }
-
-.sceneCaption {
-  position: absolute;
-  left: 4%;
-  bottom: 5%;
-  display: grid;
-  gap: 0.2rem;
-  border-left: 2px solid #2a694d;
-  padding-left: 0.65rem;
-  color: rgba(37, 55, 70, 0.65);
-  font-size: 0.54rem;
-  letter-spacing: 0.13em;
-}
-
-.sceneCaption strong {
-  color: #253746;
-  font-size: 0.62rem;
-}
-
 @media (max-width: 40rem) {
-  .addressPlaque { top: 24%; }
+  .addressPlaque {
+    top: 18%;
+    min-width: min(18rem, 80vw);
+  }
+
   .sceneDisclaimer { display: none; }
-  .sceneCaption { left: 5%; bottom: 7%; }
+
+  .inkLine { stroke-width: 1.4; }
+  .detailLine { stroke-width: 0.9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anchor { transition: none; }
 }

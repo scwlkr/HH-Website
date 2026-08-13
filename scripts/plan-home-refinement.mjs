@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createRequire } from "node:module";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -182,7 +182,7 @@ async function assertNavigation(page, state) {
 
 async function capture(browser, baseUrl, state, viewportName) {
   const startedAt = Date.now();
-  const result = { state, viewport: viewportName, passed: false, status: 0, errors: [], quality: null, durationMs: 0, screenshot: `${state}-${viewportName}.png` };
+  const result = { state, viewport: viewportName, passed: false, status: 0, errors: [], shell: null, quality: null, durationMs: 0, screenshot: `${state}-${viewportName}.png` };
   const page = await browser.newPage({ viewport: viewports[viewportName], reducedMotion: "reduce" });
   watchPage(page, result);
   try {
@@ -192,13 +192,26 @@ async function capture(browser, baseUrl, state, viewportName) {
     await page.locator(`[data-plan-home-refinement-state="${state}"]`).waitFor();
     await page.locator("[data-plan-home-scene-loading]").waitFor({ state: "detached" }).catch(() => {});
     await assertNavigation(page, state);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await page.screenshot({ fullPage: true, path: path.join(outputDirectory, result.screenshot) });
+    result.shell = await page.evaluate(() => ({
+      hasMarketingNavigation: Boolean(document.querySelector('nav[aria-label="Primary"]')),
+      hasMarketingFooter: Boolean(document.querySelector("footer")),
+      hasSaveAndExit: Array.from(document.querySelectorAll("a")).some(
+        (link) => link.textContent?.trim() === "Save and exit",
+      ),
+    }));
+    assert.deepEqual(result.shell, {
+      hasMarketingNavigation: false,
+      hasMarketingFooter: false,
+      hasSaveAndExit: true,
+    }, "focused walkthrough shell");
     result.quality = await quality(page);
     assert.deepEqual(result.quality.violations, [], "accessibility violations");
     assert.equal(result.quality.overflow, false, "horizontal overflow");
     assert.deepEqual(result.quality.unnamedControls, [], "unnamed controls");
     assert.deepEqual(result.quality.undersizedTargets, [], "undersized interactive targets");
     assert.deepEqual(result.errors, [], "browser, console, or request errors");
-    await page.screenshot({ fullPage: true, path: path.join(outputDirectory, result.screenshot) });
     result.passed = true;
   } catch (error) {
     result.errors.push(error instanceof Error ? error.message : String(error));
@@ -224,6 +237,44 @@ async function writeBoard(browser, results) {
   }
 }
 
+async function capturePilotMotion(browser, baseUrl) {
+  const context = await browser.newContext({
+    viewport: viewports.phone,
+    reducedMotion: "no-preference",
+    recordVideo: { dir: outputDirectory, size: viewports.phone },
+  });
+  const page = await context.newPage();
+  const errors = [];
+  watchPage(page, { errors });
+  const video = page.video();
+  try {
+    const response = await page.goto(
+      `${baseUrl}/plan-your-home?__refine=q3&__motion=1`,
+      { waitUntil: "networkidle" },
+    );
+    assert.equal(response?.status(), 200, "motion capture HTTP status");
+    await page.locator('[data-plan-home-refinement-state="q3"]').waitFor();
+    await page.locator("[data-plan-home-scene-loading]").waitFor({ state: "detached" }).catch(() => {});
+    await page
+      .getByRole("checkbox", { name: "Flat or gently sloped" })
+      .evaluate((control) => control.click());
+    await page.waitForTimeout(550);
+    await page
+      .getByRole("button", { name: "Next", exact: true })
+      .evaluate((control) => control.click());
+    await page.locator('[data-plan-home-refinement-state="q4"]').waitFor();
+    await page.waitForTimeout(1_100);
+    assert.deepEqual(errors, [], "motion capture browser errors");
+  } finally {
+    await context.close();
+  }
+  assert(video, "Playwright did not create a motion capture.");
+  const source = await video.path();
+  const destination = path.join(outputDirectory, "pilot-motion-phone.webm");
+  await rename(source, destination);
+  return path.basename(destination);
+}
+
 async function main() {
   const input = parseInput();
   const startedAt = Date.now();
@@ -242,9 +293,12 @@ async function main() {
     browser = await chromium.launch();
     const results = [];
     for (const [state, viewport] of input.captures) results.push(await capture(browser, baseUrl, state, viewport));
+    const motionCapture = input.focused
+      ? null
+      : await capturePilotMotion(browser, baseUrl);
     const durationMs = Date.now() - startedAt;
     const passed = results.every((result) => result.passed) && durationMs < (input.focused ? 30_000 : 120_000);
-    const summary = { generatedAt: new Date().toISOString(), focused: input.focused, passed, durationMs, targets: { focusedMs: 30_000, boardMs: 120_000 }, results };
+    const summary = { generatedAt: new Date().toISOString(), focused: input.focused, passed, durationMs, targets: { focusedMs: 30_000, boardMs: 120_000 }, motionCapture, results };
     await writeFile(path.join(outputDirectory, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
     await writeBoard(browser, results);
     process.stdout.write(`${passed ? "PASS" : "FAIL"} ${results.filter((result) => result.passed).length}/${results.length} · ${(durationMs / 1000).toFixed(1)}s · output/plan-home-refinement/latest/review-board.png\n`);

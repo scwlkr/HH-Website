@@ -426,6 +426,7 @@ test("scene stage moves focus, announces concise progress, and skips delay for r
   );
   const decorative = query.getByTestId("decorative-scene");
   assert.equal(decorative.closest('[aria-hidden="true"]') !== null, true);
+  assert.equal(query.queryByText("stair"), null);
 });
 
 test("scene stage exposes transition lifecycle and associated reducer errors", async () => {
