@@ -40,8 +40,8 @@ export default function Home() {
         subhead="Howeth and Harp delivers architectural design, building, and land development with a disciplined eye for scope, site, and finish."
         capabilities={heroCapabilities}
         primaryCta={{
-          href: "/plan-your-home" as Route,
-          label: "Plan Your Home",
+          href: "/start" as Route,
+          label: "Start a Project",
         }}
         secondaryCta={{
           href: "/inquire" as Route,

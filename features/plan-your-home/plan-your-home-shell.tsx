@@ -77,6 +77,7 @@ import {
   type PlanHomeTourState,
   type PlanHomeTourTransition,
 } from "@/features/plan-your-home/tour-state";
+import type { PlanHomeRefinementFixture } from "@/features/plan-your-home/refinement-fixture";
 
 import styles from "./plan-your-home-shell.module.css";
 
@@ -159,6 +160,7 @@ type PlanYourHomeShellProps = Readonly<{
   syncReferenceNotes?: PlanHomeReferenceAction<PlanHomeReferenceMutationResult>;
   directUploader?: PlanHomeDirectUploader;
   reducedMotion?: boolean;
+  refinementFixture?: PlanHomeRefinementFixture;
 }>;
 
 type ContactFields = Readonly<{
@@ -1275,18 +1277,23 @@ export function PlanYourHomeShell({
   syncReferenceNotes = unavailableReferenceAction,
   directUploader = uploadDirectly,
   reducedMotion,
+  refinementFixture,
 }: PlanYourHomeShellProps = {}) {
   const [tourState, setTourState] = useState<PlanHomeTourState>(() =>
-    createInitialPlanHomeTourState(),
+    refinementFixture?.state ?? createInitialPlanHomeTourState(),
   );
   const [draftAnswers, setDraftAnswers] = useState<Record<string, unknown>>(() =>
-    initialDraftAnswers(),
+    ({ ...initialDraftAnswers(), ...refinementFixture?.state.answers }),
   );
-  const [welcomeName, setWelcomeName] = useState("");
+  const [welcomeName, setWelcomeName] = useState(
+    refinementFixture?.state.welcomeName ?? "",
+  );
   const [contactFields, setContactFields] = useState<ContactFields>({
-    email: "",
-    phone: "",
-    disclosureAccepted: false,
+    email: refinementFixture?.state.contactCheckpoint?.email ?? "",
+    phone: refinementFixture?.state.contactCheckpoint?.phone ?? "",
+    disclosureAccepted:
+      refinementFixture?.state.contactCheckpoint
+        ?.manualFollowUpDisclosureAccepted ?? false,
   });
   const [clientDraft, setClientDraft] = useState<PlanHomeClientDraftState | null>(
     null,
@@ -1303,10 +1310,14 @@ export function PlanYourHomeShell({
   const [showReviewBriefBoundary, setShowReviewBriefBoundary] = useState(false);
   const [submissionConsentAccepted, setSubmissionConsentAccepted] =
     useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(refinementFixture?.submitted ?? false);
   const [restoreStatus, setRestoreStatus] = useState<
     "pending" | "ready" | "unavailable"
-  >(restoreDraft === skippedRestoreAction ? "ready" : "pending");
+  >(
+    refinementFixture || restoreDraft === skippedRestoreAction
+      ? "ready"
+      : "pending",
+  );
   const [restoreAttempt, setRestoreAttempt] = useState(0);
   const [pendingUploads, setPendingUploads] = useState<
     readonly PendingReferenceUpload[]
@@ -1327,6 +1338,7 @@ export function PlanYourHomeShell({
   }, [tourState.location]);
 
   useEffect(() => {
+    if (refinementFixture) return;
     let cancelled = false;
     if (restoreDraft !== skippedRestoreAction) setRestoreStatus("pending");
     const restore = window.setTimeout(() => {
@@ -1443,7 +1455,7 @@ export function PlanYourHomeShell({
       cancelled = true;
       window.clearTimeout(restore);
     };
-  }, [restoreAttempt, restoreDraft]);
+  }, [refinementFixture, restoreAttempt, restoreDraft]);
 
   function saveLocal(state: PlanHomeTourState) {
     createPlanHomeLocalSnapshotAdapter({ storage: window.localStorage }).save(state);
@@ -1828,6 +1840,11 @@ export function PlanYourHomeShell({
                       : null;
 
     if (checkpointBoundary) {
+      if (refinementFixture) {
+        setError(null);
+        commitState(advanced.state);
+        return true;
+      }
       commitState(answered.state);
       if (!clientDraft?.draftId || !clientDraft.revision) {
         setError({
@@ -1963,6 +1980,12 @@ export function PlanYourHomeShell({
     });
     if (completed.error) {
       setFormError(completed.error.message);
+      return;
+    }
+
+    if (refinementFixture) {
+      setFormError(null);
+      commitState(completed.state);
       return;
     }
 
@@ -2400,7 +2423,20 @@ export function PlanYourHomeShell({
   }
 
   return (
-    <div className={styles.experience}>
+    <div
+      className={styles.experience}
+      data-plan-home-refinement-state={
+        refinementFixture
+          ? submitted
+            ? "confirmation"
+            : tourState.location.kind === "question"
+              ? `q${getPlanHomeQuestion(tourState.location.questionId)?.number}`
+              : tourState.location.kind === "contact-gate"
+                ? "contact"
+                : tourState.location.kind
+          : undefined
+      }
+    >
       <header className={styles.experienceHeader}>
         <p>Plan Your Home</p>
         <span>Howeth and Harp · guided project brief</span>

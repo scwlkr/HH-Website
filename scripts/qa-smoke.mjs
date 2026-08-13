@@ -654,9 +654,9 @@ async function verifyLinkCoverage(page, baseUrl) {
     "Home page should no longer reference legal placeholder copy.",
   );
   assert(
-    (await page.locator('main a[href="/plan-your-home"]').count()) > 0 &&
+    (await page.locator('a[href^="/plan-your-home"]').count()) === 0 &&
       (await page.locator('main a[href="/inquire"]').count()) > 0,
-    "The home page must make both the new-home tour and generic inquiry paths explicit.",
+    "The home page must keep Plan Your Home unlinked and expose the generic inquiry.",
   );
 }
 
@@ -667,11 +667,14 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
     `${baseUrl}/start?buildType=townhomes&utm_source=smoke&email=private%40example.com`,
     { waitUntil: "networkidle" },
   );
-  const planLink = page.getByRole("link", { name: "Plan Your Home", exact: true });
+  const newHomeLink = page.getByRole("link", {
+    name: "Start A Project Brief",
+    exact: true,
+  });
   const genericLink = page.getByRole("link", {
     name: "Start Another Project Type",
   });
-  for (const entryLink of [planLink, genericLink]) {
+  for (const entryLink of [newHomeLink, genericLink]) {
     const target = await entryLink.boundingBox();
     assert(
       target && target.width >= 44 && target.height >= 44,
@@ -679,8 +682,9 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
     );
   }
   assert(
-    (await planLink.getAttribute("href")) === "/plan-your-home",
-    "The new detached-home path must enter Plan Your Home without query data.",
+    (await newHomeLink.getAttribute("href")) ===
+      "/inquire?buildType=single-family",
+    "The public new-home path must use the generic brief while Plan Your Home is private.",
   );
   const genericHref = new URL(
     await genericLink.getAttribute("href"),
@@ -704,10 +708,17 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
   );
   await page.goBack({ waitUntil: "networkidle" });
 
-  await Promise.all([
-    page.waitForURL(`${baseUrl}/plan-your-home`),
-    page.getByRole("link", { name: "Plan Your Home", exact: true }).click(),
-  ]);
+  assert(
+    (await page.locator('a[href^="/plan-your-home"]').count()) === 0,
+    "The project-start page must not link to private Plan Your Home routes.",
+  );
+
+  await page.goto(`${baseUrl}/plan-your-home`, { waitUntil: "networkidle" });
+  assert(
+    (await page.locator('meta[name="robots"]').getAttribute("content")) ===
+      "noindex, nofollow",
+    "Direct Plan Your Home access must remain excluded from indexing.",
+  );
   const planPrivacyLink = page.getByRole("link", {
     name: "privacy and retention policy",
   });

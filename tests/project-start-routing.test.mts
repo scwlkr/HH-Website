@@ -5,8 +5,11 @@ import { getBuildTypeInquiryHref } from "../lib/content/build-types.ts";
 import { getFinishLevelInquiryHref } from "../lib/content/finish-levels.ts";
 import { getGenericInquiryHrefFromProjectStart } from "../lib/project-start.ts";
 
-test("the project-start register sends only detached single-family homes into Plan Your Home", () => {
-  assert.equal(getBuildTypeInquiryHref("single-family"), "/plan-your-home");
+test("the public project paths keep every build type in the generic brief", () => {
+  assert.equal(
+    getBuildTypeInquiryHref("single-family"),
+    "/inquire?buildType=single-family",
+  );
   assert.equal(
     getBuildTypeInquiryHref("multifamily"),
     "/inquire?buildType=multifamily",

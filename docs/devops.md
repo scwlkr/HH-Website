@@ -130,3 +130,31 @@ policy until that review is recorded. Cleanup configuration does not itself
 satisfy the legal review gate.
 
 Agent rule: inspect the changed-route screenshots before claiming UI completion. Never put secrets or private client data in screenshots.
+
+## Plan Your Home Refinement Loop
+
+Capture one deterministic state with generated `.invalid` fixture data:
+
+```bash
+npm run refine:plan-home -- q27
+```
+
+Named states are `welcome`, `contact`, `q1` through `q35`, `review`, and
+`confirmation`. A focused run captures phone and desktop and targets 30
+seconds. Run without a state for the phone-heavy representative board plus four
+desktop samples; it targets two minutes:
+
+```bash
+npm run refine:plan-home
+```
+
+Each run replaces only `output/plan-home-refinement/latest/` and writes
+`review-board.png`, the individual captures, and `summary.json`. It fails on a
+wrong state, HTTP or request failure, browser or console error, horizontal
+overflow, detectable WCAG violation, unnamed control, target smaller than 44px,
+or broken representative Back/Next behavior.
+
+The fixture requires the command's explicit development flag and a loopback
+host. It cannot be enabled in a production build, never uses Firebase or email,
+and remains separate from the retained Playwright proof. Automation is a
+regression gate only; visual approval still comes from inspecting the board.

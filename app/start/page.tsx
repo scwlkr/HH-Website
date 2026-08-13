@@ -21,11 +21,11 @@ const projectPaths = [
   {
     index: "01",
     eyebrow: "New detached single-family home",
-    title: "Walk through Plan Your Home.",
+    title: "Start a new-home project brief.",
     description:
-      "Use the illustrated 35-question tour for a new home. It captures household needs, rooms, site, finish direction, budget context, timing, and inspiration.",
-    href: "/plan-your-home",
-    label: "Plan Your Home",
+      "Tell us about the home, site, priorities, budget context, timing, and inspiration. h and h can guide the next planning step during follow-up.",
+    href: "/inquire?buildType=single-family",
+    label: "Start A Project Brief",
   },
   {
     index: "02",
@@ -50,7 +50,7 @@ export default async function ProjectStartPage({
       <PageIntro
         eyebrow="Project Start"
         title="Choose the brief that fits the work."
-        lede="New detached homes have a room-by-room planning tour. Every other project keeps a shorter general inquiry."
+        lede="New detached homes have a focused project brief. Every other project uses the same practical intake with the relevant project type."
         description="Choose one path below. Both begin a conversation with h and h; neither creates a design, price, feasibility decision, or contract."
         detail={
           <div className="space-y-5">
