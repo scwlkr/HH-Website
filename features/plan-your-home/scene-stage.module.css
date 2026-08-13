@@ -223,12 +223,17 @@
 }
 
 .stageActions {
+  position: sticky;
+  z-index: 5;
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
   display: grid;
   grid-template-columns: minmax(7rem, 0.55fr) minmax(9rem, 1fr);
   gap: 0.75rem;
   margin-top: 1.5rem;
-  padding-top: 1.25rem;
+  padding: 0.75rem;
   border-top: 1px solid var(--hh-line);
+  background: color-mix(in srgb, var(--hh-surface) 96%, var(--hh-paper));
+  box-shadow: 0 -0.5rem 1.25rem color-mix(in srgb, var(--hh-ink) 10%, transparent);
 }
 
 .actionButton {
@@ -289,8 +294,7 @@
 
   .stageActions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-inline: -0.25rem;
-    padding-inline: 0.25rem;
+    margin-inline: -0.5rem;
   }
 }
 

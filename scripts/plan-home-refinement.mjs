@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createRequire } from "node:module";
-import { mkdir, rename, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -17,6 +17,7 @@ import {
 const require = createRequire(import.meta.url);
 const axePath = require.resolve("axe-core/axe.min.js");
 const outputDirectory = path.join(process.cwd(), "output", "plan-home-refinement", "latest");
+const pilotOriginalDirectory = path.join(process.cwd(), "output", "plan-home-refinement", "pilot-original");
 const viewports = {
   phone: { width: 390, height: 844 },
   desktop: { width: 1440, height: 1000 },
@@ -24,7 +25,17 @@ const viewports = {
 const defaultMatrix = [
   ["welcome", "phone"],
   ["contact", "phone"],
+  ["q1", "phone"],
+  ["q2", "phone"],
+  ["q3", "phone"],
   ["q4", "phone"],
+  ["q5", "phone"],
+  ["q6", "phone"],
+  ["q7", "phone"],
+  ["q8", "phone"],
+  ["q9", "phone"],
+  ["q10", "phone"],
+  ["q11", "phone"],
   ["q12", "phone"],
   ["q16", "phone"],
   ["q20", "phone"],
@@ -36,6 +47,8 @@ const defaultMatrix = [
   ["review", "phone"],
   ["confirmation", "phone"],
   ["welcome", "desktop"],
+  ["q1", "desktop"],
+  ["q4", "desktop"],
   ["q12", "desktop"],
   ["q33", "desktop"],
   ["review", "desktop"],
@@ -134,35 +147,40 @@ async function quality(page) {
   });
 }
 
+async function activateByKeyboard(page, control) {
+  await control.focus();
+  await page.keyboard.press("Enter");
+}
+
 async function assertNavigation(page, state) {
   if (state === "welcome") {
     const nameInput = page.getByLabel("Your name");
     await nameInput.fill("Refinement Homeowner");
-    await page.getByRole("button", { name: "Open the front door" }).click();
+    await activateByKeyboard(page, page.getByRole("button", { name: "Open the front door" }));
     await page.locator('[data-plan-home-refinement-state="q1"]').waitFor();
-    await page.getByRole("button", { name: "Back" }).click();
+    await activateByKeyboard(page, page.getByRole("button", { name: "Back" }));
     await page.locator('[data-plan-home-refinement-state="welcome"]').waitFor();
     await nameInput.fill("");
     return;
   }
   if (state === "contact") {
-    await page.getByRole("button", { name: "Back" }).click();
+    await activateByKeyboard(page, page.getByRole("button", { name: "Back" }));
     await page.locator('[data-plan-home-refinement-state="q6"]').waitFor();
-    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await activateByKeyboard(page, page.getByRole("button", { name: "Next", exact: true }));
     await page.locator('[data-plan-home-refinement-state="contact"]').waitFor();
     return;
   }
   if (state === "review") {
-    await page.getByRole("button", { name: /Edit/ }).first().click();
+    await activateByKeyboard(page, page.getByRole("button", { name: /Edit/ }).first());
     await page.locator('[data-plan-home-refinement-state^="q"]').waitFor();
-    await page.getByRole("button", { name: "Cancel" }).click();
+    await activateByKeyboard(page, page.getByRole("button", { name: "Cancel" }));
     await page.locator('[data-plan-home-refinement-state="review"]').waitFor();
     return;
   }
   if (!state.startsWith("q")) return;
   const number = Number(state.slice(1));
   const back = page.getByRole("button", { name: "Back" });
-  await back.click();
+  await activateByKeyboard(page, back);
   const previousState = number === 1 ? "welcome" : number === 7 ? "contact" : `q${number - 1}`;
   await page.locator(`[data-plan-home-refinement-state="${previousState}"]`).waitFor();
   const forward =
@@ -173,9 +191,9 @@ async function assertNavigation(page, state) {
         : page.getByRole("button", {
             name: /^(Next|Save room|Review brief|Open the design desk)$/,
           });
-  await forward.click();
+  await activateByKeyboard(page, forward);
   if (number === 31) {
-    await page.getByRole("button", { name: "Save room" }).click();
+    await activateByKeyboard(page, page.getByRole("button", { name: "Save room" }));
   }
   await page.locator(`[data-plan-home-refinement-state="q${number}"]`).waitFor();
 }
@@ -206,6 +224,15 @@ async function capture(browser, baseUrl, state, viewportName) {
       hasMarketingFooter: false,
       hasSaveAndExit: true,
     }, "focused walkthrough shell");
+    if (state.startsWith("q")) {
+      const actions = await page.locator("[data-plan-home-actions]").boundingBox();
+      assert(actions, "question actions are visible");
+      assert(actions.y >= 0, "question actions start inside the viewport");
+      assert(
+        actions.y + actions.height <= viewports[viewportName].height,
+        "question actions remain inside the initial viewport",
+      );
+    }
     result.quality = await quality(page);
     assert.deepEqual(result.quality.violations, [], "accessibility violations");
     assert.equal(result.quality.overflow, false, "horizontal overflow");
@@ -235,6 +262,39 @@ async function writeBoard(browser, results) {
   } finally {
     await page.close();
   }
+}
+
+async function writePilotBoard(browser) {
+  const originalWelcome = path.join(pilotOriginalDirectory, "welcome-phone.png");
+  const originalLiving = path.join(pilotOriginalDirectory, "q4-phone.png");
+  try {
+    await Promise.all([access(originalWelcome), access(originalLiving)]);
+  } catch {
+    return null;
+  }
+  const cards = [
+    ["Phone before", originalWelcome],
+    ["Phone refined", path.join(outputDirectory, "welcome-phone.png")],
+    ["Living Room before", originalLiving],
+    ["Living Room refined", path.join(outputDirectory, "q4-phone.png")],
+    ["Entry desktop", path.join(outputDirectory, "q1-desktop.png")],
+    ["Living Room desktop", path.join(outputDirectory, "q4-desktop.png")],
+  ];
+  const markup = cards
+    .map(([label, imagePath]) => `<article><h2>${label}</h2><img src="${pathToFileURL(imagePath).href}" alt="${label}"></article>`)
+    .join("");
+  const html = `<!doctype html><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;padding:28px;background:#e9e6dc;color:#151815;font-family:system-ui}header{margin-bottom:20px}h1{margin:0;font-size:28px}header p{margin:6px 0 0;color:#4d554f}.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}article{background:white;border:1px solid #777}h2{margin:0;padding:10px 12px;border-bottom:1px solid #aaa;font-size:13px;text-transform:uppercase;letter-spacing:.08em}img{display:block;width:100%;height:844px;object-fit:cover;object-position:top}.board article:nth-child(n+5) img{height:auto;max-height:760px;object-fit:contain;background:#ddd}</style><header><h1>Welcome and Living Room pilot</h1><p>Phone before and refined direction, then deliberate desktop framing.</p></header><section class="board">${markup}</section>`;
+  const htmlPath = path.join(outputDirectory, "pilot-review-board.html");
+  await writeFile(htmlPath, html);
+  const page = await browser.newPage({ viewport: { width: 1800, height: 1000 } });
+  try {
+    await page.goto(pathToFileURL(htmlPath).href);
+    await page.evaluate(() => Promise.all([...document.images].map((image) => image.decode())));
+    await page.screenshot({ fullPage: true, path: path.join(outputDirectory, "pilot-review-board.png") });
+  } finally {
+    await page.close();
+  }
+  return "pilot-review-board.png";
 }
 
 async function capturePilotMotion(browser, baseUrl) {
@@ -296,9 +356,12 @@ async function main() {
     const motionCapture = input.focused
       ? null
       : await capturePilotMotion(browser, baseUrl);
+    const pilotReviewBoard = input.focused
+      ? null
+      : await writePilotBoard(browser);
     const durationMs = Date.now() - startedAt;
     const passed = results.every((result) => result.passed) && durationMs < (input.focused ? 30_000 : 120_000);
-    const summary = { generatedAt: new Date().toISOString(), focused: input.focused, passed, durationMs, targets: { focusedMs: 30_000, boardMs: 120_000 }, motionCapture, results };
+    const summary = { generatedAt: new Date().toISOString(), focused: input.focused, passed, durationMs, targets: { focusedMs: 30_000, boardMs: 120_000 }, pilotReviewBoard, motionCapture, results };
     await writeFile(path.join(outputDirectory, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
     await writeBoard(browser, results);
     process.stdout.write(`${passed ? "PASS" : "FAIL"} ${results.filter((result) => result.passed).length}/${results.length} · ${(durationMs / 1000).toFixed(1)}s · output/plan-home-refinement/latest/review-board.png\n`);

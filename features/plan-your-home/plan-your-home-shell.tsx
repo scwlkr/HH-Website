@@ -1827,13 +1827,7 @@ export function PlanYourHomeShell({
 
   function saveBeforeExit() {
     const current = tourStateRef.current;
-    if (current.location.kind === "question") {
-      persistLocalAnswer(
-        current.location.questionId,
-        draftAnswers[current.location.questionId],
-      );
-      return;
-    }
+    if (persistCurrentQuestionDraft()) return;
     if (current.location.kind === "welcome" && welcomeName.trim().length >= 2) {
       const named = reducePlanHomeTour(current, {
         type: "set-welcome-name",
@@ -1841,6 +1835,13 @@ export function PlanYourHomeShell({
       });
       if (!named.error) saveLocal(named.state);
     }
+  }
+
+  function persistCurrentQuestionDraft() {
+    const location = tourStateRef.current.location;
+    if (location.kind !== "question") return false;
+    persistLocalAnswer(location.questionId, draftAnswers[location.questionId]);
+    return true;
   }
 
   function backFromQuestion() {
@@ -1863,9 +1864,7 @@ export function PlanYourHomeShell({
       return true;
     }
 
-    if (location.kind === "question") {
-      persistLocalAnswer(location.questionId, draftAnswers[location.questionId]);
-    }
+    persistCurrentQuestionDraft();
     const transition = reducePlanHomeTour(tourStateRef.current, { type: "back" });
     if (transition.error) {
       setError(transition.error);

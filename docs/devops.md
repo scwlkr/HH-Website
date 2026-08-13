@@ -32,6 +32,10 @@ Plan Your Home has a public project-entry path in this build. Open it directly a
 npm run review -- /plan-your-home
 ```
 
+The active walkthrough uses its own focused shell with the h and h brand,
+concise progress, and Save and exit. The shared marketing navigation and footer
+remain available on other public routes but are intentionally absent here.
+
 For final local qualification, run the complete browser scenario inside the
 pinned Firebase emulator suite:
 
@@ -141,20 +145,28 @@ npm run refine:plan-home -- q27
 
 Named states are `welcome`, `contact`, `q1` through `q35`, `review`, and
 `confirmation`. A focused run captures phone and desktop and targets 30
-seconds. Run without a state for the phone-heavy representative board plus four
-desktop samples; it targets two minutes:
+seconds. Run without a state for the phone-heavy representative board, all
+Welcome/Entry/Living Room states (`q1` through `q11`), and deliberate Entry and
+Living Room desktop samples; it targets two minutes:
 
 ```bash
 npm run refine:plan-home
 ```
 
 Each run replaces only `output/plan-home-refinement/latest/` and writes
-`review-board.png`, the individual captures, and `summary.json`. It fails on a
-wrong state, HTTP or request failure, browser or console error, horizontal
-overflow, detectable WCAG violation, unnamed control, target smaller than 44px,
-or broken representative Back/Next behavior.
+`review-board.png`, the individual captures, and `summary.json`. The default
+board also writes `pilot-motion-phone.webm`. When an approved comparison is in
+`output/plan-home-refinement/pilot-original/`, it writes
+`pilot-review-board.png`, a concise phone before/after and desktop adaptation
+package. The summary records the available artifact names. It fails on a wrong
+state, HTTP or request failure, browser or console error, horizontal overflow,
+detectable WCAG violation, unnamed control, target smaller than 44px, a question
+action dock outside the initial viewport, or broken keyboard-driven Back/Next
+behavior.
 
 The fixture requires the command's explicit development flag and a loopback
 host. It cannot be enabled in a production build, never uses Firebase or email,
 and remains separate from the retained Playwright proof. Automation is a
 regression gate only; visual approval still comes from inspecting the board.
+The internal `__motion=1` query used by the script enables motion only inside
+this development fixture so the default run can retain a transition sample.

@@ -217,7 +217,7 @@ export function SceneStage({
 
           <div className={styles.promptBody}>{prompt}</div>
 
-          <div className={styles.stageActions}>
+          <div className={styles.stageActions} data-plan-home-actions>
             <Button
               className={styles.actionButton}
               variant="secondary"
