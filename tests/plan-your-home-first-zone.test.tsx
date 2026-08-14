@@ -170,6 +170,153 @@ test("welcome personalizes decorative plaque and the front-door beat opens exact
   );
 });
 
+test("missing grouped choices use one safe instruction per group and refocus as answers change", async () => {
+  const user = userEvent.setup({ document: window.document });
+  const view = render(<PlanYourHomeShell reducedMotion />);
+  const query = within(view.container);
+  const scrolledGroups: Element[] = [];
+  const originalScrollIntoView = window.HTMLElement.prototype.scrollIntoView;
+  window.HTMLElement.prototype.scrollIntoView = function scrollIntoView() {
+    scrolledGroups.push(this);
+  };
+
+  try {
+    await beginTour(user, query);
+    const startingPoint = query.getByRole("group", { name: "Starting point" });
+    const services = query.getByRole("group", { name: "Services" });
+    await user.click(query.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      assert.deepEqual(
+        query.getAllByRole("alert").map((alert) => alert.textContent),
+        ["Choose a starting point.", "Choose at least one service."],
+      );
+      assert.equal(
+        window.document.activeElement,
+        within(startingPoint).getAllByRole("radio")[0],
+      );
+    });
+    assert.equal(scrolledGroups.at(-1), startingPoint);
+    assert.equal(query.queryByText(/Invalid option:/), null);
+
+    await user.click(
+      within(startingPoint).getByRole("radio", { name: "Fully custom" }),
+    );
+    await user.click(query.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      assert.deepEqual(
+        query.getAllByRole("alert").map((alert) => alert.textContent),
+        ["Choose at least one service."],
+      );
+      assert.equal(
+        window.document.activeElement,
+        within(services).getAllByRole("checkbox")[0],
+      );
+    });
+    assert.equal(scrolledGroups.at(-1), services);
+    assert.equal(
+      (
+        within(startingPoint).getByRole("radio", {
+          name: "Fully custom",
+        }) as HTMLInputElement
+      ).checked,
+      true,
+    );
+  } finally {
+    window.HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+  }
+});
+
+test("missing bedroom and bathroom counts show customer-safe guidance and focus the first incomplete group", async () => {
+  const user = userEvent.setup({ document: window.document });
+  const view = render(<PlanYourHomeShell reducedMotion />);
+  const query = within(view.container);
+  const scrolledGroups: Element[] = [];
+  const originalScrollIntoView = window.HTMLElement.prototype.scrollIntoView;
+  window.HTMLElement.prototype.scrollIntoView = function scrollIntoView() {
+    scrolledGroups.push(this);
+  };
+
+  try {
+    await beginTour(user, query);
+    await user.click(query.getByRole("radio", { name: "Fully custom" }));
+    await user.click(
+      query.getByRole("checkbox", { name: "Architectural design" }),
+    );
+    await user.click(query.getByRole("button", { name: "Next" }));
+    await user.click(query.getByRole("radio", { name: "Own it" }));
+    await user.type(
+      query.getByRole("textbox", {
+        name: "City, county, address, or target area",
+      }),
+      "Denton County",
+    );
+    await user.click(query.getByRole("button", { name: "Next" }));
+    await user.click(query.getByRole("checkbox", { name: "Wooded" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
+    await user.click(query.getByRole("radio", { name: "2,000–2,499" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
+    await user.click(query.getByRole("radio", { name: "One" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
+
+    const bedrooms = query.getByRole("group", { name: "Bedrooms" });
+    const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
+    const halfBathrooms = query.getByRole("group", { name: "Half bathrooms" });
+    await user.click(query.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      assert.deepEqual(
+        query.getAllByRole("alert").map((alert) => alert.textContent),
+        [
+          "Choose a bedroom count.",
+          "Choose a full-bathroom count.",
+          "Choose a half-bathroom count.",
+        ],
+      );
+      assert.equal(
+        window.document.activeElement,
+        within(bedrooms).getAllByRole("radio")[0],
+      );
+    });
+    assert.equal(query.queryByText(/Invalid option:/), null);
+    assert.equal(scrolledGroups.at(-1), bedrooms);
+
+    await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      assert.deepEqual(
+        query.getAllByRole("alert").map((alert) => alert.textContent),
+        [
+          "Choose a full-bathroom count.",
+          "Choose a half-bathroom count.",
+        ],
+      );
+      assert.equal(
+        window.document.activeElement,
+        within(fullBathrooms).getAllByRole("radio")[0],
+      );
+    });
+    assert.equal(scrolledGroups.at(-1), fullBathrooms);
+    assert.equal(
+      (within(bedrooms).getByRole("radio", { name: "4" }) as HTMLInputElement)
+        .checked,
+      true,
+    );
+    assert.equal(halfBathrooms.getAttribute("aria-invalid"), "true");
+    const accessibility = await axe.run(view.container, {
+      rules: { "color-contrast": { enabled: false } },
+    });
+    assert.deepEqual(
+      accessibility.violations.map((violation) => violation.id),
+      [],
+    );
+  } finally {
+    window.HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+  }
+});
+
 test("valid choices persist locally before Next and survive refresh without a server write", async () => {
   const createCalls: unknown[] = [];
   const user = userEvent.setup({ document: window.document });

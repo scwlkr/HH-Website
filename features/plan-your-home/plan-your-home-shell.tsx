@@ -437,11 +437,96 @@ function actionError(result: Exclude<PlanHomeDraftActionState, { status: "succes
   return result.message;
 }
 
+const CUSTOMER_VALIDATION_GUIDANCE: Partial<
+  Record<PlanHomeQuestionId, Readonly<Record<string, string>>>
+> = {
+  "project.starting-services": {
+    startingPoint: "Choose a starting point.",
+    services: "Choose at least one service.",
+  },
+  "project.lot-location": {
+    lotStatus: "Choose a lot status.",
+    location: "Enter a location or choose Not sure yet.",
+  },
+  "home.bed-bath-counts": {
+    bedrooms: "Choose a bedroom count.",
+    fullBathrooms: "Choose a full-bathroom count.",
+    halfBathrooms: "Choose a half-bathroom count.",
+  },
+  "kitchen.arrangement": {
+    workCenter: "Choose a work center.",
+    connection: "Choose a kitchen connection.",
+  },
+  "secondary.users-layout": {
+    users: "Choose at least one bedroom user.",
+    arrangement: "Choose a bedroom arrangement.",
+  },
+  "exterior.garage": {
+    bays: "Choose a garage-bay count.",
+  },
+  "design.feeling": {
+    feelings: "Choose at least one feeling.",
+  },
+  "project.budget-timing": {
+    budget: "Choose a budget range.",
+    designStart: "Choose a design start.",
+  },
+};
+
+const ROOT_VALIDATION_FIELD: Partial<Record<PlanHomeQuestionId, string>> = {
+  "project.lot-location": "location",
+};
+
+function validationFieldId(question: PlanHomeQuestionDefinition, field: string) {
+  if (question.id === "project.lot-location" && field === "lotStatus") {
+    return `${question.id}-status`;
+  }
+  if (question.id === "design.feeling" && field === "likesAndDislikes") {
+    return `${question.id}-current-home`;
+  }
+  return `${question.id}-${field}`;
+}
+
+function customerValidationFeedback(
+  question: PlanHomeQuestionDefinition,
+  answer: unknown,
+) {
+  const parsed = question.response.answerSchema.safeParse(answer);
+  const questionId = question.id as PlanHomeQuestionId;
+  const guidance = CUSTOMER_VALIDATION_GUIDANCE[questionId];
+  const errors: Record<string, string> = {};
+  let firstFieldId: string | null = null;
+
+  if (!parsed.success && guidance) {
+    for (const issue of parsed.error.issues) {
+      const pathField = issue.path[0];
+      const field =
+        typeof pathField === "string"
+          ? pathField
+          : ROOT_VALIDATION_FIELD[questionId];
+      const message = field ? guidance[field] : undefined;
+      if (!field || !message || errors[field]) continue;
+      errors[field] = message;
+      firstFieldId ??= validationFieldId(question, field);
+    }
+  }
+
+  return {
+    errors,
+    firstFieldId,
+    message:
+      Object.keys(errors).length === 0
+        ? "Choose an answer before continuing."
+        : null,
+  };
+}
+
 function renderQuestionPrompt(
   question: PlanHomeQuestionDefinition,
   answer: unknown,
   updateAnswer: (answer: unknown, persistence?: AnswerPersistence) => void,
   flushAnswer: (answer: unknown) => void,
+  validationErrors: Readonly<Record<string, string>>,
   designDesk?: DesignDeskPromptContext,
 ) {
   const firstGroup = question.response.optionGroups[0] as PlanHomeOptionGroup;
@@ -459,6 +544,7 @@ function renderQuestionPrompt(
           legend={firstGroup.label}
           options={firstGroup.options}
           value={value.lotStatus}
+          error={validationErrors.lotStatus}
           onChange={(lotStatus) => updateAnswer({ ...value, lotStatus })}
         />
         <ShortTextPrompt
@@ -466,6 +552,7 @@ function renderQuestionPrompt(
           legend="Location"
           label="City, county, address, or target area"
           instructions="Enter at least two characters, or choose Not sure yet."
+          error={validationErrors.location}
           value={value.location}
           maxLength={160}
           uncertainLabel="Not sure yet"
@@ -490,6 +577,7 @@ function renderQuestionPrompt(
         value={answer as Record<string, string | null>}
         onChange={updateAnswer}
         instructions="Choose one exact range for each count."
+        errors={validationErrors}
       />
     );
   }
@@ -508,6 +596,7 @@ function renderQuestionPrompt(
           legend={firstGroup.label}
           options={firstGroup.options}
           value={value.bays}
+          error={validationErrors.bays}
           onChange={(bays) => updateAnswer({ ...value, bays })}
         />
         <MultiChoicePrompt
@@ -515,6 +604,7 @@ function renderQuestionPrompt(
           legend={needsGroup.label}
           options={needsGroup.options}
           value={value.needs}
+          error={validationErrors.needs}
           onChange={(needs) => updateAnswer({ ...value, needs })}
           instructions="Choose any needs that apply, or leave this group blank."
         />
@@ -526,6 +616,7 @@ function renderQuestionPrompt(
           maxLength={120}
           optional
           instructions="Add one short garage need not listed above."
+          error={validationErrors.other}
           onChange={(other) =>
             updateAnswer({ ...value, other }, "debounced")
           }
@@ -563,6 +654,7 @@ function renderQuestionPrompt(
           options={firstGroup.options}
           value={value.feelings}
           maxSelections={3}
+          error={validationErrors.feelings}
           onChange={(feelings) => updateAnswer({ ...value, feelings })}
         />
         <ShortTextPrompt
@@ -573,6 +665,7 @@ function renderQuestionPrompt(
           maxLength={500}
           optional
           multiline
+          error={validationErrors.likesAndDislikes}
           onChange={(likesAndDislikes) =>
             updateAnswer({ ...value, likesAndDislikes }, "debounced")
           }
@@ -666,6 +759,7 @@ function renderQuestionPrompt(
         groups={question.response.optionGroups}
         value={answer as GroupedChoiceValue}
         onChange={updateAnswer}
+        errors={validationErrors}
         instructions={
           question.id === "project.budget-timing"
             ? undefined
@@ -1413,6 +1507,13 @@ export function PlanYourHomeShell({
     null,
   );
   const [error, setError] = useState<PlanHomeTourTransition["error"]>(null);
+  const [validationErrors, setValidationErrors] = useState<
+    Readonly<Record<string, string>>
+  >({});
+  const [validationFocus, setValidationFocus] = useState({
+    fieldId: "",
+    attempt: 0,
+  });
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [showBedroomHallBoundary, setShowBedroomHallBoundary] = useState(false);
@@ -1443,10 +1544,23 @@ export function PlanYourHomeShell({
   const resumeAnalyticsTracked = useRef(false);
   const tourStateRef = useRef(tourState);
   const textSaveTimer = useRef<number | null>(null);
+  const experienceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     tourStateRef.current = tourState;
   }, [tourState]);
+
+  useEffect(() => {
+    if (!validationFocus.fieldId) return;
+    const field = experienceRef.current?.querySelector<HTMLElement>(
+      `[data-plan-home-field="${CSS.escape(validationFocus.fieldId)}"]`,
+    );
+    const firstControl = field?.querySelector<HTMLElement>(
+      "input:not([disabled]), textarea:not([disabled]), select:not([disabled])",
+    );
+    firstControl?.focus({ preventScroll: true });
+    field?.scrollIntoView?.({ block: "center" });
+  }, [validationFocus]);
 
   useEffect(
     () => () => {
@@ -1642,6 +1756,7 @@ export function PlanYourHomeShell({
   ) {
     setDraftAnswers((current) => ({ ...current, [questionId]: answer }));
     setError(null);
+    setValidationErrors({});
 
     if (tourStateRef.current.location.kind !== "question") return;
     if (tourStateRef.current.location.editingFromReview) return;
@@ -2016,7 +2131,19 @@ export function PlanYourHomeShell({
       answer: activeAnswer,
     });
     if (answered.error) {
-      setError(answered.error);
+      const feedback = customerValidationFeedback(question, activeAnswer);
+      setValidationErrors(feedback.errors);
+      setError(
+        feedback.message
+          ? { code: "invalid-answer", message: feedback.message }
+          : null,
+      );
+      if (feedback.firstFieldId) {
+        setValidationFocus((current) => ({
+          fieldId: feedback.firstFieldId ?? "",
+          attempt: current.attempt + 1,
+        }));
+      }
       return false;
     }
 
@@ -2629,6 +2756,7 @@ export function PlanYourHomeShell({
             (answer, persistence) =>
               updateDraftAnswer(question.id, answer, persistence),
             (answer) => flushDraftAnswer(question.id, answer),
+            validationErrors,
             {
               priorityItems: selectedPriorityItems(draftAnswers),
               referenceItems,
@@ -2710,6 +2838,7 @@ export function PlanYourHomeShell({
 
   return (
     <div
+      ref={experienceRef}
       className={styles.experience}
       data-plan-home-refinement-state={
         refinementFixture

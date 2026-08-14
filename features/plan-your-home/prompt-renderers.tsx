@@ -247,6 +247,7 @@ export function ChoicePrompt({
   return (
     <fieldset
       className={styles.fieldset}
+      data-plan-home-field={id}
       aria-describedby={describedBy(instructions, error, ids)}
       aria-invalid={Boolean(error)}
     >
@@ -323,6 +324,7 @@ export function MultiChoicePrompt({
   return (
     <fieldset
       className={styles.fieldset}
+      data-plan-home-field={id}
       aria-describedby={describedBy(limitInstruction, displayedError, ids)}
       aria-invalid={Boolean(displayedError)}
     >
@@ -682,7 +684,7 @@ export function ShortTextPrompt({
   };
 
   return (
-    <fieldset className={styles.fieldset}>
+    <fieldset className={styles.fieldset} data-plan-home-field={id}>
       <legend className={styles.legend}>{legend}</legend>
       <FieldSupport instructions={instructions} error={error} ids={ids} />
       <label className={styles.textLabel} htmlFor={inputId}>

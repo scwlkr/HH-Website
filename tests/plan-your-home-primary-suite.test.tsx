@@ -168,7 +168,11 @@ test("four registered anchors carry exact semantic prompts and explicit uncertai
   );
 
   await user.click(query.getByRole("button", { name: "Next" }));
-  assert.match(query.getByRole("alert").textContent ?? "", /Invalid option/);
+  assert.match(
+    query.getByRole("alert").textContent ?? "",
+    /Choose an answer before continuing\./,
+  );
+  assert.equal(query.queryByText(/Invalid option:/), null);
   await user.click(query.getByRole("radio", { name: "Not sure yet" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
