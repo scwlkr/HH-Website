@@ -160,9 +160,9 @@ board also writes `pilot-motion-phone.webm`. When an approved comparison is in
 `pilot-review-board.png`, a concise phone before/after and desktop adaptation
 package. The summary records the available artifact names. It fails on a wrong
 state, HTTP or request failure, browser or console error, horizontal overflow,
-detectable WCAG violation, unnamed control, target smaller than 44px, a question
-action dock outside the initial viewport, or broken keyboard-driven Back/Next
-behavior.
+detectable WCAG violation, unnamed control, target smaller than 44px, an
+interactive control obscured in the viewport, a question action dock outside the
+initial viewport, or broken keyboard-driven Back/Next behavior.
 
 The fixture requires the command's explicit development flag and a loopback
 host. It cannot be enabled in a production build, never uses Firebase or email,

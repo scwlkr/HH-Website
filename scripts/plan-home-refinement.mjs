@@ -132,17 +132,17 @@ async function quality(page) {
       return [element.getAttribute("aria-label"), labelledText, labels, element.textContent, element.getAttribute("title"), element.getAttribute("alt")]
         .some((value) => String(value ?? "").trim().length > 0);
     };
-    const targetSize = (element) => {
+    const interactiveTarget = (element) => {
       const wrappingLabel = "labels" in element
         ? Array.from(element.labels ?? []).find((label) => label.contains(element))
         : undefined;
-      return (wrappingLabel ?? element).getBoundingClientRect();
+      return wrappingLabel ?? element;
+    };
+    const targetSize = (element) => {
+      return interactiveTarget(element).getBoundingClientRect();
     };
     const isObscuredInViewport = (element) => {
-      const wrappingLabel = "labels" in element
-        ? Array.from(element.labels ?? []).find((label) => label.contains(element))
-        : undefined;
-      const target = wrappingLabel ?? element;
+      const target = interactiveTarget(element);
       const rectangle = target.getBoundingClientRect();
       const centerX = rectangle.left + rectangle.width / 2;
       const centerY = rectangle.top + rectangle.height / 2;
