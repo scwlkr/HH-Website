@@ -155,6 +155,13 @@ async function preparePage(page) {
   });
 }
 
+async function resetLayoutShift(page) {
+  await page.evaluate(() => {
+    window.__hhLayoutShift = 0;
+    window.__hhLayoutShiftEntries = [];
+  });
+}
+
 async function pageQuality(page, label) {
   if (!(await page.locator("html").evaluate(() => Boolean(window.axe)))) {
     await page.addScriptTag({ path: axePath });
@@ -805,6 +812,9 @@ async function proveGeneric(browser, baseUrl, firestore) {
   await page.waitForURL(/\/inquire/);
   await fillGenericInquiry(page);
   await page.waitForURL(`${baseUrl}/thank-you`);
+  await page.getByRole("heading", { name: "Brief Received" }).waitFor();
+  await page.waitForLoadState("networkidle");
+  await resetLayoutShift(page);
   await capture(page, "desktop-generic-confirmation");
   const result = await firestore
     .collection("inquirySubmissions")

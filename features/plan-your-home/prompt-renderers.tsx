@@ -736,30 +736,56 @@ export function CountPrompt({
   );
 }
 
-function priorityForItem(value: PriorityPromptValue, item: string) {
-  if (value.mustHave.includes(item)) return "must-have";
-  if (value.niceToHave.includes(item)) return "nice-to-have";
-  if (value.dealBreakers.includes(item)) return "deal-breaker";
-  return "";
-}
-
-function priorityLabel(category: PriorityCategory) {
-  if (category === "must-have") return "Must-have";
-  if (category === "nice-to-have") return "Nice-to-have";
-  return "Deal-breaker";
-}
-
-function priorityGroupLabel(category: PriorityCategory) {
-  if (category === "must-have") return "Must-haves";
-  if (category === "nice-to-have") return "Nice-to-haves";
-  return "Deal-breakers";
-}
-
 const PRIORITY_CATEGORIES = [
   "must-have",
   "nice-to-have",
   "deal-breaker",
 ] as const satisfies readonly PriorityCategory[];
+
+const PRIORITY_CATEGORY_CONFIG = {
+  "must-have": {
+    label: "Must-have",
+    groupLabel: "Must-haves",
+    valueKey: "mustHave",
+    limitKey: "mustHave",
+  },
+  "nice-to-have": {
+    label: "Nice-to-have",
+    groupLabel: "Nice-to-haves",
+    valueKey: "niceToHave",
+    limitKey: "niceToHave",
+  },
+  "deal-breaker": {
+    label: "Deal-breaker",
+    groupLabel: "Deal-breakers",
+    valueKey: "dealBreakers",
+    limitKey: "dealBreaker",
+  },
+} as const satisfies Record<
+  PriorityCategory,
+  {
+    label: string;
+    groupLabel: string;
+    valueKey: "mustHave" | "niceToHave" | "dealBreakers";
+    limitKey: "mustHave" | "niceToHave" | "dealBreaker";
+  }
+>;
+
+function priorityForItem(value: PriorityPromptValue, item: string) {
+  return (
+    PRIORITY_CATEGORIES.find((category) =>
+      value[PRIORITY_CATEGORY_CONFIG[category].valueKey].includes(item),
+    ) ?? ""
+  );
+}
+
+function priorityLabel(category: PriorityCategory) {
+  return PRIORITY_CATEGORY_CONFIG[category].label;
+}
+
+function priorityGroupLabel(category: PriorityCategory) {
+  return PRIORITY_CATEGORY_CONFIG[category].groupLabel;
+}
 
 export function PriorityPrompt({
   id,
@@ -780,47 +806,40 @@ export function PriorityPrompt({
   const limitText = `Choose a group, then choose features with keyboard or touch. Up to ${limits.mustHave} must-haves, ${limits.niceToHave} nice-to-haves, and ${limits.dealBreaker} deal-breakers.`;
 
   function categoryLimit(category: PriorityCategory) {
-    if (category === "must-have") return limits.mustHave;
-    if (category === "nice-to-have") return limits.niceToHave;
-    return limits.dealBreaker;
+    return limits[PRIORITY_CATEGORY_CONFIG[category].limitKey];
   }
 
   function categoryCount(category: PriorityCategory) {
     const assigned =
-      category === "must-have"
-        ? value.mustHave.length
-        : category === "nice-to-have"
-          ? value.niceToHave.length
-          : value.dealBreakers.length;
+      value[PRIORITY_CATEGORY_CONFIG[category].valueKey].length;
     return assigned + (value.customItem?.priority === category ? 1 : 0);
   }
 
   function assign(item: string, category: PriorityCategory | "") {
-    const mustHave = value.mustHave.filter((entry) => entry !== item);
-    const niceToHave = value.niceToHave.filter((entry) => entry !== item);
-    const dealBreakers = value.dealBreakers.filter((entry) => entry !== item);
+    const assignments = {
+      "must-have": value.mustHave.filter((entry) => entry !== item),
+      "nice-to-have": value.niceToHave.filter((entry) => entry !== item),
+      "deal-breaker": value.dealBreakers.filter((entry) => entry !== item),
+    } satisfies Record<PriorityCategory, string[]>;
     const countWithCustom = (target: PriorityCategory, count: number) =>
       count + (value.customItem?.priority === target ? 1 : 0);
 
     if (
-      (category === "must-have" &&
-        countWithCustom(category, mustHave.length) >= limits.mustHave) ||
-      (category === "nice-to-have" &&
-        countWithCustom(category, niceToHave.length) >= limits.niceToHave) ||
-      (category === "deal-breaker" &&
-        countWithCustom(category, dealBreakers.length) >= limits.dealBreaker)
+      category &&
+      countWithCustom(category, assignments[category].length) >=
+        categoryLimit(category)
     ) {
       setLocalError(`${priorityLabel(category)} limit reached.`);
       return;
     }
 
+    if (category) assignments[category].push(item);
+
     setLocalError(null);
     onChange({
-      mustHave: category === "must-have" ? [...mustHave, item] : mustHave,
-      niceToHave:
-        category === "nice-to-have" ? [...niceToHave, item] : niceToHave,
-      dealBreakers:
-        category === "deal-breaker" ? [...dealBreakers, item] : dealBreakers,
+      mustHave: assignments["must-have"],
+      niceToHave: assignments["nice-to-have"],
+      dealBreakers: assignments["deal-breaker"],
       customItem: value.customItem,
       noStrongPrioritiesYet: false,
     });
@@ -837,19 +856,8 @@ export function PriorityPrompt({
       return;
     }
 
-    const limit =
-      category === "must-have"
-        ? limits.mustHave
-        : category === "nice-to-have"
-          ? limits.niceToHave
-          : limits.dealBreaker;
-    const count =
-      category === "must-have"
-        ? value.mustHave.length
-        : category === "nice-to-have"
-          ? value.niceToHave.length
-          : value.dealBreakers.length;
-    if (count >= limit) {
+    const count = value[PRIORITY_CATEGORY_CONFIG[category].valueKey].length;
+    if (count >= categoryLimit(category)) {
       setLocalError(`${priorityLabel(category)} limit reached.`);
       return;
     }
