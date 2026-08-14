@@ -723,16 +723,42 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
     name: "privacy and retention policy",
   });
   const planNameInput = page.getByLabel("Your name");
+  const planStartButton = page.getByRole("button", {
+    name: "Open the front door",
+  });
+  const planResumeLink = page.getByRole("link", {
+    name: "Resume a saved plan",
+  });
   assert(
     await page.evaluate(
-      ([privacy, input]) =>
+      ([input, start, privacy, resume]) =>
         Boolean(
-          privacy.compareDocumentPosition(input) &
-            Node.DOCUMENT_POSITION_FOLLOWING,
+          (input.compareDocumentPosition(start) &
+            Node.DOCUMENT_POSITION_FOLLOWING) &&
+            (start.compareDocumentPosition(privacy) &
+              Node.DOCUMENT_POSITION_FOLLOWING) &&
+            privacy.closest("[data-plan-home-welcome-footer]")?.contains(resume),
         ),
-      [await planPrivacyLink.elementHandle(), await planNameInput.elementHandle()],
+      [
+        await planNameInput.elementHandle(),
+        await planStartButton.elementHandle(),
+        await planPrivacyLink.elementHandle(),
+        await planResumeLink.elementHandle(),
+      ],
     ),
-    "Plan Your Home privacy and retention disclosure must precede the name field.",
+    "Plan Your Home privacy and resume links must remain secondary to the start action.",
+  );
+  assert(
+    (await planNameInput.getAttribute("aria-describedby")) ===
+      "plan-home-welcome-privacy" &&
+      (await page.locator("#plan-home-welcome-privacy").textContent())?.trim() ===
+        "Progress saves in this browser.",
+    "The Welcome name field must retain its concise browser-save description.",
+  );
+  assert(
+    (await planPrivacyLink.getAttribute("href")) === "/privacy" &&
+      (await planResumeLink.getAttribute("href")) === "/plan-your-home/resume",
+    "The Welcome footer must keep working privacy and resume destinations.",
   );
   let planPrivacyKeyboardFocused = false;
   for (let press = 0; press < 20 && !planPrivacyKeyboardFocused; press += 1) {
