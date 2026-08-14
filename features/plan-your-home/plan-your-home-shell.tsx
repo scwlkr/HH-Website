@@ -68,9 +68,10 @@ import {
   PLAN_HOME_INQUIRY_CONSENT_VERSION,
 } from "@/features/plan-your-home/server-draft-contract";
 import type { PlanHomeReferenceMetadata } from "@/features/plan-your-home/references";
-import type {
-  PlanHomeReferenceMutationResult,
-  PlanHomeUploadCapability,
+import {
+  PLAN_HOME_CUSTOMER_REFERENCE_VALIDATION_MESSAGE,
+  type PlanHomeReferenceMutationResult,
+  type PlanHomeUploadCapability,
 } from "@/features/plan-your-home/reference-upload-contract";
 import {
   SceneStage,
@@ -145,6 +146,17 @@ export type PlanHomeReferenceAction<Result> = (
       currentRevision?: number;
     }>
 >;
+
+type PlanHomeReferenceActionError = Exclude<
+  Awaited<ReturnType<PlanHomeReferenceAction<unknown>>>,
+  { status: "success" }
+>;
+
+function referenceActionError(result: PlanHomeReferenceActionError) {
+  return result.status === "validation-error"
+    ? PLAN_HOME_CUSTOMER_REFERENCE_VALIDATION_MESSAGE
+    : result.message;
+}
 
 export type PlanHomeDirectUploader = (
   capability: PlanHomeUploadCapability,
@@ -1838,7 +1850,7 @@ export function PlanYourHomeShell({
       setPendingUploads((current) =>
         current.map((upload) =>
           upload.id === pendingId
-            ? { ...upload, status: "error", error: issued.message }
+            ? { ...upload, status: "error", error: referenceActionError(issued) }
             : upload,
         ),
       );
@@ -1873,7 +1885,7 @@ export function PlanYourHomeShell({
         note: "",
       });
       if (finalized.status !== "success") {
-        throw new Error(finalized.message);
+        throw new Error(referenceActionError(finalized));
       }
       updateClientDraftRevision(finalized.result.revision);
       setCanonicalReferences(finalized.result.references);
@@ -1937,7 +1949,7 @@ export function PlanYourHomeShell({
       note: "",
     });
     if (result.status !== "success") {
-      setError({ code: "invalid-answer", message: result.message });
+      setError({ code: "invalid-answer", message: referenceActionError(result) });
       return;
     }
     updateClientDraftRevision(result.result.revision);
@@ -1986,7 +1998,7 @@ export function PlanYourHomeShell({
       referenceId: id,
     });
     if (result.status !== "success") {
-      setError({ code: "invalid-answer", message: result.message });
+      setError({ code: "invalid-answer", message: referenceActionError(result) });
       return;
     }
     updateClientDraftRevision(result.result.revision);
@@ -2108,7 +2120,7 @@ export function PlanYourHomeShell({
           })),
         });
         if (result.status !== "success") {
-          setError({ code: "invalid-answer", message: result.message });
+          setError({ code: "invalid-answer", message: referenceActionError(result) });
           return false;
         }
         updateClientDraftRevision(result.result.revision);

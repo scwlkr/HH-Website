@@ -28,6 +28,7 @@ import {
 } from "@/lib/plan-your-home/draft-session";
 import { PlanHomeDraftSessionConfigurationError } from "@/lib/plan-your-home/draft-session-token";
 import {
+  PLAN_HOME_CUSTOMER_REFERENCE_VALIDATION_MESSAGE,
   PlanHomeReferenceValidationError,
   type PlanHomeReferenceMutationResult,
   type PlanHomeUploadCapability,
@@ -90,7 +91,7 @@ function knownActionError(error: unknown): PlanHomeDraftActionState | null {
   if (error instanceof PlanHomeReferenceValidationError) {
     return {
       status: "validation-error",
-      message: error.message,
+      message: PLAN_HOME_CUSTOMER_REFERENCE_VALIDATION_MESSAGE,
     };
   }
 

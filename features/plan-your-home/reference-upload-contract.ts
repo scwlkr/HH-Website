@@ -15,6 +15,9 @@ const referenceIdSchema = z
 const expectedRevisionSchema = z.number().int().positive();
 const noteSchema = z.string().trim().max(500).default("");
 
+export const PLAN_HOME_CUSTOMER_REFERENCE_VALIDATION_MESSAGE =
+  "That reference could not be accepted. Check it and try again.";
+
 export const planHomeUploadRequestSchema = z
   .object({
     draftId: draftIdSchema,

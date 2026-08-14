@@ -120,6 +120,12 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
     async (input) => {
       issueCalls += 1;
       const request = input as { originalName: string; mimeType: string; sizeBytes: number };
+      if (request.sizeBytes === 0) {
+        return {
+          status: "validation-error",
+          message: "Too small: expected number to be >0",
+        };
+      }
       return {
         status: "success",
         result: {
@@ -276,6 +282,18 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
     new File(["%PDF-1.7\n"], "wrong.pdf", { type: "image/svg+xml" }),
   );
   assert.match(query.getByRole("alert").textContent ?? "", /PDF, JPEG, PNG/);
+  await user.upload(
+    fileInput as HTMLInputElement,
+    new File([], "empty.pdf", { type: "application/pdf" }),
+  );
+  await waitFor(() => {
+    assert.equal(
+      query.getByRole("alert").textContent,
+      "That reference could not be accepted. Check it and try again.",
+    );
+    assert.equal(query.queryByText(/Too small|expected number/), null);
+  });
+  await user.click(query.getByRole("button", { name: /Remove empty\.pdf/ }));
   await user.upload(
     fileInput as HTMLInputElement,
     new File(["%PDF-1.7\n"], "inspiration.pdf", {
