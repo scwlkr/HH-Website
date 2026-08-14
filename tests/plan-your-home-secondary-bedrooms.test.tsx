@@ -137,11 +137,26 @@ test("one representative scene serves every bedroom count and validates both gro
   const fixedArtwork = firstScene.querySelector("svg")?.innerHTML;
   assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 2);
   assert.equal(
+    firstScene.getAttribute("data-active-anchor"),
+    "bedroom-door-cluster",
+  );
+  assert.equal(
+    firstScene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMinYMid slice",
+  );
+  assert.equal(
     view.container
       .querySelector('[data-scene-anchor="bedroom-door-cluster"]')
       ?.getAttribute("data-active"),
     "true",
   );
+  assert.equal(
+    view.container.querySelector('[data-scene-anchor="bedroom-door-cluster"]')
+      ?.tagName,
+    "g",
+  );
+  assert.equal(query.queryByText("Representative bedroom hall study"), null);
+  assert.equal(query.queryByText("bedroom door cluster"), null);
   assert.ok(query.getByRole("group", { name: "Users" }));
   assert.ok(query.getByRole("group", { name: "Arrangement" }));
 
@@ -172,6 +187,14 @@ test("one representative scene serves every bedroom count and validates both gro
       .querySelector('[data-scene-anchor="shared-bath-vanity"]')
       ?.getAttribute("data-active"),
     "true",
+  );
+  assert.equal(
+    firstScene.getAttribute("data-active-anchor"),
+    "shared-bath-vanity",
+  );
+  assert.equal(
+    firstScene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMaxYMid slice",
   );
   const results = await axe.run(view.container, {
     rules: { "color-contrast": { enabled: false } },
@@ -321,6 +344,7 @@ test("question 21 retries one checkpoint, stores canonical summaries, and exits 
       '[data-tour-beat="utility-hall-transition"][data-reduced-motion="true"]',
     ),
   );
+  assert.equal(query.queryByText("Utility hall"), null);
 
   await user.click(
     query.getByRole("button", { name: "Back to shared bathrooms" }),

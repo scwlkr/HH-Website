@@ -6,113 +6,110 @@
   color: #253746;
 }
 
+.scene {
+  background: #f3eee4;
+}
+
 .scene svg {
   width: 100%;
   height: 100%;
 }
 
-.ceilingWash {
-  fill: rgba(255, 255, 255, 0.44);
+.wallWash {
+  fill: rgba(255, 253, 247, 0.48);
 }
 
 .floorWash {
-  fill: rgba(217, 222, 208, 0.52);
+  fill: rgba(185, 205, 187, 0.34);
+  stroke: rgba(37, 55, 70, 0.16);
+  stroke-width: 0.9;
 }
 
-.floorGrid {
-  fill: url("#utility-floor-grid");
-  stroke: none;
-  opacity: 0.34;
+.shadowWash {
+  fill: rgba(48, 57, 49, 0.1);
 }
 
-.architecturalLine,
-.perspectiveLine,
-.outdoorLine,
-.materialDetails {
+.materialWash {
+  fill: rgba(255, 255, 255, 0.62);
+  stroke: rgba(37, 55, 70, 0.18);
+  stroke-width: 0.8;
+}
+
+.woodWash {
+  fill: rgba(177, 145, 103, 0.2);
+}
+
+.greenWash {
+  fill: rgba(42, 105, 77, 0.13);
+}
+
+.glassWash {
+  fill: rgba(207, 224, 216, 0.42);
+  stroke: rgba(42, 105, 77, 0.28);
+  stroke-width: 0.85;
+}
+
+.stoneWash {
+  fill: rgba(239, 233, 222, 0.7);
+  stroke: rgba(37, 55, 70, 0.3);
+  stroke-width: 0.85;
+}
+
+.constructionLine,
+.inkLine,
+.detailLine {
   fill: none;
   stroke: currentColor;
   vector-effect: non-scaling-stroke;
 }
 
-.architecturalLine {
-  stroke-width: 1.25;
-  opacity: 0.7;
+.constructionLine {
+  stroke-width: 0.78;
+  stroke-dasharray: 2.5 5;
+  opacity: 0.23;
 }
 
-.perspectiveLine {
-  stroke-width: 0.9;
-  opacity: 0.16;
+.inkLine {
+  stroke-width: 1.65;
+  stroke-linecap: square;
+  stroke-linejoin: bevel;
+  opacity: 0.82;
 }
 
-.outdoorLine {
-  stroke: #3f7657;
-  stroke-width: 1.1;
-  opacity: 0.5;
-}
-
-.materialDetails {
-  stroke-width: 1;
-  opacity: 0.46;
+.detailLine {
+  stroke-width: 1.02;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.57;
 }
 
 .anchor {
-  position: absolute;
-  width: 0.62rem;
-  height: 0.62rem;
-  border: 1px solid #2a694d;
-  border-radius: 50%;
-  background: #f4efe5;
-  box-shadow: 0 0 0 0.23rem rgba(42, 105, 77, 0.08);
-}
-
-.scene:has([data-scene-anchor][data-active="true"]) .anchor {
-  opacity: 0.35;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
 }
 
 .anchor[data-active="true"] {
   opacity: 1;
-  background: #2a694d;
-  box-shadow: 0 0 0 0.35rem rgba(42, 105, 77, 0.14);
 }
 
-.washer {
-  top: 53%;
-  left: 15%;
+.anchorWash,
+.anchorContour {
+  vector-effect: non-scaling-stroke;
 }
 
-.mudroomBench {
-  top: 59%;
-  left: 38%;
+.anchorWash {
+  fill: rgba(42, 105, 77, 0.12);
+  stroke: rgba(42, 105, 77, 0.72);
+  stroke-width: 2.4;
 }
 
-.storageBuiltIns {
-  top: 43%;
-  left: 60%;
-}
-
-.systemPanel {
-  top: 45%;
-  left: 74%;
-}
-
-.sceneCaption {
-  position: absolute;
-  bottom: 5%;
-  left: 4%;
-  display: grid;
-  gap: 0.2rem;
-  border-left: 2px solid #2a694d;
-  padding-left: 0.65rem;
-  color: rgba(37, 55, 70, 0.65);
-  font-family: var(--font-code), monospace;
-  font-size: 0.54rem;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-}
-
-.sceneCaption strong {
-  color: #253746;
-  font-size: 0.62rem;
+.anchorContour {
+  fill: none;
+  stroke: rgba(42, 105, 77, 0.9);
+  stroke-width: 1.2;
+  stroke-dasharray: 10 7 3 7;
+  filter: drop-shadow(0 5px 7px rgba(42, 105, 77, 0.18));
 }
 
 .threshold .scene {
@@ -124,9 +121,6 @@
 .backDoorReveal {
   position: absolute;
   inset: 7% 0 0 69%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-left: 1px solid rgba(37, 55, 70, 0.34);
   background:
     linear-gradient(90deg, rgba(232, 237, 222, 0.22), rgba(184, 211, 190, 0.86)),
@@ -145,7 +139,7 @@
 }
 
 .backDoorReveal::before {
-  inset: 26% 10% 22% 31%;
+  inset: 18% 10% 17% 31%;
   border: 1px solid rgba(37, 55, 70, 0.34);
   background: rgba(237, 242, 225, 0.28);
 }
@@ -159,22 +153,13 @@
   border-radius: 50%;
 }
 
-.backDoorReveal span {
-  position: relative;
-  z-index: 1;
-  border-block: 1px solid rgba(37, 55, 70, 0.48);
-  padding: 0.7rem 1rem;
-  color: rgba(37, 55, 70, 0.72);
-  font-family: var(--font-code), monospace;
-  font-size: 0.58rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 @media (max-width: 40rem) {
-  .sceneCaption {
-    bottom: 7%;
-    left: 5%;
+  .inkLine {
+    stroke-width: 1.4;
+  }
+
+  .detailLine {
+    stroke-width: 0.9;
   }
 
   .backDoorReveal {
@@ -183,6 +168,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .anchor {
+    transition: none;
+  }
+
   .threshold .scene {
     transform: none;
   }

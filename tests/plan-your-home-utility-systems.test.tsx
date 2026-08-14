@@ -137,12 +137,23 @@ test("the registered anchors share one utility hall and every question supports 
     ),
     [...registeredAnchors],
   );
+  assert.equal(scene.getAttribute("data-active-anchor"), "washer");
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMinYMid slice",
+  );
   assert.equal(
     scene
       .querySelector('[data-scene-anchor="washer"]')
       ?.getAttribute("data-active"),
     "true",
   );
+  assert.equal(
+    scene.querySelector('[data-scene-anchor="washer"]')?.tagName,
+    "g",
+  );
+  assert.equal(query.queryByText("Utility hall planning study"), null);
+  assert.equal(query.queryByText("washer"), null);
 
   await user.click(query.getByRole("checkbox", { name: "Near bedrooms" }));
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
@@ -158,6 +169,7 @@ test("the registered anchors share one utility hall and every question supports 
       name: "What should the everyday entry or mudroom handle?",
     }),
   );
+  assert.equal(scene.getAttribute("data-active-anchor"), "mudroom-bench");
   await user.click(query.getByRole("checkbox", { name: "None" }));
   await user.click(query.getByRole("checkbox", { name: "Shoes and coats" }));
   assert.equal(
@@ -177,6 +189,7 @@ test("the registered anchors share one utility hall and every question supports 
       name: "Which easy-to-overlook storage needs matter?",
     }),
   );
+  assert.equal(scene.getAttribute("data-active-anchor"), "storage-built-ins");
   await user.click(query.getByRole("checkbox", { name: "Linens" }));
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
   assert.equal(
@@ -189,6 +202,11 @@ test("the registered anchors share one utility hall and every question supports 
     query.getByRole("heading", {
       name: "Which whole-home comfort or system priorities matter?",
     }),
+  );
+  assert.equal(scene.getAttribute("data-active-anchor"), "system-panel");
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMaxYMid slice",
   );
   assert.match(
     query.getByText(/Choose up to 6 broad planning priorities/).textContent ?? "",
@@ -380,6 +398,7 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
       '[data-tour-beat="exterior-back-door-transition"][data-reduced-motion="true"]',
     ),
   );
+  assert.equal(query.queryByText("Exterior threshold"), null);
   await waitFor(() =>
     assert.ok(view.container.querySelector("[data-scene-variant='utility-hall']")),
   );
