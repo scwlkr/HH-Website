@@ -707,7 +707,6 @@ export function StagedPrompt({ id, steps }: StagedPromptProps) {
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
                 aria-label={`Edit ${step.label}`}
                 onClick={() => editStep(step.id)}
               >
@@ -731,7 +730,6 @@ export function StagedPrompt({ id, steps }: StagedPromptProps) {
             <Button
               type="button"
               variant="secondary"
-              size="sm"
               disabled={!activeStep.complete && !activeStep.optional}
               onClick={finishActiveStep}
             >

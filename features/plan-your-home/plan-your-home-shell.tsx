@@ -669,7 +669,7 @@ function renderQuestionPrompt(
             id: "needs",
             label: "Other garage needs",
             summary: optionalSummary || "None added",
-            complete: true,
+            complete: Boolean(optionalSummary),
             optional: true,
             content: (
               <PromptStack>
@@ -751,7 +751,7 @@ function renderQuestionPrompt(
             id: "current-home",
             label: "Current home",
             summary: value.likesAndDislikes || "No note added",
-            complete: true,
+            complete: Boolean(value.likesAndDislikes.trim()),
             optional: true,
             content: (
               <ShortTextPrompt
