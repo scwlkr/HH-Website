@@ -263,17 +263,21 @@ async function assertReviewSubmission(page, viewportName) {
     "submission resolves to one confirmation",
   );
   const confirmationQuality = await quality(page);
-  assert.deepEqual(confirmationQuality.violations, [], "submitted confirmation accessibility violations");
-  assert.equal(confirmationQuality.overflow, false, "submitted confirmation horizontal overflow");
-  assert.deepEqual(confirmationQuality.unnamedControls, [], "submitted confirmation unnamed controls");
-  assert.deepEqual(confirmationQuality.undersizedTargets, [], "submitted confirmation undersized targets");
-  assert.deepEqual(confirmationQuality.obscuredTargets, [], "submitted confirmation obscured targets");
+  assertQuality(confirmationQuality, "submitted confirmation");
   return {
     consentByKeyboard: true,
     confirmationReached: true,
     screenshot: submissionScreenshot,
     quality: confirmationQuality,
   };
+}
+
+function assertQuality(result, context) {
+  assert.deepEqual(result.violations, [], `${context} accessibility violations`);
+  assert.equal(result.overflow, false, `${context} horizontal overflow`);
+  assert.deepEqual(result.unnamedControls, [], `${context} unnamed controls`);
+  assert.deepEqual(result.undersizedTargets, [], `${context} undersized targets`);
+  assert.deepEqual(result.obscuredTargets, [], `${context} obscured targets`);
 }
 
 async function assertPromptScrollReachability(page, state) {
@@ -355,11 +359,7 @@ async function capture(browser, baseUrl, state, viewportName) {
       );
     }
     result.quality = await quality(page);
-    assert.deepEqual(result.quality.violations, [], "accessibility violations");
-    assert.equal(result.quality.overflow, false, "horizontal overflow");
-    assert.deepEqual(result.quality.unnamedControls, [], "unnamed controls");
-    assert.deepEqual(result.quality.undersizedTargets, [], "undersized interactive targets");
-    assert.deepEqual(result.quality.obscuredTargets, [], "obscured interactive targets");
+    assertQuality(result.quality, "focused walkthrough");
     result.promptScroll = await assertPromptScrollReachability(page, state);
     if (state === "review") {
       result.submission = await assertReviewSubmission(page, viewportName);

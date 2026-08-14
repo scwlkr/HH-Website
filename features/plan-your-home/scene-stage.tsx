@@ -155,7 +155,7 @@ export function SceneStage({
       data-transition-state={phase}
       data-in-room-exit-ms={EXIT_DURATION_MS}
       data-in-room-enter-ms={ENTER_DURATION_MS}
-      data-question-number={question.number}
+      data-question-id={question.id}
       aria-busy={isTransitioning}
     >
       <div className={styles.stageRail}>

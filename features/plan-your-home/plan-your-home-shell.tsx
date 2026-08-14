@@ -640,7 +640,7 @@ function renderQuestionPrompt(
         value={answer as string | null}
         onChange={updateAnswer}
         columns={question.id === "contact.follow-up" ? 3 : 2}
-        compact={question.id === "contact.follow-up"}
+        balancedPhoneGrid={question.id === "contact.follow-up"}
       />
     );
   }

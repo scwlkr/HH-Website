@@ -316,25 +316,25 @@
     margin-inline: -0.5rem;
   }
 
-  .stage[data-question-number="35"] .promptSheet {
+  .stage[data-question-id="contact.follow-up"] .promptSheet {
     padding-block: 0.9rem;
   }
 
-  .stage[data-question-number="35"] .promptHeading {
+  .stage[data-question-id="contact.follow-up"] .promptHeading {
     font-size: 1.25rem;
   }
 
-  .stage[data-question-number="35"] .promptHelper {
+  .stage[data-question-id="contact.follow-up"] .promptHelper {
     margin-top: 0.4rem;
     font-size: 0.8rem;
     line-height: 1.45;
   }
 
-  .stage[data-question-number="35"] .promptBody {
+  .stage[data-question-id="contact.follow-up"] .promptBody {
     margin-top: 0.85rem;
   }
 
-  .stage[data-question-number="35"] .stageActions {
+  .stage[data-question-id="contact.follow-up"] .stageActions {
     margin-top: 0.85rem;
   }
 }

@@ -27,7 +27,7 @@ type ChoicePromptProps = PromptFieldProps &
     value: string | null;
     onChange: (value: string) => void;
     columns?: 1 | 2 | 3;
-    compact?: boolean;
+    balancedPhoneGrid?: boolean;
   }>;
 
 type MultiChoicePromptProps = PromptFieldProps &
@@ -240,7 +240,7 @@ export function ChoicePrompt({
   value,
   onChange,
   columns = 2,
-  compact = false,
+  balancedPhoneGrid = false,
 }: ChoicePromptProps) {
   const ids = useFieldIds(id);
 
@@ -255,7 +255,7 @@ export function ChoicePrompt({
       <div
         className={styles.optionGrid}
         data-columns={columns}
-        data-compact={compact}
+        data-balanced-phone-grid={balancedPhoneGrid}
       >
         {options.map((option) => (
           <label className={styles.option} key={option.slug}>
