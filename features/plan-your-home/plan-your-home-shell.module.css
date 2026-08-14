@@ -251,6 +251,28 @@
   margin-top: 1rem;
 }
 
+.welcomeFooter {
+  display: grid;
+  gap: 0;
+  margin-top: 0.55rem;
+  border-top: 1px solid var(--hh-line);
+  padding-top: 0.25rem;
+}
+
+.welcomePrivacy {
+  max-width: 20rem;
+  color: var(--hh-muted-strong);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.welcomeLinks {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 .resumeLink {
   display: flex;
   min-height: 2.75rem;
@@ -264,6 +286,13 @@
   text-decoration: underline;
   text-decoration-color: var(--hh-line-ink);
   text-underline-offset: 0.22em;
+}
+
+.welcomeLinks .resumeLink {
+  flex: 0 0 auto;
+  margin-top: 0;
+  font-size: 0.75rem;
+  white-space: nowrap;
 }
 
 .resumeLink:focus-visible {
@@ -996,6 +1025,31 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 1rem;
+  }
+
+  .welcomeSheet {
+    padding-block: 0.8rem;
+  }
+
+  .welcomeSheet h1 {
+    font-size: 1.45rem;
+  }
+
+  .welcomeSheet .momentCopy {
+    margin-top: 0.4rem;
+    line-height: 1.4;
+  }
+
+  .welcomeSheet .textLabel {
+    margin-top: 0.65rem;
+  }
+
+  .welcomeSheet .primaryAction {
+    margin-top: 0.65rem;
+  }
+
+  .welcomeFooter {
+    margin-top: 0.4rem;
   }
 
   .contactGrid {

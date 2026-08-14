@@ -792,6 +792,8 @@ function WelcomeStep({
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }>) {
   const errorId = error ? "plan-home-welcome-error" : undefined;
+  const privacyId = "plan-home-welcome-privacy";
+  const describedBy = errorId ? `${privacyId} ${errorId}` : privacyId;
   return (
     <section className={styles.moment} data-tour-beat="welcome">
       <div className={styles.momentScene}>
@@ -800,23 +802,14 @@ function WelcomeStep({
         </PlanHomeSceneSuspense>
       </div>
       <form
-        className={styles.momentSheet}
+        className={`${styles.momentSheet} ${styles.welcomeSheet}`}
         data-plan-home-moment-sheet
         onSubmit={onSubmit}
       >
         <p className={styles.eyebrow}>Plan your home</p>
         <h1>Let’s put your name on the front door.</h1>
         <p className={styles.momentCopy}>
-          Walk through a fixed illustrated home and tell us what your real home
-          needs. Your answers shape the project brief, not the artwork.
-        </p>
-        <p className={styles.privacyNotice}>
-          Before you enter a name, answers save in this browser for up to 30
-          days. If you later save contact details, h and h keeps a private draft
-          and any references under the retention schedule. Read the{" "}
-          <a className="hh-touch-target" href="/privacy">
-            privacy and retention policy
-          </a>{"."}
+          Walk through and pick what your home needs.
         </p>
         <label className={styles.textLabel} htmlFor="plan-home-welcome-name">
           Your name
@@ -828,7 +821,7 @@ function WelcomeStep({
           maxLength={120}
           autoComplete="name"
           aria-invalid={Boolean(error)}
-          aria-describedby={errorId}
+          aria-describedby={describedBy}
           onChange={(event) => onNameChange(event.target.value)}
         />
         {error ? (
@@ -839,9 +832,23 @@ function WelcomeStep({
         <Button className={styles.primaryAction} type="submit">
           Open the front door
         </Button>
-        <a className={styles.resumeLink} href="/plan-your-home/resume">
-          Resume a saved plan
-        </a>
+        <div className={styles.welcomeFooter} data-plan-home-welcome-footer>
+          <p id={privacyId} className={styles.welcomePrivacy}>
+            Progress saves in this browser.
+          </p>
+          <div className={styles.welcomeLinks}>
+            <a
+              aria-label="Privacy and retention policy"
+              className={styles.resumeLink}
+              href="/privacy"
+            >
+              Privacy and retention
+            </a>
+            <a className={styles.resumeLink} href="/plan-your-home/resume">
+              Resume a saved plan
+            </a>
+          </div>
+        </div>
       </form>
     </section>
   );

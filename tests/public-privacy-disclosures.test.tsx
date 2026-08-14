@@ -11,22 +11,47 @@ import { privacyDocument } from "../lib/content/legal.ts";
 
 afterEach(() => cleanup());
 
-function assertLinkPrecedesField(link: HTMLElement, field: HTMLElement) {
+function assertPrecedes(first: HTMLElement, second: HTMLElement, message: string) {
   assert(
-    Boolean(link.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING),
-    "The privacy link must precede the first personal-data field in DOM order.",
+    Boolean(
+      first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ),
+    message,
   );
 }
 
-test("Plan Your Home shows privacy and retention before collecting the welcome name", () => {
+test("Plan Your Home keeps Welcome concise with quiet, accessible save options", () => {
   const rendered = render(<PlanYourHomeShell />);
   const link = rendered.getByRole("link", {
-    name: "privacy and retention policy",
+    name: /privacy and retention policy/i,
   });
   const name = rendered.getByLabelText("Your name");
+  const start = rendered.getByRole("button", { name: "Open the front door" });
+  const resume = rendered.getByRole("link", { name: "Resume a saved plan" });
+  const footer = link.closest("[data-plan-home-welcome-footer]");
 
-  assertLinkPrecedesField(link, name);
-  assert.match(rendered.container.textContent ?? "", /browser for up to 30 days/i);
+  assert.match(
+    rendered.container.textContent ?? "",
+    /Walk through and pick what your home needs\./,
+  );
+  assert.doesNotMatch(
+    rendered.container.textContent ?? "",
+    /fixed illustrated home|up to 30 days|keeps a private draft/i,
+  );
+  assert.equal(link.getAttribute("href"), "/privacy");
+  assert.equal(resume.getAttribute("href"), "/plan-your-home/resume");
+  assert.equal(footer?.contains(resume), true);
+  assert.equal(name.getAttribute("aria-describedby"), "plan-home-welcome-privacy");
+  assertPrecedes(
+    name,
+    start,
+    "The name field must precede the primary Welcome action.",
+  );
+  assertPrecedes(
+    start,
+    link,
+    "Privacy and resume links must remain secondary to the Welcome action.",
+  );
 });
 
 test("the generic inquiry shows privacy and non-contract copy before contact fields", () => {
