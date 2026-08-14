@@ -345,6 +345,169 @@ export function MultiChoicePrompt({
   );
 }
 
+function StyleSketchFrame({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <svg viewBox="0 0 240 112" preserveAspectRatio="xMidYMid meet">
+      <path className={styles.styleGround} d="M13 92H227M25 99H214" />
+      {children}
+    </svg>
+  );
+}
+
+function ExteriorStyleSketch({ slug }: Readonly<{ slug: string }>) {
+  if (slug === "hill-country-or-ranch") {
+    return (
+      <StyleSketchFrame>
+        <path className={styles.styleStone} d="M34 57L83 30L136 55V91H34Z" />
+        <path className={styles.styleWood} d="M130 62L173 41L215 63V91H130Z" />
+        <g className={styles.styleInk}>
+          <path d="M24 59L82 25L145 57M121 62L172 36L223 64" />
+          <path d="M34 91V57M136 91V55M130 91V62M215 91V63" />
+          <path d="M47 91V65H78V91M92 91V60H120V91M151 91V65H194V91" />
+        </g>
+        <path
+          className={styles.styleDetail}
+          d="M21 76H136M139 74H219M159 65V91M180 65V91"
+        />
+      </StyleSketchFrame>
+    );
+  }
+
+  if (slug === "modern-farmhouse") {
+    return (
+      <StyleSketchFrame>
+        <path
+          className={styles.stylePaper}
+          d="M27 91V47L70 17L113 47V91ZM111 91V54L155 24L202 55V91Z"
+        />
+        <path className={styles.styleGreen} d="M109 72H204V91H109Z" />
+        <g className={styles.styleInk}>
+          <path d="M19 51L70 12L120 51M103 57L155 18L211 58" />
+          <path d="M27 91V47M113 91V47M111 91V54M202 91V55" />
+          <path d="M57 91V55H83V91M133 91V60H151V91M166 60H190V84H166Z" />
+        </g>
+        <path
+          className={styles.styleDetail}
+          d="M38 51V89M49 43V89M92 42V89M103 51V89M124 52V89M194 51V89"
+        />
+      </StyleSketchFrame>
+    );
+  }
+
+  if (slug === "traditional") {
+    return (
+      <StyleSketchFrame>
+        <path
+          className={styles.stylePaper}
+          d="M31 91V51L71 31H173L211 51V91Z"
+        />
+        <path className={styles.styleStone} d="M95 91V43L121 27L147 43V91Z" />
+        <g className={styles.styleInk}>
+          <path d="M23 53L68 26H176L219 53M88 46L121 22L154 46" />
+          <path d="M31 91V51M211 91V51M95 91V43M147 91V43" />
+          <path d="M42 91V59H72V91M105 91V52H137V91M169 91V59H199V91" />
+        </g>
+        <path
+          className={styles.styleDetail}
+          d="M36 58H78M164 58H205M57 59V91M184 59V91M109 66H133"
+        />
+      </StyleSketchFrame>
+    );
+  }
+
+  if (slug === "transitional") {
+    return (
+      <StyleSketchFrame>
+        <path
+          className={styles.stylePaper}
+          d="M25 91V53L81 25L135 52V91ZM134 91V59H215V91Z"
+        />
+        <path
+          className={styles.styleGlass}
+          d="M45 57H75V83H45ZM151 64H199V84H151Z"
+        />
+        <g className={styles.styleInk}>
+          <path d="M16 56L81 19L144 55M124 61L163 38H220" />
+          <path d="M25 91V53M135 91V52M134 91V59H215V91" />
+          <path d="M45 91V57H75V91M91 91V51H119V91M151 91V64H199V91" />
+        </g>
+        <path
+          className={styles.styleDetail}
+          d="M60 57V83M151 74H199M175 64V84"
+        />
+      </StyleSketchFrame>
+    );
+  }
+
+  if (slug === "modern-or-contemporary") {
+    return (
+      <StyleSketchFrame>
+        <path className={styles.stylePaper} d="M25 91V39H124V53H213V91Z" />
+        <path
+          className={styles.styleGlass}
+          d="M40 53H105V85H40ZM139 60H198V85H139Z"
+        />
+        <path className={styles.styleGreen} d="M113 53H139V91H113Z" />
+        <g className={styles.styleInk}>
+          <path d="M17 38H131V51H220M25 91V39M124 53V39M213 91V53" />
+          <path d="M40 91V53H105V91M113 91V53H139V91M139 91V60H198V91" />
+        </g>
+        <path
+          className={styles.styleDetail}
+          d="M61 53V85M84 53V85M158 60V85M179 60V85M21 46H123"
+        />
+      </StyleSketchFrame>
+    );
+  }
+
+  if (slug === "barndominium") {
+    return (
+      <StyleSketchFrame>
+        <path
+          className={styles.stylePaper}
+          d="M37 91V43L89 16L143 43V91ZM143 91V57H213V91Z"
+        />
+        <path className={styles.styleWood} d="M58 91V50H120V91Z" />
+        <g className={styles.styleInk}>
+          <path d="M27 47L89 10L151 47M134 59L171 39L221 59" />
+          <path d="M37 91V43M143 91V43M143 91V57M213 91V57" />
+          <path d="M58 91V50H120V91M89 50V91M162 91V64H198V91" />
+        </g>
+        <path
+          className={styles.styleDetail}
+          d="M45 43V89M53 38V89M128 37V89M136 43V89M152 58V89M205 58V89"
+        />
+      </StyleSketchFrame>
+    );
+  }
+
+  if (slug === "spanish-or-mediterranean") {
+    return (
+      <StyleSketchFrame>
+        <path
+          className={styles.stylePaper}
+          d="M25 91V49H89V40H147V50H215V91Z"
+        />
+        <path
+          className={styles.styleWood}
+          d="M98 91V57C98 38 138 38 138 57V91Z"
+        />
+        <g className={styles.styleInk}>
+          <path d="M18 50C42 41 67 41 94 48C111 34 134 34 153 49C174 43 196 44 222 52" />
+          <path d="M25 91V49M89 49V40M147 40V50M215 91V50" />
+          <path d="M42 91V62H76V91M98 91V57C98 38 138 38 138 57V91M164 91V62H199V91" />
+        </g>
+        <path
+          className={styles.styleDetail}
+          d="M30 53C49 48 69 48 88 53M151 54C172 49 193 49 211 54M59 62V91M181 62V91"
+        />
+      </StyleSketchFrame>
+    );
+  }
+
+  return <span className={styles.visualUnknown}>?</span>;
+}
+
 export function ExteriorStylePrompt({
   id,
   legend,
@@ -417,9 +580,7 @@ export function ExteriorStylePrompt({
               data-style-card-art={option.slug}
               aria-hidden="true"
             >
-              <span className={styles.visualRoof} />
-              <span className={styles.visualFacade} />
-              <span className={styles.visualDetail} />
+              <ExteriorStyleSketch slug={option.slug} />
             </span>
             <span className={styles.visualCardLabel}>
               <OptionMark multiple />

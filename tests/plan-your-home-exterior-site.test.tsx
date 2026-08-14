@@ -200,10 +200,23 @@ test("the utility threshold opens into one fixed exterior study with every regis
     ),
     [...planHomeZones[5].sceneAnchors],
   );
+  assert.equal(scene.getAttribute("data-active-anchor"), "garage");
   assert.equal(
-    scene.querySelector('[data-scene-anchor="garage"]')?.getAttribute("data-active"),
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMinYMid slice",
+  );
+  assert.equal(
+    scene
+      .querySelector('[data-scene-anchor="garage"]')
+      ?.getAttribute("data-active"),
     "true",
   );
+  assert.equal(
+    scene.querySelector('[data-scene-anchor="garage"]')?.tagName,
+    "g",
+  );
+  assert.equal(query.queryByText("Fixed exterior and site study"), null);
+  assert.equal(query.queryByText("garage"), null);
 });
 
 test("garage groups and accessible style cards validate without reconfiguring the fixed house", async () => {
@@ -221,6 +234,11 @@ test("garage groups and accessible style cards validate without reconfiguring th
     '[data-scene-variant="exterior-site-study"]',
   );
   assert.ok(scene);
+  assert.equal(scene.getAttribute("data-active-anchor"), "elevation-samples");
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMidYMid slice",
+  );
   const fixedSvg = scene.querySelector("svg")?.innerHTML;
   assert.equal(view.container.querySelectorAll("[data-style-card]").length, 8);
   assert.match(
@@ -284,11 +302,20 @@ test("garage groups and accessible style cards validate without reconfiguring th
 
 test("site, outdoor, and specialty choices enforce limits and explicit uncertainty", async () => {
   const user = userEvent.setup({ document: window.document });
-  const { query } = await renderExterior();
+  const { view, query } = await renderExterior();
+  const scene = view.container.querySelector(
+    '[data-scene-variant="exterior-site-study"]',
+  );
+  assert.ok(scene);
   await user.click(query.getByRole("radio", { name: "No garage" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
   await user.click(query.getByRole("button", { name: "Next" }));
+  assert.equal(scene.getAttribute("data-active-anchor"), "sun-compass-trees");
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMaxYMid slice",
+  );
 
   assert.match(
     query.getByText(/These are planning priorities only/).textContent ?? "",
@@ -311,6 +338,7 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
     false,
   );
   await user.click(query.getByRole("button", { name: "Next" }));
+  assert.equal(scene.getAttribute("data-active-anchor"), "patio");
 
   await user.click(query.getByRole("checkbox", { name: "Covered porch" }));
   await user.click(query.getByRole("checkbox", { name: "Patio" }));
@@ -322,6 +350,7 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   );
   await user.click(query.getByRole("checkbox", { name: "Patio" }));
   await user.click(query.getByRole("button", { name: "Next" }));
+  assert.equal(scene.getAttribute("data-active-anchor"), "outbuilding-plan");
 
   assert.match(
     query.getByText(/Including a future space records direction/).textContent ?? "",
@@ -429,6 +458,7 @@ test("question 30 retries one canonical checkpoint and match-cuts to the design 
       '[data-tour-beat="blueprint-design-desk-transition"][data-reduced-motion="true"]',
     ),
   );
+  assert.equal(query.queryByText("Design desk threshold"), null);
   await waitFor(() =>
     assert.ok(
       view.container.querySelector("[data-scene-variant='exterior-site-study']"),
