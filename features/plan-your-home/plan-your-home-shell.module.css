@@ -991,7 +991,7 @@
 
   .momentSheet {
     width: calc(100% - 1rem);
-    max-height: 45svh;
+    max-height: 37.5svh;
     margin-bottom: 0.5rem;
     overflow-y: auto;
     overscroll-behavior: contain;

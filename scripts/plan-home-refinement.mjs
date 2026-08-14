@@ -335,7 +335,13 @@ async function capture(browser, baseUrl, state, viewportName) {
     await page.locator(`[data-plan-home-refinement-state="${state}"]`).waitFor();
     await page.locator("[data-plan-home-scene-loading]").waitFor({ state: "detached" }).catch(() => {});
     await assertNavigation(page, state);
-    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await page.evaluate(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      document.querySelector("[data-plan-home-moment-sheet]")?.scrollTo({
+        top: 0,
+        behavior: "instant",
+      });
+    });
     await page.screenshot({ fullPage: true, path: path.join(outputDirectory, result.screenshot) });
     result.shell = await page.evaluate(() => ({
       hasMarketingNavigation: Boolean(document.querySelector('nav[aria-label="Primary"]')),
@@ -390,8 +396,8 @@ async function capture(browser, baseUrl, state, viewportName) {
         assert.equal(/Question \d+ of \d+/i.test(result.layout.visibleChrome), false, "question count is not repeated visually");
       } else if (state === "welcome") {
         assert(
-          result.layout.momentSheet?.height <= viewports.phone.height * 0.46,
-          "long welcome content stays inside a bounded, scrollable phone sheet",
+          result.layout.momentSheet?.height <= viewports.phone.height * 0.38,
+          "welcome sheet uses no more than roughly three-eighths of the initial viewport",
         );
       }
     }

@@ -732,6 +732,10 @@
   .visualCardGrid {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .visualCard {
+    grid-template-rows: 4rem minmax(2.75rem, auto);
+  }
 }
 
 @media (min-width: 40.01rem) {

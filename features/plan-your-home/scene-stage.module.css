@@ -272,6 +272,12 @@
     padding: 0.4rem 0.75rem;
   }
 
+  .zoneLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .promptLayer {
     width: calc(100% - 1rem);
     max-height: min(calc(100% - 3.5rem), 37.5svh);
