@@ -331,6 +331,13 @@ async function answerRegistryQuestion(page, question) {
       for (const value of answerValues(groupAnswer)) {
         await activate(groupControl.locator(`input[value="${value}"]`));
       }
+      const continueButton = page.getByRole("button", {
+        name: "Continue",
+        exact: true,
+      });
+      if ((await continueButton.count()) > 0 && (await continueButton.isVisible())) {
+        await continueButton.click();
+      }
     }
   } else {
     const values = answerValues(question.response.exampleAnswer);
@@ -639,6 +646,12 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
   const radioTabs = await tabTo(page, radio);
   await page.keyboard.press("Space");
   assert.equal(await radio.isChecked(), true);
+  const firstPartContinue = page.getByRole("button", {
+    name: "Continue",
+    exact: true,
+  });
+  const firstPartContinueTabs = await tabTo(page, firstPartContinue);
+  await page.keyboard.press("Enter");
   const checkbox = page.locator('input[value="architectural-design"]');
   const checkboxTabs = await tabTo(page, checkbox);
   await page.keyboard.press("Space");
@@ -668,6 +681,12 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
   const lotStatus = page.locator('input[value="own-it"]');
   const lotTabs = await tabTo(page, lotStatus);
   await page.keyboard.press("Space");
+  const lotContinue = page.getByRole("button", {
+    name: "Continue",
+    exact: true,
+  });
+  const lotContinueTabs = await tabTo(page, lotContinue);
+  await page.keyboard.press("Enter");
   const location = page.getByLabel("City, county, address, or target area");
   const locationTabs = await tabTo(page, location);
   await page.keyboard.type("Keyboard County");
@@ -675,7 +694,13 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
   const backTabs = await tabTo(page, back);
   await page.keyboard.press("Enter");
   await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
-  assert.equal(await radio.isChecked(), true);
+  assert(
+    await page
+      .getByRole("group", { name: "Completed Starting point" })
+      .getByText("Fully custom")
+      .isVisible(),
+  );
+  assert.equal(await checkbox.isChecked(), true);
   const retainedNextTabs = await tabTo(page, next);
   await page.keyboard.press("Enter");
   await page.getByRole("heading", { name: planHomeQuestions[1].prompt }).waitFor();
@@ -695,9 +720,11 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
       nameTabs,
       openTabs,
       radioTabs,
+      firstPartContinueTabs,
       checkboxTabs,
       nextTabs,
       lotTabs,
+      lotContinueTabs,
       locationTabs,
       backTabs,
       retainedNextTabs,
@@ -1105,6 +1132,11 @@ async function main() {
     const editTabs = await tabTo(page, editButton);
     await page.keyboard.press("Enter");
     await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
+    const editStartingPoint = page.getByRole("button", {
+      name: "Edit Starting point",
+    });
+    const editStartingPointTabs = await tabTo(page, editStartingPoint);
+    await page.keyboard.press("Enter");
     const currentAnswer = page.locator('input[value="fully-custom"]');
     const editedAnswer = page.locator('input[value="adapt-existing-plan"]');
     const editedAnswerTabs = await tabTo(page, currentAnswer);
@@ -1141,7 +1173,14 @@ async function main() {
       ...(evidence.keyboard.mainFlow ?? {}),
       reviewEditReturn: true,
       consentAndSubmit: true,
-      reviewTabs: [editTabs, editedAnswerTabs, editSaveTabs, consentTabs, submitTabs],
+      reviewTabs: [
+        editTabs,
+        editStartingPointTabs,
+        editedAnswerTabs,
+        editSaveTabs,
+        consentTabs,
+        submitTabs,
+      ],
     };
     assert(draftId);
 

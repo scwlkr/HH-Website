@@ -136,7 +136,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "How should h and h follow up after you submit the project brief?",
+        name: "How should h and h follow up?",
       }),
     ),
   );
@@ -196,6 +196,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /Where are you starting/ })),
   );
+  await user.click(query.getByRole("button", { name: "Edit Starting point" }));
   await user.click(query.getByRole("radio", { name: "Adapt an existing plan" }));
   await user.click(query.getByRole("button", { name: "Save" }));
   await waitFor(() =>
@@ -216,7 +217,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Which whole-home finish level feels closest to what you want?",
+        name: "Which whole-home finish level fits you?",
       }),
     ),
   );

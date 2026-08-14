@@ -65,38 +65,38 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 1 `project.starting-services` | Where are you starting, and what help are you looking for? | Starting point, one: Fully custom; Adapt an existing plan; Bring a completed plan; Not sure yet. Services, many: Architectural design; Building; Land development; Not sure yet. `Not sure` is exclusive within services. |
-| 2 `project.lot-location` | What is your lot status, and where are you building or hoping to build? | Lot status, one: Own it; Under contract; Actively looking; Need h and h to evaluate options; Not sure yet. Location: city, county, address, or target area text; or explicit Not sure yet. |
-| 3 `project.site-context` | What do you already know about the site? | Many: Flat or gently sloped; Steep or complex slope; Wooded; Important views or water; Utilities available; Well or septic; HOA or deed restrictions; Existing structure; Nothing known yet; Not sure yet. The last two are exclusive. |
+| 1 `project.starting-services` | Where are you starting? | Starting point, one: Fully custom; Adapt an existing plan; Bring a completed plan; Not sure yet. Services, many: Architectural design; Building; Land development; Not sure yet. `Not sure` is exclusive within services. |
+| 2 `project.lot-location` | What is your lot status and location? | Lot status, one: Own it; Under contract; Actively looking; Need h and h to evaluate options; Not sure yet. Location: city, county, address, or target area text; or explicit Not sure yet. |
+| 3 `project.site-context` | What do you know about the site? | Many: Flat or gently sloped; Steep or complex slope; Wooded; Important views or water; Utilities available; Well or septic; HOA or deed restrictions; Existing structure; Nothing known yet; Not sure yet. The last two are exclusive. |
 
 ### Living Room And Home Basics
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 4 `home.heated-square-feet` | What total heated square footage are you considering? | One: Under 1,000; 1,000–1,499; 1,500–1,999; 2,000–2,499; 2,500–2,999; 3,000–3,999; 4,000–4,999; 5,000+; Not sure yet. Explain that garages, porches, and unfinished areas are excluded. |
+| 4 `home.heated-square-feet` | How much heated space are you considering? | One: Under 1,000; 1,000–1,499; 1,500–1,999; 2,000–2,499; 2,500–2,999; 3,000–3,999; 4,000–4,999; 5,000+; Not sure yet. Explain that garages, porches, and unfinished areas are excluded. |
 | 5 `home.stories` | How many stories are you considering? | One; One-and-a-half; Two; Three or more; Not sure yet. |
-| 6 `home.bed-bath-counts` | How many bedrooms, full bathrooms, and half bathrooms do you expect? | Bedrooms: 1–5, 6+, Not sure. Full baths: 1–5, 6+, Not sure. Half baths: 0–3, 4+, Not sure. Each dimension requires a value. |
+| 6 `home.bed-bath-counts` | How many bedrooms and bathrooms do you expect? | Bedrooms: 1–5, 6+, Not sure. Full baths: 1–5, 6+, Not sure. Half baths: 0–3, 4+, Not sure. Each dimension requires a value. |
 | — `contact.checkpoint` | Save your progress and resume later. | Email and phone required. Reuse welcome name. Disclose: progress will be saved, h and h may personally follow up about this project, and no reminder is sent automatically. This checkpoint is not one of the 35 planning questions. |
-| 7 `home.future-support` | Who should this home support now and over the next five to ten years? | Many: Growing family; Multigenerational household; Frequent guests; Aging in place; Mobility or accessibility needs; Pets; Live-in caregiver; Downsizing; No major change expected; Not sure yet. |
-| 8 `home.daily-life` | Which parts of daily life should the home support especially well? | Choose up to 4: Gathering; Quiet and privacy; Entertaining; Remote work or study; Hobbies or making; Caregiving; Pet routines; Indoor-outdoor living; Not sure yet. |
-| 9 `living.relationship` | How should the main living areas relate? | Open; Connected but defined; Mostly separate; Not sure yet. |
+| 7 `home.future-support` | Who should this home support over time? | Many: Growing family; Multigenerational household; Frequent guests; Aging in place; Mobility or accessibility needs; Pets; Live-in caregiver; Downsizing; No major change expected; Not sure yet. |
+| 8 `home.daily-life` | Which daily routines should the home support? | Choose up to 4: Gathering; Quiet and privacy; Entertaining; Remote work or study; Hobbies or making; Caregiving; Pet routines; Indoor-outdoor living; Not sure yet. |
+| 9 `living.relationship` | How should the main living areas connect? | Open; Connected but defined; Mostly separate; Not sure yet. |
 | 10 `living.features` | What matters most in the main living area? | Choose up to 5: Fireplace; TV or media; Built-ins; Vaulted or tall ceilings; Strong views; Outdoor connection; Flexible furniture layout; None; Not sure yet. `None` and `Not sure` are exclusive. |
-| 11 `home.finish-level` | Which whole-home finish level feels closest to what you want? | Builder Grade; Builder+; Custom; Not sure yet. Explain that this is one direction for the full home, not a price quote or room-by-room package. |
+| 11 `home.finish-level` | Which whole-home finish level fits you? | Builder Grade; Builder+; Custom; Not sure yet. Explain that this is one direction for the full home, not a price quote or room-by-room package. |
 
 ### Kitchen And Dining
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 12 `kitchen.use` | How will the kitchen be used most often? | Choose up to 4: Everyday cooking; Serious cooking or baking; Family gathering; Entertaining; Large groups; Catering or separate prep; Not sure yet. |
-| 13 `kitchen.arrangement` | What kitchen arrangement sounds closest to what you want? | Work center, one: Single island; Double island; Peninsula; No island; Not sure. Connection, one: Open; Connected but defined; Separate; Not sure. |
+| 12 `kitchen.use` | How will you use the kitchen? | Choose up to 4: Everyday cooking; Serious cooking or baking; Family gathering; Entertaining; Large groups; Catering or separate prep; Not sure yet. |
+| 13 `kitchen.arrangement` | How should the kitchen be arranged? | Work center, one: Single island; Double island; Peninsula; No island; Not sure. Connection, one: Open; Connected but defined; Separate; Not sure. |
 | 14 `kitchen.support` | What pantry or support spaces interest you? | Many: Cabinet pantry; Walk-in pantry; Butler pantry; Scullery or prep kitchen; Appliance garage; None; Not sure yet. Define unfamiliar terms in helper copy. |
-| 15 `dining.use` | How should dining work in the home? | Many: Island seating; Breakfast nook; Open everyday dining; Formal dining; Large-group dining; Outdoor connection; Not sure yet. |
+| 15 `dining.use` | How should dining work? | Many: Island seating; Breakfast nook; Open everyday dining; Formal dining; Large-group dining; Outdoor connection; Not sure yet. |
 
 ### Primary Suite
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 16 `primary.location` | Where should the primary suite be located? | Main floor; Upper floor; Separate wing; No preference; Not sure yet. |
+| 16 `primary.location` | Where should the primary suite go? | Main floor; Upper floor; Separate wing; No preference; Not sure yet. |
 | 17 `primary.bedroom-features` | Which primary-bedroom features matter? | Many: Sitting area; Fireplace; Outdoor access; Morning bar; Strong view; Vaulted or tall ceiling; Compact and simple; None; Not sure yet. |
 | 18 `primary.bath-features` | Which primary-bath features matter? | Many: Large shower; Soaking tub; Separate vanities; Private toilet room; Natural light; Curbless or accessible layout; Linen storage; Not sure yet. |
 | 19 `primary.closet-access` | What should the suite's closet and access support? | Many: One shared walk-in; Separate walk-ins; Direct laundry access; Closet built-ins; Accessible clearances; None; Not sure yet. |
@@ -105,42 +105,42 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 20 `secondary.users-layout` | Who will use the secondary bedrooms, and how should they be arranged? | Users, many: Children; Guests; Multigenerational family; Flexible bedroom/office; Caregiver; Not sure. Arrangement, one: Grouped; Split for privacy; Separate guest suite; No preference. |
+| 20 `secondary.users-layout` | Who will use the secondary bedrooms? | Users, many: Children; Guests; Multigenerational family; Flexible bedroom/office; Caregiver; Not sure. Arrangement, one: Grouped; Split for privacy; Separate guest suite; No preference. |
 | 21 `secondary.bath-sharing` | How should secondary bathrooms be shared? | Hall bath; Jack-and-Jill; Private en suites; Mixed approach; Not sure yet. Define Jack-and-Jill in helper copy. |
 
 ### Laundry, Mudroom, Storage, And Home Systems
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 22 `utility.laundry` | Where and how should laundry work? | Many: Near bedrooms; Near primary suite; Near mudroom; Multiple locations; Folding counter; Sink; Hanging space; Linen storage; Not sure yet. |
-| 23 `utility.mudroom` | What should the everyday entry or mudroom handle? | Many: Shoes and coats; Bags; Deliveries; Pet gear; Dog wash; Extra fridge or freezer; Charging/drop zone; None; Not sure yet. |
-| 24 `utility.storage` | Which easy-to-overlook storage needs matter? | Many: Linens; Seasonal items; Sports or outdoor gear; Hobbies; Food or bulk goods; Cleaning supplies; Luggage; Safe or storm storage; Not sure yet. |
-| 25 `home.systems` | Which whole-home comfort or system priorities matter? | Choose up to 6: Energy efficiency; Generator; Solar-ready; All-electric; Smart controls; Security; Network or audio; Indoor air quality; Water filtration; Low-maintenance systems; Not sure yet. |
+| 22 `utility.laundry` | How should laundry work? | Many: Near bedrooms; Near primary suite; Near mudroom; Multiple locations; Folding counter; Sink; Hanging space; Linen storage; Not sure yet. |
+| 23 `utility.mudroom` | What should the everyday entry handle? | Many: Shoes and coats; Bags; Deliveries; Pet gear; Dog wash; Extra fridge or freezer; Charging/drop zone; None; Not sure yet. |
+| 24 `utility.storage` | Which overlooked storage needs matter? | Many: Linens; Seasonal items; Sports or outdoor gear; Hobbies; Food or bulk goods; Cleaning supplies; Luggage; Safe or storm storage; Not sure yet. |
+| 25 `home.systems` | Which home comfort and system priorities matter? | Choose up to 6: Energy efficiency; Generator; Solar-ready; All-electric; Smart controls; Security; Network or audio; Indoor air quality; Water filtration; Low-maintenance systems; Not sure yet. |
 
 ### Garage, Exterior, Site, Outdoor Living, And Specialty Spaces
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 26 `exterior.garage` | What should the garage accommodate? | Bays, one: No garage; 1; 2; 3; 4+; Not sure. Needs, many: Truck or SUV; EV charging; Boat or RV; Workshop; Storage; Attached or detached preference; Other short text. |
-| 27 `exterior.style` | Which exterior character feels closest to the home you want? | Choose up to 2 visual cards: Hill Country or ranch; Modern farmhouse; Traditional; Transitional; Modern or contemporary; Barndominium; Spanish or Mediterranean; Not sure yet. The cards are direction, not promised designs. |
-| 28 `site.relationships` | Which relationships to the site matter most? | Choose up to 4: Important views; Morning light; Evening light; Privacy; Street presence; Preserve trees; Direct outdoor connection; Future pool or outbuilding; Not sure yet. |
+| 26 `exterior.garage` | What should the garage handle? | Bays, one: No garage; 1; 2; 3; 4+; Not sure. Needs, many: Truck or SUV; EV charging; Boat or RV; Workshop; Storage; Attached or detached preference; Other short text. |
+| 27 `exterior.style` | Which exterior character feels right? | Choose up to 2 visual cards: Hill Country or ranch; Modern farmhouse; Traditional; Transitional; Modern or contemporary; Barndominium; Spanish or Mediterranean; Not sure yet. The cards are direction, not promised designs. |
+| 28 `site.relationships` | Which site relationships matter most? | Choose up to 4: Important views; Morning light; Evening light; Privacy; Street presence; Preserve trees; Direct outdoor connection; Future pool or outbuilding; Not sure yet. |
 | 29 `exterior.outdoor-living` | Which outdoor-living features matter? | Many: Covered porch; Screened porch; Patio; Outdoor kitchen; Fireplace or firepit; Pool; Spa; Garden; Play area; Not sure yet. |
-| 30 `home.specialty-spaces` | Which specialty spaces or future additions should be considered? | Many: Office; Gym; Media room; Game room; Library; Craft room; Safe or storm room; Guest suite; ADU; Workshop; Home school or music room; None; Not sure yet. |
+| 30 `home.specialty-spaces` | Which specialty or future spaces matter? | Many: Office; Gym; Media room; Game room; Library; Craft room; Safe or storm room; Guest suite; ADU; Workshop; Home school or music room; None; Not sure yet. |
 
 ### Design Desk And Inspiration
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 31 `design.feeling` | How should the new home feel? | Choose up to 3: Warm; Calm; Bright; Cozy; Open and airy; Refined; Simple; Bold. Optional short text for current-home likes and dislikes. |
-| 32 `design.references` | What plans, images, websites, or homes communicate your direction? | Zero or more approved files and links, each with optional note; or explicit `I do not have references yet`. See reference contract below. |
-| 33 `design.priorities` | What are your must-haves, nice-to-haves, and deal-breakers? | Assign previously selected features plus one custom item to: Must-have, up to 5; Nice-to-have, up to 5; Deal-breaker, up to 3. Offer `No strong priorities yet`. Do not make drag-and-drop the only interaction. |
-| 34 `project.budget-timing` | What budget range and design timing are you currently planning around? | Budget, one: Under $300k; $300k–$499k; $500k–$749k; $750k–$999k; $1m–$1.49m; $1.5m–$2.49m; $2.5m+; Not sure yet. State that land is excluded and no price is calculated. Design start, one: As soon as practical; Within 3 months; 3–6 months; 6–12 months; More than 12 months; Just exploring. |
+| 31 `design.feeling` | How should your new home feel? | Choose up to 3: Warm; Calm; Bright; Cozy; Open and airy; Refined; Simple; Bold. Optional short text for current-home likes and dislikes. |
+| 32 `design.references` | What references show your direction? | Zero or more approved files and links, each with optional note; or explicit `I do not have references yet`. See reference contract below. |
+| 33 `design.priorities` | What are your key priorities? | Assign previously selected features plus one custom item to: Must-have, up to 5; Nice-to-have, up to 5; Deal-breaker, up to 3. Offer `No strong priorities yet`. Do not make drag-and-drop the only interaction. |
+| 34 `project.budget-timing` | What are your budget and timing? | Budget, one: Under $300k; $300k–$499k; $500k–$749k; $750k–$999k; $1m–$1.49m; $1.5m–$2.49m; $2.5m+; Not sure yet. State that land is excluded and no price is calculated. Design start, one: As soon as practical; Within 3 months; 3–6 months; 6–12 months; More than 12 months; Just exploring. |
 
 ### Review And Follow-Up
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 35 `contact.follow-up` | How should h and h follow up after you submit the project brief? | One: Email; Phone call; Text message. Require final confirmation that the customer is submitting an inquiry and permits project-related contact. Do not bundle marketing consent. |
+| 35 `contact.follow-up` | How should h and h follow up? | One: Email; Phone call; Text message. Require final confirmation that the customer is submitting an inquiry and permits project-related contact. Do not bundle marketing consent. |
 
 ## Review Contract
 

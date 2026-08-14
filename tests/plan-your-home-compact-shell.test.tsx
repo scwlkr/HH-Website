@@ -22,7 +22,7 @@ test("question chrome keeps visual progress compact and exposes the count access
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Where are you starting, and what help are you looking for?",
+        name: "Where are you starting?",
       }),
     ),
   );

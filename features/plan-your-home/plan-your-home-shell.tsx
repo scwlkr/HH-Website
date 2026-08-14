@@ -50,6 +50,7 @@ import {
   PromptStack,
   ReferencesPrompt,
   ShortTextPrompt,
+  StagedPrompt,
   type GroupedChoiceValue,
   type PriorityPromptValue,
   type ReferencePromptItem,
@@ -529,6 +530,21 @@ function customerValidationFeedback(
   };
 }
 
+function summarizeOptionSelection(
+  group: PlanHomeOptionGroup,
+  value: string | null | readonly string[],
+) {
+  const slugs = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? [value]
+      : [];
+  return slugs
+    .map((slug) => group.options.find((option) => option.slug === slug)?.label)
+    .filter(Boolean)
+    .join(", ");
+}
+
 function renderQuestionPrompt(
   question: PlanHomeQuestionDefinition,
   answer: unknown,
@@ -546,40 +562,64 @@ function renderQuestionPrompt(
       locationUncertain: boolean;
     };
     return (
-      <PromptStack>
-        <ChoicePrompt
-          id={`${question.id}-status`}
-          legend={firstGroup.label}
-          options={firstGroup.options}
-          value={value.lotStatus}
-          error={validationErrors.lotStatus}
-          onChange={(lotStatus) => updateAnswer({ ...value, lotStatus })}
-        />
-        <ShortTextPrompt
-          id={`${question.id}-location`}
-          legend="Location"
-          label="City, county, address, or target area"
-          instructions="Enter at least two characters, or choose Not sure yet."
-          error={validationErrors.location}
-          value={value.location}
-          maxLength={160}
-          uncertainLabel="Not sure yet"
-          uncertain={value.locationUncertain}
-          onUncertainChange={(locationUncertain) =>
-            updateAnswer({ ...value, locationUncertain })
-          }
-          onChange={(location) =>
-            updateAnswer({ ...value, location }, "debounced")
-          }
-          onBlur={(location) => flushAnswer({ ...value, location })}
-        />
-      </PromptStack>
+      <StagedPrompt
+        key={question.id}
+        id={question.id}
+        steps={[
+          {
+            id: "lotStatus",
+            label: firstGroup.label,
+            summary: summarizeOptionSelection(firstGroup, value.lotStatus),
+            complete: value.lotStatus !== null,
+            error: validationErrors.lotStatus,
+            content: (
+              <ChoicePrompt
+                id={`${question.id}-status`}
+                legend={firstGroup.label}
+                options={firstGroup.options}
+                value={value.lotStatus}
+                error={validationErrors.lotStatus}
+                onChange={(lotStatus) => updateAnswer({ ...value, lotStatus })}
+              />
+            ),
+          },
+          {
+            id: "location",
+            label: "Location",
+            summary: value.locationUncertain ? "Not sure yet" : value.location,
+            complete:
+              value.locationUncertain || value.location.trim().length >= 2,
+            error: validationErrors.location,
+            content: (
+              <ShortTextPrompt
+                id={`${question.id}-location`}
+                legend="Location"
+                label="City, county, address, or target area"
+                instructions="Enter at least two characters, or choose Not sure yet."
+                error={validationErrors.location}
+                value={value.location}
+                maxLength={160}
+                uncertainLabel="Not sure yet"
+                uncertain={value.locationUncertain}
+                onUncertainChange={(locationUncertain) =>
+                  updateAnswer({ ...value, locationUncertain })
+                }
+                onChange={(location) =>
+                  updateAnswer({ ...value, location }, "debounced")
+                }
+                onBlur={(location) => flushAnswer({ ...value, location })}
+              />
+            ),
+          },
+        ]}
+      />
     );
   }
 
   if (question.id === "home.bed-bath-counts") {
     return (
       <CountPrompt
+        key={question.id}
         id={question.id}
         groups={question.response.optionGroups}
         value={answer as Record<string, string | null>}
@@ -597,40 +637,70 @@ function renderQuestionPrompt(
       other: string;
     };
     const needsGroup = question.response.optionGroups[1] as PlanHomeOptionGroup;
+    const optionalSummary = [
+      summarizeOptionSelection(needsGroup, value.needs),
+      value.other,
+    ]
+      .filter(Boolean)
+      .join(", ");
     return (
-      <PromptStack>
-        <ChoicePrompt
-          id={`${question.id}-bays`}
-          legend={firstGroup.label}
-          options={firstGroup.options}
-          value={value.bays}
-          error={validationErrors.bays}
-          onChange={(bays) => updateAnswer({ ...value, bays })}
-        />
-        <MultiChoicePrompt
-          id={`${question.id}-needs`}
-          legend={needsGroup.label}
-          options={needsGroup.options}
-          value={value.needs}
-          error={validationErrors.needs}
-          onChange={(needs) => updateAnswer({ ...value, needs })}
-          instructions="Choose any needs that apply, or leave this group blank."
-        />
-        <ShortTextPrompt
-          id={`${question.id}-other`}
-          legend="Other garage need"
-          label="Other"
-          value={value.other}
-          maxLength={120}
-          optional
-          instructions="Add one short garage need not listed above."
-          error={validationErrors.other}
-          onChange={(other) =>
-            updateAnswer({ ...value, other }, "debounced")
-          }
-          onBlur={(other) => flushAnswer({ ...value, other })}
-        />
-      </PromptStack>
+      <StagedPrompt
+        key={question.id}
+        id={question.id}
+        steps={[
+          {
+            id: "bays",
+            label: firstGroup.label,
+            summary: summarizeOptionSelection(firstGroup, value.bays),
+            complete: value.bays !== null,
+            error: validationErrors.bays,
+            content: (
+              <ChoicePrompt
+                id={`${question.id}-bays`}
+                legend={firstGroup.label}
+                options={firstGroup.options}
+                value={value.bays}
+                error={validationErrors.bays}
+                onChange={(bays) => updateAnswer({ ...value, bays })}
+              />
+            ),
+          },
+          {
+            id: "needs",
+            label: "Other garage needs",
+            summary: optionalSummary || "None added",
+            complete: true,
+            optional: true,
+            content: (
+              <PromptStack>
+                <MultiChoicePrompt
+                  id={`${question.id}-needs`}
+                  legend={needsGroup.label}
+                  options={needsGroup.options}
+                  value={value.needs}
+                  error={validationErrors.needs}
+                  onChange={(needs) => updateAnswer({ ...value, needs })}
+                  instructions="Choose any needs that apply, or leave this group blank."
+                />
+                <ShortTextPrompt
+                  id={`${question.id}-other`}
+                  legend="Other garage need"
+                  label="Other"
+                  value={value.other}
+                  maxLength={120}
+                  optional
+                  instructions="Add one short garage need not listed above."
+                  error={validationErrors.other}
+                  onChange={(other) =>
+                    updateAnswer({ ...value, other }, "debounced")
+                  }
+                  onBlur={(other) => flushAnswer({ ...value, other })}
+                />
+              </PromptStack>
+            ),
+          },
+        ]}
+      />
     );
   }
 
@@ -655,33 +725,55 @@ function renderQuestionPrompt(
       likesAndDislikes: string;
     };
     return (
-      <PromptStack>
-        <MultiChoicePrompt
-          id={`${question.id}-feelings`}
-          legend={firstGroup.label}
-          options={firstGroup.options}
-          value={value.feelings}
-          maxSelections={3}
-          error={validationErrors.feelings}
-          onChange={(feelings) => updateAnswer({ ...value, feelings })}
-        />
-        <ShortTextPrompt
-          id={`${question.id}-current-home`}
-          legend="Current home"
-          label="What do you like or dislike now?"
-          value={value.likesAndDislikes}
-          maxLength={500}
-          optional
-          multiline
-          error={validationErrors.likesAndDislikes}
-          onChange={(likesAndDislikes) =>
-            updateAnswer({ ...value, likesAndDislikes }, "debounced")
-          }
-          onBlur={(likesAndDislikes) =>
-            flushAnswer({ ...value, likesAndDislikes })
-          }
-        />
-      </PromptStack>
+      <StagedPrompt
+        key={question.id}
+        id={question.id}
+        steps={[
+          {
+            id: "feelings",
+            label: firstGroup.label,
+            summary: summarizeOptionSelection(firstGroup, value.feelings),
+            complete: value.feelings.length > 0,
+            error: validationErrors.feelings,
+            content: (
+              <MultiChoicePrompt
+                id={`${question.id}-feelings`}
+                legend={firstGroup.label}
+                options={firstGroup.options}
+                value={value.feelings}
+                maxSelections={3}
+                error={validationErrors.feelings}
+                onChange={(feelings) => updateAnswer({ ...value, feelings })}
+              />
+            ),
+          },
+          {
+            id: "current-home",
+            label: "Current home",
+            summary: value.likesAndDislikes || "No note added",
+            complete: true,
+            optional: true,
+            content: (
+              <ShortTextPrompt
+                id={`${question.id}-current-home`}
+                legend="Current home"
+                label="What do you like or dislike now?"
+                value={value.likesAndDislikes}
+                maxLength={500}
+                optional
+                multiline
+                error={validationErrors.likesAndDislikes}
+                onChange={(likesAndDislikes) =>
+                  updateAnswer({ ...value, likesAndDislikes }, "debounced")
+                }
+                onBlur={(likesAndDislikes) =>
+                  flushAnswer({ ...value, likesAndDislikes })
+                }
+              />
+            ),
+          },
+        ]}
+      />
     );
   }
 
@@ -763,6 +855,7 @@ function renderQuestionPrompt(
   if (question.response.kind === "grouped") {
     return (
       <GroupedChoicePrompt
+        key={question.id}
         id={question.id}
         groups={question.response.optionGroups}
         value={answer as GroupedChoiceValue}

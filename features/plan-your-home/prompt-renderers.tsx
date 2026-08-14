@@ -1,12 +1,15 @@
 "use client";
 
 import {
+  useEffect,
   useId,
+  useRef,
   useState,
   type ChangeEvent,
   type ReactNode,
 } from "react";
 
+import { Button } from "@/components/ui/button";
 import type {
   PlanHomeOption,
   PlanHomeOptionGroup,
@@ -84,6 +87,21 @@ type CountPromptProps = Readonly<{
   onChange: (value: Readonly<Record<string, string | null>>) => void;
   instructions?: string;
   errors?: Readonly<Record<string, string | null | undefined>>;
+}>;
+
+export type StagedPromptStep = Readonly<{
+  id: string;
+  label: string;
+  summary: string;
+  complete: boolean;
+  optional?: boolean;
+  error?: string | null;
+  content: ReactNode;
+}>;
+
+type StagedPromptProps = Readonly<{
+  id: string;
+  steps: readonly StagedPromptStep[];
 }>;
 
 export type PriorityCategory =
@@ -601,6 +619,150 @@ export function ExteriorStylePrompt({
   );
 }
 
+function initiallyCompletedSteps(steps: readonly StagedPromptStep[]) {
+  return new Set(
+    steps
+      .slice(0, -1)
+      .filter((step) => step.complete)
+      .map((step) => step.id),
+  );
+}
+
+export function StagedPrompt({ id, steps }: StagedPromptProps) {
+  const [completedStepIds, setCompletedStepIds] = useState(() =>
+    initiallyCompletedSteps(steps),
+  );
+  const [editingStepId, setEditingStepId] = useState<string | null>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
+  const focusActiveStep = useRef(false);
+
+  const errorIndex = steps.findIndex((step) => Boolean(step.error));
+  const editingIndex = steps.findIndex((step) => step.id === editingStepId);
+  const firstUncompletedIndex = steps
+    .slice(0, -1)
+    .findIndex(
+      (step, index) =>
+        !completedStepIds.has(step.id) &&
+        !(
+          step.complete &&
+          steps.slice(index + 1).some((laterStep) =>
+            Boolean(laterStep.complete || laterStep.error),
+          )
+        ),
+    );
+  const activeIndex =
+    errorIndex >= 0
+      ? errorIndex
+      : editingIndex >= 0
+        ? editingIndex
+        : firstUncompletedIndex >= 0
+          ? firstUncompletedIndex
+          : Math.max(steps.length - 1, 0);
+  const activeStep = steps[activeIndex];
+
+  useEffect(() => {
+    if (!focusActiveStep.current || !activeStep) return;
+    focusActiveStep.current = false;
+    promptRef.current
+      ?.querySelector<HTMLElement>(
+        `[data-plan-home-stage-panel="${CSS.escape(activeStep.id)}"] input:not([disabled]), ` +
+          `[data-plan-home-stage-panel="${CSS.escape(activeStep.id)}"] textarea:not([disabled]), ` +
+          `[data-plan-home-stage-panel="${CSS.escape(activeStep.id)}"] button:not([disabled])`,
+      )
+      ?.focus({ preventScroll: true });
+  }, [activeStep]);
+
+  function editStep(stepId: string) {
+    focusActiveStep.current = true;
+    setEditingStepId(stepId);
+  }
+
+  function finishActiveStep() {
+    if (!activeStep || (!activeStep.complete && !activeStep.optional)) return;
+    focusActiveStep.current = true;
+    setCompletedStepIds((current) => new Set(current).add(activeStep.id));
+    setEditingStepId(null);
+  }
+
+  if (!activeStep) return null;
+
+  return (
+    <div className={styles.stagedPrompt} ref={promptRef} data-staged-prompt={id}>
+      {activeIndex > 0 ? (
+        <div
+          className={styles.stagedSummaryList}
+          aria-label="Completed question parts"
+        >
+          {steps.slice(0, activeIndex).map((step) => (
+            <div
+              className={styles.stagedSummary}
+              role="group"
+              aria-label={`Completed ${step.label}`}
+              key={step.id}
+            >
+              <span>
+                <strong>{step.label}</strong>
+                <span>{step.summary}</span>
+              </span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                aria-label={`Edit ${step.label}`}
+                onClick={() => editStep(step.id)}
+              >
+                Edit
+              </Button>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <div
+        className={styles.stagedPanel}
+        data-plan-home-stage-panel={activeStep.id}
+      >
+        <p className={styles.stagedProgress}>
+          Part {activeIndex + 1} of {steps.length}
+        </p>
+        {activeStep.content}
+        {activeIndex < steps.length - 1 || editingStepId ? (
+          <div className={styles.stagedControls}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={!activeStep.complete && !activeStep.optional}
+              onClick={finishActiveStep}
+            >
+              {editingStepId
+                ? "Done"
+                : activeStep.optional && !activeStep.complete
+                  ? "Skip"
+                  : "Continue"}
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function summarizeGroupValue(
+  group: PlanHomeOptionGroup,
+  value: string | null | readonly string[] | undefined,
+) {
+  const slugs = Array.isArray(value)
+    ? value
+    : typeof value === "string"
+      ? [value]
+      : [];
+  return slugs
+    .map((slug) => group.options.find((option) => option.slug === slug)?.label)
+    .filter(Boolean)
+    .join(", ");
+}
+
 export function GroupedChoicePrompt({
   id,
   groups,
@@ -610,15 +772,21 @@ export function GroupedChoicePrompt({
   errors = {},
 }: GroupedChoicePromptProps) {
   return (
-    <div className={styles.groupedPrompt}>
-      {groups.map((group) => {
+    <StagedPrompt
+      id={id}
+      steps={groups.map((group) => {
         const current = value[group.id];
         const groupId = `${id}-${group.id}`;
 
         if (Array.isArray(current)) {
-          return (
+          return {
+            id: group.id,
+            label: group.label,
+            summary: summarizeGroupValue(group, current),
+            complete: current.length > 0,
+            error: errors[group.id],
+            content: (
             <MultiChoicePrompt
-              key={group.id}
               id={groupId}
               legend={group.label}
               options={group.options}
@@ -629,12 +797,18 @@ export function GroupedChoicePrompt({
               error={errors[group.id]}
               onChange={(next) => onChange({ ...value, [group.id]: next })}
             />
-          );
+            ),
+          };
         }
 
-        return (
+        return {
+          id: group.id,
+          label: group.label,
+          summary: summarizeGroupValue(group, current),
+          complete: typeof current === "string",
+          error: errors[group.id],
+          content: (
           <ChoicePrompt
-            key={group.id}
             id={groupId}
             legend={group.label}
             options={group.options}
@@ -643,9 +817,10 @@ export function GroupedChoicePrompt({
             error={errors[group.id]}
             onChange={(next) => onChange({ ...value, [group.id]: next })}
           />
-        );
+          ),
+        };
       })}
-    </div>
+    />
   );
 }
 
@@ -726,21 +901,28 @@ export function CountPrompt({
   errors = {},
 }: CountPromptProps) {
   return (
-    <div className={styles.countPrompt}>
-      {groups.map((group) => (
-        <ChoicePrompt
-          key={group.id}
-          id={`${id}-${group.id}`}
-          legend={group.label}
-          options={group.options}
-          value={value[group.id] ?? null}
-          instructions={instructions}
-          error={errors[group.id]}
-          columns={3}
-          onChange={(next) => onChange({ ...value, [group.id]: next })}
-        />
-      ))}
-    </div>
+    <StagedPrompt
+      id={id}
+      steps={groups.map((group) => ({
+        id: group.id,
+        label: group.label,
+        summary: summarizeGroupValue(group, value[group.id]),
+        complete: typeof value[group.id] === "string",
+        error: errors[group.id],
+        content: (
+          <ChoicePrompt
+            id={`${id}-${group.id}`}
+            legend={group.label}
+            options={group.options}
+            value={value[group.id] ?? null}
+            instructions={instructions}
+            error={errors[group.id]}
+            columns={3}
+            onChange={(next) => onChange({ ...value, [group.id]: next })}
+          />
+        ),
+      }))}
+    />
   );
 }
 

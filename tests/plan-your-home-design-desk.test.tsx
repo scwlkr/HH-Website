@@ -251,7 +251,7 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   const user = userEvent.setup({ document: window.document });
 
   await waitFor(() =>
-    assert.ok(query.getByRole("heading", { name: "How should the new home feel?" })),
+    assert.ok(query.getByRole("heading", { name: "How should your new home feel?" })),
   );
   await waitFor(() =>
     assert.ok(view.container.querySelector('[data-scene-variant="design-desk"]')),
@@ -269,6 +269,7 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   }
   await user.click(query.getByRole("checkbox", { name: "Bold" }));
   assert.match(query.getByRole("alert").textContent ?? "", /no more than 3/);
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.type(
     query.getByRole("textbox", { name: /What do you like or dislike now/ }),
     "Keep the morning light; lose the dark hallway.",
@@ -331,11 +332,13 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   );
   await user.click(query.getByRole("checkbox", { name: "No strong priorities yet" }));
   await user.click(query.getByRole("button", { name: "Next" }));
-  assert.match(
-    query.getByText(/Budget is planning context only/).textContent ?? "",
-    /Land is excluded, all features remain explorable, and no price is calculated/,
+  assert.equal(
+    query.getByText("Budget excludes land and does not calculate a price.")
+      .textContent,
+    "Budget excludes land and does not calculate a price.",
   );
   await user.click(query.getByRole("radio", { name: "Under $300k" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.click(query.getByRole("radio", { name: "Within 3 months" }));
   await user.click(query.getByRole("button", { name: "Save room" }));
   await waitFor(() =>
@@ -392,7 +395,7 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "What budget range and design timing are you currently planning around?",
+        name: "What are your budget and timing?",
       }),
     ),
   );

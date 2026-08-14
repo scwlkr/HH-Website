@@ -127,12 +127,14 @@ async function createDraftAndProveExactLocalResume(browser, baseUrl, evidence) {
 
   proofStage = "answering question 1";
   await activateOption(page.getByRole("radio", { name: "Fully custom" }));
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
   await activateOption(
     page.getByRole("checkbox", { name: "Architectural design" }),
   );
   await page.getByRole("button", { name: "Next", exact: true }).click();
   proofStage = "answering question 2";
   await activateOption(page.getByRole("radio", { name: "Own it" }));
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
   await page
     .getByLabel("City, county, address, or target area")
     .fill("Denton County");
@@ -152,9 +154,11 @@ async function createDraftAndProveExactLocalResume(browser, baseUrl, evidence) {
   await activateOption(
     page.getByRole("group", { name: "Bedrooms" }).getByLabel("4"),
   );
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
   await activateOption(
     page.getByRole("group", { name: "Full bathrooms" }).getByLabel("3"),
   );
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
   await activateOption(
     page.getByRole("group", { name: "Half bathrooms" }).getByLabel("1"),
   );
@@ -177,12 +181,12 @@ async function createDraftAndProveExactLocalResume(browser, baseUrl, evidence) {
   await activateOption(page.getByRole("checkbox", { name: "Gathering" }));
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await page
-    .getByRole("heading", { name: "How should the main living areas relate?" })
+    .getByRole("heading", { name: "How should the main living areas connect?" })
     .waitFor();
   await page.reload({ waitUntil: "networkidle" });
   proofStage = "verifying exact same-device prompt";
   await page
-    .getByRole("heading", { name: "How should the main living areas relate?" })
+    .getByRole("heading", { name: "How should the main living areas connect?" })
     .waitFor();
   await assertPageQuality(page, evidence);
   await capture(page, "desktop-same-device-exact-prompt");

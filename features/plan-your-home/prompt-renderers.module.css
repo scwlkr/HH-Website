@@ -5,6 +5,62 @@
   gap: 1.25rem;
 }
 
+.stagedPrompt,
+.stagedSummaryList,
+.stagedPanel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.stagedSummary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.55rem 0.45rem 0.7rem;
+  border: 1px solid var(--hh-line);
+  border-radius: var(--hh-radius-tight);
+  background: color-mix(in srgb, var(--hh-paper) 70%, transparent);
+}
+
+.stagedSummary > span {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.stagedSummary strong {
+  color: var(--hh-muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.stagedSummary span span {
+  overflow: hidden;
+  color: var(--hh-ink);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stagedProgress {
+  margin: 0;
+  color: var(--hh-muted);
+  font-family: var(--font-code), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stagedControls {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .fieldset {
   min-width: 0;
   margin: 0;

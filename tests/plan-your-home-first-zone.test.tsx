@@ -67,14 +67,14 @@ async function beginTour(
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Where are you starting, and what help are you looking for?",
+        name: "Where are you starting?",
       }),
     ),
   );
   assert.equal(
     window.document.activeElement,
     query.getByRole("heading", {
-      name: "Where are you starting, and what help are you looking for?",
+      name: "Where are you starting?",
     }),
   );
 }
@@ -86,10 +86,12 @@ async function answerThroughContactGate(
   await beginTour(user, query);
 
   await user.click(query.getByRole("radio", { name: "Fully custom" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.click(query.getByRole("checkbox", { name: "Architectural design" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
   await user.click(query.getByRole("radio", { name: "Own it" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.type(
     query.getByRole("textbox", { name: "City, county, address, or target area" }),
     "Denton County",
@@ -106,10 +108,12 @@ async function answerThroughContactGate(
   await user.click(query.getByRole("button", { name: "Next" }));
 
   const bedrooms = query.getByRole("group", { name: "Bedrooms" });
-  const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
-  const halfBathrooms = query.getByRole("group", { name: "Half bathrooms" });
   await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
+  const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
   await user.click(within(fullBathrooms).getByRole("radio", { name: "3" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
+  const halfBathrooms = query.getByRole("group", { name: "Half bathrooms" });
   await user.click(within(halfBathrooms).getByRole("radio", { name: "1" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
@@ -143,14 +147,14 @@ async function saveContact(
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Who should this home support now and over the next five to ten years?",
+        name: "Who should this home support over time?",
       }),
     ),
   );
   assert.equal(
     window.document.activeElement,
     query.getByRole("heading", {
-      name: "Who should this home support now and over the next five to ten years?",
+      name: "Who should this home support over time?",
     }),
   );
 }
@@ -193,13 +197,13 @@ test("missing grouped choices use one safe instruction per group and refocus as 
   try {
     await beginTour(user, query);
     const startingPoint = query.getByRole("group", { name: "Starting point" });
-    const services = query.getByRole("group", { name: "Services" });
+    assert.equal(query.queryByRole("group", { name: "Services" }), null);
     await user.click(query.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
       assert.deepEqual(
         query.getAllByRole("alert").map((alert) => alert.textContent),
-        ["Choose a starting point.", "Choose at least one service."],
+        ["Choose a starting point."],
       );
       assert.equal(
         window.document.activeElement,
@@ -212,6 +216,8 @@ test("missing grouped choices use one safe instruction per group and refocus as 
     await user.click(
       within(startingPoint).getByRole("radio", { name: "Fully custom" }),
     );
+    await user.click(query.getByRole("button", { name: "Continue" }));
+    const services = query.getByRole("group", { name: "Services" });
     await user.click(query.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
@@ -225,13 +231,10 @@ test("missing grouped choices use one safe instruction per group and refocus as 
       );
     });
     assert.equal(scroll.targets.at(-1), services);
-    assert.equal(
-      (
-        within(startingPoint).getByRole("radio", {
-          name: "Fully custom",
-        }) as HTMLInputElement
-      ).checked,
-      true,
+    assert.match(
+      query.getByRole("group", { name: "Completed Starting point" })
+        .textContent ?? "",
+      /Fully custom/,
     );
 
     await user.click(
@@ -241,19 +244,22 @@ test("missing grouped choices use one safe instruction per group and refocus as 
     await waitFor(() =>
       assert.ok(
         query.getByRole("heading", {
-          name: "What is your lot status, and where are you building or hoping to build?",
+          name: "What is your lot status and location?",
         }),
       ),
     );
     const lotStatus = query.getByRole("group", { name: "Lot status" });
+    assert.equal(
+      query.queryByRole("textbox", {
+        name: "City, county, address, or target area",
+      }),
+      null,
+    );
     await user.click(query.getByRole("button", { name: "Next" }));
     await waitFor(() => {
       assert.deepEqual(
         query.getAllByRole("alert").map((alert) => alert.textContent),
-        [
-          "Choose a lot status.",
-          "Enter a location or choose Not sure yet.",
-        ],
+        ["Choose a lot status."],
       );
       assert.equal(
         window.document.activeElement,
@@ -266,7 +272,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
     await waitFor(() =>
       assert.ok(
         query.getByRole("heading", {
-          name: "Where are you starting, and what help are you looking for?",
+          name: "Where are you starting?",
         }),
       ),
     );
@@ -274,7 +280,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
     await waitFor(() =>
       assert.ok(
         query.getByRole("heading", {
-          name: "What is your lot status, and where are you building or hoping to build?",
+          name: "What is your lot status and location?",
         }),
       ),
     );
@@ -293,11 +299,13 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
   try {
     await beginTour(user, query);
     await user.click(query.getByRole("radio", { name: "Fully custom" }));
+    await user.click(query.getByRole("button", { name: "Continue" }));
     await user.click(
       query.getByRole("checkbox", { name: "Architectural design" }),
     );
     await user.click(query.getByRole("button", { name: "Next" }));
     await user.click(query.getByRole("radio", { name: "Own it" }));
+    await user.click(query.getByRole("button", { name: "Continue" }));
     await user.type(
       query.getByRole("textbox", {
         name: "City, county, address, or target area",
@@ -313,18 +321,13 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
     await user.click(query.getByRole("button", { name: "Next" }));
 
     const bedrooms = query.getByRole("group", { name: "Bedrooms" });
-    const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
-    const halfBathrooms = query.getByRole("group", { name: "Half bathrooms" });
+    assert.equal(query.queryByRole("group", { name: "Full bathrooms" }), null);
     await user.click(query.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
       assert.deepEqual(
         query.getAllByRole("alert").map((alert) => alert.textContent),
-        [
-          "Choose a bedroom count.",
-          "Choose a full-bathroom count.",
-          "Choose a half-bathroom count.",
-        ],
+        ["Choose a bedroom count."],
       );
       assert.equal(
         window.document.activeElement,
@@ -335,15 +338,14 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
     assert.equal(scroll.targets.at(-1), bedrooms);
 
     await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
+    await user.click(query.getByRole("button", { name: "Continue" }));
+    const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
     await user.click(query.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
       assert.deepEqual(
         query.getAllByRole("alert").map((alert) => alert.textContent),
-        [
-          "Choose a full-bathroom count.",
-          "Choose a half-bathroom count.",
-        ],
+        ["Choose a full-bathroom count."],
       );
       assert.equal(
         window.document.activeElement,
@@ -351,12 +353,10 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
       );
     });
     assert.equal(scroll.targets.at(-1), fullBathrooms);
-    assert.equal(
-      (within(bedrooms).getByRole("radio", { name: "4" }) as HTMLInputElement)
-        .checked,
-      true,
+    assert.match(
+      query.getByRole("group", { name: "Completed Bedrooms" }).textContent ?? "",
+      /Bedrooms4Edit/,
     );
-    assert.equal(halfBathrooms.getAttribute("aria-invalid"), "true");
     const accessibility = await axe.run(view.container, {
       rules: { "color-contrast": { enabled: false } },
     });
@@ -382,6 +382,7 @@ test("valid choices persist locally before Next and survive refresh without a se
 
   await beginTour(user, firstQuery);
   await user.click(firstQuery.getByRole("radio", { name: "Fully custom" }));
+  await user.click(firstQuery.getByRole("button", { name: "Continue" }));
   await user.click(
     firstQuery.getByRole("checkbox", { name: "Architectural design" }),
   );
@@ -408,14 +409,14 @@ test("valid choices persist locally before Next and survive refresh without a se
   await waitFor(() =>
     assert.ok(
       refreshed.getByRole("heading", {
-        name: "Where are you starting, and what help are you looking for?",
+        name: "Where are you starting?",
       }),
     ),
   );
-  assert.equal(
-    (refreshed.getByRole("radio", { name: "Fully custom" }) as HTMLInputElement)
-      .checked,
-    true,
+  assert.match(
+    refreshed.getByRole("group", { name: "Completed Starting point" })
+      .textContent ?? "",
+    /Fully custom/,
   );
   assert.equal(
     (
@@ -441,11 +442,13 @@ test("valid text persists after a debounce, on blur, and on navigation", async (
 
   await beginTour(user, firstQuery);
   await user.click(firstQuery.getByRole("radio", { name: "Fully custom" }));
+  await user.click(firstQuery.getByRole("button", { name: "Continue" }));
   await user.click(
     firstQuery.getByRole("checkbox", { name: "Architectural design" }),
   );
   await user.click(firstQuery.getByRole("button", { name: "Next" }));
   await user.click(firstQuery.getByRole("radio", { name: "Own it" }));
+  await user.click(firstQuery.getByRole("button", { name: "Continue" }));
   const location = firstQuery.getByRole("textbox", {
     name: "City, county, address, or target area",
   });
@@ -640,7 +643,7 @@ test("refresh restores before and after contact; question 11 checkpoints all fir
   await waitFor(() =>
     assert.ok(
       resumed.getByRole("heading", {
-        name: "Who should this home support now and over the next five to ten years?",
+        name: "Who should this home support over time?",
       }),
     ),
   );
@@ -659,7 +662,7 @@ test("refresh restores before and after contact; question 11 checkpoints all fir
   await waitFor(() =>
     assert.ok(
       resumed.getByRole("heading", {
-        name: "How will the kitchen be used most often?",
+        name: "How will you use the kitchen?",
       }),
     ),
   );

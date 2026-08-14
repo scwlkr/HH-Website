@@ -143,7 +143,7 @@ test("cross-device restore opens only the trusted last-synced room boundary", as
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "How will the kitchen be used most often?",
+        name: "How will you use the kitchen?",
       }),
     ),
   );

@@ -166,19 +166,19 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 | # | Working question | Likely response |
 | --- | --- | --- |
 | 1 | Where are you starting: fully custom, adapting a plan, bringing a completed plan, or not sure yet? | Choice cards |
-| 2 | What is your lot status, and where are you building or hoping to build? | Lot-status choice plus location |
-| 3 | What do you already know about the site? | Multi-select for slope, trees, views, water, utilities, well/septic, restrictions, or unknown |
+| 2 | What is your lot status and location? | Lot-status choice plus location |
+| 3 | What do you know about the site? | Multi-select for slope, trees, views, water, utilities, well/septic, restrictions, or unknown |
 
 ### 1. Living Room And Home Basics
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 4 | What total heated square footage are you considering? | Stepped range: under 1,000; 1,000–1,499; 1,500–1,999; 2,000–2,499; 2,500–2,999; 3,000–3,999; 4,000–4,999; 5,000+; or not sure yet |
+| 4 | How much heated space are you considering? | Stepped range: under 1,000; 1,000–1,499; 1,500–1,999; 2,000–2,499; 2,500–2,999; 3,000–3,999; 4,000–4,999; 5,000+; or not sure yet |
 | 5 | How many stories are you considering? | One, one-and-a-half, two, more, or not sure |
-| 6 | How many bedrooms, full bathrooms, and half bathrooms do you expect? | Three compact steppers |
-| 7 | Who should this home support now and over the next five to ten years? | Adults, children, extended family, frequent guests, pets, aging needs, or other |
+| 6 | How many bedrooms and bathrooms do you expect? | Three compact steppers |
+| 7 | Who should this home support over time? | Adults, children, extended family, frequent guests, pets, aging needs, or other |
 | 8 | What parts of daily life should the home support especially well? | Gathering, quiet time, entertaining, remote work, hobbies, caregiving, accessibility, or other |
-| 9 | How should the main living areas relate? | Open, partly open, more defined, or not sure |
+| 9 | How should the main living areas connect? | Open, partly open, more defined, or not sure |
 | 10 | What matters most in the main living area? | Fireplace, television, built-ins, high ceilings, strong views, outdoor connection, flexible furniture, or other |
 | 11 | Which of h and h's three finish levels fits the home as a whole? | Builder Grade, Builder+, Custom, or not sure |
 
@@ -186,16 +186,16 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 12 | How will the kitchen be used most often? | Everyday cooking, serious cooking, family gathering, entertaining, catering, or mixed use |
-| 13 | What kitchen arrangement sounds closest to what you want? | Island, double island, peninsula, no island, open to living, more separate, or not sure |
+| 12 | How will you use the kitchen? | Everyday cooking, serious cooking, family gathering, entertaining, catering, or mixed use |
+| 13 | How should the kitchen be arranged? | Island, double island, peninsula, no island, open to living, more separate, or not sure |
 | 14 | What pantry or support space do you want? | Cabinet pantry, walk-in pantry, butler pantry, scullery/prep kitchen, none, or not sure |
-| 15 | How should dining work in the home? | Island seating, breakfast area, open dining, formal dining, large-group hosting, or mixed use |
+| 15 | How should dining work? | Island seating, breakfast area, open dining, formal dining, large-group hosting, or mixed use |
 
 ### 3. Primary Suite
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 16 | Where should the primary suite be located? | Main floor, upper floor, separate wing, no preference, or not sure |
+| 16 | Where should the primary suite go? | Main floor, upper floor, separate wing, no preference, or not sure |
 | 17 | Which primary-bedroom features matter? | Sitting area, fireplace, outdoor access, morning bar, strong view, compact/simple, or other |
 | 18 | Which primary-bath features matter? | Large shower, soaking tub, separate vanities, private toilet room, natural light, accessible design, or other |
 | 19 | What closet, storage, and future-accessibility needs should the suite support? | Closet size/type, separate/shared, direct laundry access, aging-in-place, or other |
@@ -211,20 +211,20 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 22 | Where and how should laundry work? | Near bedrooms, near primary suite, near mudroom, multiple locations, folding, sink, hanging, or other |
-| 23 | What should the everyday entry or mudroom handle? | Shoes, coats, school bags, deliveries, pet gear, dog wash, freezer, charging, or other |
+| 22 | How should laundry work? | Near bedrooms, near primary suite, near mudroom, multiple locations, folding, sink, hanging, or other |
+| 23 | What should the everyday entry handle? | Shoes, coats, school bags, deliveries, pet gear, dog wash, freezer, charging, or other |
 | 24 | What storage needs are easy to overlook but important to you? | Linens, seasonal items, sports, hobbies, food, cleaning, outdoor gear, bulk storage, or other |
-| 25 | Which whole-home comfort or system priorities matter? | Energy efficiency, generator, all-electric, smart controls, security, audio, indoor-air quality, low maintenance, or other |
+| 25 | Which home comfort and system priorities matter? | Energy efficiency, generator, all-electric, smart controls, security, audio, indoor-air quality, low maintenance, or other |
 
 ### 6. Garage, Exterior, Site, Outdoor Living, And Specialty Spaces
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 26 | What should the garage accommodate? | Vehicle count, truck/SUV, EV charging, boat/RV, workshop, storage, detached/attached, or other |
-| 27 | Which exterior character feels closest to the home you want? | Visual style cards plus materials loved or disliked |
+| 26 | What should the garage handle? | Vehicle count, truck/SUV, EV charging, boat/RV, workshop, storage, detached/attached, or other |
+| 27 | Which exterior character feels right? | Visual style cards plus materials loved or disliked |
 | 28 | What site relationships matter most? | Views, morning/evening sun, privacy, street presence, trees, outdoor access, future structures, or not sure |
 | 29 | Which outdoor-living features matter? | Covered porch, screened porch, patio, outdoor kitchen, fireplace, pool, spa, garden, play area, or other |
-| 30 | Which specialty spaces or future additions should be considered? | Office, gym, media room, game room, library, craft room, safe room, guest suite, ADU, workshop, or other |
+| 30 | Which specialty or future spaces matter? | Office, gym, media room, game room, library, craft room, safe room, guest suite, ADU, workshop, or other |
 
 ### 7. Design Desk And Inspiration
 
@@ -232,7 +232,7 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 | --- | --- | --- |
 | 31 | What do you like or dislike about your current home, and how should the new home feel different? | Mood cards plus two short optional prompts |
 | 32 | What plans, images, websites, or homes best communicate your direction? | File uploads and repeatable links with a note for each |
-| 33 | What are your must-haves, nice-to-haves, and deal-breakers? | Ranked or grouped priorities |
+| 33 | What are your key priorities? | Ranked or grouped priorities |
 | 34 | What home-design-and-construction budget range and timing are you currently planning around? | Stepped budget range plus timing choice |
 
 Use this final illustrated zone as the single reference workspace. Accept house-plan PDFs, phone images, and repeatable website links, with a short optional note on each item explaining what the customer likes. Do not place upload controls throughout the earlier rooms.

@@ -21,41 +21,41 @@ const expectedZoneIds = [
 ];
 
 const expectedQuestions = [
-  ["project.starting-services", "Where are you starting, and what help are you looking for?"],
-  ["project.lot-location", "What is your lot status, and where are you building or hoping to build?"],
-  ["project.site-context", "What do you already know about the site?"],
-  ["home.heated-square-feet", "What total heated square footage are you considering?"],
+  ["project.starting-services", "Where are you starting?"],
+  ["project.lot-location", "What is your lot status and location?"],
+  ["project.site-context", "What do you know about the site?"],
+  ["home.heated-square-feet", "How much heated space are you considering?"],
   ["home.stories", "How many stories are you considering?"],
-  ["home.bed-bath-counts", "How many bedrooms, full bathrooms, and half bathrooms do you expect?"],
-  ["home.future-support", "Who should this home support now and over the next five to ten years?"],
-  ["home.daily-life", "Which parts of daily life should the home support especially well?"],
-  ["living.relationship", "How should the main living areas relate?"],
+  ["home.bed-bath-counts", "How many bedrooms and bathrooms do you expect?"],
+  ["home.future-support", "Who should this home support over time?"],
+  ["home.daily-life", "Which daily routines should the home support?"],
+  ["living.relationship", "How should the main living areas connect?"],
   ["living.features", "What matters most in the main living area?"],
-  ["home.finish-level", "Which whole-home finish level feels closest to what you want?"],
-  ["kitchen.use", "How will the kitchen be used most often?"],
-  ["kitchen.arrangement", "What kitchen arrangement sounds closest to what you want?"],
+  ["home.finish-level", "Which whole-home finish level fits you?"],
+  ["kitchen.use", "How will you use the kitchen?"],
+  ["kitchen.arrangement", "How should the kitchen be arranged?"],
   ["kitchen.support", "What pantry or support spaces interest you?"],
-  ["dining.use", "How should dining work in the home?"],
-  ["primary.location", "Where should the primary suite be located?"],
+  ["dining.use", "How should dining work?"],
+  ["primary.location", "Where should the primary suite go?"],
   ["primary.bedroom-features", "Which primary-bedroom features matter?"],
   ["primary.bath-features", "Which primary-bath features matter?"],
   ["primary.closet-access", "What should the suite's closet and access support?"],
-  ["secondary.users-layout", "Who will use the secondary bedrooms, and how should they be arranged?"],
+  ["secondary.users-layout", "Who will use the secondary bedrooms?"],
   ["secondary.bath-sharing", "How should secondary bathrooms be shared?"],
-  ["utility.laundry", "Where and how should laundry work?"],
-  ["utility.mudroom", "What should the everyday entry or mudroom handle?"],
-  ["utility.storage", "Which easy-to-overlook storage needs matter?"],
-  ["home.systems", "Which whole-home comfort or system priorities matter?"],
-  ["exterior.garage", "What should the garage accommodate?"],
-  ["exterior.style", "Which exterior character feels closest to the home you want?"],
-  ["site.relationships", "Which relationships to the site matter most?"],
+  ["utility.laundry", "How should laundry work?"],
+  ["utility.mudroom", "What should the everyday entry handle?"],
+  ["utility.storage", "Which overlooked storage needs matter?"],
+  ["home.systems", "Which home comfort and system priorities matter?"],
+  ["exterior.garage", "What should the garage handle?"],
+  ["exterior.style", "Which exterior character feels right?"],
+  ["site.relationships", "Which site relationships matter most?"],
   ["exterior.outdoor-living", "Which outdoor-living features matter?"],
-  ["home.specialty-spaces", "Which specialty spaces or future additions should be considered?"],
-  ["design.feeling", "How should the new home feel?"],
-  ["design.references", "What plans, images, websites, or homes communicate your direction?"],
-  ["design.priorities", "What are your must-haves, nice-to-haves, and deal-breakers?"],
-  ["project.budget-timing", "What budget range and design timing are you currently planning around?"],
-  ["contact.follow-up", "How should h and h follow up after you submit the project brief?"],
+  ["home.specialty-spaces", "Which specialty or future spaces matter?"],
+  ["design.feeling", "How should your new home feel?"],
+  ["design.references", "What references show your direction?"],
+  ["design.priorities", "What are your key priorities?"],
+  ["project.budget-timing", "What are your budget and timing?"],
+  ["contact.follow-up", "How should h and h follow up?"],
 ];
 
 function question(id: string): PlanHomeQuestionDefinition {
@@ -122,11 +122,11 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "04f6403c84ea73bfdbc688a03bb3cb1c3e5c2956452f0086ea3b49c0c96a3657",
+      "c76f2ad0538a80d97766170c74a6e504eb858344977c704bb558b7633d55a1b3",
     );
     assert.equal(
       question("home.systems").helper,
-      "Choose up to 6 broad planning priorities. These choices guide a conversation; they are not engineering, equipment specifications, feasibility decisions, or pricing.",
+      "Choose up to 6 broad priorities. These guide planning, not engineering, equipment, feasibility, or pricing.",
     );
     assert.match(
       question("exterior.style").helper ?? "",
@@ -134,8 +134,29 @@ describe("plan-home-v1 registry", () => {
     );
     assert.match(
       question("site.relationships").helper ?? "",
-      /not checking zoning, setbacks, site feasibility, or engineering/,
+      /not zoning, setbacks, feasibility, or engineering review/,
     );
+  });
+
+  it("keeps every prompt heading and helper within the concise copy standard", () => {
+    for (const item of planHomeV1Definition.questions) {
+      const words = item.prompt.replace(/[^\p{L}\p{N}&-]+/gu, " ").trim().split(/\s+/);
+      assert.ok(
+        words.length <= 9,
+        `Q${item.number} heading has ${words.length} words: ${item.prompt}`,
+      );
+      assert.ok(
+        item.prompt.length <= 56,
+        `Q${item.number} heading has ${item.prompt.length} characters: ${item.prompt}`,
+      );
+      const helper = "helper" in item ? item.helper : undefined;
+      if (helper) {
+        assert.ok(
+          helper.length <= 120,
+          `Q${item.number} helper has ${helper.length} characters: ${helper}`,
+        );
+      }
+    }
   });
 
   it("keeps IDs, option slugs, scene anchors, camera keys, and defaults valid", () => {

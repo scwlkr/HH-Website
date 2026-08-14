@@ -118,7 +118,7 @@ test("multi-choice renderer enforces limits and exclusive choices", async () => 
   );
 });
 
-test("grouped renderer gives every subgroup its own legend and state", async () => {
+test("grouped renderer stages one editable answer group at a time", async () => {
   function Harness() {
     const [value, setValue] = useState({
       workCenter: null as string | null,
@@ -149,28 +149,41 @@ test("grouped renderer gives every subgroup its own legend and state", async () 
   const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
+  assert.ok(query.getByRole("group", { name: "Work center" }));
+  assert.equal(query.queryByRole("group", { name: "Services" }), null);
+
   await user.click(query.getByRole("radio", { name: "First choice" }));
-  await user.click(query.getByRole("checkbox", { name: "Second choice" }));
-  assert.equal(
-    query.getByRole("group", { name: "Work center" }).getAttribute(
-      "aria-invalid",
-    ),
-    "false",
+  await user.click(query.getByRole("button", { name: "Continue" }));
+
+  assert.match(
+    query.getByRole("group", { name: "Completed Work center" }).textContent ?? "",
+    /Work centerFirst choiceEdit/,
   );
+  assert.ok(query.getByRole("button", { name: "Edit Work center" }));
+  assert.equal(query.queryByRole("group", { name: "Work center" }), null);
+  assert.ok(query.getByRole("group", { name: "Services" }));
+
+  await user.click(query.getByRole("checkbox", { name: "Second choice" }));
   assert.equal(
     (query.getByRole("checkbox", {
       name: "Second choice",
     }) as HTMLInputElement).checked,
     true,
   );
-  for (const group of query.getAllByRole("group")) {
-    const relationship = group.getAttribute("aria-describedby");
-    assert.ok(relationship);
-    assert.match(
-      view.container.querySelector(`#${relationship}`)?.textContent ?? "",
-      /Choose one response in each group\./,
-    );
-  }
+
+  await user.click(query.getByRole("button", { name: "Edit Work center" }));
+  assert.equal(query.queryByRole("group", { name: "Services" }), null);
+  assert.equal(
+    (query.getByRole("radio", { name: "First choice" }) as HTMLInputElement)
+      .checked,
+    true,
+  );
+  await user.click(query.getByRole("button", { name: "Done" }));
+  assert.equal(
+    (query.getByRole("checkbox", { name: "Second choice" }) as HTMLInputElement)
+      .checked,
+    true,
+  );
 });
 
 test("short text renderer labels optional input, error, count, and uncertainty", async () => {
@@ -208,7 +221,7 @@ test("short text renderer labels optional input, error, count, and uncertainty",
   assert.equal(query.getByText("0 of 160 characters").getAttribute("aria-live"), "polite");
 });
 
-test("count renderer uses discrete radios for every required count", async () => {
+test("count renderer stages each required count and keeps summaries editable", async () => {
   const question = requireQuestion("home.bed-bath-counts");
 
   function Harness() {
@@ -231,26 +244,39 @@ test("count renderer uses discrete radios for every required count", async () =>
   const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
-  const groups = query.getAllByRole("group");
-  assert.deepEqual(
-    groups.map((group) => group.querySelector("legend")?.textContent),
-    ["Bedrooms", "Full bathrooms", "Half bathrooms"],
+  const bedrooms = query.getByRole("group", { name: "Bedrooms" });
+  assert.equal(query.queryByRole("group", { name: "Full bathrooms" }), null);
+  assert.match(
+    view.container.querySelector(
+      `#${bedrooms.getAttribute("aria-describedby")}`,
+    )?.textContent ?? "",
+    /Choose one exact range for each count\./,
   );
-  for (const group of groups) {
-    const relationship = group.getAttribute("aria-describedby");
-    assert.ok(relationship);
-    assert.equal(
-      view.container.querySelector(`#${relationship}`)?.textContent,
-      "Choose one exact range for each count.",
-    );
-  }
-  await user.click(within(groups[0]).getByRole("radio", { name: "4" }));
-  await user.click(within(groups[1]).getByRole("radio", { name: "3" }));
-  await user.click(within(groups[2]).getByRole("radio", { name: "1" }));
+  await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
+
+  const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
+  assert.equal(query.queryByRole("group", { name: "Half bathrooms" }), null);
+  assert.match(
+    query.getByRole("group", { name: "Completed Bedrooms" }).textContent ?? "",
+    /Bedrooms4Edit/,
+  );
+  await user.click(within(fullBathrooms).getByRole("radio", { name: "3" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
+
+  const halfBathrooms = query.getByRole("group", { name: "Half bathrooms" });
+  await user.click(within(halfBathrooms).getByRole("radio", { name: "1" }));
   assert.equal(
-    (within(groups[2]).getByRole("radio", {
+    (within(halfBathrooms).getByRole("radio", {
       name: "1",
     }) as HTMLInputElement).checked,
+    true,
+  );
+
+  await user.click(query.getByRole("button", { name: "Edit Bedrooms" }));
+  assert.equal(query.queryByRole("group", { name: "Half bathrooms" }), null);
+  assert.equal(
+    (query.getByRole("radio", { name: "4" }) as HTMLInputElement).checked,
     true,
   );
 });

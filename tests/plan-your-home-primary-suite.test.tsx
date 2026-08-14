@@ -93,7 +93,7 @@ async function renderPrimary(checkpointDraft?: PlanHomeDraftAction) {
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Where should the primary suite be located?",
+        name: "Where should the primary suite go?",
       }),
     ),
   );
@@ -163,7 +163,7 @@ test("four registered anchors carry exact semantic prompts and explicit uncertai
   assert.equal(
     window.document.activeElement,
     query.getByRole("heading", {
-      name: "Where should the primary suite be located?",
+      name: "Where should the primary suite go?",
     }),
   );
 
@@ -262,14 +262,14 @@ test("Back crosses the kitchen boundary and returns with the Primary Suite answe
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "How should dining work in the home?" }),
+      query.getByRole("heading", { name: "How should dining work?" }),
     ),
   );
   await user.click(query.getByRole("button", { name: "Save room" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Where should the primary suite be located?",
+        name: "Where should the primary suite go?",
       }),
     ),
   );

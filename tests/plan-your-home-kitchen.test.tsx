@@ -93,7 +93,7 @@ async function renderKitchen(checkpointDraft?: PlanHomeDraftAction) {
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "How will the kitchen be used most often?",
+        name: "How will you use the kitchen?",
       }),
     ),
   );
@@ -124,7 +124,7 @@ async function answerKitchen(
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "What kitchen arrangement sounds closest to what you want?",
+        name: "How should the kitchen be arranged?",
       }),
     ),
   );
@@ -135,12 +135,13 @@ async function answerKitchen(
     "true",
   );
   await user.click(query.getByRole("radio", { name: "Single island" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.click(query.getByRole("radio", { name: "Open" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
   assert.match(
-    query.getByText(/A butler pantry supports serving and storage/).textContent ?? "",
-    /appliance garage/,
+    query.getByText(/Butler pantries support serving/).textContent ?? "",
+    /appliance garages conceal countertop appliances/,
   );
   assert.equal(
     container.querySelector('[data-scene-anchor="pantry-door"]')?.getAttribute(
@@ -176,7 +177,7 @@ test("four registered anchors reframe the exact Kitchen and Dining prompts and e
   assert.equal(
     window.document.activeElement,
     query.getByRole("heading", {
-      name: "How will the kitchen be used most often?",
+      name: "How will you use the kitchen?",
     }),
   );
   assert.equal(
@@ -214,7 +215,7 @@ test("four registered anchors reframe the exact Kitchen and Dining prompts and e
     "true",
   );
   assert.ok(query.getByRole("group", { name: "Work center" }));
-  assert.ok(query.getByRole("group", { name: "Connection" }));
+  assert.equal(query.queryByRole("group", { name: "Connection" }), null);
   assert.equal(
     view.container.querySelector("[data-transition-state]")?.getAttribute(
       "data-transition-state",
@@ -248,7 +249,7 @@ test("Back crosses the Living Room boundary without losing the kitchen answer", 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Which whole-home finish level feels closest to what you want?",
+        name: "Which whole-home finish level fits you?",
       }),
     ),
   );
@@ -262,7 +263,7 @@ test("Back crosses the Living Room boundary without losing the kitchen answer", 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "How will the kitchen be used most often?",
+        name: "How will you use the kitchen?",
       }),
     ),
   );
@@ -312,7 +313,7 @@ test("question 15 retries one Kitchen and Dining checkpoint and enters the prima
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Where should the primary suite be located?",
+        name: "Where should the primary suite go?",
       }),
     ),
   );
@@ -345,7 +346,7 @@ test("question 15 retries one Kitchen and Dining checkpoint and enters the prima
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "How should dining work in the home?" }),
+      query.getByRole("heading", { name: "How should dining work?" }),
     ),
   );
   assert.equal(

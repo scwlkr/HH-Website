@@ -110,7 +110,7 @@ async function renderExterior(checkpointDraft?: PlanHomeDraftAction) {
   const query = within(view.container);
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "What should the garage accommodate?" }),
+      query.getByRole("heading", { name: "What should the garage handle?" }),
     ),
   );
   await waitFor(() =>
@@ -123,6 +123,7 @@ async function renderExterior(checkpointDraft?: PlanHomeDraftAction) {
 
 async function answerGarage(query: ReturnType<typeof within>, user: ReturnType<typeof userEvent.setup>) {
   await user.click(query.getByRole("radio", { name: "2" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.click(query.getByRole("checkbox", { name: "Storage" }));
   await user.type(query.getByRole("textbox", { name: /Other/ }), "Golf cart parking");
   await user.click(query.getByRole("button", { name: "Next" }));
@@ -156,7 +157,7 @@ test("the utility threshold opens into one fixed exterior study with every regis
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Which whole-home comfort or system priorities matter?",
+        name: "Which home comfort and system priorities matter?",
       }),
     ),
   );
@@ -177,7 +178,7 @@ test("the utility threshold opens into one fixed exterior study with every regis
   );
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "What should the garage accommodate?" }),
+      query.getByRole("heading", { name: "What should the garage handle?" }),
     ),
   );
   assert.ok(
@@ -222,8 +223,11 @@ test("the utility threshold opens into one fixed exterior study with every regis
 test("garage groups and accessible style cards validate without reconfiguring the fixed house", async () => {
   const user = userEvent.setup({ document: window.document });
   const { view, query } = await renderExterior();
-  const other = query.getByRole("textbox", { name: /Other/ }) as HTMLInputElement;
+  assert.ok(query.getByRole("group", { name: "Bays" }));
+  assert.equal(query.queryByRole("group", { name: "Needs" }), null);
   await user.click(query.getByRole("radio", { name: "2" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
+  const other = query.getByRole("textbox", { name: /Other/ }) as HTMLInputElement;
   await user.click(query.getByRole("checkbox", { name: "Storage" }));
   await user.type(other, "x".repeat(125));
   assert.equal(other.value.length, 120);
@@ -242,7 +246,7 @@ test("garage groups and accessible style cards validate without reconfiguring th
   const fixedSvg = scene.querySelector("svg")?.innerHTML;
   assert.equal(view.container.querySelectorAll("[data-style-card]").length, 8);
   assert.match(
-    query.getByText(/These visual directions help communicate character/).textContent ?? "",
+    query.getByText(/These directions communicate character/).textContent ?? "",
     /not promised designs/,
   );
 
@@ -281,10 +285,13 @@ test("garage groups and accessible style cards validate without reconfiguring th
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "What should the garage accommodate?" }),
+      query.getByRole("heading", { name: "What should the garage handle?" }),
     ),
   );
-  assert.equal((query.getByRole("radio", { name: "2" }) as HTMLInputElement).checked, true);
+  assert.match(
+    query.getByRole("group", { name: "Completed Bays" }).textContent ?? "",
+    /Bays2Edit/,
+  );
   assert.equal(
     (query.getByRole("checkbox", { name: "Storage" }) as HTMLInputElement).checked,
     true,
@@ -308,6 +315,7 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   );
   assert.ok(scene);
   await user.click(query.getByRole("radio", { name: "No garage" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
   await user.click(query.getByRole("button", { name: "Next" }));
@@ -317,9 +325,11 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
     "xMaxYMid slice",
   );
 
-  assert.match(
-    query.getByText(/These are planning priorities only/).textContent ?? "",
-    /not checking zoning, setbacks, site feasibility, or engineering/,
+  assert.equal(
+    query.getByText(
+      "Planning priorities only—not zoning, setbacks, feasibility, or engineering review.",
+    ).textContent,
+    "Planning priorities only—not zoning, setbacks, feasibility, or engineering review.",
   );
   for (const option of [
     "Important views",
@@ -352,9 +362,11 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   await user.click(query.getByRole("button", { name: "Next" }));
   assert.equal(scene.getAttribute("data-active-anchor"), "outbuilding-plan");
 
-  assert.match(
-    query.getByText(/Including a future space records direction/).textContent ?? "",
-    /does not confirm zoning, permitting, engineering, or feasibility/,
+  assert.equal(
+    query.getByText(
+      "Future-space choices record direction, not zoning, permitting, engineering, or feasibility.",
+    ).textContent,
+    "Future-space choices record direction, not zoning, permitting, engineering, or feasibility.",
   );
   await user.click(query.getByRole("checkbox", { name: "None" }));
   await user.click(query.getByRole("checkbox", { name: "Office" }));
@@ -470,7 +482,7 @@ test("question 30 retries one canonical checkpoint and match-cuts to the design 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Which specialty spaces or future additions should be considered?",
+        name: "Which specialty or future spaces matter?",
       }),
     ),
   );

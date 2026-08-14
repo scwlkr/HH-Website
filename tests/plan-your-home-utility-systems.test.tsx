@@ -116,7 +116,7 @@ async function renderUtility(checkpointDraft?: PlanHomeDraftAction) {
   const query = within(view.container);
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "Where and how should laundry work?" }),
+      query.getByRole("heading", { name: "How should laundry work?" }),
     ),
   );
   await waitFor(() =>
@@ -166,7 +166,7 @@ test("the registered anchors share one utility hall and every question supports 
 
   assert.ok(
     query.getByRole("heading", {
-      name: "What should the everyday entry or mudroom handle?",
+      name: "What should the everyday entry handle?",
     }),
   );
   assert.equal(scene.getAttribute("data-active-anchor"), "mudroom-bench");
@@ -186,7 +186,7 @@ test("the registered anchors share one utility hall and every question supports 
 
   assert.ok(
     query.getByRole("heading", {
-      name: "Which easy-to-overlook storage needs matter?",
+      name: "Which overlooked storage needs matter?",
     }),
   );
   assert.equal(scene.getAttribute("data-active-anchor"), "storage-built-ins");
@@ -200,7 +200,7 @@ test("the registered anchors share one utility hall and every question supports 
 
   assert.ok(
     query.getByRole("heading", {
-      name: "Which whole-home comfort or system priorities matter?",
+      name: "Which home comfort and system priorities matter?",
     }),
   );
   assert.equal(scene.getAttribute("data-active-anchor"), "system-panel");
@@ -209,8 +209,8 @@ test("the registered anchors share one utility hall and every question supports 
     "xMaxYMid slice",
   );
   assert.match(
-    query.getByText(/Choose up to 6 broad planning priorities/).textContent ?? "",
-    /not engineering, equipment specifications, feasibility decisions, or pricing/,
+    query.getByText(/Choose up to 6 broad priorities/).textContent ?? "",
+    /not engineering, equipment, feasibility, or pricing/,
   );
   for (const option of [
     "Energy efficiency",
@@ -289,7 +289,7 @@ test("the bedroom hall turns into utility and Back retains in-zone answers", asy
   await user.click(query.getByRole("button", { name: "Turn into the utility hall" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "Where and how should laundry work?" }),
+      query.getByRole("heading", { name: "How should laundry work?" }),
     ),
   );
   assert.ok(
@@ -304,7 +304,7 @@ test("the bedroom hall turns into utility and Back retains in-zone answers", asy
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "Where and how should laundry work?" }),
+      query.getByRole("heading", { name: "How should laundry work?" }),
     ),
   );
   assert.equal(
@@ -411,7 +411,7 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Which whole-home comfort or system priorities matter?",
+        name: "Which home comfort and system priorities matter?",
       }),
     ),
   );
