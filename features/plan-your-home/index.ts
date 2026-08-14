@@ -84,7 +84,6 @@ export {
   GroupedChoicePrompt,
   MultiChoicePrompt,
   PriorityPrompt,
-  PromptStack,
   ReferencesPrompt,
   ShortTextPrompt,
 } from "./prompt-renderers";

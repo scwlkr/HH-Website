@@ -47,10 +47,10 @@ import {
   GroupedChoicePrompt,
   MultiChoicePrompt,
   PriorityPrompt,
-  PromptStack,
   ReferencesPrompt,
   ShortTextPrompt,
   StagedPrompt,
+  summarizeOptionSelection,
   type GroupedChoiceValue,
   type PriorityPromptValue,
   type ReferencePromptItem,
@@ -530,21 +530,6 @@ function customerValidationFeedback(
   };
 }
 
-function summarizeOptionSelection(
-  group: PlanHomeOptionGroup,
-  value: string | null | readonly string[],
-) {
-  const slugs = Array.isArray(value)
-    ? value
-    : typeof value === "string"
-      ? [value]
-      : [];
-  return slugs
-    .map((slug) => group.options.find((option) => option.slug === slug)?.label)
-    .filter(Boolean)
-    .join(", ");
-}
-
 function renderQuestionPrompt(
   question: PlanHomeQuestionDefinition,
   answer: unknown,
@@ -637,12 +622,6 @@ function renderQuestionPrompt(
       other: string;
     };
     const needsGroup = question.response.optionGroups[1] as PlanHomeOptionGroup;
-    const optionalSummary = [
-      summarizeOptionSelection(needsGroup, value.needs),
-      value.other,
-    ]
-      .filter(Boolean)
-      .join(", ");
     return (
       <StagedPrompt
         key={question.id}
@@ -667,36 +646,45 @@ function renderQuestionPrompt(
           },
           {
             id: "needs",
-            label: "Other garage needs",
-            summary: optionalSummary || "None added",
-            complete: Boolean(optionalSummary),
+            label: needsGroup.label,
+            summary:
+              summarizeOptionSelection(needsGroup, value.needs) ||
+              "None selected",
+            complete: value.needs.length > 0,
             optional: true,
             content: (
-              <PromptStack>
-                <MultiChoicePrompt
-                  id={`${question.id}-needs`}
-                  legend={needsGroup.label}
-                  options={needsGroup.options}
-                  value={value.needs}
-                  error={validationErrors.needs}
-                  onChange={(needs) => updateAnswer({ ...value, needs })}
-                  instructions="Choose any needs that apply, or leave this group blank."
-                />
-                <ShortTextPrompt
-                  id={`${question.id}-other`}
-                  legend="Other garage need"
-                  label="Other"
-                  value={value.other}
-                  maxLength={120}
-                  optional
-                  instructions="Add one short garage need not listed above."
-                  error={validationErrors.other}
-                  onChange={(other) =>
-                    updateAnswer({ ...value, other }, "debounced")
-                  }
-                  onBlur={(other) => flushAnswer({ ...value, other })}
-                />
-              </PromptStack>
+              <MultiChoicePrompt
+                id={`${question.id}-needs`}
+                legend={needsGroup.label}
+                options={needsGroup.options}
+                value={value.needs}
+                error={validationErrors.needs}
+                onChange={(needs) => updateAnswer({ ...value, needs })}
+                instructions="Choose any needs that apply, or leave this group blank."
+              />
+            ),
+          },
+          {
+            id: "other",
+            label: "Other garage need",
+            summary: value.other || "No note added",
+            complete: Boolean(value.other.trim()),
+            optional: true,
+            content: (
+              <ShortTextPrompt
+                id={`${question.id}-other`}
+                legend="Other garage need"
+                label="Other"
+                value={value.other}
+                maxLength={120}
+                optional
+                instructions="Add one short garage need not listed above."
+                error={validationErrors.other}
+                onChange={(other) =>
+                  updateAnswer({ ...value, other }, "debounced")
+                }
+                onBlur={(other) => flushAnswer({ ...value, other })}
+              />
             ),
           },
         ]}

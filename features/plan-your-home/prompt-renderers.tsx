@@ -746,7 +746,7 @@ export function StagedPrompt({ id, steps }: StagedPromptProps) {
   );
 }
 
-function summarizeGroupValue(
+export function summarizeOptionSelection(
   group: PlanHomeOptionGroup,
   value: string | null | readonly string[] | undefined,
 ) {
@@ -780,7 +780,7 @@ export function GroupedChoicePrompt({
           return {
             id: group.id,
             label: group.label,
-            summary: summarizeGroupValue(group, current),
+            summary: summarizeOptionSelection(group, current),
             complete: current.length > 0,
             error: errors[group.id],
             content: (
@@ -802,7 +802,7 @@ export function GroupedChoicePrompt({
         return {
           id: group.id,
           label: group.label,
-          summary: summarizeGroupValue(group, current),
+          summary: summarizeOptionSelection(group, current),
           complete: typeof current === "string",
           error: errors[group.id],
           content: (
@@ -904,7 +904,7 @@ export function CountPrompt({
       steps={groups.map((group) => ({
         id: group.id,
         label: group.label,
-        summary: summarizeGroupValue(group, value[group.id]),
+        summary: summarizeOptionSelection(group, value[group.id]),
         complete: typeof value[group.id] === "string",
         error: errors[group.id],
         content: (
@@ -1405,8 +1405,4 @@ export function ReferencesPrompt({
       </label>
     </fieldset>
   );
-}
-
-export function PromptStack({ children }: Readonly<{ children: ReactNode }>) {
-  return <div className={styles.promptStack}>{children}</div>;
 }

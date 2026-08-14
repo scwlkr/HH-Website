@@ -125,6 +125,7 @@ async function answerGarage(query: ReturnType<typeof within>, user: ReturnType<t
   await user.click(query.getByRole("radio", { name: "2" }));
   await user.click(query.getByRole("button", { name: "Continue" }));
   await user.click(query.getByRole("checkbox", { name: "Storage" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
   await user.type(query.getByRole("textbox", { name: /Other/ }), "Golf cart parking");
   await user.click(query.getByRole("button", { name: "Next" }));
 }
@@ -227,8 +228,10 @@ test("garage groups and accessible style cards validate without reconfiguring th
   assert.equal(query.queryByRole("group", { name: "Needs" }), null);
   await user.click(query.getByRole("radio", { name: "2" }));
   await user.click(query.getByRole("button", { name: "Continue" }));
-  const other = query.getByRole("textbox", { name: /Other/ }) as HTMLInputElement;
+  assert.equal(query.queryByRole("textbox", { name: /Other/ }), null);
   await user.click(query.getByRole("checkbox", { name: "Storage" }));
+  await user.click(query.getByRole("button", { name: "Continue" }));
+  const other = query.getByRole("textbox", { name: /Other/ }) as HTMLInputElement;
   await user.type(other, "x".repeat(125));
   assert.equal(other.value.length, 120);
   assert.equal(other.maxLength, 120);
@@ -292,10 +295,16 @@ test("garage groups and accessible style cards validate without reconfiguring th
     query.getByRole("group", { name: "Completed Bays" }).textContent ?? "",
     /Bays2Edit/,
   );
+  assert.match(
+    query.getByRole("group", { name: "Completed Needs" }).textContent ?? "",
+    /NeedsStorageEdit/,
+  );
+  await user.click(query.getByRole("button", { name: "Edit Needs" }));
   assert.equal(
     (query.getByRole("checkbox", { name: "Storage" }) as HTMLInputElement).checked,
     true,
   );
+  await user.click(query.getByRole("button", { name: "Done" }));
   assert.equal((query.getByRole("textbox", { name: /Other/ }) as HTMLInputElement).value.length, 120);
 
   const results = await axe.run(view.container, {
