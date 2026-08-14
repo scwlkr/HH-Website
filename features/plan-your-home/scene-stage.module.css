@@ -196,6 +196,7 @@
 
 .promptHeading {
   max-width: 38rem;
+  padding-inline: 0.2rem;
   font-size: clamp(1.35rem, 4.8vw, 2rem);
   line-height: 1.15;
   outline: none;
