@@ -39,6 +39,20 @@ function successfulCheckpoint(calls: unknown[]): PlanHomeDraftAction {
   };
 }
 
+function observeScrollIntoView() {
+  const targets: Element[] = [];
+  const original = window.HTMLElement.prototype.scrollIntoView;
+  window.HTMLElement.prototype.scrollIntoView = function scrollIntoView() {
+    targets.push(this);
+  };
+  return {
+    targets,
+    restore() {
+      window.HTMLElement.prototype.scrollIntoView = original;
+    },
+  };
+}
+
 async function beginTour(
   user: ReturnType<typeof userEvent.setup>,
   query: ReturnType<typeof within>,
@@ -174,11 +188,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
   const user = userEvent.setup({ document: window.document });
   const view = render(<PlanYourHomeShell reducedMotion />);
   const query = within(view.container);
-  const scrolledGroups: Element[] = [];
-  const originalScrollIntoView = window.HTMLElement.prototype.scrollIntoView;
-  window.HTMLElement.prototype.scrollIntoView = function scrollIntoView() {
-    scrolledGroups.push(this);
-  };
+  const scroll = observeScrollIntoView();
 
   try {
     await beginTour(user, query);
@@ -196,7 +206,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
         within(startingPoint).getAllByRole("radio")[0],
       );
     });
-    assert.equal(scrolledGroups.at(-1), startingPoint);
+    assert.equal(scroll.targets.at(-1), startingPoint);
     assert.equal(query.queryByText(/Invalid option:/), null);
 
     await user.click(
@@ -214,7 +224,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
         within(services).getAllByRole("checkbox")[0],
       );
     });
-    assert.equal(scrolledGroups.at(-1), services);
+    assert.equal(scroll.targets.at(-1), services);
     assert.equal(
       (
         within(startingPoint).getByRole("radio", {
@@ -223,8 +233,54 @@ test("missing grouped choices use one safe instruction per group and refocus as 
       ).checked,
       true,
     );
+
+    await user.click(
+      within(services).getByRole("checkbox", { name: "Architectural design" }),
+    );
+    await user.click(query.getByRole("button", { name: "Next" }));
+    await waitFor(() =>
+      assert.ok(
+        query.getByRole("heading", {
+          name: "What is your lot status, and where are you building or hoping to build?",
+        }),
+      ),
+    );
+    const lotStatus = query.getByRole("group", { name: "Lot status" });
+    await user.click(query.getByRole("button", { name: "Next" }));
+    await waitFor(() => {
+      assert.deepEqual(
+        query.getAllByRole("alert").map((alert) => alert.textContent),
+        [
+          "Choose a lot status.",
+          "Enter a location or choose Not sure yet.",
+        ],
+      );
+      assert.equal(
+        window.document.activeElement,
+        within(lotStatus).getAllByRole("radio")[0],
+      );
+    });
+    assert.equal(scroll.targets.at(-1), lotStatus);
+
+    await user.click(query.getByRole("button", { name: "Back" }));
+    await waitFor(() =>
+      assert.ok(
+        query.getByRole("heading", {
+          name: "Where are you starting, and what help are you looking for?",
+        }),
+      ),
+    );
+    await user.click(query.getByRole("button", { name: "Next" }));
+    await waitFor(() =>
+      assert.ok(
+        query.getByRole("heading", {
+          name: "What is your lot status, and where are you building or hoping to build?",
+        }),
+      ),
+    );
+    assert.equal(query.queryByRole("alert"), null);
   } finally {
-    window.HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+    scroll.restore();
   }
 });
 
@@ -232,11 +288,7 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
   const user = userEvent.setup({ document: window.document });
   const view = render(<PlanYourHomeShell reducedMotion />);
   const query = within(view.container);
-  const scrolledGroups: Element[] = [];
-  const originalScrollIntoView = window.HTMLElement.prototype.scrollIntoView;
-  window.HTMLElement.prototype.scrollIntoView = function scrollIntoView() {
-    scrolledGroups.push(this);
-  };
+  const scroll = observeScrollIntoView();
 
   try {
     await beginTour(user, query);
@@ -280,7 +332,7 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
       );
     });
     assert.equal(query.queryByText(/Invalid option:/), null);
-    assert.equal(scrolledGroups.at(-1), bedrooms);
+    assert.equal(scroll.targets.at(-1), bedrooms);
 
     await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
     await user.click(query.getByRole("button", { name: "Next" }));
@@ -298,7 +350,7 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
         within(fullBathrooms).getAllByRole("radio")[0],
       );
     });
-    assert.equal(scrolledGroups.at(-1), fullBathrooms);
+    assert.equal(scroll.targets.at(-1), fullBathrooms);
     assert.equal(
       (within(bedrooms).getByRole("radio", { name: "4" }) as HTMLInputElement)
         .checked,
@@ -313,7 +365,7 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
       [],
     );
   } finally {
-    window.HTMLElement.prototype.scrollIntoView = originalScrollIntoView;
+    scroll.restore();
   }
 });
 
@@ -495,12 +547,15 @@ test("no server write occurs before contact and valid contact creates exactly qu
   assert.equal(input.contact.manualFollowUpDisclosureAccepted, true);
 });
 
-test("failed contact save retains local answers and retries with one stable create key", async () => {
+test("contact validation stays customer-safe, retains answers, and retries one stable create key", async () => {
   const calls: Array<{ idempotencyKey: string }> = [];
   const createDraft: PlanHomeDraftAction = async (input) => {
     calls.push(input as { idempotencyKey: string });
     if (calls.length === 1) {
-      return { status: "server-error", message: "Saving is unavailable. Try again." };
+      return {
+        status: "validation-error",
+        message: "Invalid option: expected one of schema.enum.values",
+      };
     }
     return {
       status: "success",
@@ -516,9 +571,13 @@ test("failed contact save retains local answers and retries with one stable crea
   await user.type(query.getByRole("textbox", { name: "Phone" }), "2145550100");
   await user.click(query.getByRole("checkbox", { name: /Save my progress/ }));
   await user.click(query.getByRole("button", { name: "Save and continue" }));
-  await waitFor(() =>
-    assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
-  );
+  await waitFor(() => {
+    assert.equal(
+      query.getByRole("alert").textContent,
+      "Some answers need attention. Review them and try again.",
+    );
+    assert.equal(query.queryByText(/Invalid option/), null);
+  });
 
   const snapshot = JSON.parse(
     window.localStorage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "null",

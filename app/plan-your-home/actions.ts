@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  PLAN_HOME_CUSTOMER_VALIDATION_MESSAGE,
   PlanHomeDraftValidationError,
   parseCheckpointPlanHomeDraftInput,
   parseCreatePlanHomeDraftInput,
@@ -79,10 +80,14 @@ export type PlanHomeReferenceActionState<Result> =
     }>;
 
 function knownActionError(error: unknown): PlanHomeDraftActionState | null {
-  if (
-    error instanceof PlanHomeDraftValidationError ||
-    error instanceof PlanHomeReferenceValidationError
-  ) {
+  if (error instanceof PlanHomeDraftValidationError) {
+    return {
+      status: "validation-error",
+      message: PLAN_HOME_CUSTOMER_VALIDATION_MESSAGE,
+    };
+  }
+
+  if (error instanceof PlanHomeReferenceValidationError) {
     return {
       status: "validation-error",
       message: error.message,

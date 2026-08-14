@@ -63,7 +63,10 @@ import {
   type PlanHomeQuestionDefinition,
   type PlanHomeQuestionId,
 } from "@/features/plan-your-home/registry";
-import { PLAN_HOME_INQUIRY_CONSENT_VERSION } from "@/features/plan-your-home/server-draft-contract";
+import {
+  PLAN_HOME_CUSTOMER_VALIDATION_MESSAGE,
+  PLAN_HOME_INQUIRY_CONSENT_VERSION,
+} from "@/features/plan-your-home/server-draft-contract";
 import type { PlanHomeReferenceMetadata } from "@/features/plan-your-home/references";
 import type {
   PlanHomeReferenceMutationResult,
@@ -434,6 +437,9 @@ function actionError(result: Exclude<PlanHomeDraftActionState, { status: "succes
   if (result.status === "conflict") {
     return "Your saved draft changed. Return to this step and try saving again.";
   }
+  if (result.status === "validation-error") {
+    return PLAN_HOME_CUSTOMER_VALIDATION_MESSAGE;
+  }
   return result.message;
 }
 
@@ -473,10 +479,6 @@ const CUSTOMER_VALIDATION_GUIDANCE: Partial<
   },
 };
 
-const ROOT_VALIDATION_FIELD: Partial<Record<PlanHomeQuestionId, string>> = {
-  "project.lot-location": "location",
-};
-
 function validationFieldId(question: PlanHomeQuestionDefinition, field: string) {
   if (question.id === "project.lot-location" && field === "lotStatus") {
     return `${question.id}-status`;
@@ -489,21 +491,15 @@ function validationFieldId(question: PlanHomeQuestionDefinition, field: string) 
 
 function customerValidationFeedback(
   question: PlanHomeQuestionDefinition,
-  answer: unknown,
+  validationFields: readonly (string | null)[],
 ) {
-  const parsed = question.response.answerSchema.safeParse(answer);
   const questionId = question.id as PlanHomeQuestionId;
   const guidance = CUSTOMER_VALIDATION_GUIDANCE[questionId];
   const errors: Record<string, string> = {};
   let firstFieldId: string | null = null;
 
-  if (!parsed.success && guidance) {
-    for (const issue of parsed.error.issues) {
-      const pathField = issue.path[0];
-      const field =
-        typeof pathField === "string"
-          ? pathField
-          : ROOT_VALIDATION_FIELD[questionId];
+  if (guidance) {
+    for (const field of validationFields) {
       const message = field ? guidance[field] : undefined;
       if (!field || !message || errors[field]) continue;
       errors[field] = message;
@@ -2056,6 +2052,7 @@ export function PlanYourHomeShell({
 
   function backFromQuestion() {
     cancelPendingTextSave();
+    setValidationErrors({});
     const location = tourStateRef.current.location;
     if (location.kind === "question" && location.editingFromReview) {
       setDraftAnswers((current) => ({
@@ -2131,7 +2128,10 @@ export function PlanYourHomeShell({
       answer: activeAnswer,
     });
     if (answered.error) {
-      const feedback = customerValidationFeedback(question, activeAnswer);
+      const feedback = customerValidationFeedback(
+        question,
+        answered.error.validationFields ?? [],
+      );
       setValidationErrors(feedback.errors);
       setError(
         feedback.message
@@ -2152,6 +2152,7 @@ export function PlanYourHomeShell({
       setError(advanced.error);
       return false;
     }
+    setValidationErrors({});
 
     if (
       tourStateRef.current.location.kind === "question" &&

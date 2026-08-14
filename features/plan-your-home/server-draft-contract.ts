@@ -69,6 +69,8 @@ const checkpointEnvelopeSchema = z
 
 export const PLAN_HOME_INQUIRY_CONSENT_VERSION =
   "plan-home-inquiry-contact-v1";
+export const PLAN_HOME_CUSTOMER_VALIDATION_MESSAGE =
+  "Some answers need attention. Review them and try again.";
 
 const submitEnvelopeSchema = z
   .object({

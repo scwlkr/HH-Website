@@ -87,6 +87,7 @@ export type PlanHomeTourTransition = Readonly<{
   error: Readonly<{
     code: PlanHomeTourErrorCode;
     message: string;
+    validationFields?: readonly (string | null)[];
   }> | null;
 }>;
 
@@ -131,8 +132,17 @@ function failure(
   state: PlanHomeTourState,
   code: PlanHomeTourErrorCode,
   message: string,
+  validationFields?: readonly (string | null)[],
 ): PlanHomeTourTransition {
-  return { state, events: [], error: { code, message } };
+  return {
+    state,
+    events: [],
+    error: {
+      code,
+      message,
+      ...(validationFields ? { validationFields } : {}),
+    },
+  };
 }
 
 function answerIsValid(state: PlanHomeTourState, questionId: PlanHomeQuestionId) {
@@ -227,7 +237,12 @@ export function reducePlanHomeTour(
 
       const result = validatePlanHomeAnswer(command.questionId, command.answer);
       if (!result.success) {
-        return failure(state, "invalid-answer", result.issues.join(" "));
+        return failure(
+          state,
+          "invalid-answer",
+          result.issues.join(" "),
+          result.fields,
+        );
       }
 
       const references =

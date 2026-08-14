@@ -344,17 +344,34 @@ const lotLocationResponseSchema = z.object({
   location: z.string().trim().max(160),
   locationUncertain: z.boolean(),
 });
-const lotLocationAnswerSchema = z
-  .object({
-    lotStatus: optionEnum(lotStatusOptions),
-    location: z.string().trim().max(160),
-    locationUncertain: z.boolean(),
+const lotLocationAnswerSchema = lotLocationResponseSchema
+  .superRefine((value, context) => {
+    if (value.lotStatus === null) {
+      context.addIssue({
+        code: "custom",
+        path: ["lotStatus"],
+        message: "Choose a lot status.",
+      });
+    }
+    if (
+      !(
+        (value.locationUncertain && value.location.length === 0) ||
+        (!value.locationUncertain && value.location.length >= 2)
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["location"],
+        message: "Provide a location or explicitly choose Not sure yet.",
+      });
+    }
   })
-  .refine(
-    (value) =>
-      (value.locationUncertain && value.location.length === 0) ||
-      (!value.locationUncertain && value.location.length >= 2),
-    "Provide a location or explicitly choose Not sure yet.",
+  .pipe(
+    z.object({
+      lotStatus: optionEnum(lotStatusOptions),
+      location: z.string().trim().max(160),
+      locationUncertain: z.boolean(),
+    }),
   );
 const lotLocationResponse = groupedResponse({
   optionGroups: [{ id: "lotStatus", label: "Lot status", options: lotStatusOptions }],
@@ -1530,6 +1547,7 @@ export function validatePlanHomeAnswer(id: string, answer: unknown) {
     return {
       success: false as const,
       issues: [`Unknown Plan Your Home question ID: ${id}`],
+      fields: [] as readonly (string | null)[],
     };
   }
 
@@ -1538,6 +1556,9 @@ export function validatePlanHomeAnswer(id: string, answer: unknown) {
     return {
       success: false as const,
       issues: result.error.issues.map((issue) => issue.message),
+      fields: result.error.issues.map((issue) =>
+        typeof issue.path[0] === "string" ? issue.path[0] : null,
+      ),
     };
   }
 
