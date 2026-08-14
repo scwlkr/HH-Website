@@ -4,6 +4,11 @@ const nextConfig = {
   typedRoutes: true,
   // Local review tooling and docs use the loopback IP instead of localhost.
   allowedDevOrigins: ["127.0.0.1"],
+  // Keep deterministic refinement captures focused on the product UI.
+  devIndicators:
+    process.env.PLAN_HOME_REFINEMENT_MODE === "1"
+      ? false
+      : { position: "bottom-left" },
   logging: {
     // Server Action arguments can contain saved-plan contact details.
     serverFunctions: false,

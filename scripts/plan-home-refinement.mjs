@@ -44,6 +44,7 @@ const defaultMatrix = [
   ["q31", "phone"],
   ["q32", "phone"],
   ["q33", "phone"],
+  ["q35", "phone"],
   ["review", "phone"],
   ["confirmation", "phone"],
   ["welcome", "desktop"],
@@ -51,7 +52,9 @@ const defaultMatrix = [
   ["q4", "desktop"],
   ["q12", "desktop"],
   ["q33", "desktop"],
+  ["q35", "desktop"],
   ["review", "desktop"],
+  ["confirmation", "desktop"],
 ];
 
 function parseInput() {
@@ -141,6 +144,22 @@ async function quality(page) {
     const targetSize = (element) => {
       return interactiveTarget(element).getBoundingClientRect();
     };
+    const isClippedAtPoint = (element, x, y) => {
+      for (let ancestor = element.parentElement; ancestor; ancestor = ancestor.parentElement) {
+        const style = getComputedStyle(ancestor);
+        const clipsX = ["auto", "scroll", "hidden", "clip"].includes(style.overflowX);
+        const clipsY = ["auto", "scroll", "hidden", "clip"].includes(style.overflowY);
+        if (!clipsX && !clipsY) continue;
+        const rectangle = ancestor.getBoundingClientRect();
+        if (
+          (clipsX && (x < rectangle.left || x > rectangle.right)) ||
+          (clipsY && (y < rectangle.top || y > rectangle.bottom))
+        ) {
+          return true;
+        }
+      }
+      return false;
+    };
     const isObscuredInViewport = (element) => {
       const target = interactiveTarget(element);
       const rectangle = target.getBoundingClientRect();
@@ -154,6 +173,7 @@ async function quality(page) {
       ) {
         return false;
       }
+      if (isClippedAtPoint(target, centerX, centerY)) return false;
       const topElement = document.elementFromPoint(centerX, centerY);
       return Boolean(
         topElement &&
@@ -223,9 +243,85 @@ async function assertNavigation(page, state) {
   await page.locator(`[data-plan-home-refinement-state="q${number}"]`).waitFor();
 }
 
+async function assertReviewSubmission(page, viewportName) {
+  const consent = page.getByRole("checkbox", { name: /I am submitting an inquiry/ });
+  await consent.focus();
+  await page.keyboard.press("Space");
+  assert.equal(await consent.isChecked(), true, "review consent is keyboard operable");
+  const submit = page.getByRole("button", { name: "Submit project brief" });
+  assert.equal(await submit.isEnabled(), true, "submission action is enabled after consent");
+  const submissionScreenshot = `submission-${viewportName}.png`;
+  await page.screenshot({
+    fullPage: true,
+    path: path.join(outputDirectory, submissionScreenshot),
+  });
+  await activateByKeyboard(page, submit);
+  await page.locator('[data-plan-home-refinement-state="confirmation"]').waitFor();
+  assert.equal(
+    await page.getByRole("button", { name: "Submit project brief" }).count(),
+    0,
+    "submission resolves to one confirmation",
+  );
+  const confirmationQuality = await quality(page);
+  assert.deepEqual(confirmationQuality.violations, [], "submitted confirmation accessibility violations");
+  assert.equal(confirmationQuality.overflow, false, "submitted confirmation horizontal overflow");
+  assert.deepEqual(confirmationQuality.unnamedControls, [], "submitted confirmation unnamed controls");
+  assert.deepEqual(confirmationQuality.undersizedTargets, [], "submitted confirmation undersized targets");
+  assert.deepEqual(confirmationQuality.obscuredTargets, [], "submitted confirmation obscured targets");
+  return {
+    consentByKeyboard: true,
+    confirmationReached: true,
+    screenshot: submissionScreenshot,
+    quality: confirmationQuality,
+  };
+}
+
+async function assertPromptScrollReachability(page, state) {
+  if (!state.startsWith("q")) return null;
+  const region = page.locator("[data-plan-home-prompt-scroll]");
+  const metrics = await region.evaluate((element) => ({
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+  }));
+  if (metrics.scrollHeight <= metrics.clientHeight + 1) {
+    return { needed: false, reachable: true };
+  }
+  const lastControl = region.locator('input:not([type="hidden"]), button, select, textarea, a[href]').last();
+  await lastControl.evaluate((element) => {
+    const target = "labels" in element
+      ? Array.from(element.labels ?? []).find((label) => label.contains(element)) ?? element
+      : element;
+    target.scrollIntoView({ block: "nearest" });
+  });
+  const geometry = await lastControl.evaluate((element) => {
+    const target = "labels" in element
+      ? Array.from(element.labels ?? []).find((label) => label.contains(element)) ?? element
+      : element;
+    const targetRect = target.getBoundingClientRect();
+    const regionRect = element.closest("[data-plan-home-prompt-scroll]")?.getBoundingClientRect();
+    const actionsRect = document.querySelector("[data-plan-home-actions]")?.getBoundingClientRect();
+    return {
+      targetTop: targetRect.top,
+      targetBottom: targetRect.bottom,
+      visibleTop: Math.max(regionRect?.top ?? 0, 0),
+      visibleBottom: Math.min(
+        regionRect?.bottom ?? innerHeight,
+        actionsRect?.top ?? innerHeight,
+        innerHeight,
+      ),
+    };
+  });
+  assert(
+    geometry.targetTop >= geometry.visibleTop - 1 &&
+      geometry.targetBottom <= geometry.visibleBottom + 1,
+    "last Prompt control scrolls fully above the action dock",
+  );
+  return { needed: true, reachable: true };
+}
+
 async function capture(browser, baseUrl, state, viewportName) {
   const startedAt = Date.now();
-  const result = { state, viewport: viewportName, passed: false, status: 0, errors: [], shell: null, quality: null, durationMs: 0, screenshot: `${state}-${viewportName}.png` };
+  const result = { state, viewport: viewportName, passed: false, status: 0, errors: [], shell: null, quality: null, promptScroll: null, submission: null, durationMs: 0, screenshot: `${state}-${viewportName}.png` };
   const page = await browser.newPage({ viewport: viewports[viewportName], reducedMotion: "reduce" });
   watchPage(page, result);
   try {
@@ -264,6 +360,10 @@ async function capture(browser, baseUrl, state, viewportName) {
     assert.deepEqual(result.quality.unnamedControls, [], "unnamed controls");
     assert.deepEqual(result.quality.undersizedTargets, [], "undersized interactive targets");
     assert.deepEqual(result.quality.obscuredTargets, [], "obscured interactive targets");
+    result.promptScroll = await assertPromptScrollReachability(page, state);
+    if (state === "review") {
+      result.submission = await assertReviewSubmission(page, viewportName);
+    }
     assert.deepEqual(result.errors, [], "browser, console, or request errors");
     result.passed = true;
   } catch (error) {

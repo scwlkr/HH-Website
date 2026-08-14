@@ -99,7 +99,7 @@ function seedFinalQuestion() {
   );
 }
 
-test("Q35 leads to a complete grouped review, direct edit-return, consent, and confirmation", async () => {
+test("Q35 leads to a complete grouped review, direct edit-return, consent, and idempotent confirmation", async () => {
   seedFinalQuestion();
   const submitCalls: unknown[] = [];
   const checkpointCalls: unknown[] = [];
@@ -150,11 +150,27 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
   );
+  const sectionNavigation = query.getByRole("navigation", {
+    name: "Project brief sections",
+  });
+  assert.deepEqual(
+    within(sectionNavigation)
+      .getAllByRole("link")
+      .map((link) => link.textContent?.trim()),
+    [
+      "Contact",
+      ...planHomeZones.map((zone) => `Zone ${zone.order}`),
+      "References",
+      "Submit",
+    ],
+  );
+  assert.ok(view.container.querySelector("[data-review-workspace]"));
   assert.equal(
     view.container.querySelectorAll("[data-review-question]").length,
     35,
   );
   assert.equal(view.container.querySelectorAll("[data-review-zone]").length, 7);
+  assert.equal(view.container.querySelectorAll("[data-review-sheet]").length, 7);
   assert.equal(
     query.getAllByRole("button", { name: /^Edit Q\d+:/ }).length,
     35,
@@ -162,6 +178,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
   assert.ok(query.getByText("taylor@example.com"));
   assert.ok(query.getByText("kitchen-inspiration.pdf"));
   assert.ok(query.getByText("https://example.com/exterior-reference"));
+  assert.ok(view.container.querySelector("[data-review-references]"));
   assert.match(
     view.container.querySelector('[data-review-question="contact.follow-up"]')
       ?.textContent ?? "",
@@ -258,7 +275,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
   );
   const submitButton = query.getByRole("button", { name: "Submit project brief" });
   assert.equal(submitButton.hasAttribute("disabled"), false);
-  await user.click(submitButton);
+  await user.dblClick(submitButton);
 
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: "Thank you, Taylor Homeowner." })),
@@ -281,6 +298,15 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and c
   });
   assert.match(submission.idempotencyKey, /plan-home-v1:submission/);
   assert.ok(view.container.querySelector('[data-tour-beat="plan-home-confirmation"]'));
+  assert.ok(view.container.querySelector("[data-confirmation-brief-scene]"));
+  assert.equal(
+    view.container.querySelectorAll("[data-confirmation-step]").length,
+    3,
+  );
+  assert.match(
+    view.container.querySelector("[data-confirmation-follow-up]")?.textContent ?? "",
+    /not marketing consent/,
+  );
 
   const axeResults = await axe.run(view.container, {
     rules: { "color-contrast": { enabled: false } },

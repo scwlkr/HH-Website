@@ -639,6 +639,8 @@ function renderQuestionPrompt(
         options={firstGroup.options}
         value={answer as string | null}
         onChange={updateAnswer}
+        columns={question.id === "contact.follow-up" ? 3 : 2}
+        compact={question.id === "contact.follow-up"}
       />
     );
   }
@@ -1105,152 +1107,240 @@ function ProjectBriefReview({
 
   return (
     <main className={styles.review} data-tour-beat="project-brief-review">
-      <header className={styles.reviewHeader}>
-        <p className={styles.eyebrow}>Review your project brief</p>
-        <h1 ref={headingRef} tabIndex={-1}>
-          One walkthrough, ready for a real conversation.
-        </h1>
-        <p>
-          Check every answer and reference below. Editing an answer returns here
-          directly and keeps the rest of your brief intact.
-        </p>
-      </header>
-
-      <section className={styles.reviewContact} aria-labelledby="review-contact-heading">
-        <h2 id="review-contact-heading">Contact details</h2>
-        <dl>
-          <div><dt>Name</dt><dd>{state.welcomeName}</dd></div>
-          <div><dt>Email</dt><dd>{state.contactCheckpoint?.email}</dd></div>
-          <div><dt>Phone</dt><dd>{state.contactCheckpoint?.phone}</dd></div>
-        </dl>
+      <section className={styles.reviewHero}>
+        <div className={styles.reviewHeroScene} aria-hidden="true">
+          <PlanHomeSceneSuspense>
+            <ReviewBriefThresholdScene />
+          </PlanHomeSceneSuspense>
+        </div>
+        <header className={styles.reviewHeader}>
+          <p className={styles.eyebrow}>Review your project brief</p>
+          <h1 ref={headingRef} tabIndex={-1}>
+            One walkthrough, ready for a real conversation.
+          </h1>
+          <p>
+            Check every answer and reference. Editing opens that Prompt and
+            returns directly to this brief without replaying the rest.
+          </p>
+          <dl className={styles.reviewSummary} aria-label="Project brief summary">
+            <div><dt>Prompts</dt><dd>35</dd></div>
+            <div><dt>Zones</dt><dd>7</dd></div>
+            <div><dt>References</dt><dd>{state.references.length}</dd></div>
+          </dl>
+        </header>
       </section>
 
-      <div className={styles.reviewGroups}>
-        {planHomeZones.map((zone) => {
-          const questions = planHomeQuestions.filter(
-            (question) => question.zoneId === zone.id,
-          );
-          return (
-            <section
-              className={styles.reviewGroup}
+      <div className={styles.reviewWorkspace} data-review-workspace>
+        <nav className={styles.reviewNavigator} aria-label="Project brief sections">
+          <p>Brief index</p>
+          <a data-index="00" href="#review-contact">Contact</a>
+          {planHomeZones.map((zone) => (
+            <a
+              data-index={String(zone.order).padStart(2, "0")}
+              href={`#review-zone-${zone.id}`}
               key={zone.id}
-              data-review-zone={zone.id}
-              aria-labelledby={`review-zone-${zone.id}`}
+              aria-label={`Zone ${zone.order}: ${zone.title}`}
             >
-              <div className={styles.reviewGroupHeading}>
-                <div>
-                  <p className={styles.reviewIndex}>Zone {zone.order} of 7</p>
-                  <h2 id={`review-zone-${zone.id}`}>{zone.title}</h2>
-                </div>
-              </div>
-              <dl className={styles.reviewAnswers}>
-                {questions.map((question) => (
-                  <div key={question.id} data-review-question={question.id}>
-                    <dt>
-                      <span>Q{question.number}</span>
-                      {question.prompt}
-                    </dt>
-                    <dd>
-                      <span>
-                        {summarizePlanHomeAnswer(
-                          question.id,
-                          state.answers[question.id],
-                        )}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => onEdit(question.id)}
-                        aria-label={`Edit Q${question.number}: ${question.prompt}`}
-                      >
-                        Edit
-                      </Button>
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              {zone.id === "design-desk-and-review" && state.references.length > 0 ? (
-                <div className={styles.reviewReferences}>
-                  <h3>Files and links</h3>
-                  <ul>
-                    {state.references.map((reference) => (
-                      <li key={reference.id}>
-                        <strong>
-                          {reference.kind === "file"
-                            ? reference.originalName
-                            : reference.hostname}
-                        </strong>
-                        <span>
-                          {reference.kind === "file"
-                            ? `${reference.extension.toUpperCase()} · private file`
-                            : reference.url}
-                        </span>
-                        {reference.note ? <span>Note: {reference.note}</span> : null}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </section>
-          );
-        })}
-      </div>
+              Zone {zone.order}
+            </a>
+          ))}
+          <a data-index="08" href="#review-references">References</a>
+          <a data-index="09" href="#review-submit">Submit</a>
+        </nav>
 
-      <form className={styles.submitPanel} onSubmit={onSubmit}>
-        <p className={styles.eyebrow}>Before you submit</p>
-        <h2>Start the conversation.</h2>
-        <p>
-          This brief starts a conversation. It is not a design, price,
-          feasibility decision, or contract.
-        </p>
-        <p>
-          Under the proposed retention schedule, a submitted brief and private
-          references are kept up to 24 months unless h and h retains or deletes
-          them sooner. You may request deletion. Review the{" "}
-          <a className="hh-touch-target" href="/privacy">
-            privacy and retention policy
-          </a>{" "}
-          before submitting.
-        </p>
-        <label className={styles.disclosure}>
-          <input
-            type="checkbox"
-            required
-            checked={consentAccepted}
-            onChange={(event) => onConsentChange(event.target.checked)}
-          />
-          <span>
-            I am submitting an inquiry and permit h and h to contact me about
-            this project. This is not marketing consent.
-          </span>
-        </label>
-        {error ? <p className={styles.formError} role="alert">{error}</p> : null}
-        <Button type="submit" disabled={submitting || !consentAccepted}>
-          {submitting ? "Submitting…" : "Submit project brief"}
-        </Button>
-      </form>
+        <div className={styles.reviewFolio}>
+          <section
+            className={styles.reviewContact}
+            id="review-contact"
+            aria-labelledby="review-contact-heading"
+          >
+            <div>
+              <p className={styles.reviewIndex}>Cover sheet</p>
+              <h2 id="review-contact-heading">Contact details</h2>
+            </div>
+            <dl>
+              <div><dt>Name</dt><dd>{state.welcomeName}</dd></div>
+              <div><dt>Email</dt><dd>{state.contactCheckpoint?.email}</dd></div>
+              <div><dt>Phone</dt><dd>{state.contactCheckpoint?.phone}</dd></div>
+            </dl>
+          </section>
+
+          <div className={styles.reviewGroups}>
+            {planHomeZones.map((zone) => {
+              const questions = planHomeQuestions.filter(
+                (question) => question.zoneId === zone.id,
+              );
+              return (
+                <section
+                  className={styles.reviewGroup}
+                  id={`review-zone-${zone.id}`}
+                  key={zone.id}
+                  data-review-zone={zone.id}
+                  data-review-sheet
+                  aria-labelledby={`review-zone-heading-${zone.id}`}
+                >
+                  <div className={styles.reviewGroupHeading}>
+                    <div>
+                      <p className={styles.reviewIndex}>Zone {zone.order} of 7</p>
+                      <h2 id={`review-zone-heading-${zone.id}`}>{zone.title}</h2>
+                    </div>
+                    <span aria-hidden="true">{String(zone.order).padStart(2, "0")}</span>
+                  </div>
+                  <dl className={styles.reviewAnswers}>
+                    {questions.map((question) => (
+                      <div key={question.id} data-review-question={question.id}>
+                        <dt>
+                          <span>Q{question.number}</span>
+                          {question.prompt}
+                        </dt>
+                        <dd>
+                          <span>
+                            {summarizePlanHomeAnswer(
+                              question.id,
+                              state.answers[question.id],
+                            )}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => onEdit(question.id)}
+                            aria-label={`Edit Q${question.number}: ${question.prompt}`}
+                          >
+                            Edit
+                          </Button>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              );
+            })}
+          </div>
+
+          <section
+            className={styles.reviewReferences}
+            id="review-references"
+            data-review-references
+            aria-labelledby="review-references-heading"
+          >
+            <div>
+              <p className={styles.reviewIndex}>Reference sleeve</p>
+              <h2 id="review-references-heading">Files and links</h2>
+            </div>
+            {state.references.length > 0 ? (
+              <ul>
+                {state.references.map((reference) => (
+                  <li key={reference.id}>
+                    <strong>
+                      {reference.kind === "file"
+                        ? reference.originalName
+                        : reference.hostname}
+                    </strong>
+                    <span>
+                      {reference.kind === "file"
+                        ? `${reference.extension.toUpperCase()} · private file`
+                        : reference.url}
+                    </span>
+                    {reference.note ? <span>Note: {reference.note}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No files or links were added to this project brief.</p>
+            )}
+          </section>
+
+          <form
+            className={styles.submitPanel}
+            id="review-submit"
+            data-review-submission
+            onSubmit={onSubmit}
+          >
+            <p className={styles.eyebrow}>Final inquiry consent</p>
+            <h2>Start the conversation.</h2>
+            <p>
+              This brief starts a conversation. It is not a design, price,
+              feasibility decision, or contract.
+            </p>
+            <p>
+              Under the proposed retention schedule, a submitted brief and private
+              references are kept up to 24 months unless h and h retains or deletes
+              them sooner. You may request deletion. Review the{" "}
+              <a className="hh-touch-target" href="/privacy">
+                privacy and retention policy
+              </a>{" "}
+              before submitting.
+            </p>
+            <label className={styles.disclosure}>
+              <input
+                type="checkbox"
+                required
+                checked={consentAccepted}
+                onChange={(event) => onConsentChange(event.target.checked)}
+              />
+              <span>
+                I am submitting an inquiry and permit h and h to contact me about
+                this project. This is not marketing consent.
+              </span>
+            </label>
+            {error ? <p className={styles.formError} role="alert">{error}</p> : null}
+            <Button type="submit" disabled={submitting || !consentAccepted}>
+              {submitting ? "Submitting…" : "Submit project brief"}
+            </Button>
+          </form>
+        </div>
+      </div>
     </main>
   );
 }
 
-function PlanHomeConfirmation({ name }: Readonly<{ name: string }>) {
+function PlanHomeConfirmation({
+  name,
+  followUp,
+}: Readonly<{ name: string; followUp: string }>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
   }, []);
   return (
     <main className={styles.confirmation} data-tour-beat="plan-home-confirmation">
-      <div className={styles.confirmationMark} aria-hidden="true">✓</div>
-      <p className={styles.eyebrow}>Project brief received</p>
-      <h1 ref={headingRef} tabIndex={-1}>Thank you, {name}.</h1>
-      <p>
-        h and h has your planning brief. We’ll review it and follow up using the
-        contact method you selected.
-      </p>
-      <p className={styles.confirmationNote}>
-        Your brief begins a conversation; it is not a design, price,
-        feasibility decision, or contract.
-      </p>
+      <div className={styles.confirmationScene} data-confirmation-brief-scene aria-hidden="true">
+        <PlanHomeSceneSuspense>
+          <ReviewBriefThresholdScene />
+        </PlanHomeSceneSuspense>
+      </div>
+      <section className={styles.confirmationSheet}>
+        <div className={styles.confirmationMark} aria-hidden="true">✓</div>
+        <p className={styles.eyebrow}>Project brief received</p>
+        <h1 ref={headingRef} tabIndex={-1}>Thank you, {name}.</h1>
+        <p>
+          Your seven-zone project brief is with h and h. The answers and
+          references you submitted stay together for review.
+        </p>
+        <h2>What happens next</h2>
+        <ol className={styles.confirmationSteps} aria-label="What happens next">
+          <li data-confirmation-step>
+            <span>01</span>
+            <div><strong>Brief received</strong><p>Your inquiry is recorded once.</p></div>
+          </li>
+          <li data-confirmation-step>
+            <span>02</span>
+            <div><strong>Personal review</strong><p>h and h reviews the project context.</p></div>
+          </li>
+          <li data-confirmation-step>
+            <span>03</span>
+            <div><strong>Project follow-up</strong><p>We use your selected method.</p></div>
+          </li>
+        </ol>
+        <p className={styles.confirmationFollowUp} data-confirmation-follow-up>
+          <strong>{followUp} is your selected project follow-up.</strong>{" "}
+          This is not marketing consent.
+        </p>
+        <p className={styles.confirmationNote}>
+          Your brief begins a conversation; it is not a design, price,
+          feasibility decision, or contract.
+        </p>
+      </section>
     </main>
   );
 }
@@ -1349,6 +1439,7 @@ export function PlanYourHomeShell({
   const utilityCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const exteriorCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
   const designCheckpointAnswers = useRef<Record<string, unknown> | null>(null);
+  const submissionInFlight = useRef(false);
   const resumeAnalyticsTracked = useRef(false);
   const tourStateRef = useRef(tourState);
   const textSaveTimer = useRef<number | null>(null);
@@ -2286,9 +2377,23 @@ export function PlanYourHomeShell({
 
   async function submitProjectBrief(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (saving) return;
+    if (saving || submissionInFlight.current) return;
     if (!submissionConsentAccepted) {
       setFormError("Confirm that you are submitting an inquiry and permit project-related contact.");
+      return;
+    }
+
+    if (refinementFixture) {
+      submissionInFlight.current = true;
+      setSaving(true);
+      setFormError(null);
+      await Promise.resolve();
+      setSaving(false);
+      setSubmitted(true);
+      trackPlanHomeEvent("plan_home_submitted", {
+        zone_id: "design-desk-and-review",
+        prompt_index: 35,
+      });
       return;
     }
 
@@ -2305,6 +2410,7 @@ export function PlanYourHomeShell({
     } satisfies PlanHomeClientDraftState;
     createPlanHomeClientDraftAdapter(window.localStorage).save(preparedDraft);
     setClientDraft(preparedDraft);
+    submissionInFlight.current = true;
     setSaving(true);
     setFormError(null);
 
@@ -2318,9 +2424,13 @@ export function PlanYourHomeShell({
         version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
         inquiryAndProjectContactAccepted: true,
       },
-    });
+    }).catch(() => ({
+      status: "server-error" as const,
+      message: "Your project brief could not be submitted right now.",
+    }));
     setSaving(false);
     if (result.status !== "success") {
+      submissionInFlight.current = false;
       setFormError(actionError(result));
       return;
     }
@@ -2393,7 +2503,15 @@ export function PlanYourHomeShell({
       />
     );
   } else if (submitted) {
-    content = <PlanHomeConfirmation name={tourState.welcomeName} />;
+    content = (
+      <PlanHomeConfirmation
+        name={tourState.welcomeName}
+        followUp={summarizePlanHomeAnswer(
+          "contact.follow-up",
+          tourState.answers["contact.follow-up"],
+        )}
+      />
+    );
   } else if (tourState.location.kind === "welcome") {
     content = (
       <WelcomeStep

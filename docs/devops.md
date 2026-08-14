@@ -164,6 +164,12 @@ detectable WCAG violation, unnamed control, target smaller than 44px, an
 interactive control obscured in the viewport, a question action dock outside the
 initial viewport, or broken keyboard-driven Back/Next behavior.
 
+The default matrix includes Q35, review, and confirmation at phone and desktop
+sizes. Each review capture also proves keyboard edit/cancel return, inquiry
+consent, one submission transition, and the resulting confirmation; its
+checked-consent artifact is retained as `submission-phone.png` or
+`submission-desktop.png` without calling Firebase.
+
 The fixture requires the command's explicit development flag and a loopback
 host. It cannot be enabled in a production build, never uses Firebase or email,
 and remains separate from the retained Playwright proof. Automation is a

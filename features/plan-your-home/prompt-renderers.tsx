@@ -27,6 +27,7 @@ type ChoicePromptProps = PromptFieldProps &
     value: string | null;
     onChange: (value: string) => void;
     columns?: 1 | 2 | 3;
+    compact?: boolean;
   }>;
 
 type MultiChoicePromptProps = PromptFieldProps &
@@ -239,6 +240,7 @@ export function ChoicePrompt({
   value,
   onChange,
   columns = 2,
+  compact = false,
 }: ChoicePromptProps) {
   const ids = useFieldIds(id);
 
@@ -250,7 +252,11 @@ export function ChoicePrompt({
     >
       <legend className={styles.legend}>{legend}</legend>
       <FieldSupport instructions={instructions} error={error} ids={ids} />
-      <div className={styles.optionGrid} data-columns={columns}>
+      <div
+        className={styles.optionGrid}
+        data-columns={columns}
+        data-compact={compact}
+      >
         {options.map((option) => (
           <label className={styles.option} key={option.slug}>
             <input

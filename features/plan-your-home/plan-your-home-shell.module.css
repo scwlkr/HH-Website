@@ -316,7 +316,7 @@
 
 .review,
 .confirmation {
-  width: min(100% - 2rem, 68rem);
+  width: min(100%, 78rem);
   margin-inline: auto;
 }
 
@@ -389,13 +389,51 @@
   margin-top: 1.25rem;
 }
 
-.reviewHeader {
-  padding: clamp(2rem, 7vw, 5rem) 0 clamp(1.5rem, 4vw, 2.75rem);
+.review {
+  padding-bottom: clamp(2rem, 7vw, 5rem);
+}
+
+.reviewHero {
+  position: relative;
+  display: grid;
+  min-height: clamp(34rem, 72svh, 44rem);
+  align-items: end;
+  overflow: hidden;
   border-bottom: 1px solid var(--hh-line-strong);
+  background: var(--hh-paper-deep);
+  isolation: isolate;
+}
+
+.reviewHeroScene {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: clamp(22rem, 52svh, 32rem);
+}
+
+.reviewHeroScene::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  background: linear-gradient(transparent, var(--hh-paper-deep));
+  content: "";
+  pointer-events: none;
+}
+
+.reviewHeader {
+  width: min(calc(100% - 2rem), 52rem);
+  margin: clamp(14rem, 36svh, 22rem) auto 1.5rem;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  padding: clamp(1.25rem, 4vw, 2.25rem);
+  background:
+    linear-gradient(90deg, transparent 0 1.5rem, var(--hh-draft-ink-faint) 1.5rem calc(1.5rem + 1px), transparent calc(1.5rem + 1px)),
+    color-mix(in srgb, var(--hh-surface) 96%, var(--hh-paper));
+  box-shadow: var(--hh-shadow-panel);
 }
 
 .reviewHeader h1,
-.confirmation h1 {
+.confirmationSheet h1 {
   max-width: 48rem;
   margin-top: 0.5rem;
   color: var(--hh-ink);
@@ -405,28 +443,140 @@
 }
 
 .reviewHeader h1:focus,
-.confirmation h1:focus {
+.confirmationSheet h1:focus {
   outline: none;
 }
 
-.reviewHeader > p:last-child,
-.confirmation > p {
+.reviewHeader > p:not(.eyebrow),
+.confirmationSheet > p {
   max-width: 44rem;
   margin-top: 1rem;
   color: var(--hh-muted-strong);
   line-height: 1.65;
 }
 
+.reviewSummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hh-line);
+}
+
+.reviewSummary div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.reviewSummary dt,
+.reviewNavigator > p,
+.reviewNavigator a::before {
+  color: var(--hh-accent-strong);
+  font-family: var(--font-code), monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.reviewSummary dd {
+  color: var(--hh-ink);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 700;
+}
+
+.reviewWorkspace {
+  display: grid;
+  width: min(calc(100% - 2rem), 68rem);
+  grid-template-columns: 10.5rem minmax(0, 1fr);
+  gap: clamp(1rem, 3vw, 1.75rem);
+  align-items: start;
+  margin: clamp(1.25rem, 4vw, 2rem) auto 0;
+}
+
+.reviewNavigator {
+  position: sticky;
+  z-index: 8;
+  top: 5.25rem;
+  overflow: hidden;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  background: color-mix(in srgb, var(--hh-surface) 96%, var(--hh-paper));
+  box-shadow: var(--hh-shadow-panel);
+}
+
+.reviewNavigator > p {
+  padding: 0.8rem 0.85rem;
+  border-bottom: 1px solid var(--hh-line);
+  background: var(--hh-paper-deep);
+}
+
+.reviewNavigator a {
+  display: grid;
+  min-height: 2.75rem;
+  grid-template-columns: 1.65rem minmax(0, 1fr);
+  gap: 0.35rem;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--hh-line);
+  color: var(--hh-ink);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.reviewNavigator a::before {
+  content: attr(data-index);
+}
+
+.reviewNavigator a:last-child {
+  border-bottom: 0;
+  background: var(--hh-accent);
+  color: var(--hh-surface);
+}
+
+.reviewNavigator a:last-child::before {
+  color: currentColor;
+}
+
+.reviewNavigator a:hover {
+  background: var(--hh-accent-soft);
+}
+
+.reviewNavigator a:last-child:hover {
+  background: var(--hh-accent-strong);
+}
+
+.reviewNavigator a:focus-visible {
+  position: relative;
+  z-index: 1;
+  box-shadow: inset 0 0 0 3px var(--hh-accent-soft);
+  outline: none;
+}
+
+.reviewFolio,
+.reviewGroups {
+  display: grid;
+  gap: 1rem;
+}
+
 .reviewContact {
-  margin-block: 1.25rem;
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.42fr) minmax(0, 1fr);
+  gap: 1rem;
   border: 1px solid var(--hh-line-strong);
   border-radius: var(--hh-radius-panel);
   padding: clamp(1rem, 3vw, 1.5rem);
-  background: var(--hh-paper-deep);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 1.7rem, var(--hh-draft-ink-faint) 1.7rem calc(1.7rem + 1px)),
+    var(--hh-paper-deep);
+  scroll-margin-top: 5.5rem;
 }
 
 .reviewContact h2,
 .reviewGroup h2,
+.reviewReferences h2,
 .submitPanel h2 {
   color: var(--hh-ink);
   font-size: clamp(1.2rem, 3vw, 1.65rem);
@@ -434,9 +584,8 @@
 
 .reviewContact dl {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
-  margin-top: 1rem;
 }
 
 .reviewContact dl > div {
@@ -463,16 +612,17 @@
   font-size: 0.88rem;
 }
 
-.reviewGroups {
-  display: grid;
-  gap: 1rem;
-}
-
 .reviewGroup {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--hh-line-strong);
   border-radius: var(--hh-radius-panel);
-  background: var(--hh-surface);
+  border-left: 0.35rem solid var(--hh-accent);
+  background:
+    linear-gradient(90deg, transparent 0 2.2rem, var(--hh-draft-ink-faint) 2.2rem calc(2.2rem + 1px), transparent calc(2.2rem + 1px)),
+    var(--hh-surface);
   box-shadow: var(--hh-shadow-panel);
+  scroll-margin-top: 5.5rem;
 }
 
 .reviewGroupHeading {
@@ -488,9 +638,12 @@
   margin-top: 0.25rem;
 }
 
-.reviewGroupHeading button {
-  min-width: 5rem;
-  min-height: 2.75rem;
+.reviewGroupHeading > span {
+  color: color-mix(in srgb, var(--hh-accent) 22%, transparent);
+  font-family: var(--font-code), monospace;
+  font-size: clamp(2.5rem, 8vw, 5.25rem);
+  font-weight: 700;
+  line-height: 0.8;
 }
 
 .reviewAnswers > div {
@@ -537,20 +690,28 @@
 }
 
 .reviewReferences {
-  border-top: 1px solid var(--hh-line-strong);
-  padding: 1rem clamp(1rem, 3vw, 1.5rem) 1.5rem;
-  background: var(--hh-paper-deep);
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.42fr) minmax(0, 1fr);
+  gap: 1rem;
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  background:
+    linear-gradient(135deg, transparent 0 92%, var(--hh-accent-soft) 92%),
+    var(--hh-paper-deep);
+  scroll-margin-top: 5.5rem;
 }
 
-.reviewReferences h3 {
-  color: var(--hh-ink);
-  font-size: 0.9rem;
+.reviewReferences > p {
+  align-self: center;
+  color: var(--hh-muted-strong);
+  font-size: 0.82rem;
+  line-height: 1.55;
 }
 
 .reviewReferences ul {
   display: grid;
   gap: 0.5rem;
-  margin-top: 0.65rem;
   list-style: none;
 }
 
@@ -558,6 +719,9 @@
   display: grid;
   gap: 0.15rem;
   overflow-wrap: anywhere;
+  border-left: 2px solid var(--hh-accent);
+  padding: 0.55rem 0.75rem;
+  background: color-mix(in srgb, var(--hh-surface) 72%, transparent);
   color: var(--hh-muted-strong);
   font-size: 0.76rem;
 }
@@ -567,11 +731,14 @@
 }
 
 .submitPanel {
-  margin-top: 1.25rem;
   border: 1px solid var(--hh-line-strong);
   border-radius: var(--hh-radius-panel);
   padding: clamp(1.25rem, 4vw, 2rem);
-  background: var(--hh-paper-deep);
+  background:
+    linear-gradient(135deg, transparent 0 88%, color-mix(in srgb, var(--hh-accent-soft) 72%, transparent) 88%),
+    var(--hh-paper-deep);
+  box-shadow: var(--hh-shadow-panel);
+  scroll-margin-top: 5.5rem;
 }
 
 .submitPanel h2 {
@@ -592,12 +759,34 @@
 }
 
 .confirmation {
-  min-height: min(46rem, 76svh);
+  display: grid;
+  min-height: calc(100svh - 4.25rem);
+  grid-template-columns: minmax(0, 1.12fr) minmax(24rem, 0.88fr);
+  align-items: center;
+  overflow: hidden;
   border-block: 1px solid var(--hh-line-strong);
-  padding: clamp(3rem, 12vw, 8rem) clamp(1rem, 6vw, 5rem);
+  background: var(--hh-paper-deep);
+}
+
+.confirmationScene {
+  position: relative;
+  min-height: 100%;
+  align-self: stretch;
+  overflow: hidden;
+  border-right: 1px solid var(--hh-line-strong);
+}
+
+.confirmationSheet {
+  position: relative;
+  z-index: 2;
+  margin: clamp(1rem, 3vw, 2.25rem);
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-panel);
+  padding: clamp(1.25rem, 4vw, 2.25rem);
   background:
-    linear-gradient(135deg, transparent 0 78%, color-mix(in srgb, var(--hh-accent-soft) 65%, transparent) 78%),
-    var(--hh-paper-deep);
+    linear-gradient(90deg, transparent 0 1.5rem, var(--hh-draft-ink-faint) 1.5rem calc(1.5rem + 1px), transparent calc(1.5rem + 1px)),
+    color-mix(in srgb, var(--hh-surface) 96%, var(--hh-paper));
+  box-shadow: var(--hh-shadow-panel);
 }
 
 .confirmationMark {
@@ -610,6 +799,69 @@
   border-radius: 50%;
   color: var(--hh-accent-strong);
   font-size: 1.4rem;
+}
+
+.confirmationSheet h1 {
+  font-size: clamp(2rem, 5vw, 3.6rem);
+}
+
+.confirmationSheet h2 {
+  margin-top: 1.5rem;
+  color: var(--hh-ink);
+  font-size: 1rem;
+}
+
+.confirmationSteps {
+  display: grid;
+  margin-top: 0.75rem;
+  border-block: 1px solid var(--hh-line);
+  list-style: none;
+}
+
+.confirmationSteps li {
+  display: grid;
+  min-height: 4.25rem;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  border-bottom: 1px solid var(--hh-line);
+  padding: 0.65rem 0;
+}
+
+.confirmationSteps li:last-child {
+  border-bottom: 0;
+}
+
+.confirmationSteps li > span {
+  color: var(--hh-accent-strong);
+  font-family: var(--font-code), monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.confirmationSteps strong {
+  color: var(--hh-ink);
+  font-size: 0.82rem;
+}
+
+.confirmationSteps p {
+  margin-top: 0.15rem;
+  color: var(--hh-muted-strong);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.confirmationFollowUp {
+  border: 1px solid var(--hh-line);
+  border-left: 3px solid var(--hh-accent);
+  padding: 0.75rem 0.9rem;
+  background: var(--hh-accent-soft);
+  font-size: 0.8rem;
+}
+
+.confirmationFollowUp strong {
+  color: var(--hh-ink);
 }
 
 .confirmationNote {
@@ -748,7 +1000,62 @@
 
   .review,
   .confirmation {
+    width: 100%;
+  }
+
+  .reviewHero {
+    min-height: 39rem;
+  }
+
+  .reviewHeroScene {
+    height: 22rem;
+  }
+
+  .reviewHeader {
     width: calc(100% - 1rem);
+    margin-bottom: 0.5rem;
+    padding-inline: 1rem;
+  }
+
+  .reviewWorkspace {
+    width: calc(100% - 1rem);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .reviewNavigator {
+    top: 4.25rem;
+    display: flex;
+    overflow-x: auto;
+    border-radius: var(--hh-radius-tight);
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+  }
+
+  .reviewNavigator > p {
+    display: none;
+  }
+
+  .reviewNavigator a {
+    min-width: 4.75rem;
+    flex: 0 0 auto;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    border-right: 1px solid var(--hh-line);
+    border-bottom: 0;
+    padding-inline: 0.6rem;
+    text-align: center;
+  }
+
+  .reviewNavigator a::before {
+    display: block;
+    line-height: 1;
+  }
+
+  .reviewContact,
+  .reviewReferences {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .reviewContact dl,
@@ -758,6 +1065,26 @@
 
   .reviewAnswers > div {
     gap: 0.35rem;
+  }
+
+  .reviewGroupHeading > span {
+    font-size: 2.75rem;
+  }
+
+  .confirmation {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+
+  .confirmationScene {
+    min-height: min(38svh, 20rem);
+    border-right: 0;
+    border-bottom: 1px solid var(--hh-line-strong);
+  }
+
+  .confirmationSheet {
+    margin: -2.25rem 0.5rem 0.5rem;
+    padding-inline: 1rem;
   }
 
   .momentActions {

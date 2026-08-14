@@ -155,6 +155,7 @@ export function SceneStage({
       data-transition-state={phase}
       data-in-room-exit-ms={EXIT_DURATION_MS}
       data-in-room-enter-ms={ENTER_DURATION_MS}
+      data-question-number={question.number}
       aria-busy={isTransitioning}
     >
       <div className={styles.stageRail}>
@@ -215,7 +216,9 @@ export function SceneStage({
             </p>
           ) : null}
 
-          <div className={styles.promptBody}>{prompt}</div>
+          <div className={styles.promptBody} data-plan-home-prompt-scroll>
+            {prompt}
+          </div>
 
           <div className={styles.stageActions} data-plan-home-actions>
             <Button
