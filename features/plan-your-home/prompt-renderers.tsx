@@ -749,6 +749,18 @@ function priorityLabel(category: PriorityCategory) {
   return "Deal-breaker";
 }
 
+function priorityGroupLabel(category: PriorityCategory) {
+  if (category === "must-have") return "Must-haves";
+  if (category === "nice-to-have") return "Nice-to-haves";
+  return "Deal-breakers";
+}
+
+const PRIORITY_CATEGORIES = [
+  "must-have",
+  "nice-to-have",
+  "deal-breaker",
+] as const satisfies readonly PriorityCategory[];
+
 export function PriorityPrompt({
   id,
   legend,
@@ -762,8 +774,26 @@ export function PriorityPrompt({
   const ids = useFieldIds(id);
   const [localError, setLocalError] = useState<string | null>(null);
   const [customLabel, setCustomLabel] = useState(value.customItem?.label ?? "");
+  const [activeCategory, setActiveCategory] =
+    useState<PriorityCategory>("must-have");
   const displayedError = error || localError;
-  const limitText = `Assign each item with its menu. Up to ${limits.mustHave} must-haves, ${limits.niceToHave} nice-to-haves, and ${limits.dealBreaker} deal-breakers. Dragging is not required.`;
+  const limitText = `Choose a group, then choose features with keyboard or touch. Up to ${limits.mustHave} must-haves, ${limits.niceToHave} nice-to-haves, and ${limits.dealBreaker} deal-breakers.`;
+
+  function categoryLimit(category: PriorityCategory) {
+    if (category === "must-have") return limits.mustHave;
+    if (category === "nice-to-have") return limits.niceToHave;
+    return limits.dealBreaker;
+  }
+
+  function categoryCount(category: PriorityCategory) {
+    const assigned =
+      category === "must-have"
+        ? value.mustHave.length
+        : category === "nice-to-have"
+          ? value.niceToHave.length
+          : value.dealBreakers.length;
+    return assigned + (value.customItem?.priority === category ? 1 : 0);
+  }
 
   function assign(item: string, category: PriorityCategory | "") {
     const mustHave = value.mustHave.filter((entry) => entry !== item);
@@ -845,27 +875,76 @@ export function PriorityPrompt({
         ids={ids}
       />
 
-      <div className={styles.priorityList}>
-        {items.map((item) => {
-          const selectId = `${id}-${item.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-          return (
-            <div className={styles.priorityRow} key={item}>
-              <label htmlFor={selectId}>{item}</label>
-              <select
-                id={selectId}
-                value={priorityForItem(value, item)}
-                onChange={(event) =>
-                  assign(item, event.target.value as PriorityCategory | "")
-                }
+      <div className={styles.priorityComposer}>
+        <div
+          className={styles.priorityCategoryPicker}
+          role="group"
+          aria-label="Priority group to edit"
+        >
+          {PRIORITY_CATEGORIES.map((category) => {
+            const count = categoryCount(category);
+            const limit = categoryLimit(category);
+            return (
+              <button
+                key={category}
+                type="button"
+                className={styles.priorityCategory}
+                aria-label={`Edit ${priorityGroupLabel(category)}, ${count} of ${limit}`}
+                aria-pressed={activeCategory === category}
+                onClick={() => {
+                  setActiveCategory(category);
+                  setLocalError(null);
+                }}
               >
-                <option value="">Not assigned</option>
-                <option value="must-have">Must-have</option>
-                <option value="nice-to-have">Nice-to-have</option>
-                <option value="deal-breaker">Deal-breaker</option>
-              </select>
+                <span>{priorityGroupLabel(category)}</span>
+                <small>{count} / {limit}</small>
+              </button>
+            );
+          })}
+        </div>
+
+        <section
+          className={styles.priorityAssignments}
+          aria-labelledby={`${id}-active-category`}
+        >
+          <div className={styles.priorityAssignmentHeading}>
+            <strong id={`${id}-active-category`}>
+              Choose {priorityGroupLabel(activeCategory).toLowerCase()}
+            </strong>
+            <span>Choose again to remove</span>
+          </div>
+          {items.length > 0 ? (
+            <div className={styles.priorityItemGrid}>
+              {items.map((item) => {
+                const assignedCategory = priorityForItem(value, item);
+                const isActive = assignedCategory === activeCategory;
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    className={styles.priorityItem}
+                    aria-label={`${item}: ${assignedCategory ? priorityLabel(assignedCategory) : "Not assigned"}`}
+                    aria-pressed={isActive}
+                    data-assignment={assignedCategory || "unassigned"}
+                    onClick={() => assign(item, isActive ? "" : activeCategory)}
+                  >
+                    <span>{item}</span>
+                    <small>
+                      {assignedCategory
+                        ? priorityLabel(assignedCategory)
+                        : "Not assigned"}
+                    </small>
+                  </button>
+                );
+              })}
             </div>
-          );
-        })}
+          ) : (
+            <p className={styles.priorityEmpty}>
+              No earlier selections to sort. Add one below or choose no strong
+              priorities yet.
+            </p>
+          )}
+        </section>
       </div>
 
       <div className={styles.customPriority}>
@@ -877,19 +956,24 @@ export function PriorityPrompt({
           value={customLabel}
           onChange={(event) => setCustomLabel(event.target.value)}
         />
-        <label htmlFor={`${id}-custom-category`}>Assign custom priority</label>
-        <select
-          id={`${id}-custom-category`}
-          value={value.customItem?.priority ?? ""}
-          onChange={(event) =>
-            assignCustom(event.target.value as PriorityCategory | "")
-          }
-        >
-          <option value="">Not assigned</option>
-          <option value="must-have">Must-have</option>
-          <option value="nice-to-have">Nice-to-have</option>
-          <option value="deal-breaker">Deal-breaker</option>
-        </select>
+        <div className={styles.customPriorityActions}>
+          <button
+            type="button"
+            onClick={() => assignCustom(activeCategory)}
+          >
+            Assign custom to {priorityGroupLabel(activeCategory)}
+          </button>
+          {value.customItem ? (
+            <button type="button" onClick={() => assignCustom("")}>
+              Remove custom priority
+            </button>
+          ) : null}
+        </div>
+        {value.customItem ? (
+          <p>
+            Assigned to {priorityGroupLabel(value.customItem.priority)}
+          </p>
+        ) : null}
       </div>
 
       <label className={styles.standaloneCheck}>

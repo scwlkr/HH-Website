@@ -255,48 +255,116 @@ test("count renderer uses discrete radios for every required count", async () =>
   );
 });
 
-test("priority renderer is fully operable with selects and reports limits", async () => {
+test("priority renderer progressively assigns groups with buttons and reports limits", async () => {
   function Harness() {
     const [value, setValue] = useState({
       mustHave: [] as readonly string[],
       niceToHave: [] as readonly string[],
       dealBreakers: [] as readonly string[],
-      customItem: null,
+      customItem: null as Readonly<{
+        label: string;
+        priority: "must-have" | "nice-to-have" | "deal-breaker";
+      }> | null,
       noStrongPrioritiesYet: false,
     });
     return (
-      <PriorityPrompt
-        id="priorities"
-        legend="Priority assignment"
-        items={["Outdoor connection", "Accessible clearances"]}
-        value={value}
-        limits={{ mustHave: 1, niceToHave: 1, dealBreaker: 1 }}
-        onChange={(next) => setValue(next as typeof value)}
-      />
+      <>
+        <PriorityPrompt
+          id="priorities"
+          legend="Priority assignment"
+          items={["Outdoor connection", "Accessible clearances"]}
+          value={value}
+          limits={{ mustHave: 1, niceToHave: 1, dealBreaker: 1 }}
+          onChange={setValue}
+        />
+        <output aria-label="Serialized priority answer">
+          {JSON.stringify(value)}
+        </output>
+      </>
     );
   }
 
   const user = userEvent.setup({ document: window.document });
   const view = render(<Harness />);
   const query = within(view.container);
-  await user.selectOptions(
-    query.getByRole("combobox", { name: "Outdoor connection" }),
-    "must-have",
+  assert.equal(query.queryAllByRole("combobox").length, 0);
+  assert.ok(
+    query.getByRole("group", { name: "Priority group to edit" }),
   );
-  await user.selectOptions(
-    query.getByRole("combobox", { name: "Accessible clearances" }),
-    "must-have",
+  const outdoorConnection = query.getByRole("button", {
+    name: "Outdoor connection: Not assigned",
+  });
+  outdoorConnection.focus();
+  await user.keyboard(" ");
+  assert.match(
+    query.getByLabelText("Serialized priority answer").textContent ?? "",
+    /"mustHave":\["Outdoor connection"\]/,
+  );
+  await user.click(
+    query.getByRole("button", {
+      name: "Accessible clearances: Not assigned",
+    }),
   );
   assert.equal(query.getByRole("alert").textContent, "Must-have limit reached.");
-  assert.match(query.getByText(/Dragging is not required/).textContent ?? "", /Dragging/);
+
+  const niceToHaves = query.getByRole("button", {
+    name: "Edit Nice-to-haves, 0 of 1",
+  });
+  niceToHaves.focus();
+  await user.keyboard(" ");
+  await user.click(
+    query.getByRole("button", {
+      name: "Accessible clearances: Not assigned",
+    }),
+  );
+  await user.type(
+    query.getByRole("textbox", { name: "Custom priority (optional)" }),
+    "Quiet mechanical room",
+  );
+  await user.click(
+    query.getByRole("button", { name: "Assign custom to Nice-to-haves" }),
+  );
+  assert.equal(query.getByRole("alert").textContent, "Nice-to-have limit reached.");
+
+  await user.click(
+    query.getByRole("button", { name: "Edit Deal-breakers, 0 of 1" }),
+  );
+  await user.click(
+    query.getByRole("button", { name: "Assign custom to Deal-breakers" }),
+  );
+  assert.deepEqual(
+    JSON.parse(
+      query.getByLabelText("Serialized priority answer").textContent ?? "{}",
+    ),
+    {
+      mustHave: ["Outdoor connection"],
+      niceToHave: ["Accessible clearances"],
+      dealBreakers: [],
+      customItem: {
+        label: "Quiet mechanical room",
+        priority: "deal-breaker",
+      },
+      noStrongPrioritiesYet: false,
+    },
+  );
+  assert.match(
+    query.getByText(/Choose a group, then choose features/).textContent ?? "",
+    /keyboard or touch/,
+  );
   await user.click(
     query.getByRole("checkbox", { name: "No strong priorities yet" }),
   );
-  assert.equal(
-    (query.getByRole("combobox", {
-      name: "Outdoor connection",
-    }) as HTMLSelectElement).value,
-    "",
+  assert.deepEqual(
+    JSON.parse(
+      query.getByLabelText("Serialized priority answer").textContent ?? "{}",
+    ),
+    {
+      mustHave: [],
+      niceToHave: [],
+      dealBreakers: [],
+      customItem: null,
+      noStrongPrioritiesYet: true,
+    },
   );
 });
 

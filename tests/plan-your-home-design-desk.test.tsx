@@ -6,6 +6,7 @@ import { cleanup, render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
 
+import { DesignDeskScene } from "../features/plan-your-home/design-desk-scene.tsx";
 import {
   createPlanHomeClientDraftAdapter,
   PLAN_HOME_CLIENT_DRAFT_KEY,
@@ -302,10 +303,14 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
   await user.type(noteFields[0], "Kitchen layout reference");
   await user.click(query.getByRole("button", { name: "Next" }));
 
-  assert.ok(query.getByLabelText("Storage"));
-  assert.equal(query.queryByLabelText("2"), null);
-  assert.equal(query.queryByLabelText("None"), null);
-  assert.equal(query.queryByLabelText("Not sure yet"), null);
+  assert.ok(query.getByRole("group", { name: "Priority group to edit" }));
+  assert.ok(query.getByRole("button", { name: "Storage: Not assigned" }));
+  assert.equal(query.queryByRole("button", { name: "2: Not assigned" }), null);
+  assert.equal(query.queryByRole("button", { name: "None: Not assigned" }), null);
+  assert.equal(
+    query.queryByRole("button", { name: "Not sure yet: Not assigned" }),
+    null,
+  );
   await user.click(query.getByRole("checkbox", { name: "No strong priorities yet" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   assert.match(
@@ -386,4 +391,67 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
     rules: { "color-contrast": { enabled: false } },
   });
   assert.deepEqual(axeResults.violations.map(({ id }) => id), []);
+});
+
+const designDeskAnchors = planHomeZones[6].sceneAnchors.slice(0, 4);
+
+test("design desk keeps one fixed concept-sketch scene with automatic semantic anchors", () => {
+  const view = render(<DesignDeskScene activeAnchor="mood-board" />);
+  const query = within(view.container);
+  const scene = view.container.querySelector('[data-scene-variant="design-desk"]');
+  assert.ok(scene);
+  assert.equal(scene.getAttribute("data-active-anchor"), "mood-board");
+  assert.deepEqual(
+    Array.from(scene.querySelectorAll("[data-scene-anchor]"), (anchor) =>
+      anchor.getAttribute("data-scene-anchor"),
+    ),
+    [...designDeskAnchors],
+  );
+  assert.equal(
+    scene.querySelector('[data-scene-anchor="mood-board"]')?.tagName,
+    "g",
+  );
+  assert.equal(
+    scene
+      .querySelector('[data-scene-anchor="mood-board"]')
+      ?.getAttribute("data-active"),
+    "true",
+  );
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMinYMid slice",
+  );
+  assert.equal(query.queryByText("Fixed design desk study"), null);
+  assert.equal(query.queryByText("mood board"), null);
+});
+
+test("design desk reframes the same artwork for references, priorities, and timing", () => {
+  const view = render(<DesignDeskScene activeAnchor="pinboard-scanner" />);
+  const scene = view.container.querySelector('[data-scene-variant="design-desk"]');
+  assert.ok(scene);
+  const fixedArtwork = Array.from(scene.querySelectorAll("path"), (path) =>
+    path.getAttribute("d"),
+  );
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMaxYMax slice",
+  );
+
+  view.rerender(<DesignDeskScene activeAnchor="priority-stacks" />);
+  assert.equal(scene.getAttribute("data-active-anchor"), "priority-stacks");
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMinYMax slice",
+  );
+  assert.deepEqual(
+    Array.from(scene.querySelectorAll("path"), (path) => path.getAttribute("d")),
+    fixedArtwork,
+  );
+
+  view.rerender(<DesignDeskScene activeAnchor="ruler-calendar" />);
+  assert.equal(scene.getAttribute("data-active-anchor"), "ruler-calendar");
+  assert.equal(
+    scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
+    "xMaxYMax slice",
+  );
 });

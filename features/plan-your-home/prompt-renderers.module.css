@@ -323,9 +323,8 @@
 }
 
 .textControl,
-.priorityRow select,
 .customPriority input,
-.customPriority select,
+.customPriority button,
 .linkAdder input,
 .linkAdder button,
 .referenceList textarea,
@@ -371,9 +370,10 @@
 }
 
 .textControl:focus-visible,
-.priorityRow select:focus-visible,
 .customPriority input:focus-visible,
-.customPriority select:focus-visible,
+.customPriority button:focus-visible,
+.priorityCategory:focus-visible,
+.priorityItem:focus-visible,
 .linkAdder input:focus-visible,
 .linkAdder button:focus-visible,
 .referenceList textarea:focus-visible,
@@ -410,7 +410,7 @@
   accent-color: var(--hh-accent);
 }
 
-.priorityList,
+.priorityComposer,
 .customPriority,
 .referenceActions,
 .referenceList {
@@ -419,40 +419,160 @@
   margin-top: 0.85rem;
 }
 
-.priorityRow {
+.priorityCategoryPicker {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.55fr);
-  gap: 0.75rem;
-  align-items: center;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.priorityCategory,
+.priorityItem {
   min-height: 2.75rem;
-  padding-bottom: 0.65rem;
-  border-bottom: 1px solid var(--hh-line);
+  border: 1px solid var(--hh-line-strong);
+  border-radius: var(--hh-radius-tight);
+  background: color-mix(in srgb, var(--hh-surface) 86%, var(--hh-paper));
+  color: var(--hh-ink);
+  cursor: pointer;
+  font: inherit;
 }
 
-.priorityRow label {
-  font-size: 0.84rem;
+.priorityCategory {
+  display: grid;
+  gap: 0.1rem;
+  place-items: center;
+  padding: 0.48rem 0.35rem;
+  text-align: center;
 }
 
-.priorityRow select,
+.priorityCategory span {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.priorityCategory small,
+.priorityItem small {
+  color: var(--hh-muted);
+  font-size: 0.65rem;
+  line-height: 1.25;
+}
+
+.priorityCategory[aria-pressed="true"] {
+  border-color: var(--hh-accent);
+  background: var(--hh-accent-soft);
+  box-shadow: inset 0 -2px 0 var(--hh-accent);
+}
+
+.priorityAssignments {
+  padding: 0.7rem;
+  border: 1px solid var(--hh-line);
+  border-radius: var(--hh-radius-tight);
+  background: color-mix(in srgb, var(--hh-paper) 66%, transparent);
+}
+
+.priorityAssignmentHeading {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.priorityAssignmentHeading strong {
+  font-size: 0.8rem;
+}
+
+.priorityAssignmentHeading span,
+.priorityEmpty,
+.customPriority p {
+  color: var(--hh-muted);
+  font-size: 0.7rem;
+}
+
+.priorityItemGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.priorityItem {
+  display: grid;
+  gap: 0.15rem;
+  align-content: center;
+  padding: 0.48rem 0.58rem;
+  text-align: left;
+}
+
+.priorityItem span {
+  overflow-wrap: anywhere;
+  font-size: 0.74rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.priorityItem[aria-pressed="true"],
+.priorityItem[data-assignment]:not([data-assignment="unassigned"]) {
+  border-color: color-mix(in srgb, var(--hh-accent) 72%, var(--hh-line));
+  background: color-mix(in srgb, var(--hh-accent-soft) 68%, var(--hh-surface));
+}
+
+.priorityItem[aria-pressed="true"] {
+  box-shadow: inset 3px 0 0 var(--hh-accent);
+}
+
+.priorityEmpty {
+  margin: 0;
+  line-height: 1.45;
+}
+
 .customPriority input,
-.customPriority select,
+.customPriority button,
 .linkAdder input {
   width: 100%;
   padding: 0.55rem 0.7rem;
 }
 
 .customPriority {
-  grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.55fr);
-  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.45rem 0.65rem;
+  align-items: center;
   margin-top: 1.25rem;
   padding: 0.85rem;
   border: 1px solid var(--hh-line);
   background: color-mix(in srgb, var(--hh-paper) 66%, transparent);
 }
 
-.customPriority > label:last-of-type {
+.customPriority > label,
+.customPriority > input {
+  grid-column: 1;
+}
+
+.customPriority > input {
+  grid-row: 2;
+}
+
+.customPriorityActions {
+  display: flex;
   grid-column: 2;
-  grid-row: 1;
+  grid-row: 1 / span 2;
+  gap: 0.4rem;
+}
+
+.customPriority button {
+  width: auto;
+  min-width: 7.5rem;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.customPriorityActions button:first-child {
+  border-color: var(--hh-accent);
+  background: var(--hh-accent-soft);
+}
+
+.customPriority p {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 
 .referenceActions {
@@ -572,15 +692,21 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .priorityRow,
   .customPriority,
   .referenceActions {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .customPriority > label:last-of-type {
+  .customPriority > label,
+  .customPriority > input,
+  .customPriorityActions,
+  .customPriority p {
     grid-column: 1;
     grid-row: auto;
+  }
+
+  .customPriorityActions {
+    flex-wrap: wrap;
   }
 
   .linkAdder > div {
@@ -593,6 +719,12 @@
 
   .visualCardGrid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 40.01rem) {
+  .priorityAssignments {
+    margin-top: 3.25rem;
   }
 }
 

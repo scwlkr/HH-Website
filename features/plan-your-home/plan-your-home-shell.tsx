@@ -237,8 +237,8 @@ const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "specialty-spaces": { xPercent: -4.4, yPercent: -2.8, scale: 1.15 },
   "design-feeling": { xPercent: 4.2, yPercent: -1.1, scale: 1.13 },
   "design-references": { xPercent: -4.5, yPercent: -0.5, scale: 1.14 },
-  "design-priorities": { xPercent: 3.8, yPercent: -2.4, scale: 1.14 },
-  "budget-timing": { xPercent: -3.9, yPercent: -2.6, scale: 1.15 },
+  "design-priorities": { xPercent: 3.8, yPercent: -15.5, scale: 1.14 },
+  "budget-timing": { xPercent: -3.9, yPercent: -14, scale: 1.15 },
 };
 
 function randomUuidV4() {
@@ -664,7 +664,11 @@ function renderQuestionPrompt(
         groups={question.response.optionGroups}
         value={answer as GroupedChoiceValue}
         onChange={updateAnswer}
-        instructions="Complete each group before continuing."
+        instructions={
+          question.id === "project.budget-timing"
+            ? undefined
+            : "Complete each group before continuing."
+        }
       />
     );
   }
