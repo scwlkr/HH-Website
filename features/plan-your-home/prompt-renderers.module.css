@@ -709,6 +709,10 @@
     flex-wrap: wrap;
   }
 
+  .priorityCategoryPicker {
+    margin-top: 4.75rem;
+  }
+
   .linkAdder > div {
     grid-template-columns: minmax(0, 1fr);
   }

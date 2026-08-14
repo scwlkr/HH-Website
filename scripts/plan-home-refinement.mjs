@@ -138,11 +138,36 @@ async function quality(page) {
         : undefined;
       return (wrappingLabel ?? element).getBoundingClientRect();
     };
+    const isObscuredInViewport = (element) => {
+      const wrappingLabel = "labels" in element
+        ? Array.from(element.labels ?? []).find((label) => label.contains(element))
+        : undefined;
+      const target = wrappingLabel ?? element;
+      const rectangle = target.getBoundingClientRect();
+      const centerX = rectangle.left + rectangle.width / 2;
+      const centerY = rectangle.top + rectangle.height / 2;
+      if (
+        centerX < 0 ||
+        centerX > window.innerWidth ||
+        centerY < 0 ||
+        centerY > window.innerHeight
+      ) {
+        return false;
+      }
+      const topElement = document.elementFromPoint(centerX, centerY);
+      return Boolean(
+        topElement &&
+        topElement !== target &&
+        !target.contains(topElement) &&
+        !topElement.contains(target),
+      );
+    };
     return {
       violations: axeResults.violations.map((violation) => violation.id),
       overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
       unnamedControls: controls.filter((element) => !accessibleName(element)).map((element) => element.outerHTML.slice(0, 160)),
       undersizedTargets: controls.map((element) => ({ element: element.outerHTML.slice(0, 120), ...targetSize(element).toJSON() })).filter(({ width, height }) => width < 44 || height < 44),
+      obscuredTargets: controls.filter(isObscuredInViewport).map((element) => element.outerHTML.slice(0, 160)),
     };
   });
 }
@@ -238,6 +263,7 @@ async function capture(browser, baseUrl, state, viewportName) {
     assert.equal(result.quality.overflow, false, "horizontal overflow");
     assert.deepEqual(result.quality.unnamedControls, [], "unnamed controls");
     assert.deepEqual(result.quality.undersizedTargets, [], "undersized interactive targets");
+    assert.deepEqual(result.quality.obscuredTargets, [], "obscured interactive targets");
     assert.deepEqual(result.errors, [], "browser, console, or request errors");
     result.passed = true;
   } catch (error) {

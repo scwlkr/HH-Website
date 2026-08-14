@@ -700,27 +700,38 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
 }
 
 async function assignPrioritiesByKeyboard(page) {
-  const selects = page.getByRole("combobox");
-  const first = selects.nth(0);
+  const categoryPicker = page.getByRole("group", {
+    name: "Priority group to edit",
+  });
+  const mustHaves = categoryPicker.getByRole("button", {
+    name: /Edit Must-haves/,
+  });
+  const niceToHaves = categoryPicker.getByRole("button", {
+    name: /Edit Nice-to-haves/,
+  });
+  const items = page.locator("button[data-assignment]");
+  assert((await items.count()) >= 2, "Q33 needs at least two selected features.");
+  const first = items.nth(0);
+  const second = items.nth(1);
+
+  const mustTabs = await tabTo(page, mustHaves);
+  await page.keyboard.press("Enter");
+  assert.equal(await mustHaves.getAttribute("aria-pressed"), "true");
   const firstTabs = await tabTo(page, first);
-  await page.keyboard.press("m");
-  await page.waitForFunction(
-    (element) => element.value === "must-have",
-    await first.elementHandle(),
-  );
-  assert.equal(await first.inputValue(), "must-have");
-  const second = selects.nth(1);
+  await page.keyboard.press("Enter");
+  assert.match(await first.getAttribute("aria-label"), /: Must-have$/);
+
+  const niceTabs = await tabTo(page, niceToHaves);
+  await page.keyboard.press("Enter");
+  assert.equal(await niceToHaves.getAttribute("aria-pressed"), "true");
   const secondTabs = await tabTo(page, second);
-  await page.keyboard.press("n");
-  await page.waitForFunction(
-    (element) => element.value === "nice-to-have",
-    await second.elementHandle(),
-  );
-  assert.equal(await second.inputValue(), "nice-to-have");
+  await page.keyboard.press("Enter");
+  assert.match(await second.getAttribute("aria-label"), /: Nice-to-have$/);
+
   evidence.keyboard.mainFlow = {
     ...(evidence.keyboard.mainFlow ?? {}),
     priorityMenus: ["must-have", "nice-to-have"],
-    priorityTabs: [firstTabs, secondTabs],
+    priorityTabs: [mustTabs, firstTabs, niceTabs, secondTabs],
   };
 }
 
