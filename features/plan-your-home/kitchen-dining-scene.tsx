@@ -4,116 +4,175 @@ type KitchenDiningSceneProps = Readonly<{
   activeAnchor?: string;
 }>;
 
-function Anchor({
+function FocusAnchor({
   id,
-  className,
+  path,
   active,
-}: Readonly<{ id: string; className: string; active: boolean }>) {
+}: Readonly<{ id: string; path: string; active: boolean }>) {
   return (
-    <span
-      className={`${styles.anchor} ${className}`}
+    <g
+      className={styles.anchor}
       data-active={active}
       data-scene-anchor={id}
-    />
+    >
+      <path className={styles.anchorWash} d={path} />
+      <path className={styles.anchorContour} d={path} />
+    </g>
   );
+}
+
+function kitchenFraming(activeAnchor?: string) {
+  if (activeAnchor === "room-opening") return "xMinYMid slice";
+  if (activeAnchor === "pantry-door" || activeAnchor === "dining-table") {
+    return "xMaxYMid slice";
+  }
+  return "xMidYMid slice";
 }
 
 export function KitchenDiningScene({
   activeAnchor,
 }: KitchenDiningSceneProps) {
   return (
-    <div className={styles.scene} aria-hidden="true">
-      <svg viewBox="0 0 1200 650" preserveAspectRatio="xMidYMid slice">
+    <div
+      className={styles.scene}
+      data-active-anchor={activeAnchor}
+      data-scene-variant="kitchen-dining-study"
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 1200 650"
+        preserveAspectRatio={kitchenFraming(activeAnchor)}
+      >
         <defs>
-          <linearGradient id="kitchen-light" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#f2ede3" />
-            <stop offset="0.68" stopColor="#f8f4eb" />
-            <stop offset="1" stopColor="#e3ebdf" />
+          <linearGradient id="kitchen-window" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fffdf7" />
+            <stop offset="1" stopColor="#dbe8df" />
           </linearGradient>
           <pattern
             id="kitchen-tile"
-            width="26"
-            height="14"
+            width="34"
+            height="18"
             patternUnits="userSpaceOnUse"
           >
-            <path d="M0 13.5H26M13 0V13.5" />
+            <path
+              d="M0 17.5H34M17 0V17.5"
+              fill="none"
+              stroke="rgba(37, 55, 70, 0.2)"
+              strokeWidth="0.75"
+            />
+          </pattern>
+          <pattern
+            id="kitchen-floor"
+            width="42"
+            height="42"
+            patternUnits="userSpaceOnUse"
+            patternTransform="skewX(-24)"
+          >
+            <path
+              d="M0 0H42"
+              fill="none"
+              stroke="rgba(37, 55, 70, 0.12)"
+              strokeWidth="0.8"
+            />
           </pattern>
         </defs>
 
-        <rect width="1200" height="650" fill="url(#kitchen-light)" />
-        <path className={styles.ceilingWash} d="M0 0H1200L976 132H224Z" />
+        <rect width="1200" height="650" fill="#f3eee4" />
+        <path className={styles.wallWash} d="M0 0H1200V492H0Z" />
+        <path
+          className={styles.floorWash}
+          d="M0 650V492L236 378H955L1200 650Z"
+          fill="url(#kitchen-floor)"
+        />
+        <path
+          className={styles.glassWash}
+          d="M340 112H665V300H340Z"
+          fill="url(#kitchen-window)"
+        />
+        <path
+          className={styles.shadowWash}
+          d="M402 475L546 377H777L878 461L805 516H487Z"
+        />
+        <path
+          className={styles.greenWash}
+          d="M414 459L548 385H771L858 459L791 497H493Z"
+        />
+        <path
+          className={styles.rugWash}
+          d="M879 463L962 405H1122L1185 462L1127 501H946Z"
+        />
 
-        <g className={styles.perspectiveLine}>
-          <path d="M0 0L224 132H976L1200 0M0 650L224 490H976L1200 650" />
-          <path d="M224 132V490M976 132V490" />
-          <path d="M0 650L483 348M1200 650L720 348" />
-          <path d="M224 490H976" />
+        <g className={styles.constructionLine}>
+          <path d="M0 0L236 131H955L1200 0M0 650L236 492H955L1200 650" />
+          <path d="M236 131V492M955 131V492M596 131V492" />
+          <path d="M236 492L466 349H752L955 492" />
+          <path d="M18 93H278M18 505H278M313 88H697M313 322H697" />
+          <path d="M736 91H926M736 508H926M866 85H1184M866 513H1184" />
+          <circle cx="596" cy="349" r="7" />
         </g>
 
-        <g className={styles.architecturalLine}>
-          <path d="M116 184H467V450H116Z" />
-          <path d="M136 204H447V430H136Z" />
-          <path d="M151 219H432V304H151Z" fill="url(#kitchen-tile)" />
-          <path d="M151 304H432M244 204V430M339 204V430" />
-          <path d="M268 218H353V304M281 239H340V304" />
-          <path d="M300 219V188H321V219" />
-          <path d="M850 163H1091V486H850Z" />
-          <path d="M874 190H1067V486M970 190V486" />
-          <path d="M891 242H949V486M990 242H1048V486" />
-          <path d="M472 368L731 322L864 421L563 484Z" />
-          <path d="M495 372L730 336L834 414L566 467Z" />
-          <path d="M553 484V525M819 431V470" />
-          <path d="M632 350V452M702 339V437" />
+        <g className={styles.materialWash}>
+          <path d="M294 302H711V467H294Z" />
+          <path d="M748 181H904V493H748Z" />
+          <path d="M920 339L1034 310L1162 379L1031 421Z" />
+        </g>
+        <path
+          className={styles.tileWash}
+          d="M294 205H711V302H294Z"
+          fill="url(#kitchen-tile)"
+        />
+        <path className={styles.woodWash} d="M455 379L712 337L843 427L552 482Z" />
+        <path className={styles.stoneWash} d="M441 370L714 324L865 420L550 493Z" />
+
+        <g className={styles.inkLine}>
+          <path d="M32 149H252V493H32ZM57 175H227V493" />
+          <path d="M57 175L142 215L227 175M142 215V493" />
+          <path d="M294 205H711V467H294ZM318 229H687V467" />
+          <path d="M340 112H665V300H340ZM362 134H643V278" />
+          <path d="M502 134V278M362 206H643" />
+          <path d="M407 302V467M520 302V467M625 302V467" />
+          <path d="M439 205V302H565V205M455 231H549V302" />
+          <path d="M455 379L712 337L843 427L552 482ZM552 482V524M817 429V471" />
+          <path d="M748 181H904V493H748ZM771 205H881V493" />
+          <path d="M793 205V493M856 205V493M770 314H881" />
+          <path d="M920 339L1034 310L1162 379L1031 421ZM941 346V479M1139 380V483" />
         </g>
 
-        <g className={styles.counterDetails}>
-          <path d="M566 365L625 356L652 376L591 386Z" />
-          <path d="M579 367C579 379 587 384 599 382C612 380 620 370 617 360" />
-          <path d="M712 340V313M701 313H725M720 313V293" />
-          <path d="M753 397L796 389M760 405L803 397" />
+        <g className={styles.detailLine}>
+          <path d="M331 467V327H392V467M640 467V327H687V467" />
+          <path d="M465 337H542M476 350H531" />
+          <path d="M593 357L646 349L672 367L618 377Z" />
+          <path d="M609 351C607 364 615 371 627 369C639 367 647 358 646 348" />
+          <path d="M715 335V301M704 301H728M722 301V280" />
+          <path d="M491 395L744 356M518 414L773 376M542 435L803 397" />
+          <path d="M967 327V278M997 319V270M1078 327V270M1107 338V282" />
+          <path d="M947 278H1007M1050 270H1118" />
+          <path d="M1034 164V121M1010 121H1058M1017 121L995 184H1079L1052 121" />
+          <path d="M1112 493V425M1094 493L1109 442M1130 493L1118 443" />
+          <path d="M1080 425C1094 399 1110 404 1113 436C1128 405 1144 413 1126 449" />
         </g>
 
-        <g className={styles.diningLines}>
-          <path d="M892 375L1002 350L1083 400L955 433Z" />
-          <path d="M912 379V467M1057 394V472" />
-          <path d="M925 449H986M1017 450H1070" />
-          <path d="M918 337V295M943 332V286M1006 329V282M1031 336V291" />
-          <path d="M902 295H950M990 286H1039" />
-          <path d="M975 163V119M953 119H998" />
-          <path d="M959 120L938 178H1013L993 120" />
-        </g>
-
-        <g className={styles.greenery}>
-          <path d="M1051 486V416M1034 486L1048 434M1068 486L1056 438" />
-          <path d="M1017 416C1032 390 1048 394 1052 423C1066 394 1082 400 1065 438C1088 424 1095 444 1064 454" />
-        </g>
+        <FocusAnchor
+          id="range-and-island"
+          active={activeAnchor === "range-and-island"}
+          path="M404 184H584V318H404ZM421 352L720 304L883 416L553 511Z"
+        />
+        <FocusAnchor
+          id="room-opening"
+          active={activeAnchor === "room-opening"}
+          path="M16 130H273V512H16Z"
+        />
+        <FocusAnchor
+          id="pantry-door"
+          active={activeAnchor === "pantry-door"}
+          path="M728 161H925V512H728Z"
+        />
+        <FocusAnchor
+          id="dining-table"
+          active={activeAnchor === "dining-table"}
+          path="M892 292L1041 272L1182 367L1170 503H923Z"
+        />
       </svg>
-
-      <Anchor
-        id="range-and-island"
-        className={styles.rangeAndIsland}
-        active={activeAnchor === "range-and-island"}
-      />
-      <Anchor
-        id="room-opening"
-        className={styles.roomOpening}
-        active={activeAnchor === "room-opening"}
-      />
-      <Anchor
-        id="pantry-door"
-        className={styles.pantryDoor}
-        active={activeAnchor === "pantry-door"}
-      />
-      <Anchor
-        id="dining-table"
-        className={styles.diningTable}
-        active={activeAnchor === "dining-table"}
-      />
-
-      <div className={styles.sceneCaption}>
-        <span>Kitchen and dining study</span>
-        <strong>{activeAnchor?.replaceAll("-", " ")}</strong>
-      </div>
     </div>
   );
 }

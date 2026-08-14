@@ -147,6 +147,7 @@ test("four registered anchors carry exact semantic prompts and explicit uncertai
     view.container.querySelectorAll("[data-scene-anchor]").length,
     4,
   );
+  assert.equal(query.queryByText("hall stair marker") === null, true);
   assert.equal(
     view.container.querySelector('[data-scene-anchor="hall-stair-marker"]')
       ?.getAttribute("data-active"),

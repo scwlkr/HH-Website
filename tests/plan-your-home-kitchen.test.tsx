@@ -172,6 +172,7 @@ test("four registered anchors reframe the exact Kitchen and Dining prompts and e
     view.container.querySelectorAll("[data-scene-anchor]").length,
     4,
   );
+  assert.equal(query.queryByText("range and island") === null, true);
   assert.equal(
     window.document.activeElement,
     query.getByRole("heading", {

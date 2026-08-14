@@ -4,117 +4,170 @@ type PrimarySuiteSceneProps = Readonly<{
   activeAnchor?: string;
 }>;
 
-function Anchor({
+function FocusAnchor({
   id,
-  className,
+  path,
   active,
-}: Readonly<{ id: string; className: string; active: boolean }>) {
+}: Readonly<{ id: string; path: string; active: boolean }>) {
   return (
-    <span
-      className={`${styles.anchor} ${className}`}
+    <g
+      className={styles.anchor}
       data-active={active}
       data-scene-anchor={id}
-    />
+    >
+      <path className={styles.anchorWash} d={path} />
+      <path className={styles.anchorContour} d={path} />
+    </g>
   );
+}
+
+function primaryFraming(activeAnchor?: string) {
+  if (activeAnchor === "hall-stair-marker") return "xMinYMid slice";
+  if (activeAnchor === "bath-vanity" || activeAnchor === "closet") {
+    return "xMaxYMid slice";
+  }
+  return "xMidYMid slice";
 }
 
 export function PrimarySuiteScene({ activeAnchor }: PrimarySuiteSceneProps) {
   return (
-    <div className={styles.scene} aria-hidden="true">
-      <svg viewBox="0 0 1200 650" preserveAspectRatio="xMidYMid slice">
+    <div
+      className={styles.scene}
+      data-active-anchor={activeAnchor}
+      data-scene-variant="primary-suite-study"
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 1200 650"
+        preserveAspectRatio={primaryFraming(activeAnchor)}
+      >
         <defs>
-          <linearGradient id="primary-suite-light" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#e5eadf" />
-            <stop offset="0.42" stopColor="#f7f2e8" />
-            <stop offset="1" stopColor="#eee7dc" />
+          <linearGradient id="primary-window" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#fffdf7" />
+            <stop offset="1" stopColor="#dbe8df" />
           </linearGradient>
-          <linearGradient id="primary-window-light" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#dce9e4" />
-            <stop offset="1" stopColor="#f4eee2" />
-          </linearGradient>
-          <pattern id="primary-closet-grid" width="28" height="22" patternUnits="userSpaceOnUse">
-            <path d="M0 21.5H28M27.5 0V22" />
+          <pattern
+            id="primary-floor"
+            width="42"
+            height="42"
+            patternUnits="userSpaceOnUse"
+            patternTransform="skewX(-24)"
+          >
+            <path
+              d="M0 0H42"
+              fill="none"
+              stroke="rgba(37, 55, 70, 0.12)"
+              strokeWidth="0.8"
+            />
+          </pattern>
+          <pattern
+            id="primary-tile"
+            width="28"
+            height="18"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M0 17.5H28M27.5 0V18"
+              fill="none"
+              stroke="rgba(37, 55, 70, 0.2)"
+              strokeWidth="0.75"
+            />
           </pattern>
         </defs>
 
-        <rect width="1200" height="650" fill="url(#primary-suite-light)" />
-        <path className={styles.ceilingWash} d="M0 0H1200L980 126H220Z" />
+        <rect width="1200" height="650" fill="#f3eee4" />
+        <path className={styles.wallWash} d="M0 0H1200V492H0Z" />
+        <path
+          className={styles.floorWash}
+          d="M0 650V492L236 378H955L1200 650Z"
+          fill="url(#primary-floor)"
+        />
+        <path
+          className={styles.glassWash}
+          d="M331 111H668V316H331Z"
+          fill="url(#primary-window)"
+        />
+        <path
+          className={styles.shadowWash}
+          d="M345 459L491 370H707L815 460L739 516H445Z"
+        />
+        <path
+          className={styles.greenWash}
+          d="M361 455L501 383H696L797 457L726 497H454Z"
+        />
 
-        <g className={styles.perspectiveLine}>
-          <path d="M0 0L220 126H980L1200 0M0 650L220 493H980L1200 650" />
-          <path d="M220 126V493M980 126V493M0 650L493 347M1200 650L707 347" />
-          <path d="M220 493H980" />
+        <g className={styles.constructionLine}>
+          <path d="M0 0L236 131H955L1200 0M0 650L236 492H955L1200 650" />
+          <path d="M236 131V492M955 131V492M596 131V492" />
+          <path d="M236 492L466 349H752L955 492" />
+          <path d="M18 83H277M18 510H277M303 83H696M303 337H696" />
+          <path d="M719 94H946M719 510H946M934 87H1185M934 512H1185" />
+          <circle cx="596" cy="349" r="7" />
         </g>
 
-        <g className={styles.architecturalLine}>
-          <path d="M63 170H258V494H63Z" />
-          <path d="M88 194H233V494M128 194V494M193 194V494" />
-          <path d="M91 262H126M195 262H231" />
-          <path d="M102 170V137H219V170" />
-          <path d="M123 151H200M137 137V151M186 137V151" />
+        <g className={styles.materialWash}>
+          <path d="M27 153H268V493H27Z" />
+          <path d="M719 177H930V493H719Z" />
+          <path d="M956 166H1173V493H956Z" />
+        </g>
+        <path className={styles.woodWash} d="M370 366L590 331L755 425L480 486Z" />
+        <path
+          className={styles.tileWash}
+          d="M742 204H906V345H742Z"
+          fill="url(#primary-tile)"
+        />
+        <path className={styles.stoneWash} d="M741 344H908V493H741Z" />
 
-          <path d="M313 166H676V383H313Z" fill="url(#primary-window-light)" />
-          <path d="M332 185H657V364H332ZM494 185V364" />
-          <path d="M313 383L263 493M676 383L744 493" />
-
-          <path d="M350 404L597 365L743 440L465 495Z" />
-          <path d="M379 410L593 380L706 438L466 480Z" />
-          <path d="M465 495V528M716 446V481" />
-          <path d="M373 402L403 338L603 313L644 379" />
-          <path d="M411 342L489 330L500 374L425 387Z" />
-          <path d="M503 329L579 319L613 365L527 377Z" />
-
-          <path d="M768 156H947V493H768Z" />
-          <path d="M790 179H925V493M858 179V493" />
-          <path d="M807 321H910V493M842 321V493M877 321V493" />
-          <path d="M808 342H909M808 390H909M808 438H909" />
-
-          <path d="M963 194H1144V493H963Z" fill="url(#primary-closet-grid)" />
-          <path d="M984 215H1123V493M1054 215V493" />
-          <path d="M1001 258H1036M1073 258H1107" />
-          <path d="M1019 216V257M1090 216V257" />
+        <g className={styles.inkLine}>
+          <path d="M27 153H268V493H27ZM52 178H243V493" />
+          <path d="M52 178L146 219L243 178M146 219V493" />
+          <path d="M75 493L116 423H232M98 493L139 437H232M123 493L161 451H232" />
+          <path d="M331 111H668V316H331ZM353 133H646V294" />
+          <path d="M500 133V294M353 214H646" />
+          <path d="M370 366L590 331L755 425L480 486ZM480 486V525M730 427V473" />
+          <path d="M399 363L430 309L611 285L657 350" />
+          <path d="M719 177H930V493H719ZM742 204H906V493" />
+          <path d="M742 345H906M824 204V345" />
+          <path d="M759 369H889V493M789 369V493M859 369V493" />
+          <path d="M956 166H1173V493H956ZM980 190H1149V493" />
+          <path d="M1038 190V493M1095 190V493M980 311H1149" />
         </g>
 
-        <g className={styles.bathDetails}>
-          <path d="M785 255H922M807 235V279M900 235V279" />
-          <path d="M813 254C813 274 828 284 850 284C872 284 889 274 895 254" />
-          <path d="M851 254V226M840 226H863M858 226V207" />
-          <path d="M778 175L749 147M937 175L966 147" />
+        <g className={styles.detailLine}>
+          <path d="M72 128H226M92 128V108M206 128V108M92 108H206" />
+          <path d="M426 312L494 301L512 353L442 365Z" />
+          <path d="M511 299L581 290L626 341L541 354Z" />
+          <path d="M392 389L611 351M422 410L648 370M452 432L685 392" />
+          <path d="M762 276H889M782 254V300M869 254V300" />
+          <path d="M790 276C790 298 807 309 831 309C855 309 874 298 881 276" />
+          <path d="M834 276V243M822 243H847M841 243V222" />
+          <path d="M750 200L720 171M898 200L929 171" />
+          <path d="M1001 241H1030M1060 241H1088M1117 241H1138" />
+          <path d="M997 329H1033M1059 329H1091M1117 329H1140" />
+          <path d="M984 493V410M1021 493V423M1063 493V410M1104 493V423M1138 493V410" />
         </g>
 
-        <g className={styles.materialDetails}>
-          <path d="M295 493H744M768 493H1144" />
-          <path d="M293 500L743 500M769 500L1145 500" />
-          <path d="M702 493L742 529M721 493L761 529" />
-          <path d="M257 493L218 529M238 493L199 529" />
-        </g>
+        <FocusAnchor
+          id="hall-stair-marker"
+          active={activeAnchor === "hall-stair-marker"}
+          path="M12 132H286V513H12Z"
+        />
+        <FocusAnchor
+          id="bed-and-window"
+          active={activeAnchor === "bed-and-window"}
+          path="M304 91H691V330H304ZM337 341L598 303L783 422L483 511Z"
+        />
+        <FocusAnchor
+          id="bath-vanity"
+          active={activeAnchor === "bath-vanity"}
+          path="M699 157H949V512H699Z"
+        />
+        <FocusAnchor
+          id="closet"
+          active={activeAnchor === "closet"}
+          path="M936 146H1192V512H936Z"
+        />
       </svg>
-
-      <Anchor
-        id="hall-stair-marker"
-        className={styles.hallStairMarker}
-        active={activeAnchor === "hall-stair-marker"}
-      />
-      <Anchor
-        id="bed-and-window"
-        className={styles.bedAndWindow}
-        active={activeAnchor === "bed-and-window"}
-      />
-      <Anchor
-        id="bath-vanity"
-        className={styles.bathVanity}
-        active={activeAnchor === "bath-vanity"}
-      />
-      <Anchor
-        id="closet"
-        className={styles.closet}
-        active={activeAnchor === "closet"}
-      />
-
-      <div className={styles.sceneCaption}>
-        <span>Primary suite study</span>
-        <strong>{activeAnchor?.replaceAll("-", " ")}</strong>
-      </div>
     </div>
   );
 }
