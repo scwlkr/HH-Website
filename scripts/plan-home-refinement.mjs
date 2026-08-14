@@ -325,7 +325,7 @@ async function assertPromptScrollReachability(page, state) {
 
 async function capture(browser, baseUrl, state, viewportName) {
   const startedAt = Date.now();
-  const result = { state, viewport: viewportName, passed: false, status: 0, errors: [], shell: null, quality: null, promptScroll: null, submission: null, durationMs: 0, screenshot: `${state}-${viewportName}.png` };
+  const result = { state, viewport: viewportName, passed: false, status: 0, errors: [], shell: null, layout: null, quality: null, promptScroll: null, submission: null, durationMs: 0, screenshot: `${state}-${viewportName}.png` };
   const page = await browser.newPage({ viewport: viewports[viewportName], reducedMotion: "reduce" });
   watchPage(page, result);
   try {
@@ -349,6 +349,52 @@ async function capture(browser, baseUrl, state, viewportName) {
       hasMarketingFooter: false,
       hasSaveAndExit: true,
     }, "focused walkthrough shell");
+    result.layout = await page.evaluate(() => {
+      const dimensions = (selector) => {
+        const element = document.querySelector(selector);
+        if (!element) return null;
+        const bounds = element.getBoundingClientRect();
+        return { width: bounds.width, height: bounds.height };
+      };
+      const header = document.querySelector("[data-plan-home-header]");
+      const stageRail = document.querySelector("[data-plan-home-stage-rail]");
+      const progress = document.querySelector("[data-plan-home-stage-rail] progress");
+      return {
+        header: dimensions("[data-plan-home-header]"),
+        stageRail: dimensions("[data-plan-home-stage-rail]"),
+        promptSheet: dimensions("[data-plan-home-prompt-sheet]"),
+        momentSheet: dimensions("[data-plan-home-moment-sheet]"),
+        visibleChrome: [header?.textContent, stageRail?.textContent]
+          .filter(Boolean)
+          .join(" ")
+          .replace(/\s+/g, " ")
+          .trim(),
+        progress: progress
+          ? {
+              label: progress.getAttribute("aria-label"),
+              value: progress.getAttribute("value"),
+              max: progress.getAttribute("max"),
+            }
+          : null,
+      };
+    });
+    if (viewportName === "phone") {
+      assert(result.layout.header?.height <= 53, "phone header stays within its compact 53px rail");
+      if (state.startsWith("q")) {
+        assert(result.layout.stageRail?.height <= 46, "phone zone and progress stay within a compact 46px rail");
+        assert(
+          result.layout.promptSheet?.height <= viewports.phone.height * 0.38,
+          "phone question sheet uses no more than roughly three-eighths of the initial viewport",
+        );
+        assert.match(result.layout.progress?.label ?? "", /^Question \d+ of 35$/, "progress keeps its accessible count");
+        assert.equal(/Question \d+ of \d+/i.test(result.layout.visibleChrome), false, "question count is not repeated visually");
+      } else if (state === "welcome") {
+        assert(
+          result.layout.momentSheet?.height <= viewports.phone.height * 0.46,
+          "long welcome content stays inside a bounded, scrollable phone sheet",
+        );
+      }
+    }
     if (state.startsWith("q")) {
       const actions = await page.locator("[data-plan-home-actions]").boundingBox();
       assert(actions, "question actions are visible");

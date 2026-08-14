@@ -799,7 +799,11 @@ function WelcomeStep({
           <WelcomeExteriorScene name={name} />
         </PlanHomeSceneSuspense>
       </div>
-      <form className={styles.momentSheet} onSubmit={onSubmit}>
+      <form
+        className={styles.momentSheet}
+        data-plan-home-moment-sheet
+        onSubmit={onSubmit}
+      >
         <p className={styles.eyebrow}>Plan your home</p>
         <h1>Let’s put your name on the front door.</h1>
         <p className={styles.momentCopy}>
@@ -2842,7 +2846,7 @@ export function PlanYourHomeShell({
     : restoreStatus !== "ready"
       ? "Restoring your place"
       : tourState.location.kind === "question"
-        ? `Question ${activeQuestion?.number ?? 1} of ${planHomeQuestions.length}`
+        ? null
         : tourState.location.kind === "contact-gate"
           ? "Contact checkpoint"
           : tourState.location.kind === "review"
@@ -2865,7 +2869,7 @@ export function PlanYourHomeShell({
           : undefined
       }
     >
-      <header className={styles.experienceHeader}>
+      <header className={styles.experienceHeader} data-plan-home-header>
         <Link
           className={styles.experienceBrand}
           href="/"
@@ -2876,7 +2880,7 @@ export function PlanYourHomeShell({
         </Link>
         <div className={styles.experienceTitle}>
           <strong>Plan Your Home</strong>
-          <span>{shellProgress}</span>
+          {shellProgress ? <span>{shellProgress}</span> : null}
         </div>
         <Link className={styles.saveExit} href="/" onClick={saveBeforeExit}>
           Save and exit

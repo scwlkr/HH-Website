@@ -158,10 +158,9 @@ export function SceneStage({
       data-question-id={question.id}
       aria-busy={isTransitioning}
     >
-      <div className={styles.stageRail}>
+      <div className={styles.stageRail} data-plan-home-stage-rail>
         <div>
           <p className={styles.zoneLabel}>{zone.title}</p>
-          <p className={styles.progressLabel}>{progressLabel}</p>
         </div>
         <progress
           className={styles.progress}
@@ -185,13 +184,11 @@ export function SceneStage({
       <div className={styles.promptLayer}>
         <section
           className={styles.promptSheet}
+          data-plan-home-prompt-sheet
           aria-labelledby={`${question.id}-heading`}
           aria-describedby={describedBy}
         >
           <div className={styles.promptHeader}>
-            <span className={styles.questionNumber} aria-hidden="true">
-              {String(question.number).padStart(2, "0")}
-            </span>
             <div>
               <h1
                 ref={headingRef}
