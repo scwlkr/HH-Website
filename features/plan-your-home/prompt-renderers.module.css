@@ -845,13 +845,14 @@
     position: absolute;
     z-index: 6;
     bottom: 0.6rem;
-    left: 35%;
-    width: 30%;
+    left: 50%;
+    width: 140px;
+    transform: translateX(-50%);
   }
 
   .stagedControls button {
     width: 100%;
-    padding-inline: 0.35rem;
+    padding-inline: 4px;
   }
 
   .instructions,

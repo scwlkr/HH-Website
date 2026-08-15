@@ -274,9 +274,12 @@
   }
 
   .zoneLabel {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow: visible;
+    font-size: clamp(10px, 0.62rem, 12px);
+    letter-spacing: 0.08em;
+    line-height: 1.15;
+    text-overflow: clip;
+    white-space: normal;
   }
 
   .promptLayer {
@@ -325,7 +328,7 @@
   }
 
   .promptSheet:has([data-staged-prompt]) .stageActions {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr) 140px minmax(0, 1fr);
   }
 
   .promptSheet:has([data-staged-prompt]) .actionButton:last-child {
@@ -334,6 +337,7 @@
 
   .actionButton {
     min-height: 44px;
+    padding-inline: 4px;
   }
 
   .stage[data-question-id="contact.follow-up"] .promptSheet {

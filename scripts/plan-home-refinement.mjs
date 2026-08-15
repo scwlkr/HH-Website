@@ -191,6 +191,11 @@ async function quality(page) {
       return style.visibility !== "hidden" && style.display !== "none" && rectangle.width > 0 && rectangle.height > 0;
     };
     const controls = Array.from(document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, summary, textarea')).filter(visible);
+    const labelTargets = Array.from(
+      document.querySelectorAll(
+        "[data-plan-home-zone-label], [data-plan-home-actions] button, [data-plan-home-staged-controls] button, [data-plan-home-prompt-scroll] label",
+      ),
+    ).filter(visible);
     const accessibleName = (element) => {
       const labelledBy = element.getAttribute("aria-labelledby");
       const labelledText = labelledBy
@@ -255,6 +260,13 @@ async function quality(page) {
       unnamedControls: controls.filter((element) => !accessibleName(element)).map((element) => element.outerHTML.slice(0, 160)),
       undersizedTargets: controls.map((element) => ({ element: element.outerHTML.slice(0, 120), ...targetSize(element).toJSON() })).filter(({ width, height }) => width < 44 || height < 44),
       obscuredTargets: controls.filter(isObscuredInViewport).map((element) => element.outerHTML.slice(0, 160)),
+      truncatedLabels: labelTargets
+        .filter(
+          (element) =>
+            element.scrollWidth > element.clientWidth + 1 ||
+            element.scrollHeight > element.clientHeight + 1,
+        )
+        .map((element) => element.outerHTML.slice(0, 160)),
     };
   });
 }
@@ -345,6 +357,7 @@ function assertQuality(result, context) {
   assert.deepEqual(result.unnamedControls, [], `${context} unnamed controls`);
   assert.deepEqual(result.undersizedTargets, [], `${context} undersized targets`);
   assert.deepEqual(result.obscuredTargets, [], `${context} obscured targets`);
+  assert.deepEqual(result.truncatedLabels, [], `${context} truncated labels`);
 }
 
 async function assertPromptScrollReachability(page, state, requireNoScroll) {
@@ -743,10 +756,22 @@ async function assertFallbackViewport(page, context) {
   return geometry;
 }
 
-async function captureLargeTextFallback(browser, baseUrl) {
+async function captureFallback(
+  browser,
+  baseUrl,
+  {
+    state,
+    viewport,
+    pageViewport = viewports["short-phone"],
+    layoutContext,
+    qualityContext,
+    screenshot,
+    prepare,
+  },
+) {
   const result = {
-    state: "q31",
-    viewport: "200%-text",
+    state,
+    viewport,
     route: "walkthrough-fallback",
     passed: false,
     errors: [],
@@ -754,32 +779,32 @@ async function captureLargeTextFallback(browser, baseUrl) {
     promptScroll: null,
     quality: null,
     durationMs: 0,
-    screenshot: "q31-200-percent-text.png",
+    screenshot,
   };
   const startedAt = Date.now();
   const page = await browser.newPage({
-    viewport: viewports["short-phone"],
+    viewport: pageViewport,
     reducedMotion: "reduce",
   });
   watchPage(page, result);
   try {
     const response = await page.goto(
-      `${baseUrl}${routeTargets.walkthrough}?__refine=q31`,
+      `${baseUrl}${routeTargets.walkthrough}?__refine=${state}`,
       { waitUntil: "networkidle" },
     );
     assert.equal(response?.status(), 200);
-    await page.locator('[data-plan-home-refinement-state="q31"]').waitFor();
-    await page.addStyleTag({ content: ":root { font-size: 200%; }" });
-    await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(250);
-    result.layout = await assertFallbackViewport(page, "200% text");
-    result.promptScroll = await assertPromptScrollReachability(page, "q31", false);
+    await page
+      .locator(`[data-plan-home-refinement-state="${state}"]`)
+      .waitFor();
+    await prepare?.(page);
+    result.layout = await assertFallbackViewport(page, layoutContext);
+    result.promptScroll = await assertPromptScrollReachability(page, state, false);
     result.quality = await quality(page);
-    assertQuality(result.quality, "200% text fallback");
+    assertQuality(result.quality, qualityContext);
     await page.screenshot({
       path: path.join(outputDirectory, result.screenshot),
     });
-    assert.deepEqual(result.errors, [], "200% text browser errors");
+    assert.deepEqual(result.errors, [], `${qualityContext} browser errors`);
     result.passed = true;
   } catch (error) {
     result.errors.push(error instanceof Error ? error.message : String(error));
@@ -788,112 +813,61 @@ async function captureLargeTextFallback(browser, baseUrl) {
     await page.close();
   }
   return result;
+}
+
+async function captureLargeTextFallback(browser, baseUrl) {
+  return captureFallback(browser, baseUrl, {
+    state: "q31",
+    viewport: "200%-text",
+    layoutContext: "200% text",
+    qualityContext: "200% text fallback",
+    screenshot: "q31-200-percent-text.png",
+    prepare: async (page) => {
+      await page.addStyleTag({ content: ":root { font-size: 200%; }" });
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(250);
+    },
+  });
 }
 
 async function captureReflowFallback(browser, baseUrl) {
-  const result = {
+  return captureFallback(browser, baseUrl, {
     state: "q34",
     viewport: "200%-reflow",
-    route: "walkthrough-fallback",
-    passed: false,
-    errors: [],
-    layout: null,
-    promptScroll: null,
-    quality: null,
-    durationMs: 0,
+    pageViewport: { width: 320, height: 640 },
+    layoutContext: "200%-equivalent 320 CSS pixel reflow",
+    qualityContext: "200% reflow fallback",
     screenshot: "q34-200-percent-reflow.png",
-  };
-  const startedAt = Date.now();
-  const page = await browser.newPage({
-    viewport: { width: 320, height: 640 },
-    reducedMotion: "reduce",
   });
-  watchPage(page, result);
-  try {
-    const response = await page.goto(
-      `${baseUrl}${routeTargets.walkthrough}?__refine=q34`,
-      { waitUntil: "networkidle" },
-    );
-    assert.equal(response?.status(), 200);
-    await page.locator('[data-plan-home-refinement-state="q34"]').waitFor();
-    result.layout = await assertFallbackViewport(
-      page,
-      "200%-equivalent 320 CSS pixel reflow",
-    );
-    result.promptScroll = await assertPromptScrollReachability(page, "q34", false);
-    result.quality = await quality(page);
-    assertQuality(result.quality, "200% reflow fallback");
-    await page.screenshot({
-      path: path.join(outputDirectory, result.screenshot),
-    });
-    assert.deepEqual(result.errors, [], "200% reflow browser errors");
-    result.passed = true;
-  } catch (error) {
-    result.errors.push(error instanceof Error ? error.message : String(error));
-  } finally {
-    result.durationMs = Date.now() - startedAt;
-    await page.close();
-  }
-  return result;
 }
 
 async function captureKeyboardFallback(browser, baseUrl) {
-  const result = {
+  return captureFallback(browser, baseUrl, {
     state: "q2",
     viewport: "keyboard-open",
-    route: "walkthrough-fallback",
-    passed: false,
-    errors: [],
-    layout: null,
-    promptScroll: null,
-    quality: null,
-    durationMs: 0,
+    layoutContext: "keyboard-height viewport",
+    qualityContext: "keyboard-height fallback",
     screenshot: "q2-keyboard-open.png",
-  };
-  const startedAt = Date.now();
-  const page = await browser.newPage({
-    viewport: viewports["short-phone"],
-    reducedMotion: "reduce",
+    prepare: async (page) => {
+      await page
+        .getByRole("radio", { name: "Own it" })
+        .evaluate((control) => control.click());
+      await page.getByRole("button", { name: "Continue" }).click();
+      const locationInput = page.getByLabel(
+        "City, county, address, or target area",
+      );
+      await locationInput.focus();
+      await page.setViewportSize({ width: 375, height: 430 });
+      await page.waitForTimeout(150);
+      await page.evaluate(async () => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+        await new Promise(requestAnimationFrame);
+      });
+      await locationInput.evaluate((element) =>
+        element.scrollIntoView({ block: "nearest" }),
+      );
+    },
   });
-  watchPage(page, result);
-  try {
-    const response = await page.goto(
-      `${baseUrl}${routeTargets.walkthrough}?__refine=q2`,
-      { waitUntil: "networkidle" },
-    );
-    assert.equal(response?.status(), 200);
-    await page.locator('[data-plan-home-refinement-state="q2"]').waitFor();
-    await page
-      .getByRole("radio", { name: "Own it" })
-      .evaluate((control) => control.click());
-    await page.getByRole("button", { name: "Continue" }).click();
-    const locationInput = page.getByLabel("City, county, address, or target area");
-    await locationInput.focus();
-    await page.setViewportSize({ width: 375, height: 430 });
-    await page.waitForTimeout(150);
-    await page.evaluate(async () => {
-      window.scrollTo({ top: 0, behavior: "instant" });
-      await new Promise(requestAnimationFrame);
-    });
-    result.layout = await assertFallbackViewport(page, "keyboard-height viewport");
-    await locationInput.evaluate((element) =>
-      element.scrollIntoView({ block: "nearest" }),
-    );
-    result.promptScroll = await assertPromptScrollReachability(page, "q2", false);
-    result.quality = await quality(page);
-    assertQuality(result.quality, "keyboard-height fallback");
-    await page.screenshot({
-      path: path.join(outputDirectory, result.screenshot),
-    });
-    assert.deepEqual(result.errors, [], "keyboard-height browser errors");
-    result.passed = true;
-  } catch (error) {
-    result.errors.push(error instanceof Error ? error.message : String(error));
-  } finally {
-    result.durationMs = Date.now() - startedAt;
-    await page.close();
-  }
-  return result;
 }
 
 async function writeBoard(browser, results) {

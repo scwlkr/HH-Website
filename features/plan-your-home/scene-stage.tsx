@@ -160,7 +160,9 @@ export function SceneStage({
     >
       <div className={styles.stageRail} data-plan-home-stage-rail>
         <div>
-          <p className={styles.zoneLabel}>{zone.title}</p>
+          <p className={styles.zoneLabel} data-plan-home-zone-label>
+            {zone.title}
+          </p>
         </div>
         <progress
           className={styles.progress}
