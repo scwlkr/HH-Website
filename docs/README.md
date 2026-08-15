@@ -11,6 +11,7 @@ This is the canonical manual path for the Howeth and Harp website repo. Start he
 | Review Plan Your Home discovery decisions | [Virtual home project brief](virtual-home-project-brief.md) |
 | Implement the Plan Your Home product contract | [Plan Your Home product specification](plan-your-home-product-spec.md) |
 | Sequence and prove Plan Your Home work | [Plan Your Home implementation roadmap](plan-your-home-implementation-roadmap.md) |
+| Run the owner screenshot-to-issue loop | [Owner feedback loop](owner-feedback-loop.md) |
 | Work on HHQ or managed public data | [Operations portal](operations-portal.md) |
 | Review local UI changes quickly | [Fast local review](devops.md) |
 | Prepare preview or production | [Launch QA](launch-qa.md) |
