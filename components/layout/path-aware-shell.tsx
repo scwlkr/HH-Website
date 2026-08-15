@@ -16,7 +16,8 @@ export function PathAwareShell({
 }: PathAwareShellProps) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith("/admin");
-  const isPlanHomeWalkthrough = pathname === "/plan-your-home";
+  const isPlanHomeWalkthrough =
+    pathname === "/plan-your-home" || pathname === "/plan-your-home/review";
   const showMarketingChrome = !isAdminRoute && !isPlanHomeWalkthrough;
 
   return (

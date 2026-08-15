@@ -6,6 +6,8 @@ import {
 } from "./tour-state.ts";
 
 export const PLAN_HOME_LOCAL_SNAPSHOT_KEY = "plan-home-v1:local-snapshot";
+export const PLAN_HOME_REVIEW_SNAPSHOT_KEY =
+  "plan-home-owner-review-v1:local-snapshot";
 export const PLAN_HOME_LOCAL_SNAPSHOT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 export type StorageLike = Readonly<{

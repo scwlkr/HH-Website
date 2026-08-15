@@ -19,6 +19,7 @@
     "proof:plan-home-scene-budget": "node scripts/plan-home-scene-budget.mjs",
     "proof:plan-home-final": "node --import tsx scripts/plan-home-final-proof.mjs",
     "proof:plan-home-final:emulator": "npx -y firebase-tools@15.26.0 emulators:exec --only auth,firestore,storage \"npm run proof:plan-home-final\" --project demo-hh-website",
+    "proof:plan-home-owner-review": "node --import tsx scripts/plan-home-owner-review-proof.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "review": "node scripts/review.mjs",

@@ -39,7 +39,10 @@ import {
   WelcomeExteriorScene,
   preloadNextPlanHomeScene,
 } from "@/features/plan-your-home/scene-loader";
-import { createPlanHomeLocalSnapshotAdapter } from "@/features/plan-your-home/local-snapshot";
+import {
+  createPlanHomeLocalSnapshotAdapter,
+  PLAN_HOME_REVIEW_SNAPSHOT_KEY,
+} from "@/features/plan-your-home/local-snapshot";
 import {
   ChoicePrompt,
   CountPrompt,
@@ -179,6 +182,7 @@ type PlanYourHomeShellProps = Readonly<{
   directUploader?: PlanHomeDirectUploader;
   reducedMotion?: boolean;
   refinementFixture?: PlanHomeRefinementFixture;
+  reviewMode?: boolean;
 }>;
 
 type ContactFields = Readonly<{
@@ -864,11 +868,13 @@ function renderQuestionPrompt(
 function WelcomeStep({
   name,
   error,
+  showResumeLink,
   onNameChange,
   onSubmit,
 }: Readonly<{
   name: string;
   error: string | null;
+  showResumeLink: boolean;
   onNameChange: (name: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }>) {
@@ -925,9 +931,11 @@ function WelcomeStep({
             >
               Privacy and retention
             </a>
-            <a className={styles.resumeLink} href="/plan-your-home/resume">
-              Resume a saved plan
-            </a>
+            {showResumeLink ? (
+              <a className={styles.resumeLink} href="/plan-your-home/resume">
+                Resume a saved plan
+              </a>
+            ) : null}
           </div>
         </div>
       </form>
@@ -1586,6 +1594,7 @@ export function PlanYourHomeShell({
   directUploader = uploadDirectly,
   reducedMotion,
   refinementFixture,
+  reviewMode = false,
 }: PlanYourHomeShellProps = {}) {
   const [tourState, setTourState] = useState<PlanHomeTourState>(() =>
     refinementFixture?.state ?? createInitialPlanHomeTourState(),
@@ -1629,7 +1638,7 @@ export function PlanYourHomeShell({
   const [restoreStatus, setRestoreStatus] = useState<
     "pending" | "ready" | "unavailable"
   >(
-    refinementFixture || restoreDraft === skippedRestoreAction
+    refinementFixture || (!reviewMode && restoreDraft === skippedRestoreAction)
       ? "ready"
       : "pending",
   );
@@ -1684,12 +1693,35 @@ export function PlanYourHomeShell({
   useEffect(() => {
     if (refinementFixture) return;
     let cancelled = false;
+    if (reviewMode) setRestoreStatus("pending");
     if (restoreDraft !== skippedRestoreAction) setRestoreStatus("pending");
     const restore = window.setTimeout(() => {
       void (async () => {
       const localAdapter = createPlanHomeLocalSnapshotAdapter({
         storage: window.localStorage,
+        ...(reviewMode ? { key: PLAN_HOME_REVIEW_SNAPSHOT_KEY } : {}),
       });
+      if (reviewMode) {
+        const restored = localAdapter.load();
+        if (cancelled) return;
+        if (restored) {
+          tourStateRef.current = restored;
+          setTourState(restored);
+          setWelcomeName(restored.welcomeName);
+          setDraftAnswers({ ...initialDraftAnswers(), ...restored.answers });
+          if (restored.contactCheckpoint) {
+            setContactFields({
+              email: restored.contactCheckpoint.email,
+              phone: restored.contactCheckpoint.phone,
+              disclosureAccepted:
+                restored.contactCheckpoint.manualFollowUpDisclosureAccepted,
+            });
+          }
+        }
+        setClientDraft(null);
+        setRestoreStatus("ready");
+        return;
+      }
       const clientAdapter = createPlanHomeClientDraftAdapter(window.localStorage);
       const local = localAdapter.load();
       const storedClientDraft = clientAdapter.load();
@@ -1800,10 +1832,13 @@ export function PlanYourHomeShell({
       cancelled = true;
       window.clearTimeout(restore);
     };
-  }, [refinementFixture, restoreAttempt, restoreDraft]);
+  }, [refinementFixture, restoreAttempt, restoreDraft, reviewMode]);
 
   function saveLocal(state: PlanHomeTourState) {
-    createPlanHomeLocalSnapshotAdapter({ storage: window.localStorage }).save(state);
+    createPlanHomeLocalSnapshotAdapter({
+      storage: window.localStorage,
+      ...(reviewMode ? { key: PLAN_HOME_REVIEW_SNAPSHOT_KEY } : {}),
+    }).save(state);
   }
 
   function commitState(state: PlanHomeTourState) {
@@ -1874,10 +1909,12 @@ export function PlanYourHomeShell({
   }
 
   function currentClientDraft() {
+    if (reviewMode) return null;
     return createPlanHomeClientDraftAdapter(window.localStorage).load();
   }
 
   function updateClientDraftRevision(revision: number) {
+    if (reviewMode) return;
     const current = currentClientDraft();
     if (!current) return;
     const updated = { ...current, revision } satisfies PlanHomeClientDraftState;
@@ -1915,6 +1952,20 @@ export function PlanYourHomeShell({
   }
 
   async function uploadReferenceFile(file: File, pendingId: string) {
+    if (reviewMode) {
+      setPendingUploads((current) =>
+        current.map((upload) =>
+          upload.id === pendingId
+            ? {
+                ...upload,
+                status: "error",
+                error: "Uploads stay disabled in owner review. Remove this file and continue with fake information.",
+              }
+            : upload,
+        ),
+      );
+      return;
+    }
     const draft = currentClientDraft();
     if (!draft?.draftId || !draft.revision) {
       setPendingUploads((current) =>
@@ -2032,6 +2083,13 @@ export function PlanYourHomeShell({
   }
 
   async function addLink(url: string) {
+    if (reviewMode) {
+      setError({
+        code: "invalid-answer",
+        message: "Links stay disabled in owner review. Continue with fake information only.",
+      });
+      return;
+    }
     const draft = currentClientDraft();
     if (!draft?.draftId || !draft.revision) return;
     const result = await addReferenceLink({
@@ -2132,7 +2190,9 @@ export function PlanYourHomeShell({
     }
     setFormError(null);
     commitState(opened.state);
-    trackPlanHomeEvent("plan_home_start", { prompt_index: 1 });
+    if (!reviewMode) {
+      trackPlanHomeEvent("plan_home_start", { prompt_index: 1 });
+    }
   }
 
   function saveBeforeExit() {
@@ -2318,6 +2378,26 @@ export function PlanYourHomeShell({
         commitState(advanced.state);
         return true;
       }
+      if (reviewMode) {
+        setError(null);
+        commitState(advanced.state);
+        if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
+          setShowBedroomHallBoundary(true);
+        }
+        if (question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
+          setShowUtilityHallBoundary(true);
+        }
+        if (question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION) {
+          setShowExteriorBackDoorBoundary(true);
+        }
+        if (question.number === EXTERIOR_AND_SITE_LAST_QUESTION) {
+          setShowBlueprintDesignDeskBoundary(true);
+        }
+        if (question.number === DESIGN_DESK_LAST_QUESTION) {
+          setShowReviewBriefBoundary(true);
+        }
+        return true;
+      }
       commitState(answered.state);
       if (!clientDraft?.draftId || !clientDraft.revision) {
         setError({
@@ -2456,7 +2536,7 @@ export function PlanYourHomeShell({
       return;
     }
 
-    if (refinementFixture) {
+    if (refinementFixture || reviewMode) {
       setFormError(null);
       commitState(completed.state);
       return;
@@ -2615,17 +2695,19 @@ export function PlanYourHomeShell({
       return;
     }
 
-    if (refinementFixture) {
+    if (refinementFixture || reviewMode) {
       submissionInFlight.current = true;
       setSaving(true);
       setFormError(null);
       await Promise.resolve();
       setSaving(false);
       setSubmitted(true);
-      trackPlanHomeEvent("plan_home_submitted", {
-        zone_id: "design-desk-and-review",
-        prompt_index: 35,
-      });
+      if (!reviewMode) {
+        trackPlanHomeEvent("plan_home_submitted", {
+          zone_id: "design-desk-and-review",
+          prompt_index: 35,
+        });
+      }
       return;
     }
 
@@ -2679,6 +2761,17 @@ export function PlanYourHomeShell({
     const moved = backFromQuestion();
     if (moved) setShowBlueprintDesignDeskBoundary(true);
     return moved;
+  }
+
+  function resetReview() {
+    if (!reviewMode) return;
+    createPlanHomeLocalSnapshotAdapter({
+      storage: window.localStorage,
+      key: PLAN_HOME_REVIEW_SNAPSHOT_KEY,
+    }).clear();
+    window.history.scrollRestoration = "manual";
+    window.scrollTo({ top: 0, behavior: "auto" });
+    window.location.reload();
   }
 
   const activeQuestion =
@@ -2749,6 +2842,7 @@ export function PlanYourHomeShell({
       <WelcomeStep
         name={welcomeName}
         error={formError}
+        showResumeLink={!reviewMode}
         onNameChange={(name) => {
           setWelcomeName(name);
           setFormError(null);
@@ -2945,6 +3039,7 @@ export function PlanYourHomeShell({
     <div
       ref={experienceRef}
       className={styles.experience}
+      data-plan-home-review-mode={reviewMode || undefined}
       data-plan-home-refinement-state={
         refinementFixture
           ? submitted
@@ -2970,9 +3065,15 @@ export function PlanYourHomeShell({
           <strong>Plan Your Home</strong>
           {shellProgress ? <span>{shellProgress}</span> : null}
         </div>
-        <Link className={styles.saveExit} href="/" onClick={saveBeforeExit}>
-          Save and exit
-        </Link>
+        {reviewMode ? (
+          <button className={styles.saveExit} type="button" onClick={resetReview}>
+            Reset review
+          </button>
+        ) : (
+          <Link className={styles.saveExit} href="/" onClick={saveBeforeExit}>
+            Save and exit
+          </Link>
+        )}
       </header>
       {content}
     </div>
