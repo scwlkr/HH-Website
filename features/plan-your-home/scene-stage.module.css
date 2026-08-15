@@ -261,10 +261,9 @@
 
 @media (max-width: 40rem) {
   .stage {
-    height: calc(100svh - 53px);
-    height: calc(100dvh - 53px);
-    min-height: calc(100svh - 53px);
-    min-height: calc(100dvh - 53px);
+    height: auto;
+    min-height: 0;
+    flex: 1;
   }
 
   .stageRail {
@@ -289,7 +288,13 @@
   .promptSheet {
     max-height: 37.5svh;
     max-height: min(37.5svh, 37.5dvh);
-    padding: 0.6rem 0.7rem;
+    padding: 0.4rem 0.7rem;
+    background: color-mix(in srgb, var(--hh-surface) 97%, var(--hh-paper));
+  }
+
+  .promptHeader {
+    position: relative;
+    z-index: 2;
     background: color-mix(in srgb, var(--hh-surface) 97%, var(--hh-paper));
   }
 
@@ -300,13 +305,13 @@
   }
 
   .promptHelper {
-    margin-top: 0.35rem;
+    margin-top: 0.2rem;
     font-size: 0.78rem;
     line-height: 1.4;
   }
 
   .promptBody {
-    margin-top: 0.2rem;
+    margin-top: 0.1rem;
     padding-right: 0;
     scrollbar-gutter: auto;
   }
@@ -317,6 +322,14 @@
     margin-top: 0.25rem;
     margin-inline: -0.25rem;
     padding: 0;
+  }
+
+  .promptSheet:has([data-staged-prompt]) .stageActions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .promptSheet:has([data-staged-prompt]) .actionButton:last-child {
+    grid-column: 3;
   }
 
   .actionButton {
@@ -357,13 +370,9 @@
   }
 
   .promptHelper {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
+    margin-top: 0.15rem;
+    font-size: 0.68rem;
+    line-height: 1.2;
   }
 
   .promptBody,

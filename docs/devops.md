@@ -168,7 +168,8 @@ The default matrix includes Q35, review, and confirmation at phone and desktop
 sizes. It also proves Q2, Q6, Q13, Q31, and Q34 on both the walkthrough and
 owner-review routes at 390x844 and the short 375x667 phone viewport. Those
 question captures fail on document scroll, prompt-body scroll, hidden active
-controls, or an action dock outside the visible viewport. Separate 200% text
+controls, or an action dock outside the visible viewport, including every
+active staged group. Separate 200% text, 200%-equivalent 320 CSS pixel reflow,
 and keyboard-height captures prove the document remains locked while the
 contained prompt scroll stays usable as an accessibility escape hatch. Each
 review capture also proves keyboard edit/cancel return, inquiry consent, one

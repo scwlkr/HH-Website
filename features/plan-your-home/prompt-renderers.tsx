@@ -275,7 +275,6 @@ export function ChoicePrompt({
         className={styles.optionGrid}
         data-columns={columns}
         data-balanced-phone-grid={balancedPhoneGrid}
-        data-option-count={options.length}
       >
         {options.map((option) => (
           <label className={styles.option} key={option.slug}>
@@ -356,7 +355,6 @@ export function MultiChoicePrompt({
       <div
         className={styles.optionGrid}
         data-columns={columns}
-        data-option-count={options.length}
       >
         {options.map((option) => (
           <label className={styles.option} key={option.slug}>
@@ -694,31 +692,46 @@ export function StagedPrompt({ id, steps }: StagedPromptProps) {
   return (
     <div className={styles.stagedPrompt} ref={promptRef} data-staged-prompt={id}>
       {activeIndex > 0 ? (
-        <div
-          className={styles.stagedSummaryList}
-          aria-label="Completed question parts"
-        >
-          {steps.slice(0, activeIndex).map((step) => (
-            <div
-              className={styles.stagedSummary}
-              role="group"
-              aria-label={`Completed ${step.label}`}
-              key={step.id}
-            >
-              <span>
-                <strong>{step.label}</strong>
-                <span>{step.summary}</span>
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                aria-label={`Edit ${step.label}`}
-                onClick={() => editStep(step.id)}
+        <div className={styles.stagedHistory}>
+          <div
+            className={styles.stagedSummaryList}
+            aria-label="Completed question parts"
+          >
+            {steps.slice(0, activeIndex).map((step) => (
+              <div
+                className={styles.stagedSummary}
+                role="group"
+                aria-label={`Completed ${step.label}`}
+                key={step.id}
               >
-                Edit
-              </Button>
-            </div>
-          ))}
+                <span>
+                  <strong>{step.label}</strong>
+                  <span>{step.summary}</span>
+                </span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  aria-label={`Edit ${step.label}`}
+                  onClick={() => editStep(step.id)}
+                >
+                  Edit
+                </Button>
+              </div>
+            ))}
+          </div>
+          <select
+            className={styles.stagedEditSelect}
+            aria-label="Edit a completed question part"
+            value=""
+            onChange={(event) => editStep(event.currentTarget.value)}
+          >
+            <option value="">Edit prior part</option>
+            {steps.slice(0, activeIndex).map((step) => (
+              <option value={step.id} key={step.id}>
+                {step.label}: {step.summary}
+              </option>
+            ))}
+          </select>
         </div>
       ) : null}
 
@@ -731,7 +744,10 @@ export function StagedPrompt({ id, steps }: StagedPromptProps) {
         </p>
         {activeStep.content}
         {activeIndex < steps.length - 1 || editingStepId ? (
-          <div className={styles.stagedControls}>
+          <div
+            className={styles.stagedControls}
+            data-plan-home-staged-controls
+          >
             <Button
               type="button"
               variant="secondary"

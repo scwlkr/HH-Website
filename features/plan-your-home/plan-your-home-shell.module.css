@@ -985,6 +985,20 @@
 }
 
 @media (max-width: 40rem) {
+  .experience:has(> [data-question-id]),
+  .experience:has(> [data-tour-beat]) {
+    height: 100svh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sceneBeat {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+  }
+
   .experienceHeader {
     min-height: 53px;
     gap: 7px;
@@ -1030,7 +1044,7 @@
   }
 
   .moment {
-    min-height: calc(100svh - 3.25rem);
+    min-height: 0;
   }
 
   .momentSheet {

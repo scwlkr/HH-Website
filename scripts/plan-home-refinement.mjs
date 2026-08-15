@@ -147,8 +147,21 @@ async function waitForServer(baseUrl, server) {
   throw new Error(`The refinement server did not start at ${baseUrl}.`);
 }
 
-function stopServer(server) {
-  if (server?.exitCode === null) server.kill("SIGINT");
+async function stopServer(server) {
+  if (!server || server.exitCode !== null) return;
+  try {
+    if (process.platform !== "win32" && server.pid) {
+      process.kill(-server.pid, "SIGINT");
+    } else {
+      server.kill("SIGINT");
+    }
+  } catch {
+    server.kill("SIGINT");
+  }
+  await Promise.race([
+    once(server, "exit"),
+    new Promise((resolve) => setTimeout(resolve, 2_000)),
+  ]);
 }
 
 function watchPage(page, result) {
@@ -342,6 +355,9 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
     const actionsRect = document
       .querySelector("[data-plan-home-actions]")
       ?.getBoundingClientRect();
+    const stagedActionsRect = document
+      .querySelector("[data-plan-home-staged-controls]")
+      ?.getBoundingClientRect();
     const targetFor = (control) =>
       "labels" in control
         ? Array.from(control.labels ?? []).find((label) => label.contains(control)) ?? control
@@ -350,7 +366,10 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
       element.querySelectorAll(
         'input:not([type="hidden"]), button, select, textarea, a[href]',
       ),
-    ).map(targetFor);
+    )
+      .filter((control) => control.getClientRects().length > 0)
+      .filter((control) => !control.closest("[data-plan-home-staged-controls]"))
+      .map(targetFor);
     const hiddenControls = controls
       .filter((control) => {
         const bounds = control.getBoundingClientRect();
@@ -373,6 +392,8 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
       scrollY: window.scrollY,
       actionTop: actionsRect?.top ?? null,
       actionBottom: actionsRect?.bottom ?? null,
+      stagedActionTop: stagedActionsRect?.top ?? null,
+      stagedActionBottom: stagedActionsRect?.bottom ?? null,
       activeControlCount: controls.length,
       hiddenControls,
     };
@@ -400,21 +421,54 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
         metrics.actionBottom <= metrics.viewportHeight + 1,
       `${state} keeps Back and Next inside the visible viewport`,
     );
-    return { needed: false, reachable: true };
+    assert(
+      metrics.stagedActionTop === null ||
+        (metrics.stagedActionBottom !== null &&
+          metrics.stagedActionTop >= 0 &&
+          metrics.stagedActionBottom <= metrics.viewportHeight + 1),
+      `${state} keeps the staged action inside the visible viewport`,
+    );
+    return {
+      needed: false,
+      reachable: true,
+      clientHeight: metrics.clientHeight,
+      scrollHeight: metrics.scrollHeight,
+    };
   }
   if (metrics.scrollHeight <= metrics.clientHeight + 1) {
-    return { needed: false, reachable: true };
+    return {
+      needed: false,
+      reachable: true,
+      clientHeight: metrics.clientHeight,
+      scrollHeight: metrics.scrollHeight,
+    };
   }
-  const lastControl = region.locator('input:not([type="hidden"]), button, select, textarea, a[href]').last();
   await region.evaluate((element) => {
-    element.scrollTo({ top: element.scrollHeight, behavior: "instant" });
+    element.style.scrollBehavior = "auto";
+    element.scrollTop = element.scrollHeight;
   });
-  const geometry = await lastControl.evaluate((element) => {
-    const target = "labels" in element
-      ? Array.from(element.labels ?? []).find((label) => label.contains(element)) ?? element
-      : element;
+  await page.waitForFunction(() => {
+    const element = document.querySelector("[data-plan-home-prompt-scroll]");
+    return Boolean(
+      element &&
+        element.scrollTop >= element.scrollHeight - element.clientHeight - 1,
+    );
+  });
+  const geometry = await region.evaluate((element) => {
+    const controls = Array.from(
+      element.querySelectorAll(
+        'input:not([type="hidden"]), button, select, textarea, a[href]',
+      ),
+    )
+      .filter((control) => control.getClientRects().length > 0)
+      .filter((control) => !control.closest("[data-plan-home-staged-controls]"));
+    const control = controls.at(-1);
+    if (!control) return null;
+    const target = "labels" in control
+      ? Array.from(control.labels ?? []).find((label) => label.contains(control)) ?? control
+      : control;
     const targetRect = target.getBoundingClientRect();
-    const regionRect = element.closest("[data-plan-home-prompt-scroll]")?.getBoundingClientRect();
+    const regionRect = element.getBoundingClientRect();
     const actionsRect = document.querySelector("[data-plan-home-actions]")?.getBoundingClientRect();
     return {
       targetTop: targetRect.top,
@@ -427,12 +481,72 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
       ),
     };
   });
+  assert(geometry, `${state} exposes an active control after prompt scrolling`);
   assert(
     geometry.targetTop >= geometry.visibleTop - 1 &&
       geometry.targetBottom <= geometry.visibleBottom + 1,
     `last Prompt control scrolls fully above the action dock (${geometry.targetTop}-${geometry.targetBottom}px target in ${geometry.visibleTop}-${geometry.visibleBottom}px visible region)`,
   );
-  return { needed: true, reachable: true };
+  return {
+    needed: true,
+    reachable: true,
+    clientHeight: metrics.clientHeight,
+    scrollHeight: metrics.scrollHeight,
+  };
+}
+
+async function completeActiveStagedGroup(page) {
+  const action = page.locator("[data-plan-home-staged-controls] button");
+  if ((await action.count()) === 0) return false;
+
+  if (!(await action.isEnabled())) {
+    const panel = page.locator("[data-plan-home-stage-panel]");
+    const textControl = panel.locator('textarea:not([disabled]), input[type="text"]:not([disabled])').first();
+    const choiceControl = panel.locator('input[type="radio"]:not([disabled]), input[type="checkbox"]:not([disabled])').first();
+    if ((await textControl.count()) > 0) {
+      await textControl.fill("Refinement check");
+    } else if ((await choiceControl.count()) > 0) {
+      await choiceControl.evaluate((control) => control.click());
+    }
+  }
+
+  assert.equal(await action.isEnabled(), true, "active staged group can be completed");
+  const activeId = await page.locator("[data-plan-home-stage-panel]").getAttribute("data-plan-home-stage-panel");
+  await action.click();
+  await page.waitForFunction(
+    (previousId) =>
+      document
+        .querySelector("[data-plan-home-stage-panel]")
+        ?.getAttribute("data-plan-home-stage-panel") !== previousId,
+    activeId,
+  );
+  return true;
+}
+
+async function assertEveryStagedGroup(page, state, screenshotStem) {
+  const groups = [];
+  const seen = new Set();
+
+  while (true) {
+    const panel = page.locator("[data-plan-home-stage-panel]");
+    if ((await panel.count()) === 0) break;
+    const groupId = await panel.getAttribute("data-plan-home-stage-panel");
+    assert(groupId && !seen.has(groupId), `${state} advances through each staged group once`);
+    seen.add(groupId);
+
+    await page.screenshot({
+      path: path.join(outputDirectory, `${screenshotStem}-${groupId}.png`),
+    });
+    const promptScroll = await assertPromptScrollReachability(page, state, true);
+    const groupQuality = await quality(page);
+    assertQuality(groupQuality, `${state} ${groupId} staged group`);
+    groups.push({ id: groupId, ...promptScroll });
+
+    if (!(await completeActiveStagedGroup(page))) break;
+  }
+
+  assert(groups.length > 0, `${state} exposes at least one staged group`);
+  return groups;
 }
 
 async function capture(browser, baseUrl, state, viewportName, routeTarget) {
@@ -525,6 +639,21 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
     });
     if (viewportName !== "desktop") {
       assert(result.layout.header?.height <= 53, "phone header stays within its compact 53px rail");
+      if (state !== "review" && state !== "confirmation") {
+        const documentPosition = await page.evaluate(() => ({
+          height: Math.max(
+            document.documentElement.scrollHeight,
+            document.body.scrollHeight,
+          ),
+          viewportHeight: window.innerHeight,
+          scrollY: window.scrollY,
+        }));
+        assert(
+          documentPosition.height <= documentPosition.viewportHeight + 1,
+          `${state} locks document scroll (${documentPosition.height}px document in ${documentPosition.viewportHeight}px viewport)`,
+        );
+        assert.equal(documentPosition.scrollY, 0, `${state} keeps the document at the top`);
+      }
       if (state.startsWith("q")) {
         assert(result.layout.stageRail?.height <= 46, "phone zone and progress stay within a compact 46px rail");
         assert(
@@ -551,11 +680,15 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
     }
     result.quality = await quality(page);
     assertQuality(result.quality, "focused walkthrough");
-    result.promptScroll = await assertPromptScrollReachability(
-      page,
-      state,
-      viewportName !== "desktop" && noScrollQuestionStates.has(state),
-    );
+    const requireNoScroll =
+      viewportName !== "desktop" && noScrollQuestionStates.has(state);
+    result.promptScroll = requireNoScroll
+      ? await assertEveryStagedGroup(
+          page,
+          state,
+          `${state}-${viewportName}${routeSuffix}`,
+        )
+      : await assertPromptScrollReachability(page, state, false);
     if (state === "review" && routeTarget === "walkthrough") {
       result.submission = await assertReviewSubmission(page, viewportName);
     }
@@ -637,7 +770,8 @@ async function captureLargeTextFallback(browser, baseUrl) {
     assert.equal(response?.status(), 200);
     await page.locator('[data-plan-home-refinement-state="q31"]').waitFor();
     await page.addStyleTag({ content: ":root { font-size: 200%; }" });
-    await page.evaluate(() => new Promise(requestAnimationFrame));
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(250);
     result.layout = await assertFallbackViewport(page, "200% text");
     result.promptScroll = await assertPromptScrollReachability(page, "q31", false);
     result.quality = await quality(page);
@@ -646,6 +780,53 @@ async function captureLargeTextFallback(browser, baseUrl) {
       path: path.join(outputDirectory, result.screenshot),
     });
     assert.deepEqual(result.errors, [], "200% text browser errors");
+    result.passed = true;
+  } catch (error) {
+    result.errors.push(error instanceof Error ? error.message : String(error));
+  } finally {
+    result.durationMs = Date.now() - startedAt;
+    await page.close();
+  }
+  return result;
+}
+
+async function captureReflowFallback(browser, baseUrl) {
+  const result = {
+    state: "q34",
+    viewport: "200%-reflow",
+    route: "walkthrough-fallback",
+    passed: false,
+    errors: [],
+    layout: null,
+    promptScroll: null,
+    quality: null,
+    durationMs: 0,
+    screenshot: "q34-200-percent-reflow.png",
+  };
+  const startedAt = Date.now();
+  const page = await browser.newPage({
+    viewport: { width: 320, height: 640 },
+    reducedMotion: "reduce",
+  });
+  watchPage(page, result);
+  try {
+    const response = await page.goto(
+      `${baseUrl}${routeTargets.walkthrough}?__refine=q34`,
+      { waitUntil: "networkidle" },
+    );
+    assert.equal(response?.status(), 200);
+    await page.locator('[data-plan-home-refinement-state="q34"]').waitFor();
+    result.layout = await assertFallbackViewport(
+      page,
+      "200%-equivalent 320 CSS pixel reflow",
+    );
+    result.promptScroll = await assertPromptScrollReachability(page, "q34", false);
+    result.quality = await quality(page);
+    assertQuality(result.quality, "200% reflow fallback");
+    await page.screenshot({
+      path: path.join(outputDirectory, result.screenshot),
+    });
+    assert.deepEqual(result.errors, [], "200% reflow browser errors");
     result.passed = true;
   } catch (error) {
     result.errors.push(error instanceof Error ? error.message : String(error));
@@ -810,6 +991,7 @@ async function main() {
   await mkdir(outputDirectory, { recursive: true });
   const server = spawn("npm", ["run", "dev", "--", "--hostname", "127.0.0.1", "--port", String(port)], {
     cwd: process.cwd(),
+    detached: process.platform !== "win32",
     env: { ...process.env, PLAN_HOME_REFINEMENT_MODE: "1" },
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -823,6 +1005,7 @@ async function main() {
     }
     if (!input.focused) {
       results.push(await captureLargeTextFallback(browser, baseUrl));
+      results.push(await captureReflowFallback(browser, baseUrl));
       results.push(await captureKeyboardFallback(browser, baseUrl));
     }
     const motionCapture = input.focused
@@ -841,7 +1024,7 @@ async function main() {
     if (!passed) process.exitCode = 1;
   } finally {
     if (browser) await browser.close();
-    stopServer(server);
+    await stopServer(server);
   }
 }
 
