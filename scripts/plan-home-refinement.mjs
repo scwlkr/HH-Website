@@ -11,8 +11,13 @@ import { chromium } from "playwright";
 
 import {
   PLAN_HOME_REFINEMENT_STATES,
+  createPlanHomeRefinementFixture,
   normalizePlanHomeRefinementState,
 } from "../features/plan-your-home/refinement-fixture.ts";
+import {
+  PLAN_HOME_REVIEW_SNAPSHOT_KEY,
+  createPlanHomeLocalSnapshotAdapter,
+} from "../features/plan-your-home/local-snapshot.ts";
 
 const require = createRequire(import.meta.url);
 const axePath = require.resolve("axe-core/axe.min.js");
@@ -20,9 +25,14 @@ const outputDirectory = path.join(process.cwd(), "output", "plan-home-refinement
 const pilotOriginalDirectory = path.join(process.cwd(), "output", "plan-home-refinement", "pilot-original");
 const viewports = {
   phone: { width: 390, height: 844 },
+  "short-phone": { width: 375, height: 667 },
   desktop: { width: 1440, height: 1000 },
 };
-const defaultMatrix = [
+const routeTargets = {
+  walkthrough: "/plan-your-home",
+  "owner-review": "/plan-your-home/review",
+};
+const baseMatrix = [
   ["welcome", "phone"],
   ["contact", "phone"],
   ["q1", "phone"],
@@ -56,6 +66,24 @@ const defaultMatrix = [
   ["review", "desktop"],
   ["confirmation", "desktop"],
 ];
+const noScrollQuestionStates = new Set(["q2", "q6", "q13", "q31", "q34"]);
+const noScrollMatrix = [...noScrollQuestionStates].flatMap((state) =>
+  Object.keys(routeTargets).flatMap((routeTarget) =>
+    ["phone", "short-phone"].map((viewport) => [state, viewport, routeTarget]),
+  ),
+);
+const defaultMatrix = [
+  ...baseMatrix.map(([state, viewport]) => [state, viewport, "walkthrough"]),
+  ...noScrollMatrix,
+].filter(
+  ([state, viewport, routeTarget], index, matrix) =>
+    matrix.findIndex(
+      (candidate) =>
+        candidate[0] === state &&
+        candidate[1] === viewport &&
+        candidate[2] === routeTarget,
+    ) === index,
+);
 
 function parseInput() {
   const values = process.argv.slice(2).filter((value) => value !== "--");
@@ -65,7 +93,33 @@ function parseInput() {
   if (!state) {
     throw new Error(`Unknown state '${values[0]}'. Choose: ${PLAN_HOME_REFINEMENT_STATES.join(", ")}.`);
   }
-  return { focused: true, captures: [[state, "phone"], [state, "desktop"]] };
+  return {
+    focused: true,
+    captures: [
+      [state, "phone", "walkthrough"],
+      [state, "desktop", "walkthrough"],
+    ],
+  };
+}
+
+function createReviewSnapshot(state) {
+  const fixture = createPlanHomeRefinementFixture(state);
+  let serialized = null;
+  const adapter = createPlanHomeLocalSnapshotAdapter({
+    key: PLAN_HOME_REVIEW_SNAPSHOT_KEY,
+    storage: {
+      getItem: () => serialized,
+      setItem: (_key, value) => {
+        serialized = value;
+      },
+      removeItem: () => {
+        serialized = null;
+      },
+    },
+  });
+  assert.equal(adapter.save(fixture.state), true, `${state} owner-review fixture saves`);
+  assert(serialized, `${state} owner-review fixture serializes`);
+  return { fixture, serialized };
 }
 
 async function availablePort() {
@@ -280,22 +334,80 @@ function assertQuality(result, context) {
   assert.deepEqual(result.obscuredTargets, [], `${context} obscured targets`);
 }
 
-async function assertPromptScrollReachability(page, state) {
+async function assertPromptScrollReachability(page, state, requireNoScroll) {
   if (!state.startsWith("q")) return null;
   const region = page.locator("[data-plan-home-prompt-scroll]");
-  const metrics = await region.evaluate((element) => ({
-    clientHeight: element.clientHeight,
-    scrollHeight: element.scrollHeight,
-  }));
+  const metrics = await region.evaluate((element) => {
+    const regionRect = element.getBoundingClientRect();
+    const actionsRect = document
+      .querySelector("[data-plan-home-actions]")
+      ?.getBoundingClientRect();
+    const targetFor = (control) =>
+      "labels" in control
+        ? Array.from(control.labels ?? []).find((label) => label.contains(control)) ?? control
+        : control;
+    const controls = Array.from(
+      element.querySelectorAll(
+        'input:not([type="hidden"]), button, select, textarea, a[href]',
+      ),
+    ).map(targetFor);
+    const hiddenControls = controls
+      .filter((control) => {
+        const bounds = control.getBoundingClientRect();
+        return (
+          bounds.top < regionRect.top - 1 ||
+          bounds.bottom > regionRect.bottom + 1 ||
+          bounds.left < regionRect.left - 1 ||
+          bounds.right > regionRect.right + 1
+        );
+      })
+      .map((control) => control.outerHTML.slice(0, 160));
+    return {
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      documentHeight: Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+      ),
+      viewportHeight: window.innerHeight,
+      scrollY: window.scrollY,
+      actionTop: actionsRect?.top ?? null,
+      actionBottom: actionsRect?.bottom ?? null,
+      activeControlCount: controls.length,
+      hiddenControls,
+    };
+  });
+  if (requireNoScroll) {
+    assert(
+      metrics.documentHeight <= metrics.viewportHeight + 1,
+      `${state} locks document scroll (${metrics.documentHeight}px document in ${metrics.viewportHeight}px viewport)`,
+    );
+    assert.equal(metrics.scrollY, 0, `${state} stays at the top of the locked document`);
+    assert(
+      metrics.scrollHeight <= metrics.clientHeight + 1,
+      `${state} keeps every active prompt control visible without prompt scrolling (${metrics.scrollHeight}px content in ${metrics.clientHeight}px viewport)`,
+    );
+    assert(metrics.activeControlCount > 0, `${state} exposes active prompt controls`);
+    assert.deepEqual(
+      metrics.hiddenControls,
+      [],
+      `${state} keeps the complete active option set visible`,
+    );
+    assert(
+      metrics.actionTop !== null &&
+        metrics.actionBottom !== null &&
+        metrics.actionTop >= 0 &&
+        metrics.actionBottom <= metrics.viewportHeight + 1,
+      `${state} keeps Back and Next inside the visible viewport`,
+    );
+    return { needed: false, reachable: true };
+  }
   if (metrics.scrollHeight <= metrics.clientHeight + 1) {
     return { needed: false, reachable: true };
   }
   const lastControl = region.locator('input:not([type="hidden"]), button, select, textarea, a[href]').last();
-  await lastControl.evaluate((element) => {
-    const target = "labels" in element
-      ? Array.from(element.labels ?? []).find((label) => label.contains(element)) ?? element
-      : element;
-    target.scrollIntoView({ block: "nearest" });
+  await region.evaluate((element) => {
+    element.scrollTo({ top: element.scrollHeight, behavior: "instant" });
   });
   const geometry = await lastControl.evaluate((element) => {
     const target = "labels" in element
@@ -318,23 +430,42 @@ async function assertPromptScrollReachability(page, state) {
   assert(
     geometry.targetTop >= geometry.visibleTop - 1 &&
       geometry.targetBottom <= geometry.visibleBottom + 1,
-    "last Prompt control scrolls fully above the action dock",
+    `last Prompt control scrolls fully above the action dock (${geometry.targetTop}-${geometry.targetBottom}px target in ${geometry.visibleTop}-${geometry.visibleBottom}px visible region)`,
   );
   return { needed: true, reachable: true };
 }
 
-async function capture(browser, baseUrl, state, viewportName) {
+async function capture(browser, baseUrl, state, viewportName, routeTarget) {
   const startedAt = Date.now();
-  const result = { state, viewport: viewportName, passed: false, status: 0, errors: [], shell: null, layout: null, quality: null, promptScroll: null, submission: null, durationMs: 0, screenshot: `${state}-${viewportName}.png` };
+  const routeSuffix = routeTarget === "walkthrough" ? "" : `-${routeTarget}`;
+  const result = { state, viewport: viewportName, route: routeTarget, passed: false, status: 0, errors: [], shell: null, layout: null, quality: null, promptScroll: null, submission: null, durationMs: 0, screenshot: `${state}-${viewportName}${routeSuffix}.png` };
   const page = await browser.newPage({ viewport: viewports[viewportName], reducedMotion: "reduce" });
   watchPage(page, result);
   try {
-    const response = await page.goto(`${baseUrl}/plan-your-home?__refine=${state}`, { waitUntil: "networkidle" });
+    let targetUrl = `${baseUrl}${routeTargets.walkthrough}?__refine=${state}`;
+    let reviewFixture = null;
+    if (routeTarget === "owner-review") {
+      const review = createReviewSnapshot(state);
+      reviewFixture = review.fixture;
+      await page.addInitScript(
+        ({ key, serialized }) => window.localStorage.setItem(key, serialized),
+        { key: PLAN_HOME_REVIEW_SNAPSHOT_KEY, serialized: review.serialized },
+      );
+      targetUrl = `${baseUrl}${routeTargets[routeTarget]}`;
+    }
+    const response = await page.goto(targetUrl, { waitUntil: "networkidle" });
     result.status = response?.status() ?? 0;
     assert.equal(result.status, 200, `HTTP ${result.status}`);
-    await page.locator(`[data-plan-home-refinement-state="${state}"]`).waitFor();
+    if (routeTarget === "walkthrough") {
+      await page.locator(`[data-plan-home-refinement-state="${state}"]`).waitFor();
+    } else {
+      assert.equal(reviewFixture?.state.location.kind, "question");
+      await page
+        .locator(`[data-question-id="${reviewFixture.state.location.questionId}"]`)
+        .waitFor();
+    }
     await page.locator("[data-plan-home-scene-loading]").waitFor({ state: "detached" }).catch(() => {});
-    await assertNavigation(page, state);
+    if (routeTarget === "walkthrough") await assertNavigation(page, state);
     await page.evaluate(() => {
       window.scrollTo({ top: 0, behavior: "instant" });
       document.querySelector("[data-plan-home-moment-sheet]")?.scrollTo({
@@ -349,12 +480,20 @@ async function capture(browser, baseUrl, state, viewportName) {
       hasSaveAndExit: Array.from(document.querySelectorAll("a")).some(
         (link) => link.textContent?.trim() === "Save and exit",
       ),
+      hasResetReview: Array.from(document.querySelectorAll("button")).some(
+        (button) => button.textContent?.trim() === "Reset review",
+      ),
     }));
-    assert.deepEqual(result.shell, {
-      hasMarketingNavigation: false,
-      hasMarketingFooter: false,
-      hasSaveAndExit: true,
-    }, "focused walkthrough shell");
+    assert.deepEqual(
+      result.shell,
+      {
+        hasMarketingNavigation: false,
+        hasMarketingFooter: false,
+        hasSaveAndExit: routeTarget === "walkthrough",
+        hasResetReview: routeTarget === "owner-review",
+      },
+      "focused walkthrough shell",
+    );
     result.layout = await page.evaluate(() => {
       const dimensions = (selector) => {
         const element = document.querySelector(selector);
@@ -384,19 +523,19 @@ async function capture(browser, baseUrl, state, viewportName) {
           : null,
       };
     });
-    if (viewportName === "phone") {
+    if (viewportName !== "desktop") {
       assert(result.layout.header?.height <= 53, "phone header stays within its compact 53px rail");
       if (state.startsWith("q")) {
         assert(result.layout.stageRail?.height <= 46, "phone zone and progress stay within a compact 46px rail");
         assert(
-          result.layout.promptSheet?.height <= viewports.phone.height * 0.38,
+          result.layout.promptSheet?.height <= viewports[viewportName].height * 0.38,
           "phone question sheet uses no more than roughly three-eighths of the initial viewport",
         );
         assert.match(result.layout.progress?.label ?? "", /^Question \d+ of 35$/, "progress keeps its accessible count");
         assert.equal(/Question \d+ of \d+/i.test(result.layout.visibleChrome), false, "question count is not repeated visually");
       } else if (state === "welcome") {
         assert(
-          result.layout.momentSheet?.height <= viewports.phone.height * 0.38,
+          result.layout.momentSheet?.height <= viewports[viewportName].height * 0.38,
           "welcome sheet uses no more than roughly three-eighths of the initial viewport",
         );
       }
@@ -412,8 +551,12 @@ async function capture(browser, baseUrl, state, viewportName) {
     }
     result.quality = await quality(page);
     assertQuality(result.quality, "focused walkthrough");
-    result.promptScroll = await assertPromptScrollReachability(page, state);
-    if (state === "review") {
+    result.promptScroll = await assertPromptScrollReachability(
+      page,
+      state,
+      viewportName !== "desktop" && noScrollQuestionStates.has(state),
+    );
+    if (state === "review" && routeTarget === "walkthrough") {
       result.submission = await assertReviewSubmission(page, viewportName);
     }
     assert.deepEqual(result.errors, [], "browser, console, or request errors");
@@ -427,8 +570,153 @@ async function capture(browser, baseUrl, state, viewportName) {
   return result;
 }
 
+async function assertFallbackViewport(page, context) {
+  const geometry = await page.evaluate(() => {
+    const actions = document
+      .querySelector("[data-plan-home-actions]")
+      ?.getBoundingClientRect();
+    const sheet = document
+      .querySelector("[data-plan-home-prompt-sheet]")
+      ?.getBoundingClientRect();
+    return {
+      documentHeight: Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+      ),
+      viewportHeight: window.innerHeight,
+      scrollY: window.scrollY,
+      actionTop: actions?.top ?? null,
+      actionBottom: actions?.bottom ?? null,
+      sheetHeight: sheet?.height ?? null,
+    };
+  });
+  assert(
+    geometry.documentHeight <= geometry.viewportHeight + 1,
+    `${context} keeps the document locked (${geometry.documentHeight}px document in ${geometry.viewportHeight}px viewport)`,
+  );
+  assert.equal(geometry.scrollY, 0, `${context} does not move the document`);
+  assert(
+    geometry.actionTop !== null &&
+      geometry.actionBottom !== null &&
+      geometry.actionTop >= 0 &&
+      geometry.actionBottom <= geometry.viewportHeight + 1,
+    `${context} keeps Back and Next visible`,
+  );
+  assert(
+    geometry.sheetHeight !== null &&
+      geometry.sheetHeight <= geometry.viewportHeight * 0.375 + 1,
+    `${context} keeps the prompt sheet within the 37.5svh cap`,
+  );
+  return geometry;
+}
+
+async function captureLargeTextFallback(browser, baseUrl) {
+  const result = {
+    state: "q31",
+    viewport: "200%-text",
+    route: "walkthrough-fallback",
+    passed: false,
+    errors: [],
+    layout: null,
+    promptScroll: null,
+    quality: null,
+    durationMs: 0,
+    screenshot: "q31-200-percent-text.png",
+  };
+  const startedAt = Date.now();
+  const page = await browser.newPage({
+    viewport: viewports["short-phone"],
+    reducedMotion: "reduce",
+  });
+  watchPage(page, result);
+  try {
+    const response = await page.goto(
+      `${baseUrl}${routeTargets.walkthrough}?__refine=q31`,
+      { waitUntil: "networkidle" },
+    );
+    assert.equal(response?.status(), 200);
+    await page.locator('[data-plan-home-refinement-state="q31"]').waitFor();
+    await page.addStyleTag({ content: ":root { font-size: 200%; }" });
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    result.layout = await assertFallbackViewport(page, "200% text");
+    result.promptScroll = await assertPromptScrollReachability(page, "q31", false);
+    result.quality = await quality(page);
+    assertQuality(result.quality, "200% text fallback");
+    await page.screenshot({
+      path: path.join(outputDirectory, result.screenshot),
+    });
+    assert.deepEqual(result.errors, [], "200% text browser errors");
+    result.passed = true;
+  } catch (error) {
+    result.errors.push(error instanceof Error ? error.message : String(error));
+  } finally {
+    result.durationMs = Date.now() - startedAt;
+    await page.close();
+  }
+  return result;
+}
+
+async function captureKeyboardFallback(browser, baseUrl) {
+  const result = {
+    state: "q2",
+    viewport: "keyboard-open",
+    route: "walkthrough-fallback",
+    passed: false,
+    errors: [],
+    layout: null,
+    promptScroll: null,
+    quality: null,
+    durationMs: 0,
+    screenshot: "q2-keyboard-open.png",
+  };
+  const startedAt = Date.now();
+  const page = await browser.newPage({
+    viewport: viewports["short-phone"],
+    reducedMotion: "reduce",
+  });
+  watchPage(page, result);
+  try {
+    const response = await page.goto(
+      `${baseUrl}${routeTargets.walkthrough}?__refine=q2`,
+      { waitUntil: "networkidle" },
+    );
+    assert.equal(response?.status(), 200);
+    await page.locator('[data-plan-home-refinement-state="q2"]').waitFor();
+    await page
+      .getByRole("radio", { name: "Own it" })
+      .evaluate((control) => control.click());
+    await page.getByRole("button", { name: "Continue" }).click();
+    const locationInput = page.getByLabel("City, county, address, or target area");
+    await locationInput.focus();
+    await page.setViewportSize({ width: 375, height: 430 });
+    await page.waitForTimeout(150);
+    await page.evaluate(async () => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      await new Promise(requestAnimationFrame);
+    });
+    result.layout = await assertFallbackViewport(page, "keyboard-height viewport");
+    await locationInput.evaluate((element) =>
+      element.scrollIntoView({ block: "nearest" }),
+    );
+    result.promptScroll = await assertPromptScrollReachability(page, "q2", false);
+    result.quality = await quality(page);
+    assertQuality(result.quality, "keyboard-height fallback");
+    await page.screenshot({
+      path: path.join(outputDirectory, result.screenshot),
+    });
+    assert.deepEqual(result.errors, [], "keyboard-height browser errors");
+    result.passed = true;
+  } catch (error) {
+    result.errors.push(error instanceof Error ? error.message : String(error));
+  } finally {
+    result.durationMs = Date.now() - startedAt;
+    await page.close();
+  }
+  return result;
+}
+
 async function writeBoard(browser, results) {
-  const cards = results.map((result) => `<article><header><strong>${result.state}</strong><span>${result.viewport} · ${result.passed ? "PASS" : "FAIL"}</span></header>${result.passed ? `<img src="${result.screenshot}" alt="${result.state} ${result.viewport} capture">` : `<pre>${result.errors.join("\n")}</pre>`}</article>`).join("");
+  const cards = results.map((result) => `<article><header><strong>${result.state}</strong><span>${result.route} · ${result.viewport} · ${result.passed ? "PASS" : "FAIL"}</span></header>${result.passed ? `<img src="${result.screenshot}" alt="${result.state} ${result.route} ${result.viewport} capture">` : `<pre>${result.errors.join("\n")}</pre>`}</article>`).join("");
   const html = `<!doctype html><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;padding:24px;background:#e9e6dc;color:#151815;font-family:system-ui}h1{font-size:24px;margin:0 0 18px}.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-items:start}article{background:white;border:1px solid #777}header{display:flex;justify-content:space-between;padding:10px;font-size:12px;text-transform:uppercase}img{display:block;width:100%;max-height:844px;object-fit:cover;object-position:top;border-top:1px solid #aaa}</style><h1>Plan Your Home refinement board</h1><section class="board">${cards}</section>`;
   const htmlPath = path.join(outputDirectory, "review-board.html");
   await writeFile(htmlPath, html);
@@ -530,7 +818,13 @@ async function main() {
     await waitForServer(baseUrl, server);
     browser = await chromium.launch();
     const results = [];
-    for (const [state, viewport] of input.captures) results.push(await capture(browser, baseUrl, state, viewport));
+    for (const [state, viewport, routeTarget] of input.captures) {
+      results.push(await capture(browser, baseUrl, state, viewport, routeTarget));
+    }
+    if (!input.focused) {
+      results.push(await captureLargeTextFallback(browser, baseUrl));
+      results.push(await captureKeyboardFallback(browser, baseUrl));
+    }
     const motionCapture = input.focused
       ? null
       : await capturePilotMotion(browser, baseUrl);
@@ -543,7 +837,7 @@ async function main() {
     await writeFile(path.join(outputDirectory, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
     await writeBoard(browser, results);
     process.stdout.write(`${passed ? "PASS" : "FAIL"} ${results.filter((result) => result.passed).length}/${results.length} · ${(durationMs / 1000).toFixed(1)}s · output/plan-home-refinement/latest/review-board.png\n`);
-    for (const result of results.filter((item) => !item.passed)) process.stderr.write(`${result.state} ${result.viewport}: ${result.errors.join("; ")}\n`);
+    for (const result of results.filter((item) => !item.passed)) process.stderr.write(`${result.state} ${result.route} ${result.viewport}: ${result.errors.join("; ")}\n`);
     if (!passed) process.exitCode = 1;
   } finally {
     if (browser) await browser.close();

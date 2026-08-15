@@ -165,10 +165,16 @@ interactive control obscured in the viewport, a question action dock outside the
 initial viewport, or broken keyboard-driven Back/Next behavior.
 
 The default matrix includes Q35, review, and confirmation at phone and desktop
-sizes. Each review capture also proves keyboard edit/cancel return, inquiry
-consent, one submission transition, and the resulting confirmation; its
-checked-consent artifact is retained as `submission-phone.png` or
-`submission-desktop.png` without calling Firebase.
+sizes. It also proves Q2, Q6, Q13, Q31, and Q34 on both the walkthrough and
+owner-review routes at 390x844 and the short 375x667 phone viewport. Those
+question captures fail on document scroll, prompt-body scroll, hidden active
+controls, or an action dock outside the visible viewport. Separate 200% text
+and keyboard-height captures prove the document remains locked while the
+contained prompt scroll stays usable as an accessibility escape hatch. Each
+review capture also proves keyboard edit/cancel return, inquiry consent, one
+submission transition, and the resulting confirmation; its checked-consent
+artifact is retained as `submission-phone.png` or `submission-desktop.png`
+without calling Firebase.
 
 The fixture requires the command's explicit development flag and a loopback
 host. It cannot be enabled in a production build, never uses Firebase or email,

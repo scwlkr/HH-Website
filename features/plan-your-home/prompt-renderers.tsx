@@ -275,6 +275,7 @@ export function ChoicePrompt({
         className={styles.optionGrid}
         data-columns={columns}
         data-balanced-phone-grid={balancedPhoneGrid}
+        data-option-count={options.length}
       >
         {options.map((option) => (
           <label className={styles.option} key={option.slug}>
@@ -352,7 +353,11 @@ export function MultiChoicePrompt({
         error={displayedError}
         ids={ids}
       />
-      <div className={styles.optionGrid} data-columns={columns}>
+      <div
+        className={styles.optionGrid}
+        data-columns={columns}
+        data-option-count={options.length}
+      >
         {options.map((option) => (
           <label className={styles.option} key={option.slug}>
             <input

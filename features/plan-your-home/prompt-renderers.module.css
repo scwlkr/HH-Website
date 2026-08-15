@@ -736,9 +736,69 @@
 }
 
 @media (max-width: 40rem) {
-  .optionGrid,
-  .optionGrid[data-columns="3"] {
+  .stagedPrompt,
+  .stagedSummaryList,
+  .stagedPanel {
+    gap: 0.2rem;
+  }
+
+  .stagedProgress {
+    font-size: 0.58rem;
+  }
+
+  .legend {
+    padding-bottom: 0.15rem;
+    font-size: 0.76rem;
+    line-height: 1.25;
+  }
+
+  .optionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+    margin-top: 0.3rem;
+  }
+
+  .optionGrid[data-columns="1"] {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .optionGrid:has(> :nth-child(5)),
+  .optionGrid[data-columns="3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .optionGrid:has(> :nth-child(7)) {
+    grid-template-columns: repeat(auto-fit, minmax(min(5rem, 100%), 1fr));
+  }
+
+  .optionGrid:has(> :nth-child(5):last-child) > .option:nth-child(4) {
+    grid-column: span 2;
+  }
+
+  .option {
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0.35rem 0.4rem;
+    font-size: 0.75rem;
+    line-height: 1.15;
+  }
+
+  .option > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .stagedControls button,
+  .stagedSummary button {
+    min-height: 44px;
+  }
+
+  .instructions,
+  .characterCount {
+    margin-top: 0.25rem;
+    font-size: 0.7rem;
+    line-height: 1.35;
   }
 
   .optionGrid[data-balanced-phone-grid="true"] {
@@ -784,6 +844,19 @@
 
   .visualCard {
     grid-template-rows: 4rem minmax(2.75rem, auto);
+  }
+}
+
+@media (max-width: 40rem) and (max-height: 44rem) {
+  .stagedProgress,
+  .instructions {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 

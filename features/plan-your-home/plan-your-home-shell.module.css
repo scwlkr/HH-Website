@@ -1,6 +1,7 @@
 .experience {
   display: flex;
   min-height: 100svh;
+  min-height: 100dvh;
   flex-direction: column;
   background: color-mix(in srgb, var(--hh-paper) 94%, var(--hh-surface));
 }
@@ -985,18 +986,32 @@
 
 @media (max-width: 40rem) {
   .experienceHeader {
-    min-height: 3.25rem;
-    gap: 0.45rem;
-    padding: 0.25rem 0.5rem;
+    min-height: 53px;
+    gap: 7px;
+    padding: 4px 8px;
+  }
+
+  .experienceBrand {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .brandMark {
+    width: 27px;
+    height: 27px;
   }
 
   .experienceTitle strong { font-size: 0.57rem; }
   .experienceTitle span { font-size: 0.53rem; }
 
   .saveExit {
-    min-width: 6.4rem;
-    padding-inline: 0.55rem;
+    min-width: 104px;
+    min-height: 44px;
+    padding-inline: 8px;
     font-size: 0.57rem;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
   }
 
   .restoreRail {
