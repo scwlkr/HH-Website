@@ -611,6 +611,95 @@ async function verifyProjectPublicationBoundary(baseUrl) {
   );
 }
 
+async function verifyAgentDiscoveryDocuments(baseUrl) {
+  log("Checking public agent discovery documents...");
+
+  const resourcePaths = ["/llms.txt", "/sitemap.md", "/services.md"];
+  const resources = new Map();
+
+  for (const resourcePath of resourcePaths) {
+    const response = await fetch(`${baseUrl}${resourcePath}`);
+    const body = await response.text();
+
+    assert(
+      response.ok,
+      `Expected ${resourcePath} to return 200, received ${response.status}.`,
+    );
+    assert(
+      response.headers.get("content-type")?.startsWith(
+        resourcePath === "/llms.txt" ? "text/plain" : "text/markdown",
+      ),
+      `${resourcePath} must use its agent-readable content type.`,
+    );
+    assert(
+      response.headers.get("access-control-allow-origin") === "*",
+      `${resourcePath} must allow public cross-origin reads.`,
+    );
+    assert(
+      response.headers.get("cache-control") ===
+        "public, s-maxage=3600, stale-while-revalidate=86400",
+      `${resourcePath} must use the bounded shared-cache policy.`,
+    );
+    assert(body.trim().length > 200, `${resourcePath} must contain useful guidance.`);
+    assert(
+      resourcePaths.every((linkedPath) => body.includes(linkedPath)),
+      `${resourcePath} must cross-link the complete discovery bundle.`,
+    );
+    assert(
+      !body.includes("H & H"),
+      `${resourcePath} must preserve canonical Howeth and Harp naming.`,
+    );
+
+    resources.set(resourcePath, body);
+  }
+
+  const llms = resources.get("/llms.txt");
+  assert(
+    llms.includes("read-only") &&
+      llms.includes("must not submit") &&
+      llms.includes("Howeth and Harp"),
+    "llms.txt must establish identity and read-only referral limits.",
+  );
+
+  const services = resources.get("/services.md");
+  for (const expectedService of [
+    "Architectural Design",
+    "Building",
+    "Land Development",
+    "Builder Grade",
+    "Builder+",
+    "Custom",
+  ]) {
+    assert(
+      services.includes(expectedService),
+      `services.md must include ${expectedService}.`,
+    );
+  }
+
+  const markdownSitemap = resources.get("/sitemap.md");
+  for (const publicPath of [
+    "/",
+    "/pricing",
+    "/pricing/builder-grade",
+    "/pricing/builder-plus",
+    "/pricing/custom",
+    "/catalog",
+    "/catalog/single-family",
+    "/catalog/multifamily",
+    "/catalog/townhomes",
+    "/catalog/commercial",
+    "/projects",
+    "/faq",
+    "/start",
+    "/inquire",
+  ]) {
+    assert(
+      markdownSitemap.includes(publicPath),
+      `sitemap.md must include ${publicPath}.`,
+    );
+  }
+}
+
 async function verifyLinkCoverage(page, baseUrl) {
   log("Checking header, footer, legal, and direct-contact links...");
 
@@ -1625,6 +1714,7 @@ async function main() {
 
     await verifyRouteStatuses(nextServer.baseUrl);
     await verifyProjectPublicationBoundary(nextServer.baseUrl);
+    await verifyAgentDiscoveryDocuments(nextServer.baseUrl);
 
     browser = await chromium.launch();
     const page = await browser.newPage();
