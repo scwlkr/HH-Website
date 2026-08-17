@@ -6,10 +6,10 @@ import { insertInquirySubmission } from "@/lib/db/queries";
 import { checkInquiryRateLimit } from "@/lib/inquiry/rate-limit";
 import {
   createInquiryServerErrorState,
-  getInquiryFormValues,
+  getGeneralInquiryFormValues,
   mapInquiryFieldErrors,
-  toInquirySubmissionInput,
-  validateInquiryValues,
+  toGeneralInquirySubmissionInput,
+  validateGeneralInquiryValues,
 } from "@/lib/validation/inquiry";
 import {
   inquiryActionInitialState,
@@ -30,7 +30,7 @@ export async function submitInquiryAction(
 ): Promise<InquiryActionState> {
   void previousState;
 
-  const values = getInquiryFormValues(formData);
+  const values = getGeneralInquiryFormValues(formData);
 
   if (values.company.trim().length > 0) {
     redirect("/thank-you");
@@ -45,24 +45,24 @@ export async function submitInquiryAction(
     );
   }
 
-  const validationResult = validateInquiryValues(values);
+  const validationResult = validateGeneralInquiryValues(values);
 
   if (!validationResult.success) {
     return {
       status: "field-error",
-      message: "Please review the highlighted fields before sending the brief.",
+      message: "Please review the highlighted fields before sending the inquiry.",
       fieldErrors: mapInquiryFieldErrors(validationResult.error),
     };
   }
 
   try {
-    const submissionInput = toInquirySubmissionInput(values);
+    const submissionInput = toGeneralInquirySubmissionInput(values);
     await insertInquirySubmission(submissionInput);
   } catch (error) {
     console.error("Inquiry submission failed", error);
 
     return createInquiryServerErrorState(
-      "The project brief could not be sent right now. Please try again in a moment or email h and h directly.",
+      "The project inquiry could not be sent right now. Please try again in a moment or email h and h directly.",
     );
   }
 

@@ -91,7 +91,11 @@ function InquiryRow({ inquiry }: Readonly<{ inquiry: AdminInquiryQueueItem }>) {
           </Link>
         </p>
         <p className="mt-1 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-muted">
-          {inquiry.source === "legacy" ? "Legacy inquiry" : "Plan Your Home"}
+          {inquiry.source === "plan-your-home"
+            ? "Plan Your Home"
+            : inquiry.source === "general-inquiry"
+              ? "General inquiry"
+              : "Legacy inquiry"}
         </p>
       </QueueField>
 

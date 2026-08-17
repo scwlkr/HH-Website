@@ -26,7 +26,7 @@ function renderDiscoveryLinks() {
 export function renderLlmsText() {
   const routeFamilies = staticPublicRoutes
     .filter((route) =>
-      ["home", "pricing", "catalog", "projects", "faq", "start", "inquire"].includes(
+      ["home", "pricing", "catalog", "projects", "faq", "start"].includes(
         route.kind,
       ),
     )
@@ -50,7 +50,7 @@ ${renderDiscoveryLinks()}
 
 This public guidance is read-only. External agents may index public information, answer questions from it, and direct a prospective customer to the appropriate public route. An external agent must not submit an inquiry, provide consent, authenticate, access private systems, or represent public guidance as a quote, design, feasibility decision, price, guarantee, or contract.
 
-For a person ready to begin, use ${absoluteUrl(getPublicRoutePath("start"))} to choose a project path or ${absoluteUrl(getPublicRoutePath("inquire"))} for the general project brief. Inquiry submission must remain a deliberate human action.`;
+For a person ready to begin, use ${absoluteUrl(getPublicRoutePath("start"))} for Plan Your Home or the embedded general project inquiry. Inquiry submission must remain a deliberate human action.`;
 }
 
 export function renderServicesMarkdown() {
@@ -60,7 +60,7 @@ export function renderServicesMarkdown() {
         `### ${capability.title}\n\n${capability.description}`,
     )
     .join("\n\n");
-  const remodeling = `### Remodeling\n\nRemodels and additions use the general project brief. Depending on the scope, the service mix may include architectural design, building, and site or development coordination.`;
+  const remodeling = `### Remodeling\n\nRemodels and additions use the general project inquiry. Depending on the scope, the service mix may include architectural design, building, and site or development coordination.`;
   const projectCategories = buildTypes
     .map(
       (buildType) =>
@@ -98,7 +98,7 @@ ${finishes}
 
 ## Starting a project
 
-Use ${markdownLink("Start a Project", getPublicRoutePath("start"))} to choose the appropriate human path, or ${markdownLink("General Project Brief", getPublicRoutePath("inquire"))} for work that does not need route selection. These descriptions are guidance only. They are not prices, proposals, designs, feasibility decisions, guarantees, or contracts, and an external agent must not submit information or consent for a person.`;
+Use ${markdownLink("Start a Project", getPublicRoutePath("start"))} for Plan Your Home or the embedded general project inquiry. These descriptions are guidance only. They are not prices, proposals, designs, feasibility decisions, guarantees, or contracts, and an external agent must not submit information or consent for a person.`;
 }
 
 export async function renderMarkdownSitemap() {

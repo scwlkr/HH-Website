@@ -3,40 +3,40 @@ import test from "node:test";
 
 import { getBuildTypeInquiryHref } from "../lib/content/build-types.ts";
 import { getFinishLevelInquiryHref } from "../lib/content/finish-levels.ts";
-import { getGenericInquiryHrefFromProjectStart } from "../lib/project-start.ts";
+import { getLegacyInquiryRedirectHref } from "../lib/project-start.ts";
 
-test("the public project paths keep every build type in the generic brief", () => {
+test("public project paths guide single-family visitors to the hero and other work to the short inquiry", () => {
   assert.equal(
     getBuildTypeInquiryHref("single-family"),
-    "/inquire?buildType=single-family",
+    "/start?buildType=single-family",
   );
   assert.equal(
     getBuildTypeInquiryHref("multifamily"),
-    "/inquire?buildType=multifamily",
+    "/start?buildType=multifamily#general-inquiry",
   );
   assert.equal(
     getBuildTypeInquiryHref("townhomes"),
-    "/inquire?buildType=townhomes",
+    "/start?buildType=townhomes#general-inquiry",
   );
   assert.equal(
     getBuildTypeInquiryHref("commercial"),
-    "/inquire?buildType=commercial",
+    "/start?buildType=commercial#general-inquiry",
   );
 });
 
-test("finish CTAs keep the project choice and forward only non-contact attribution", () => {
+test("legacy inquiry links redirect to the embedded form with safe attribution", () => {
   assert.equal(
     getFinishLevelInquiryHref("builder-plus"),
     "/start?finish=builder-plus",
   );
   assert.equal(
-    getGenericInquiryHrefFromProjectStart({
-      finish: "builder-plus",
+    getLegacyInquiryRedirectHref({
       buildType: "townhomes",
       utm_source: "catalog",
+      utm_medium: "website",
       email: "must-not-forward@example.com",
       name: "Must Not Forward",
     }),
-    "/inquire?buildType=townhomes&finish=builder-plus&utm_source=catalog",
+    "/start?buildType=townhomes&utm_source=catalog&utm_medium=website#general-inquiry",
   );
 });

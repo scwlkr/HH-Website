@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { afterEach, test } from "node:test";
 
 import { cleanup, render } from "@testing-library/react";
 import React from "react";
 
-import { InquiryPrivacyNotice } from "../components/inquiry/inquiry-privacy-notice.tsx";
+import { GeneralInquiryForm } from "../components/inquiry/general-inquiry-form.tsx";
 import { createPlanHomeRefinementFixture } from "../features/plan-your-home/refinement-fixture.ts";
 import { PlanYourHomeShell } from "../features/plan-your-home/plan-your-home-shell.tsx";
 import { privacyDocument } from "../lib/content/legal.ts";
+import { inquiryActionInitialState } from "../types/inquiry.ts";
 
 afterEach(() => cleanup());
 
@@ -55,22 +55,40 @@ test("Plan Your Home keeps Welcome concise with quiet, accessible save options",
   );
 });
 
-test("the generic inquiry shows privacy and non-contract copy before contact fields", () => {
-  const rendered = render(<InquiryPrivacyNotice placement="start" />);
-  const link = rendered.getByRole("link", {
-    name: "privacy and retention policy",
-  });
-  assert.equal(link.getAttribute("href"), "/privacy");
-  assert.match(rendered.container.textContent ?? "", /not a design, price/i);
-
-  const source = readFileSync(
-    new URL("../components/inquiry/inquiry-form.tsx", import.meta.url),
-    "utf8",
+test("the general inquiry keeps concise privacy copy beside the send action", () => {
+  const rendered = render(
+    <GeneralInquiryForm
+      initialValues={{
+        name: "",
+        phone: "",
+        email: "",
+        projectType: "",
+        projectLocation: "",
+        projectDescription: "",
+        sourcePage: "/start",
+        utmSource: "",
+        utmMedium: "",
+        utmCampaign: "",
+        company: "",
+      }}
+      submitAction={async () => inquiryActionInitialState}
+    />,
   );
-  assert(
-    source.indexOf('<InquiryPrivacyNotice placement="start" />') <
-      source.indexOf('name="name"'),
-    "The rendered privacy notice must precede the first contact field.",
+  const link = rendered.getByRole("link", {
+    name: "privacy policy",
+  });
+  const submit = rendered.getByRole("button", { name: "Send Inquiry" });
+  assert.equal(link.getAttribute("href"), "/privacy");
+  assert.match(rendered.container.textContent ?? "", /not marketing consent or a contract/i);
+  assert.equal(
+    link.closest("div")?.contains(submit),
+    true,
+    "The privacy sentence and send action must share the form footer.",
+  );
+  assertPrecedes(
+    link,
+    submit,
+    "The privacy link must precede the deliberate send action.",
   );
 });
 

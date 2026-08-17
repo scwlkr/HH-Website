@@ -1,72 +1,16 @@
 import { z } from "zod";
-import { buildTypeSlugs, finishLevelSlugs } from "@/lib/content";
-import type {
-  InquiryActionState,
-  InquiryBudgetRange,
-  InquiryFieldErrors,
-  InquiryFieldName,
-  InquiryFinishLevel,
-  InquiryFormValues,
-  InquiryLotStatus,
-  InquiryPreferredContactMethod,
-  InquiryProjectType,
-  InquiryServiceNeeded,
-  InquirySubmissionInput,
-  InquiryTimeline,
+
+import {
+  generalInquiryProjectTypeValues,
+  type GeneralInquiryFieldErrors,
+  type GeneralInquiryFieldName,
+  type GeneralInquiryFormValues,
+  type GeneralInquirySubmissionInput,
+  type InquiryActionState,
 } from "@/types/inquiry";
 
-const buildTypeEnum = z.enum(buildTypeSlugs as [InquiryProjectType, ...InquiryProjectType[]]);
-const finishLevelEnum = z.enum(
-  finishLevelSlugs as [InquiryFinishLevel, ...InquiryFinishLevel[]],
-);
-
-const preferredContactMethodValues = ["email", "phone", "text"] as const;
-const preferredContactMethodEnum = z.enum(preferredContactMethodValues);
-
-const lotStatusValues = [
-  "already-owned",
-  "actively-looking",
-  "evaluating-options",
-  "not-sure-yet",
-] as const;
-const lotStatusEnum = z.enum(lotStatusValues);
-
-const servicesNeededValues = [
-  "architectural-design",
-  "building",
-  "land-development",
-  "not-sure-yet",
-] as const;
-const servicesNeededEnum = z.enum(servicesNeededValues);
-
-const timelineValues = [
-  "asap",
-  "0-3-months",
-  "3-6-months",
-  "6-12-months",
-  "12-plus-months",
-  "just-exploring",
-] as const;
-const timelineEnum = z.enum(timelineValues);
-
-const budgetRangeValues = [
-  "under-500k",
-  "500k-1m",
-  "1m-2m",
-  "2m-5m",
-  "5m-plus",
-  "not-sure-yet",
-] as const;
-const budgetRangeEnum = z.enum(budgetRangeValues);
-
-const projectTypeEnum = z.union([buildTypeEnum, z.literal("not-sure-yet")]);
-const inquiryFinishLevelEnum = z.union([finishLevelEnum, z.literal("not-sure-yet")]);
-
 function normalizeSingleLineText(value: unknown) {
-  if (typeof value !== "string") {
-    return "";
-  }
-
+  if (typeof value !== "string") return "";
   return value
     .normalize("NFKC")
     .replace(/[\u0000-\u001f\u007f]+/g, " ")
@@ -75,10 +19,7 @@ function normalizeSingleLineText(value: unknown) {
 }
 
 function normalizeMultilineText(value: unknown) {
-  if (typeof value !== "string") {
-    return "";
-  }
-
+  if (typeof value !== "string") return "";
   return value
     .normalize("NFKC")
     .replace(/\r\n?/g, "\n")
@@ -100,54 +41,17 @@ function normalizeEnumValue(value: unknown) {
 }
 
 function normalizeOptionalText(value: unknown) {
-  const normalizedValue = normalizeSingleLineText(value);
-  return normalizedValue.length > 0 ? normalizedValue : undefined;
+  const normalized = normalizeSingleLineText(value);
+  return normalized || undefined;
 }
 
 function normalizeOptionalSourcePath(value: unknown) {
-  const normalizedValue = normalizeSingleLineText(value);
-
-  if (!normalizedValue || !normalizedValue.startsWith("/")) {
-    return undefined;
-  }
-
-  return normalizedValue.slice(0, 200);
-}
-
-function normalizeServicesNeeded(value: unknown) {
-  if (!Array.isArray(value)) {
-    if (typeof value === "string") {
-      const normalizedValue = normalizeEnumValue(value);
-      return normalizedValue ? [normalizedValue] : [];
-    }
-
-    return [];
-  }
-
-  return value
-    .filter((item): item is string => typeof item === "string")
-    .map((item) => normalizeEnumValue(item))
-    .filter((item) => item.length > 0);
+  const normalized = normalizeSingleLineText(value);
+  return normalized.startsWith("/") ? normalized.slice(0, 200) : undefined;
 }
 
 function countPhoneDigits(value: string) {
   return value.replace(/\D/g, "").length;
-}
-
-function parseSquareFootage(value: string) {
-  const digitsOnly = value.replace(/[^\d]/g, "");
-
-  if (!digitsOnly) {
-    return null;
-  }
-
-  const parsed = Number.parseInt(digitsOnly, 10);
-
-  if (!Number.isFinite(parsed)) {
-    return null;
-  }
-
-  return parsed;
 }
 
 const nameSchema = z.preprocess(
@@ -158,95 +62,38 @@ const nameSchema = z.preprocess(
     .max(120, "Keep the name under 120 characters."),
 );
 
-const phoneSchema = z.preprocess(
+const optionalPhoneSchema = z.preprocess(
   normalizeSingleLineText,
   z
     .string()
-    .min(7, "Please share a phone number.")
     .max(32, "Keep the phone number under 32 characters.")
     .refine(
-      (value) => countPhoneDigits(value) >= 10,
+      (value) => value.length === 0 || countPhoneDigits(value) >= 10,
       "Please provide a phone number with at least 10 digits.",
     ),
 );
 
-const emailSchema = z.preprocess(
+const optionalEmailSchema = z.preprocess(
   normalizeEmail,
   z
     .string()
-    .email("Please provide a valid email address.")
-    .max(160, "Keep the email address under 160 characters."),
-);
-
-const preferredContactMethodSchema = z.preprocess(
-  normalizeEnumValue,
-  preferredContactMethodEnum,
-);
-
-const projectTypeSchema = z.preprocess(normalizeEnumValue, projectTypeEnum);
-
-const approxSquareFootageSchema = z.preprocess(
-  normalizeSingleLineText,
-  z
-    .string()
-    .min(1, "Please share an approximate square footage.")
-    .max(40, "Keep the square footage estimate concise.")
+    .max(160, "Keep the email address under 160 characters.")
     .refine(
-      (value) => parseSquareFootage(value) !== null,
-      "Please provide a numeric square footage estimate.",
-    )
-    .refine((value) => {
-      const parsedValue = parseSquareFootage(value);
-      return parsedValue !== null && parsedValue >= 100 && parsedValue <= 500000;
-    }, "Please provide a realistic square footage estimate."),
-);
-
-const finishLevelSchema = z.preprocess(
-  normalizeEnumValue,
-  inquiryFinishLevelEnum,
-);
-
-const servicesNeededSchema = z.preprocess(
-  normalizeServicesNeeded,
-  z
-    .array(servicesNeededEnum)
-    .min(1, "Select at least one service area.")
-    .max(4, "Too many service selections were submitted.")
-    .refine(
-      (values) => new Set(values).size === values.length,
-      "Each service area only needs to be selected once.",
-    )
-    .refine(
-      (values) => !(values.includes("not-sure-yet") && values.length > 1),
-      "Choose either specific services or “Not Sure Yet,” not both.",
+      (value) => value.length === 0 || z.email().safeParse(value).success,
+      "Please provide a valid email address.",
     ),
 );
 
 const projectLocationSchema = z.preprocess(
   normalizeSingleLineText,
-  z
-    .string()
-    .min(2, "Please share the project location or target area.")
-    .max(160, "Keep the location under 160 characters."),
-);
-
-const lotStatusSchema = z.preprocess(normalizeEnumValue, lotStatusEnum);
-
-const timelineSchema = z.preprocess(normalizeEnumValue, timelineEnum);
-
-const budgetRangeSchema = z.preprocess(
-  (value) => {
-    const normalizedValue = normalizeEnumValue(value);
-    return normalizedValue.length > 0 ? normalizedValue : undefined;
-  },
-  budgetRangeEnum.optional(),
+  z.string().max(160, "Keep the location under 160 characters."),
 );
 
 const projectDescriptionSchema = z.preprocess(
   normalizeMultilineText,
   z
     .string()
-    .min(24, "Add a few sentences on the project and its priorities.")
+    .min(10, "Tell us a little about what you are planning.")
     .max(1600, "Keep the description under 1,600 characters."),
 );
 
@@ -269,104 +116,82 @@ const honeypotSchema = z.preprocess(
   z.string().max(0, "Leave this field empty.").optional(),
 );
 
-export const inquiryFormSchema = z.object({
-  name: nameSchema,
-  phone: phoneSchema,
-  email: emailSchema,
-  preferredContactMethod: preferredContactMethodSchema,
-  projectType: projectTypeSchema,
-  approxSquareFootage: approxSquareFootageSchema,
-  finishLevel: finishLevelSchema,
-  servicesNeeded: servicesNeededSchema,
-  projectLocation: projectLocationSchema,
-  lotStatus: lotStatusSchema,
-  timeline: timelineSchema,
-  budgetRange: budgetRangeSchema,
-  projectDescription: projectDescriptionSchema,
-  sourcePage: sourcePageSchema,
-  utmSource: utmValueSchema,
-  utmMedium: utmValueSchema,
-  utmCampaign: utmValueSchema,
-  company: honeypotSchema,
-});
+export const generalInquiryFormSchema = z
+  .object({
+    name: nameSchema,
+    phone: optionalPhoneSchema,
+    email: optionalEmailSchema,
+    projectType: z.preprocess(
+      normalizeEnumValue,
+      z.enum(generalInquiryProjectTypeValues),
+    ),
+    projectLocation: projectLocationSchema,
+    projectDescription: projectDescriptionSchema,
+    sourcePage: sourcePageSchema,
+    utmSource: utmValueSchema,
+    utmMedium: utmValueSchema,
+    utmCampaign: utmValueSchema,
+    company: honeypotSchema,
+  })
+  .superRefine((values, context) => {
+    if (values.email.length > 0 || values.phone.length > 0) return;
+    context.addIssue({
+      code: "custom",
+      path: ["email"],
+      message: "Share an email address or phone number.",
+    });
+  });
 
-export const inquiryStepSchemas = {
-  contact: inquiryFormSchema.pick({
-    name: true,
-    phone: true,
-    email: true,
-    preferredContactMethod: true,
-  }),
-  projectBasics: inquiryFormSchema.pick({
-    projectType: true,
-    approxSquareFootage: true,
-    finishLevel: true,
-    servicesNeeded: true,
-  }),
-  siteContext: inquiryFormSchema.pick({
-    projectLocation: true,
-    lotStatus: true,
-    timeline: true,
-    budgetRange: true,
-  }),
-  description: inquiryFormSchema.pick({
-    projectDescription: true,
-  }),
-};
-
-export const emptyInquiryFormValues: InquiryFormValues = {
+export const emptyGeneralInquiryFormValues: GeneralInquiryFormValues = {
   name: "",
   phone: "",
   email: "",
-  preferredContactMethod: "",
   projectType: "",
-  approxSquareFootage: "",
-  finishLevel: "",
-  servicesNeeded: [],
   projectLocation: "",
-  lotStatus: "",
-  timeline: "",
-  budgetRange: "",
   projectDescription: "",
-  sourcePage: "",
+  sourcePage: "/start",
   utmSource: "",
   utmMedium: "",
   utmCampaign: "",
   company: "",
 };
 
-export function createInquiryInitialValues({
+function normalizeGeneralInquiryProjectType(value: unknown) {
+  const normalized = normalizeEnumValue(value);
+  if (normalized === "multifamily" || normalized === "townhomes") {
+    return "multifamily-townhomes";
+  }
+  return generalInquiryProjectTypeValues.includes(
+    normalized as (typeof generalInquiryProjectTypeValues)[number],
+  )
+    ? (normalized as GeneralInquiryFormValues["projectType"])
+    : "";
+}
+
+export function createGeneralInquiryInitialValues({
   buildType,
-  finish,
   utmSource,
   utmMedium,
   utmCampaign,
 }: {
   buildType?: string;
-  finish?: string;
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
-} = {}) {
-  const normalizedProjectType = normalizeEnumValue(buildType);
-  const normalizedFinishLevel = normalizeEnumValue(finish);
-
+} = {}): GeneralInquiryFormValues {
   return {
-    ...emptyInquiryFormValues,
-    projectType: projectTypeSchema.safeParse(normalizedProjectType).success
-      ? (normalizedProjectType as InquiryProjectType)
-      : "",
-    finishLevel: finishLevelSchema.safeParse(normalizedFinishLevel).success
-      ? (normalizedFinishLevel as InquiryFinishLevel)
-      : "",
-    utmSource: normalizeSingleLineText(utmSource),
-    utmMedium: normalizeSingleLineText(utmMedium),
-    utmCampaign: normalizeSingleLineText(utmCampaign),
-  } satisfies InquiryFormValues;
+    ...emptyGeneralInquiryFormValues,
+    projectType: normalizeGeneralInquiryProjectType(buildType),
+    utmSource: normalizeSingleLineText(utmSource).slice(0, 120),
+    utmMedium: normalizeSingleLineText(utmMedium).slice(0, 120),
+    utmCampaign: normalizeSingleLineText(utmCampaign).slice(0, 120),
+  };
 }
 
-export function getInquiryFormValues(formData: FormData): InquiryFormValues {
-  const getStringValue = (fieldName: keyof InquiryFormValues) => {
+export function getGeneralInquiryFormValues(
+  formData: FormData,
+): GeneralInquiryFormValues {
+  const getStringValue = (fieldName: keyof GeneralInquiryFormValues) => {
     const value = formData.get(fieldName);
     return typeof value === "string" ? value : "";
   };
@@ -375,19 +200,10 @@ export function getInquiryFormValues(formData: FormData): InquiryFormValues {
     name: getStringValue("name"),
     phone: getStringValue("phone"),
     email: getStringValue("email"),
-    preferredContactMethod: getStringValue(
-      "preferredContactMethod",
-    ) as InquiryFormValues["preferredContactMethod"],
-    projectType: getStringValue("projectType") as InquiryFormValues["projectType"],
-    approxSquareFootage: getStringValue("approxSquareFootage"),
-    finishLevel: getStringValue("finishLevel") as InquiryFormValues["finishLevel"],
-    servicesNeeded: formData
-      .getAll("servicesNeeded")
-      .filter((value): value is string => typeof value === "string") as InquiryServiceNeeded[],
+    projectType: getStringValue(
+      "projectType",
+    ) as GeneralInquiryFormValues["projectType"],
     projectLocation: getStringValue("projectLocation"),
-    lotStatus: getStringValue("lotStatus") as InquiryFormValues["lotStatus"],
-    timeline: getStringValue("timeline") as InquiryFormValues["timeline"],
-    budgetRange: getStringValue("budgetRange") as InquiryFormValues["budgetRange"],
     projectDescription: getStringValue("projectDescription"),
     sourcePage: getStringValue("sourcePage"),
     utmSource: getStringValue("utmSource"),
@@ -397,58 +213,43 @@ export function getInquiryFormValues(formData: FormData): InquiryFormValues {
   };
 }
 
-export function mapInquiryFieldErrors(error: z.ZodError): InquiryFieldErrors {
-  const fieldErrors: InquiryFieldErrors = {};
-
-  for (const issue of error.issues) {
-    const [fieldName] = issue.path;
-
-    if (typeof fieldName !== "string") {
-      continue;
-    }
-
-    const typedFieldName = fieldName as InquiryFieldName;
-
-    if (!fieldErrors[typedFieldName]) {
-      fieldErrors[typedFieldName] = issue.message;
-    }
-  }
-
-  return fieldErrors;
+export function validateGeneralInquiryValues(values: GeneralInquiryFormValues) {
+  return generalInquiryFormSchema.safeParse(values);
 }
 
-export function validateInquiryValues(values: InquiryFormValues) {
-  return inquiryFormSchema.safeParse(values);
-}
-
-export function toInquirySubmissionInput(values: InquiryFormValues): InquirySubmissionInput {
-  const parsedValues = inquiryFormSchema.parse(values);
-  const approxSquareFootage = parseSquareFootage(parsedValues.approxSquareFootage);
-
-  if (approxSquareFootage === null) {
-    throw new Error("Approximate square footage could not be parsed.");
-  }
-
+export function toGeneralInquirySubmissionInput(
+  values: GeneralInquiryFormValues,
+): GeneralInquirySubmissionInput {
+  const parsedValues = generalInquiryFormSchema.parse(values);
   return {
+    schemaVersion: 1,
+    experience: "general-inquiry",
     name: parsedValues.name,
-    phone: parsedValues.phone,
-    email: parsedValues.email,
-    preferredContactMethod:
-      parsedValues.preferredContactMethod as InquiryPreferredContactMethod,
-    projectType: parsedValues.projectType as InquiryProjectType,
-    approxSquareFootage,
-    finishLevel: parsedValues.finishLevel as InquiryFinishLevel,
-    servicesNeeded: parsedValues.servicesNeeded as InquiryServiceNeeded[],
-    projectLocation: parsedValues.projectLocation,
-    lotStatus: parsedValues.lotStatus as InquiryLotStatus,
-    timeline: parsedValues.timeline as InquiryTimeline,
-    budgetRange: (parsedValues.budgetRange ?? null) as InquiryBudgetRange | null,
+    phone: parsedValues.phone || null,
+    email: parsedValues.email || null,
+    projectType: parsedValues.projectType,
+    projectLocation: parsedValues.projectLocation || null,
     projectDescription: parsedValues.projectDescription,
     sourcePage: parsedValues.sourcePage ?? null,
     utmSource: parsedValues.utmSource ?? null,
     utmMedium: parsedValues.utmMedium ?? null,
     utmCampaign: parsedValues.utmCampaign ?? null,
   };
+}
+
+export function mapInquiryFieldErrors(
+  error: z.ZodError,
+): GeneralInquiryFieldErrors {
+  const fieldErrors: GeneralInquiryFieldErrors = {};
+  for (const issue of error.issues) {
+    const [fieldName] = issue.path;
+    if (typeof fieldName !== "string") continue;
+    const typedFieldName = fieldName as GeneralInquiryFieldName;
+    if (!fieldErrors[typedFieldName]) {
+      fieldErrors[typedFieldName] = issue.message;
+    }
+  }
+  return fieldErrors;
 }
 
 export function createInquiryServerErrorState(

@@ -7,8 +7,8 @@ This document describes the current Howeth and Harp website system as it exists 
 | Surface | Routes | Source |
 | --- | --- | --- |
 | Marketing site | `/`, `/pricing`, `/pricing/[finishSlug]`, `/catalog`, `/catalog/[buildTypeSlug]`, `/faq`, `/privacy`, `/terms`, `/thank-you` | Local typed content and route components. |
-| Project start | `/start` | Routes detached single-family new homes to Plan Your Home and preserves `/inquire` for every other project type. |
-| Project briefs | `/inquire`, `/plan-your-home`, `/plan-your-home/resume` | Generic server action plus the versioned Plan Home registry, reducer, server actions, local snapshot, and secure resume flow. |
+| Project start | `/start` | Leads with Plan Your Home and embeds a short general project inquiry for every other project type. |
+| Project inquiry paths | `/start`, `/plan-your-home`, `/plan-your-home/resume`; legacy redirect at `/inquire` | General inquiry server action plus the versioned Plan Home registry, reducer, server actions, local snapshot, and secure resume flow. |
 | Projects | `/projects`, `/projects/[projectSlug]` | Firestore project documents with embedded image metadata and Firebase Storage URLs. |
 | HHQ | `/admin`, `/admin/login`, `/admin/inquiries`, `/admin/inquiries/[id]`, `/admin/inquiries/file`, `/admin/projects`, `/admin/projects/new`, `/admin/projects/[id]`, `/admin/settings/pricing` | Firebase Auth, custom-claim role check, inquiry queue/detail/status/file actions, project actions, and Firebase Admin access. |
 | Plan Home handlers | `POST /plan-your-home/resume/consume`, `GET /api/plan-your-home/resume-mail/latest`, `GET|POST /api/internal/plan-your-home/cleanup` | One-time resume-token exchange, emulator-only fake-mailbox drain, and bearer-authorized retention cleanup. |
@@ -44,15 +44,15 @@ docs/         Active manual path and deprecated historical docs
 
 ## Rendering Model
 
-The app uses the App Router with server-rendered pages by default. Client components are isolated around interactive surfaces such as the project brief stepper, analytics event triggers, and admin form behavior.
+The app uses the App Router with server-rendered pages by default. Client components are isolated around interactive surfaces such as the Plan Your Home walkthrough, general inquiry submission, analytics event triggers, and admin form behavior.
 
 Marketing content for finish levels, build types, FAQ, legal copy, and route metadata lives in typed local modules under `lib/content/` and `lib/metadata.ts`.
 
 ## Data Flow
 
-### Generic Project Brief
+### General Project Inquiry
 
-1. `/inquire` renders the structured project brief.
+1. `/start` renders the primary Plan Your Home hero and the subordinate single-screen general inquiry. `/inquire` redirects to the anchored form with allowlisted project-type and UTM attribution only.
 2. `app/inquire/actions.ts` receives `FormData`.
 3. `lib/validation/inquiry.ts` extracts, normalizes, and validates values.
 4. The honeypot and in-memory IP rate limiter reject obvious spam.
@@ -61,8 +61,9 @@ Marketing content for finish levels, build types, FAQ, legal copy, and route met
 
 ### Plan Your Home
 
-1. `/start` sends detached single-family new homes to `/plan-your-home` and all
-   other work to the preserved generic `/inquire` brief.
+1. `/start` offers a direct Plan Your Home walkthrough link for new single-family
+   homes and an embedded general inquiry for every other kind of project. Both
+   paths remain available to every visitor.
 2. The browser runs the fixed `plan-home-v1` registry and pure tour reducer. A
    30-day local snapshot retains the exact active prompt for same-browser
    refresh; the server remains authoritative once a draft exists.
@@ -84,7 +85,7 @@ Marketing content for finish levels, build types, FAQ, legal copy, and route met
    emulator endpoint. The capability binds the exact ticket path and generation;
    finalization verifies the size, content type, custom metadata, and file
    signature before adding private reference metadata to the draft.
-6. HHQ lists legacy and Plan Home records together. `/admin/inquiries/[id]`
+6. HHQ lists general inquiry, legacy, and Plan Home records together. `/admin/inquiries/[id]`
    shows the complete answer/reference detail, supports reviewed/spam status
    actions and deletion, and issues short-lived signed reads through the
    authenticated `/admin/inquiries/file` handler.
@@ -114,7 +115,7 @@ The shared rule lives in `lib/firebase/admin-access.ts`. It is used by `lib/fire
 
 | Resource | Contract |
 | --- | --- |
-| `inquirySubmissions/{id}` | Legacy generic submissions plus versioned Plan Home drafts/submissions with contact, stable answer map, progress, references, derived queue fields, revisions, timestamps, and retention metadata. |
+| `inquirySubmissions/{id}` | Versioned general inquiries, legacy submissions, and Plan Home drafts/submissions with the fields required by each experience. |
 | `inquirySubmissions/{draftId}/referenceUploads/{referenceId}` | Short-lived, generation-bound upload tickets used only while a private Plan Home file is pending finalization. |
 | `planHomeResumeTokens/{tokenHash}` | Hashed one-time resume-token lifecycle records; raw tokens are not stored. |
 | `planHomeResumeRateLimits/{keyHash}` | Hashed email/requester rate-limit windows for resume requests. |

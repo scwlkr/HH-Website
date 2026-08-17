@@ -13,13 +13,13 @@ Howeth and Harp is a multidisciplinary company providing architectural design, b
 - **Architectural Design** covers early planning, massing, circulation, and finish direction.
 - **Building** keeps construction delivery aligned with the planning and design logic of the project.
 - **Land Development** brings lot evaluation, site fit, and early development thinking into scope formation.
-- Remodeling and additions use the general project-brief path alongside multifamily, townhome, commercial, land-only, and uncertain project types.
+- Remodeling and additions use the general project-inquiry path alongside multifamily, townhome, commercial, land-only, and uncertain project types.
 
 Finish levels are Builder Grade, Builder+, and Custom. They describe specification, coordination, and customization posture rather than fixed-price packages. Public project categories are single-family, multifamily, townhomes, and commercial work.
 
 ## Public route families
 
-The intentionally indexable route families are Home, Pricing and finish details, Catalog and build-type details, Projects and explicitly published project details, FAQ, Start, and the General Project Brief. The typed public route inventory is the canonical discovery source for these pages.
+The intentionally indexable route families are Home, Pricing and finish details, Catalog and build-type details, Projects and explicitly published project details, FAQ, and Start. The typed public route inventory is the canonical discovery source for these pages.
 
 Plan Your Home, resume and owner-review routes, legal drafts, thank-you pages, administration, internal handlers, draft projects, and legacy projects are outside public agent discovery. Indexability policy remains authoritative; agent guidance never makes a route public.
 

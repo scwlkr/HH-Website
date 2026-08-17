@@ -100,6 +100,24 @@ test("queue contracts normalize legacy records, activity order, filters, and aut
   assert.equal(isAuthorizedAdminClaims(null), false);
 });
 
+test("the inquiry queue identifies the short general inquiry", () => {
+  const inquiry = mapAdminInquiryQueueItem("general", {
+    schemaVersion: 1,
+    experience: "general-inquiry",
+    status: "new",
+    name: "Avery Builder",
+    email: "avery@example.com",
+    phone: null,
+    projectLocation: "Cooke County",
+    createdAt: new Date("2026-08-17T12:00:00.000Z"),
+  });
+
+  assert(inquiry);
+  assert.equal(inquiry.source, "general-inquiry");
+  assert.equal(inquiry.status, "submitted");
+  assert.equal(inquiry.progress, "Complete · general inquiry");
+});
+
 test("responsive inquiry list, empty state, and error state are semantic and accessible", async () => {
   const view = render(
     <AdminInquiryQueue inquiries={inquiries} statusFilter="all" />,

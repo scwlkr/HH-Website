@@ -14,7 +14,7 @@ The 2026-08-17 editorial pass is reflected below: 31 canonical questions, one co
 
 Visual and interaction feedback stays outside the question workbook. An annotated screenshot, route, and short description of the desired result are enough to request a change. Each accepted visual edit is applied to the implementation and design rules, checked at phone and desktop sizes, and released after the focused walkthrough proof passes.
 
-The existing `/inquire` experience remains available for remodels, additions, commercial work, land-only work, and other inquiries. **Plan Your Home** is a separate `/plan-your-home` experience for prospective detached single-family new homes.
+The short general project inquiry at `/start#general-inquiry` remains available for remodels, additions, commercial work, land-only work, and other inquiries. **Plan Your Home** is a separate `/plan-your-home` experience for prospective detached single-family new homes; legacy `/inquire` links redirect to the general inquiry.
 
 ## Outcome
 
@@ -272,8 +272,15 @@ Allowed properties are anonymous session ID, zone ID, prompt index, reference ki
 
 ## Public Entry And Legal Copy
 
-- Keep `/inquire` as the generic intake.
-- Route the new-home single-family path from the website's project-start entry into `/plan-your-home`; preserve a clear choice for other project types.
+- Use `/start` as the single public project-entry page. Remove the long intake-register introduction and equal-weight path rows; show the Plan Your Home hero first and the embedded general project inquiry below it.
+- Keep the Plan Your Home primary action visible in the first phone viewport. Use the established sketched front-door scene as a static, non-interactive preview and link only the `Start Plan Your Home` action to `/plan-your-home`; do not add a resume link to `/start`.
+- Use the hero headline `Plan your new home, one space at a time.` and explain that the guided walkthrough covers the home, site, priorities, timing, and inspiration so h and h has a useful project brief before the first conversation. Identify the experience as a guided walkthrough that supports save and resume and produces a detailed project brief.
+- Present the subordinate inquiry with `Other Projects`, `Have something else in mind?`, and concise guidance for remodels, additions, multifamily, commercial work, land development, or anything that does not fit the walkthrough. Both paths remain available to every visitor; project type guides the choice but does not gate either path.
+- Keep the general project inquiry to one screen with name required; at least one of email or phone required; project type required; project location optional; and a required short `What are you planning?` message. Project-type choices are New single-family home, Remodel or addition, Multifamily or townhomes, Commercial, Land or site development, and Other or not sure. Do not add square footage, finish level, services, lot status, timeline, budget, a stepper, or a review screen.
+- Submit the general project inquiry to the existing private HHQ inquiry queue, then redirect to `/thank-you`. Use `project inquiry` rather than `project brief` in its confirmation copy and say h and h will respond using the contact information provided.
+- Redirect `/inquire` to `/start#general-inquiry` while preserving safe project-type and non-contact attribution parameters. Keep one canonical general inquiry form rather than duplicating the experience.
+- Keep `/plan-your-home` out of search indexing when it becomes publicly linked from `/start`; search discovery remains a separate launch decision.
+- Place one concise privacy sentence and a privacy-policy link beside the general inquiry's deliberate `Send Inquiry` action. Do not add marketing consent or technical retention copy.
 - Update privacy copy before public cutover to cover local and server drafts, attachments, manual follow-up, customer-requested resume email, retention, and deletion.
 - Keep technical privacy and retention explanations on `/privacy`. Plan Your Home should show only the consent needed for the current action plus a concise privacy-policy link.
 - State near the budget question that it is planning context only, land is excluded, all features remain explorable, and no live estimate is being produced.

@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const reviewRoutes = {
-  public: ["/", "/pricing", "/projects", "/faq", "/inquire"],
+  public: ["/", "/pricing", "/projects", "/faq", "/start"],
   internal: ["/plan-your-home"],
 };
 const defaultRoutes = reviewRoutes.public;

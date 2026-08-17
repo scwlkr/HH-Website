@@ -29,7 +29,7 @@ export type AdminInquiryQueueItem = Readonly<{
   progress: string;
   lastActivityAt: string | null;
   location: string | null;
-  source: "legacy" | "plan-your-home";
+  source: "general-inquiry" | "legacy" | "plan-your-home";
 }>;
 
 function readRecord(value: unknown): Record<string, unknown> {
@@ -71,7 +71,7 @@ function readStatus(
   value: unknown,
   source: AdminInquiryQueueItem["source"],
 ): AdminInquiryStatus | null {
-  if (value === "new" && source === "legacy") return "submitted";
+  if (value === "new" && source !== "plan-your-home") return "submitted";
   if (
     value === "draft" ||
     value === "submitted" ||
@@ -125,18 +125,23 @@ export function mapAdminInquiryQueueItem(
   const source =
     record.schemaVersion === 2 && record.experience === "plan-your-home"
       ? "plan-your-home"
-      : "legacy";
+      : record.schemaVersion === 1 && record.experience === "general-inquiry"
+        ? "general-inquiry"
+        : "legacy";
   const status = readStatus(record.status, source);
   if (!status) return null;
 
-  if (source === "legacy") {
+  if (source !== "plan-your-home") {
     return {
       id,
       name: readText(record.name) ?? "Unnamed inquiry",
       email: readText(record.email),
       phone: readText(record.phone),
       status,
-      progress: "Complete · legacy form",
+      progress:
+        source === "general-inquiry"
+          ? "Complete · general inquiry"
+          : "Complete · legacy form",
       lastActivityAt:
         readTimestamp(record.updatedAt) ?? readTimestamp(record.createdAt),
       location: readText(record.projectLocation),

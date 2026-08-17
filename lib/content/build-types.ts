@@ -245,9 +245,6 @@ export function getBuildTypeHref(slug: BuildTypeSlug) {
 }
 
 export function getBuildTypeInquiryHref(slug: BuildTypeSlug) {
-  if (slug === "single-family") {
-    return "/inquire?buildType=single-family";
-  }
-
-  return `/inquire?buildType=${slug}`;
+  const startHref = `/start?buildType=${slug}`;
+  return slug === "single-family" ? startHref : `${startHref}#general-inquiry`;
 }

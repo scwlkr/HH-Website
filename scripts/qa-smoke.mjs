@@ -711,7 +711,6 @@ async function verifyAgentDiscoveryDocuments(baseUrl) {
     "/projects",
     "/faq",
     "/start",
-    "/inquire",
   ]) {
     assert(
       markdownSitemap.includes(publicPath),
@@ -841,7 +840,6 @@ async function verifyMarkdownTwins(baseUrl) {
     ["/projects/published-project-smoke", "/projects/published-project-smoke.md"],
     ["/faq", "/faq.md"],
     ["/start", "/start.md"],
-    ["/inquire", "/inquire.md"],
   ];
 
   for (const [htmlPath, markdownPath] of publicPages) {
@@ -1008,54 +1006,51 @@ async function verifyLinkCoverage(page, baseUrl) {
 async function verifyProjectEntryAndPrivacy(page, baseUrl) {
   log("Checking project entry, pre-collection disclosures, and Plan Home analytics...");
 
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(
     `${baseUrl}/start?buildType=townhomes&utm_source=smoke&email=private%40example.com`,
     { waitUntil: "networkidle" },
   );
-  const newHomeLink = page.getByRole("link", {
-    name: "Start A Project Brief",
+  const planHomeLink = page.getByRole("link", {
+    name: "Start Plan Your Home",
     exact: true,
   });
-  const genericLink = page.getByRole("link", {
-    name: "Start Another Project Type",
-  });
-  for (const entryLink of [newHomeLink, genericLink]) {
-    const target = await entryLink.boundingBox();
-    assert(
-      target && target.width >= 44 && target.height >= 44,
-      "Each project-start action must provide at least a 44 by 44 pixel target.",
-    );
-  }
+  const planHomeTarget = await planHomeLink.boundingBox();
   assert(
-    (await newHomeLink.getAttribute("href")) ===
-      "/inquire?buildType=single-family",
-    "The public new-home path must use the generic brief while Plan Your Home is private.",
-  );
-  const genericHref = new URL(
-    await genericLink.getAttribute("href"),
-    baseUrl,
+    planHomeTarget &&
+      planHomeTarget.width >= 44 &&
+      planHomeTarget.height >= 44 &&
+      planHomeTarget.y + planHomeTarget.height <= 844,
+    "The Plan Your Home action must be a 44-pixel target in the first phone viewport.",
   );
   assert(
-    genericHref.pathname === "/inquire" &&
-      genericHref.searchParams.get("buildType") === "townhomes" &&
-      genericHref.searchParams.get("utm_source") === "smoke" &&
-      !genericHref.searchParams.has("email"),
-    "The generic path must preserve only approved non-contact prefill parameters.",
+    (await planHomeLink.getAttribute("href")) === "/plan-your-home",
+    "The primary project-start action must open Plan Your Home directly.",
+  );
+  assert(
+    (await page.getByRole("link", { name: "Resume a saved plan" }).count()) === 0,
+    "The project-start page must not add a secondary Plan Your Home resume action.",
+  );
+  assert(
+    (await page.getByRole("form", { name: "General project inquiry" }).count()) === 1 &&
+      (await page.locator('select[name="projectType"]').inputValue()) ===
+        "multifamily-townhomes",
+    "The subordinate general inquiry must be embedded and use safe project-type prefill.",
   );
 
-  await Promise.all([
-    page.waitForURL((url) => url.pathname === "/inquire"),
-    genericLink.click(),
-  ]);
-  assert(
-    new URL(page.url()).searchParams.get("buildType") === "townhomes",
-    "The generic project-start action must navigate to the working prefilled inquiry.",
+  await page.goto(
+    `${baseUrl}/inquire?buildType=townhomes&utm_source=smoke&email=private%40example.com&name=Private`,
+    { waitUntil: "networkidle" },
   );
-  await page.goBack({ waitUntil: "networkidle" });
-
+  const legacyUrl = new URL(page.url());
   assert(
-    (await page.locator('a[href^="/plan-your-home"]').count()) === 0,
-    "The project-start page must not link to private Plan Your Home routes.",
+    legacyUrl.pathname === "/start" &&
+      legacyUrl.hash === "#general-inquiry" &&
+      legacyUrl.searchParams.get("buildType") === "townhomes" &&
+      legacyUrl.searchParams.get("utm_source") === "smoke" &&
+      !legacyUrl.searchParams.has("email") &&
+      !legacyUrl.searchParams.has("name"),
+    "Legacy inquiry links must redirect to the embedded form with safe attribution only.",
   );
 
   await page.goto(`${baseUrl}/plan-your-home`, { waitUntil: "networkidle" });
@@ -1136,21 +1131,25 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
     "The browser-emitted Plan Home start event must contain only allowlisted non-PII fields.",
   );
 
-  await page.goto(`${baseUrl}/inquire`, { waitUntil: "networkidle" });
+  await page.goto(`${baseUrl}/start#general-inquiry`, { waitUntil: "networkidle" });
   const genericPrivacyLink = page.getByRole("link", {
-    name: "privacy and retention policy",
+    name: "privacy policy",
   });
-  const genericNameInput = page.getByLabel("Name");
+  const genericSubmitButton = page.getByRole("button", { name: "Send Inquiry" });
   assert(
     await page.evaluate(
-      ([privacy, input]) =>
+      ([privacy, submit]) =>
         Boolean(
-          privacy.compareDocumentPosition(input) &
-            Node.DOCUMENT_POSITION_FOLLOWING,
+          privacy.closest("div")?.contains(submit) &&
+            privacy.compareDocumentPosition(submit) &
+              Node.DOCUMENT_POSITION_FOLLOWING,
         ),
-      [await genericPrivacyLink.elementHandle(), await genericNameInput.elementHandle()],
+      [
+        await genericPrivacyLink.elementHandle(),
+        await genericSubmitButton.elementHandle(),
+      ],
     ),
-    "Generic inquiry privacy and retention disclosure must precede the first contact field.",
+    "The general inquiry privacy link must remain beside and before its send action.",
   );
   let genericPrivacyKeyboardFocused = false;
   for (let press = 0; press < 20 && !genericPrivacyKeyboardFocused; press += 1) {
@@ -1169,12 +1168,26 @@ async function verifyPrefillBehavior(page, baseUrl) {
   log("Checking inquiry prefill behavior...");
 
   await page.goto(
-    `${baseUrl}/inquire?finish=builder-plus&buildType=townhomes&utm_source=smoke&utm_medium=email&utm_campaign=phase7`,
+    `${baseUrl}/inquire?finish=builder-plus&buildType=townhomes&utm_source=smoke&utm_medium=email&utm_campaign=phase7&phone=private`,
     { waitUntil: "networkidle" },
   );
 
-  await page.getByText("Project type preselected: Townhomes").waitFor();
-  await page.getByText("Finish direction preselected: Builder+").waitFor();
+  const redirectedUrl = new URL(page.url());
+  assert(
+    redirectedUrl.pathname === "/start" &&
+      redirectedUrl.hash === "#general-inquiry" &&
+      !redirectedUrl.searchParams.has("finish") &&
+      !redirectedUrl.searchParams.has("phone"),
+    "The legacy redirect must discard finish and contact parameters.",
+  );
+  assert(
+    (await page.locator('select[name="projectType"]').inputValue()) ===
+      "multifamily-townhomes" &&
+      (await page.locator('input[name="utmSource"]').inputValue()) === "smoke" &&
+      (await page.locator('input[name="utmMedium"]').inputValue()) === "email" &&
+      (await page.locator('input[name="utmCampaign"]').inputValue()) === "phase7",
+    "The embedded form must retain allowlisted project type and UTM attribution.",
+  );
 }
 
 async function verifyResponsiveLayouts(browser, baseUrl) {
@@ -1205,7 +1218,6 @@ async function verifyResponsiveLayouts(browser, baseUrl) {
     "/faq",
     "/start",
     "/plan-your-home",
-    "/inquire",
     "/privacy",
   ];
 
@@ -1245,7 +1257,7 @@ async function verifyResponsiveLayouts(browser, baseUrl) {
         `Detected horizontal overflow for ${route} at ${viewportTest.name}.`,
       );
 
-      if (["/start", "/plan-your-home", "/inquire", "/privacy"].includes(route)) {
+      if (["/start", "/plan-your-home", "/privacy"].includes(route)) {
         await page.addScriptTag({ path: axePath });
         const violations = await page.evaluate(async () => {
           const audit = await window.axe.run(document, {
@@ -1272,57 +1284,22 @@ async function fillInquiryForm(page, overrides = {}) {
     phone: "(512) 555-0199",
     email: "smoke@example.com",
     projectType: "single-family",
-    approxSquareFootage: "2400",
-    finishLevel: "builder-plus",
-    servicesNeeded: "building",
     projectLocation: "Austin, Texas",
-    lotStatus: "already-owned",
-    timeline: "3-6-months",
-    budgetRange: "1m-2m",
     projectDescription:
-      "This smoke test brief verifies the guided inquiry flow, Firebase emulator persistence, and success redirect without touching production data.",
+      "This smoke test verifies the short general inquiry, Firebase emulator persistence, and success redirect without touching production data.",
     ...overrides,
   };
-
-  const continueButton = page.locator('button[type="button"]').last();
 
   await page.locator('input[name="name"]').fill(submission.name);
   await page.locator('input[name="phone"]').fill(submission.phone);
   await page.locator('input[name="email"]').fill(submission.email);
-  await page.locator('input[name="preferredContactMethod"][value="email"]').check({
-    force: true,
-  });
-  await continueButton.evaluate((button) => button.click());
-  await page.locator('select[name="projectType"]').waitFor();
-
   await page.locator('select[name="projectType"]').selectOption(submission.projectType);
-  await page.locator('input[name="approxSquareFootage"]').fill(
-    submission.approxSquareFootage,
-  );
-  await page
-    .locator('select[name="finishLevel"]')
-    .selectOption(submission.finishLevel);
-  await page.locator(
-    `input[name="servicesNeeded"][value="${submission.servicesNeeded}"]`,
-  ).check({ force: true });
-  await continueButton.evaluate((button) => button.click());
-  await page.locator('input[name="projectLocation"]').waitFor();
-
   await page
     .locator('input[name="projectLocation"]')
     .fill(submission.projectLocation);
-  await page.locator('select[name="lotStatus"]').selectOption(submission.lotStatus);
-  await page.locator('select[name="timeline"]').selectOption(submission.timeline);
-  await page
-    .locator('select[name="budgetRange"]')
-    .selectOption(submission.budgetRange);
-  await continueButton.evaluate((button) => button.click());
-  await page.locator('textarea[name="projectDescription"]').waitFor();
-
   await page
     .locator('textarea[name="projectDescription"]')
     .fill(submission.projectDescription);
-  await continueButton.evaluate((button) => button.click());
   await page.locator('button[type="submit"]:not([disabled])').waitFor();
 
   return submission;
@@ -1349,14 +1326,11 @@ async function verifyInquiryFailureState(browser, baseUrl) {
   const page = await browser.newPage();
 
   try {
-    await page.goto(`${baseUrl}/inquire`, { waitUntil: "networkidle" });
-    await page
-      .locator('button[type="button"]')
-      .last()
-      .evaluate((button) => button.click());
+    await page.goto(`${baseUrl}/start#general-inquiry`, { waitUntil: "networkidle" });
+    await page.getByRole("button", { name: "Send Inquiry" }).click();
     await page.getByText("Please share your name.").waitFor();
 
-    await page.goto(`${baseUrl}/inquire`, { waitUntil: "networkidle" });
+    await page.goto(`${baseUrl}/start#general-inquiry`, { waitUntil: "networkidle" });
     await fillInquiryForm(page, {
       name: "Forced Failure Smoke Test",
       email: "forced-failure@example.com",
@@ -1366,11 +1340,11 @@ async function verifyInquiryFailureState(browser, baseUrl) {
     await submitButton.click();
     await page
       .getByText(
-        "The project brief could not be sent right now. Please try again in a moment or email h and h directly.",
+        "The project inquiry could not be sent right now. Please try again in a moment or email h and h directly.",
       )
       .waitFor();
     assert(
-      new URL(page.url()).pathname === "/inquire",
+      new URL(page.url()).pathname === "/start",
       "A failed Firestore write must keep the visitor on the inquiry form.",
     );
   } finally {
@@ -1414,14 +1388,13 @@ async function verifyInquirySuccess(
 
   try {
     await page.goto(
-      `${baseUrl}/inquire?finish=custom&buildType=single-family&utm_source=smoke&utm_medium=qa&utm_campaign=phase7`,
+      `${baseUrl}/start?buildType=single-family&utm_source=smoke&utm_medium=qa&utm_campaign=phase7#general-inquiry`,
       { waitUntil: "networkidle" },
     );
 
     const submission = await fillInquiryForm(page, {
       name: "Successful Smoke Test",
       email: "success@example.com",
-      finishLevel: "custom",
     });
     const submitButton = page.locator('button[type="submit"]');
     await submitButton.waitFor();
@@ -1441,8 +1414,8 @@ async function verifyInquirySuccess(
       "Submitted name did not reach Firestore.",
     );
     assert(
-      fields.finishLevel === submission.finishLevel,
-      "Submitted finish level did not reach Firestore.",
+      fields.schemaVersion === 1 && fields.experience === "general-inquiry",
+      "Submitted general inquiry did not retain its versioned experience shape.",
     );
     assert(
       fields.projectType === submission.projectType,

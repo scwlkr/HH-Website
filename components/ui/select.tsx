@@ -66,7 +66,10 @@ export function Select({
             </option>
           ))}
         </select>
-        <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center font-mono text-xs text-muted">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-4 flex items-center font-mono text-xs text-muted"
+        >
           v
         </span>
       </div>

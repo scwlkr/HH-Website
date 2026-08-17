@@ -1,6 +1,6 @@
 # Howeth and Harp Website
 
-> Drafting-board public site, project brief funnel, and HHQ operations workspace for Howeth and Harp.
+> Drafting-board public site, project inquiry paths, and HHQ operations workspace for Howeth and Harp.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2.10-black?style=flat&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2.4-149ECA?style=flat&logo=react&logoColor=white)](https://react.dev/)
@@ -9,12 +9,12 @@
 
 ## Field Notes
 
-This repo powers the Howeth and Harp marketing site, project brief intake flow, completed-home project pages, and internal HHQ admin workspace. The public experience is server-rendered by default and uses a restrained architectural drafting system: crisp linework, measured spacing, simple geometry, and no fake blueprint cosplay.
+This repo powers the Howeth and Harp marketing site, Plan Your Home walkthrough, general project inquiry, completed-home project pages, and internal HHQ admin workspace. The public experience is server-rendered by default and uses a restrained architectural drafting system: crisp linework, measured spacing, simple geometry, and no fake blueprint cosplay.
 
 | Surface | Purpose |
 | --- | --- |
 | Public site | Explain services, finish levels, build categories, FAQ, and legal pages. |
-| Project brief | Collect structured client project details at `/inquire`. |
+| Project start | Lead with the detailed Plan Your Home walkthrough and offer a short general project inquiry at `/start`. |
 | Projects | Show completed homes and live `for-sale` / `sold` status from Firestore. |
 | HHQ | Protected admin workspace for projects and square-foot pricing. |
 
@@ -104,7 +104,7 @@ docs/         Current manual path and deprecated historical docs
 
 ## Launch State
 
-The core public routes, structured inquiry flow, Firebase-backed projects/pricing path, protected HHQ admin surface, and emulator-backed smoke suite are operational. Remaining launch decisions are owner-approved legal content, final contact details, final production imagery, and the selected analytics destination.
+The core public routes, project inquiry paths, Firebase-backed projects/pricing path, protected HHQ admin surface, and emulator-backed smoke suite are operational. Remaining launch decisions are owner-approved legal content, final contact details, final production imagery, and the selected analytics destination.
 
 ## Contributing
 

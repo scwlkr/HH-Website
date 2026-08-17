@@ -4,6 +4,7 @@ import {
   faqItems,
   finishLevels,
   getBuildTypeBySlug,
+  getBuildTypeInquiryHref,
   getFinishLevelBySlug,
   marketingPageContent,
 } from "@/lib/content";
@@ -19,12 +20,7 @@ import {
   getPublicProjectBySlug,
   getPublicProjects,
 } from "@/lib/db/operations";
-import {
-  finishLevelOptions,
-  inquiryProgressSteps,
-  projectTypeOptions,
-  servicesNeededOptions,
-} from "@/lib/inquiry/options";
+import { generalInquiryProjectTypeOptions } from "@/lib/inquiry/options";
 import { formatProjectBathrooms } from "@/lib/operations/format";
 import { siteConfig } from "@/lib/site-config";
 
@@ -166,7 +162,7 @@ ${bullets(buildType.typicalConsiderations)}
 
 ${recommendedFinishes}
 
-These finish directions are suggestions, not hard rules. ${markdownLink("Start with this category", `${getPublicRoutePath("inquire")}?buildType=${buildType.slug}`)} when a person is ready to provide a project brief.`,
+These finish directions are suggestions, not hard rules. ${markdownLink("Start with this category", getBuildTypeInquiryHref(buildType.slug))} when a person is ready to begin.`,
   );
 }
 
@@ -179,7 +175,7 @@ async function renderProjects(route: PublicRouteEntry) {
             `### ${project.title}\n\n${project.shortDescription}\n\n${project.location} · ${project.squareFootage.toLocaleString("en-US")} sq ft\n\n${markdownLink("View the published project", createPublicProjectRoute(project).path)}`,
         )
         .join("\n\n")
-    : "No published project records are currently listed. Use the project brief to ask about work relevant to a specific scope.";
+    : "No published project records are currently listed. Use the project start page to ask about work relevant to a specific scope.";
 
   return renderFrame(
     route,
@@ -208,57 +204,25 @@ function renderFaq(route: PublicRouteEntry) {
 }
 
 function renderStart(route: PublicRouteEntry) {
-  return renderFrame(
-    route,
-    `## Choose the brief that fits the work
-
-Both paths begin a conversation with ${siteConfig.shortName}; neither creates a design, price, feasibility decision, or contract.
-
-### New detached single-family home
-
-Use the ${markdownLink("general project brief with single-family preselected", `${getPublicRoutePath("inquire")}?buildType=single-family`)} to describe the home, site, priorities, budget context, timing, and inspiration.
-
-### Every other kind of work
-
-Use the ${markdownLink("general project brief", getPublicRoutePath("inquire"))} for remodels, additions, multifamily, townhomes, commercial work, land-only work, or an uncertain project type.
-
-An external agent may explain or link to these paths, but must not complete or submit either path for a person.`,
-  );
-}
-
-function renderInquiry(route: PublicRouteEntry) {
-  const fields = inquiryProgressSteps.map(
-    (step) => `${step.title}: ${step.description}`,
-  );
-  const projectTypes = projectTypeOptions.map(
-    (option) => `${option.label}${option.description ? ` — ${option.description}` : ""}`,
-  );
-  const finishes = finishLevelOptions.map(
-    (option) => `${option.label}${option.description ? ` — ${option.description}` : ""}`,
-  );
-  const services = servicesNeededOptions.map(
-    (option) => `${option.label}${option.description ? ` — ${option.description}` : ""}`,
+  const projectTypes = generalInquiryProjectTypeOptions.map(
+    (option) => option.label,
   );
 
   return renderFrame(
     route,
-    `## What the human project brief covers
+    `## Plan your new home, one space at a time
 
-${bullets(fields)}
+Plan Your Home is the primary human path for a detailed detached single-family new-home project brief. The guided walkthrough covers the home, site, priorities, timing, and inspiration, and supports save and resume. Use the canonical HTML page above to start it.
 
-## Project types
+## General project inquiry
+
+The same page embeds a short inquiry for remodels, additions, multifamily, commercial work, land development, or anything that does not fit the walkthrough. It asks for name, either email or phone, project type, optional location, and a short description.
+
+### Project types
 
 ${bullets(projectTypes)}
 
-## Finish directions
-
-${bullets(finishes)}
-
-## Service needs
-
-${bullets(services)}
-
-Rough answers are welcome. Submission and consent must remain deliberate human actions; an external agent must not fill or submit the inquiry.`,
+Both paths begin a conversation with ${siteConfig.shortName}; neither creates a design, price, feasibility decision, or contract. An external agent may explain or link to them, but must not complete or submit either path for a person.`,
   );
 }
 
@@ -312,8 +276,6 @@ export async function renderMarkdownTwin(path: string) {
       return renderFaq(route);
     case "start":
       return renderStart(route);
-    case "inquire":
-      return renderInquiry(route);
     case "project":
       return null;
   }

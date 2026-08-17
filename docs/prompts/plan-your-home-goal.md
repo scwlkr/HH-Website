@@ -45,7 +45,7 @@ Worker contract:
 - One issue, one branch, no adjacent feature work.
 - Read AGENTS.md, docs/devops.md, the product spec, roadmap, and live issue/comments before changes.
 - Match existing Next.js, React, TypeScript, Firebase, validation, admin-auth, and visual conventions unless the issue explicitly changes them.
-- Keep the generic /inquire path working for non-new-home inquiries.
+- Keep the general inquiry at `/start#general-inquiry` working for non-new-home projects, with legacy `/inquire` links redirecting there.
 - Keep Plan Your Home in its own versioned domain rather than stretching the flat generic inquiry form.
 - Use a typed registry + pure reducer/persistence interfaces + five sparse illustrated React scene families shared across seven content zones.
 - Use semantic DOM controls over decorative artwork. Do not create a hidden duplicate form.

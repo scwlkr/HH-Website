@@ -96,7 +96,7 @@ export const privacyDocument: LegalDocument = {
     {
       title: "Submission Is Not A Contract",
       paragraphs: [
-        "A generic project brief or Plan Your Home brief starts a conversation. It is not a design, price, estimate, feasibility decision, promise to perform work, or contract.",
+        "A general project inquiry or Plan Your Home brief starts a conversation. It is not a design, price, estimate, feasibility decision, promise to perform work, or contract.",
         "Submitting a brief permits project-related contact under the disclosure shown with that brief. It does not provide marketing consent or create a client relationship.",
       ],
     },

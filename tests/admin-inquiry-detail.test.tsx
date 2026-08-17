@@ -162,6 +162,36 @@ test("malformed answers and references fail closed while legacy records remain r
   );
 });
 
+test("the short general inquiry remains readable in HHQ", () => {
+  const detail = mapAdminInquiryDetail("general-detail", {
+    schemaVersion: 1,
+    experience: "general-inquiry",
+    status: "new",
+    name: "Avery Builder",
+    email: null,
+    phone: "+1 214 555 0101",
+    projectType: "land-site-development",
+    projectLocation: null,
+    projectDescription: "We need help evaluating a development site.",
+    createdAt: new Date("2026-08-17T12:00:00.000Z"),
+  });
+
+  assert(detail);
+  assert.equal(detail.source, "general-inquiry");
+  assert.equal(detail.status, "submitted");
+  assert.equal(detail.progress.summary, "Complete · general inquiry");
+  assert.deepEqual(
+    detail.answerSections.flatMap(({ answers }) =>
+      answers.map(({ label, summary }) => [label, summary]),
+    ),
+    [
+      ["Project type", "Land Site Development"],
+      ["Project location", "Not provided"],
+      ["What are you planning?", "We need help evaluating a development site."],
+    ],
+  );
+});
+
 test("private object validation requires the inquiry's exact single-object prefix", () => {
   assert.equal(
     hasExactInquiryObjectPrefix(

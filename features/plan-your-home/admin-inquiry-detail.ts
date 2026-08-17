@@ -62,7 +62,7 @@ export type AdminInquiryDetailReference =
 
 export type AdminInquiryDetail = Readonly<{
   id: string;
-  source: "legacy" | "plan-your-home";
+  source: "general-inquiry" | "legacy" | "plan-your-home";
   status: AdminInquiryDetailStatus;
   name: string;
   email: string | null;
@@ -186,6 +186,8 @@ function humanizeSlug(value: unknown): string | null {
 function readSource(record: StoredRecord) {
   return record.schemaVersion === 2 && record.experience === "plan-your-home"
     ? ("plan-your-home" as const)
+    : record.schemaVersion === 1 && record.experience === "general-inquiry"
+      ? ("general-inquiry" as const)
     : ("legacy" as const);
 }
 
@@ -194,7 +196,7 @@ function readStatus(
   source: AdminInquiryDetail["source"],
 ): AdminInquiryDetailStatus | null {
   if (record.status === "deleting") return "deleting";
-  if (record.status === "new" && source === "legacy") return "submitted";
+  if (record.status === "new" && source !== "plan-your-home") return "submitted";
   if (
     record.status === "draft" ||
     record.status === "submitted" ||
@@ -298,6 +300,60 @@ function mapLegacyDetail(
           legacyAnswer(
             "projectDescription",
             "Project description",
+            record.projectDescription,
+            { multiline: true },
+          ),
+        ],
+      },
+    ],
+    references: [],
+    omittedReferenceCount: 0,
+  };
+}
+
+function mapGeneralInquiryDetail(
+  id: string,
+  record: StoredRecord,
+  status: AdminInquiryDetailStatus,
+): AdminInquiryDetail {
+  return {
+    id,
+    source: "general-inquiry",
+    status,
+    name: normalizeSingleLine(record.name) ?? "Unnamed inquiry",
+    email: normalizeSingleLine(record.email),
+    phone: normalizeSingleLine(record.phone),
+    preferredFollowUp: null,
+    disclosure:
+      "Sending the general inquiry permits project-related follow-up under the privacy policy; it is not marketing consent or a contract.",
+    progress: {
+      summary: "Complete · general inquiry",
+      currentPrompt: null,
+      completedZones: [],
+      revision: null,
+    },
+    timestamps: {
+      createdAt: readTimestamp(record.createdAt),
+      updatedAt: readTimestamp(record.updatedAt),
+      submittedAt: null,
+      expiresAt: null,
+      consentAcceptedAt: null,
+    },
+    consentVersion: null,
+    answerSections: [
+      {
+        id: "general-inquiry",
+        title: "Project Inquiry",
+        answers: [
+          legacyAnswer("projectType", "Project type", record.projectType),
+          legacyAnswer(
+            "projectLocation",
+            "Project location",
+            record.projectLocation,
+          ),
+          legacyAnswer(
+            "projectDescription",
+            "What are you planning?",
             record.projectDescription,
             { multiline: true },
           ),
@@ -486,9 +542,13 @@ export function mapAdminInquiryDetail(
   const source = readSource(record);
   const status = readStatus(record, source);
   if (!status) return null;
-  return source === "plan-your-home"
-    ? mapPlanHomeDetail(id, record, status)
-    : mapLegacyDetail(id, record, status);
+  if (source === "plan-your-home") {
+    return mapPlanHomeDetail(id, record, status);
+  }
+  if (source === "general-inquiry") {
+    return mapGeneralInquiryDetail(id, record, status);
+  }
+  return mapLegacyDetail(id, record, status);
 }
 
 export function isAdminInquiryId(value: unknown): value is string {

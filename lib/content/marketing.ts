@@ -101,13 +101,13 @@ export const marketingPageContent = {
   },
   thankYou: {
     eyebrow: "Submission Received",
-    title: "Brief Received",
+    title: "Inquiry Received",
     lede: "The next step is a direct follow-up.",
     description:
-      `Your project brief has been received. ${shortName} will review the details and follow up using your preferred contact method.`,
+      `Your project inquiry has been received. ${shortName} will review the details and follow up using the contact information you provided.`,
     nextSteps: [
-      `${shortName} reviews the project type, finish direction, site context, and timeline you submitted.`,
-      `${shortName} will contact you using the method you selected.`,
+      `${shortName} reviews the project type, location, and short description you submitted.`,
+      `${shortName} will respond using the contact information you provided.`,
       `If you need to add or correct something, email ${shortName} directly.`,
     ],
   },

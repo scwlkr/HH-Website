@@ -34,9 +34,9 @@ Use this task-based index at the start of repository work. It routes agents to a
 
 ## Project inquiries and Plan Your Home
 
-**Authoritative sources:** [docs/inquiry-flow.md](../inquiry-flow.md) and [docs/virtual-home-project-brief.md](../virtual-home-project-brief.md) define the generic project brief; [docs/plan-your-home-product-spec.md](../plan-your-home-product-spec.md), [docs/plan-your-home-implementation-roadmap.md](../plan-your-home-implementation-roadmap.md), and root [CONTEXT.md](../../CONTEXT.md) define Plan Your Home.
+**Authoritative sources:** [docs/inquiry-flow.md](../inquiry-flow.md) defines the general project inquiry; [docs/plan-your-home-product-spec.md](../plan-your-home-product-spec.md), [docs/plan-your-home-implementation-roadmap.md](../plan-your-home-implementation-roadmap.md), and root [CONTEXT.md](../../CONTEXT.md) define Plan Your Home. [docs/virtual-home-project-brief.md](../virtual-home-project-brief.md) is historical context only.
 
-**Source ownership:** Generic inquiry behavior lives under `app/inquire/`, `components/inquiry/`, `lib/inquiry/`, and `lib/validation/inquiry.ts`. Plan Your Home owns `app/plan-your-home/` and `features/plan-your-home/`; do not blur the two project-brief paths.
+**Source ownership:** `/start` composes both public choices. General inquiry behavior lives in `app/start/`, the server action and legacy redirect under `app/inquire/`, `components/inquiry/`, `lib/inquiry/`, and `lib/validation/inquiry.ts`. Plan Your Home owns `app/plan-your-home/` and `features/plan-your-home/`; keep the short general inquiry distinct from the detailed Plan Your Home project brief.
 
 **Safeguards:** Treat contact, project details, references, resume capabilities, and consent as private. Preserve noindex policy and the fail-closed owner-review boundary. Never expose tokens, customer data, validator internals, or automated consent/submission authority.
 

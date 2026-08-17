@@ -123,7 +123,9 @@ export function AdminInquiryDetailView({
           <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-accent">
             {inquiry.source === "plan-your-home"
               ? "Plan Your Home Inquiry"
-              : "Legacy Inquiry"}
+              : inquiry.source === "general-inquiry"
+                ? "General Inquiry"
+                : "Legacy Inquiry"}
           </p>
           <span
             className={cn(

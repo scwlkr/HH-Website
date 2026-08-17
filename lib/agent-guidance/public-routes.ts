@@ -17,8 +17,7 @@ export type PublicRouteKind =
   | "projects"
   | "project"
   | "faq"
-  | "start"
-  | "inquire";
+  | "start";
 
 export type StaticPublicRouteKind = Exclude<PublicRouteKind, "project">;
 
@@ -115,17 +114,8 @@ export const staticPublicRoutes = [
     path: "/start",
     title: "Start a Project",
     summary:
-      "Choose the appropriate human project-brief path for the work being planned.",
+      "Start the guided new-home project brief or send a short general project inquiry.",
     priority: 0.85,
-    changeFrequency: "monthly",
-  }),
-  createRoute({
-    kind: "inquire",
-    path: "/inquire",
-    title: "General Project Brief",
-    summary:
-      "A deliberate human inquiry for project type, finish direction, location, priorities, and timing.",
-    priority: 0.8,
     changeFrequency: "monthly",
   }),
 ] as const satisfies ReadonlyArray<PublicRouteEntry>;

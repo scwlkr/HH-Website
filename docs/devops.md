@@ -22,7 +22,7 @@ After a change, capture only touched routes:
 
 ```bash
 npm run review -- /pricing
-npm run review -- / /pricing /inquire
+npm run review -- / /pricing /start
 ```
 
 Plan Your Home has a public project-entry path in this build. Open it directly at
@@ -60,7 +60,7 @@ Run `npm run proof:plan-home-scene-budget` after changing a scene. The shared
 five-family scene bundle is limited to 24 KiB of compressed JavaScript and CSS.
 No exception is currently required.
 
-`npm run review` with no routes checks `/`, `/pricing`, `/projects`, `/faq`, and `/inquire`. It reuses the live server on port `3000`, or starts and stops an isolated dev server. Each route is checked at desktop and mobile sizes for HTTP failure, browser errors, and horizontal overflow.
+`npm run review` with no routes checks `/`, `/pricing`, `/projects`, `/faq`, and `/start`. It reuses the live server on port `3000`, or starts and stops an isolated dev server. Each route is checked at desktop and mobile sizes for HTTP failure, browser errors, and horizontal overflow.
 
 Review these ignored artifacts:
 

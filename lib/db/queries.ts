@@ -4,9 +4,9 @@ import {
   getFirebaseDatabase,
   isFirebaseAdminConfigured,
 } from "@/lib/db/client";
-import type { InquirySubmissionInput } from "@/types/inquiry";
+import type { GeneralInquirySubmissionInput } from "@/types/inquiry";
 
-export async function insertInquirySubmission(input: InquirySubmissionInput) {
+export async function insertInquirySubmission(input: GeneralInquirySubmissionInput) {
   if (!isFirebaseAdminConfigured()) {
     throw new Error("Firebase admin credentials are not configured.");
   }

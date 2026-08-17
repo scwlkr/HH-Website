@@ -1,54 +1,21 @@
-import type { BuildTypeSlug, FinishLevelSlug } from "@/types/content";
+export const generalInquiryProjectTypeValues = [
+  "single-family",
+  "remodel-addition",
+  "multifamily-townhomes",
+  "commercial",
+  "land-site-development",
+  "other-not-sure",
+] as const;
 
-export type InquiryProjectType = BuildTypeSlug | "not-sure-yet";
+export type GeneralInquiryProjectType =
+  (typeof generalInquiryProjectTypeValues)[number];
 
-export type InquiryFinishLevel = FinishLevelSlug | "not-sure-yet";
-
-export type InquiryPreferredContactMethod = "email" | "phone" | "text";
-
-export type InquiryLotStatus =
-  | "already-owned"
-  | "actively-looking"
-  | "evaluating-options"
-  | "not-sure-yet";
-
-export type InquiryServiceNeeded =
-  | "architectural-design"
-  | "building"
-  | "land-development"
-  | "not-sure-yet";
-
-export type InquiryTimeline =
-  | "asap"
-  | "0-3-months"
-  | "3-6-months"
-  | "6-12-months"
-  | "12-plus-months"
-  | "just-exploring";
-
-export type InquiryBudgetRange =
-  | "under-500k"
-  | "500k-1m"
-  | "1m-2m"
-  | "2m-5m"
-  | "5m-plus"
-  | "not-sure-yet";
-
-export type InquirySubmissionStatus = "new" | "reviewed" | "spam";
-
-export type InquiryFormValues = {
+export type GeneralInquiryFormValues = {
   name: string;
   phone: string;
   email: string;
-  preferredContactMethod: InquiryPreferredContactMethod | "";
-  projectType: InquiryProjectType | "";
-  approxSquareFootage: string;
-  finishLevel: InquiryFinishLevel | "";
-  servicesNeeded: InquiryServiceNeeded[];
+  projectType: GeneralInquiryProjectType | "";
   projectLocation: string;
-  lotStatus: InquiryLotStatus | "";
-  timeline: InquiryTimeline | "";
-  budgetRange: InquiryBudgetRange | "";
   projectDescription: string;
   sourcePage: string;
   utmSource: string;
@@ -57,23 +24,20 @@ export type InquiryFormValues = {
   company: string;
 };
 
-export type InquiryFieldName = keyof InquiryFormValues;
+export type GeneralInquiryFieldName = keyof GeneralInquiryFormValues;
 
-export type InquiryFieldErrors = Partial<Record<InquiryFieldName, string>>;
+export type GeneralInquiryFieldErrors = Partial<
+  Record<GeneralInquiryFieldName, string>
+>;
 
-export type InquirySubmissionInput = {
+export type GeneralInquirySubmissionInput = {
+  schemaVersion: 1;
+  experience: "general-inquiry";
   name: string;
-  phone: string;
-  email: string;
-  preferredContactMethod: InquiryPreferredContactMethod;
-  projectType: InquiryProjectType;
-  approxSquareFootage: number;
-  finishLevel: InquiryFinishLevel;
-  servicesNeeded: InquiryServiceNeeded[];
-  projectLocation: string;
-  lotStatus: InquiryLotStatus;
-  timeline: InquiryTimeline;
-  budgetRange: InquiryBudgetRange | null;
+  phone: string | null;
+  email: string | null;
+  projectType: GeneralInquiryProjectType;
+  projectLocation: string | null;
   projectDescription: string;
   sourcePage: string | null;
   utmSource: string | null;
@@ -84,17 +48,10 @@ export type InquirySubmissionInput = {
 export type InquiryActionState = {
   status: "idle" | "field-error" | "server-error";
   message?: string;
-  fieldErrors: InquiryFieldErrors;
+  fieldErrors: GeneralInquiryFieldErrors;
 };
 
 export const inquiryActionInitialState: InquiryActionState = {
   status: "idle",
   fieldErrors: {},
 };
-
-export type InquiryStepId =
-  | "contact"
-  | "project-basics"
-  | "site-context"
-  | "description"
-  | "review";

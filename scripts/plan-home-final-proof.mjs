@@ -267,7 +267,7 @@ async function waitForSceneReady(page) {
 
   await page.locator("[data-plan-home-scene-loading]").waitFor({ state: "detached" });
   if ((await page.getByRole("progressbar").count()) > 0) {
-    await page.locator("[data-scene-anchor]").first().waitFor({ state: "attached" });
+    await page.locator("[data-scene-family]").first().waitFor({ state: "attached" });
   }
 }
 
@@ -784,33 +784,14 @@ async function proveDesktopZoom(browser, baseUrl) {
 }
 
 async function fillGenericInquiry(page) {
-  const continueButton = page.locator('button[type="button"]').last();
-
   await page.locator('input[name="name"]').fill("Issue 18 Commercial Proof");
   await page.locator('input[name="phone"]').fill("(512) 555-0118");
   await page.locator('input[name="email"]').fill("issue-18-commercial@example.invalid");
-  await activate(page.locator('input[name="preferredContactMethod"][value="email"]'));
-  await continueButton.evaluate((button) => button.click());
-  await page.locator('select[name="projectType"]').waitFor();
-
   await page.locator('select[name="projectType"]').selectOption("commercial");
-  await page.locator('input[name="approxSquareFootage"]').fill("5000");
-  await page.locator('select[name="finishLevel"]').selectOption("builder-plus");
-  await activate(page.locator('input[name="servicesNeeded"][value="building"]'));
-  await continueButton.evaluate((button) => button.click());
-  await page.locator('input[name="projectLocation"]').waitFor();
-
   await page.locator('input[name="projectLocation"]').fill("Austin, Texas");
-  await page.locator('select[name="lotStatus"]').selectOption("already-owned");
-  await page.locator('select[name="timeline"]').selectOption("3-6-months");
-  await page.locator('select[name="budgetRange"]').selectOption("1m-2m");
-  await continueButton.evaluate((button) => button.click());
-  await page.locator('textarea[name="projectDescription"]').waitFor();
-
   await page
     .locator('textarea[name="projectDescription"]')
-    .fill("Commercial project exercising the preserved generic inquiry path.");
-  await continueButton.evaluate((button) => button.click());
+    .fill("Commercial project exercising the short general inquiry path.");
   await page.locator('button[type="submit"]:not([disabled])').waitFor();
   await page.locator('button[type="submit"]:not([disabled])').click();
 }
@@ -820,14 +801,20 @@ async function proveGeneric(browser, baseUrl, firestore) {
   const page = await context.newPage();
   watchPage(page, "generic");
   await preparePage(page);
-  await page.goto(`${baseUrl}/start?buildType=commercial`, { waitUntil: "networkidle" });
-  const genericLink = page.getByRole("link", { name: "Start Another Project Type" });
-  assert((await genericLink.getAttribute("href")).includes("buildType=commercial"));
-  await genericLink.click();
-  await page.waitForURL(/\/inquire/);
+  await page.goto(`${baseUrl}/start?buildType=commercial#general-inquiry`, {
+    waitUntil: "networkidle",
+  });
+  assert.equal(
+    await page.getByRole("link", { name: "Start Plan Your Home" }).getAttribute("href"),
+    "/plan-your-home",
+  );
+  assert.equal(
+    await page.locator('select[name="projectType"]').inputValue(),
+    "commercial",
+  );
   await fillGenericInquiry(page);
   await page.waitForURL(`${baseUrl}/thank-you`);
-  await page.getByRole("heading", { name: "Brief Received" }).waitFor();
+  await page.getByRole("heading", { name: "Inquiry Received" }).waitFor();
   await page.waitForLoadState("networkidle");
   await resetLayoutShift(page);
   await capture(page, "desktop-generic-confirmation");
@@ -837,7 +824,13 @@ async function proveGeneric(browser, baseUrl, firestore) {
     .get();
   assert.equal(result.size, 1);
   assert.equal(result.docs[0].data().projectType, "commercial");
-  evidence.generic = { submitted: true, projectType: "commercial", recordCount: 1 };
+  assert.equal(result.docs[0].data().experience, "general-inquiry");
+  evidence.generic = {
+    submitted: true,
+    experience: "general-inquiry",
+    projectType: "commercial",
+    recordCount: 1,
+  };
   await context.close();
 }
 

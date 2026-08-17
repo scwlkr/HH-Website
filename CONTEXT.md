@@ -4,6 +4,10 @@ Plan Your Home helps prospective new-home customers create a useful project brie
 
 ## Language
 
+**Project start**:
+The public entry page that presents Plan Your Home as the primary path and a short general inquiry for other work as a subordinate fallback. Both paths remain available to every visitor; the project type provides guidance rather than access control.
+_Avoid_: Intake register, eligibility gate
+
 **Plan Your Home**:
 The customer-facing guided planning experience for detached single-family new-home inquiries. It produces a project brief, while illustration supplies context and continuity without competing with the customer's current planning task.
 _Avoid_: Tour, questionnaire, contact form
@@ -13,8 +17,12 @@ The coherent fictional house that connects all seven zones through recurring arc
 _Avoid_: Model home, floor plan, customer design
 
 **Project brief**:
-The structured description of a prospective customer's needs produced by either Plan Your Home or the generic inquiry path.
+The structured description of a prospective customer's new-home needs produced by Plan Your Home.
 _Avoid_: Contact form, submission
+
+**General project inquiry**:
+The short, single-screen request embedded on Project start, primarily for work outside the detached single-family new-home path but available to every visitor. It captures minimal contact information and high-level project context without producing a detailed project brief.
+_Avoid_: General project brief, detailed intake
 
 **Zone**:
 One of the seven fixed areas of the illustrated walkthrough that groups related planning prompts.
