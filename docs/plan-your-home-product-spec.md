@@ -88,7 +88,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | 4 `home.heated-square-feet` | How much space are you considering? | One: Under 1,000; 1,000–1,499; 1,500–1,999; 2,000–2,499; 2,500–2,999; 3,000–3,999; 4,000–4,999; 5,000+; Not sure yet. Explain that garages, porches, and unfinished areas are excluded. |
 | 5 `home.stories` | How many stories are you considering? | One; Two; Not sure yet. |
 | 6 `home.bed-bath-counts` | How many bedrooms and bathrooms do you expect? | Required short text, up to 120 characters. Example: `4 bedrooms, 3 full bathrooms, and 1 half bathroom`. |
-| — `contact.checkpoint` | Save your progress and resume later. | Email and phone required. Reuse welcome name. Disclose: progress will be saved, h and h may personally follow up about this project, and no reminder is sent automatically. This checkpoint is not one of the 31 planning questions. |
+| — `contact.checkpoint` | Save your progress and resume later. | Email and phone required. Reuse welcome name. Disclose: progress will be saved, h and h may personally follow up about this project, and no reminder is sent automatically. Link to `/privacy`; keep server, retention, storage, and resume-token details on that page instead of restating them in the form. This checkpoint is not one of the 31 planning questions. |
 | 7 `home.daily-life` | Which daily routines should the home support? | Choose up to 4: Quiet and privacy; Entertaining; Remote work or study; Hobbies; Caregiving; Pet routines; Indoor-outdoor living; Not sure yet. |
 | 8 `living.relationship` | How should the main living spaces feel? | Open; Connected but defined; Mostly separate; Not sure yet. |
 | 9 `living.features` | What matters most in the main living area? | Choose up to 5: Fireplace; TV or media; Built-ins; Vaulted or tall ceilings; Strong views; Outdoor connection; Flexible furniture layout; None; Not sure yet. `None` and `Not sure` are exclusive. |
@@ -275,6 +275,7 @@ Allowed properties are anonymous session ID, zone ID, prompt index, reference ki
 - Keep `/inquire` as the generic intake.
 - Route the new-home single-family path from the website's project-start entry into `/plan-your-home`; preserve a clear choice for other project types.
 - Update privacy copy before public cutover to cover local and server drafts, attachments, manual follow-up, customer-requested resume email, retention, and deletion.
+- Keep technical privacy and retention explanations on `/privacy`. Plan Your Home should show only the consent needed for the current action plus a concise privacy-policy link.
 - State near the budget question that it is planning context only, land is excluded, all features remain explorable, and no live estimate is being produced.
 - State before submission that the brief starts a conversation and is not a design, price, feasibility decision, or contract.
 - Legal and retention language requires h and h/counsel approval before public launch.

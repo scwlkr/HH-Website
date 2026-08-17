@@ -6,6 +6,7 @@ import { cleanup, render } from "@testing-library/react";
 import React from "react";
 
 import { InquiryPrivacyNotice } from "../components/inquiry/inquiry-privacy-notice.tsx";
+import { createPlanHomeRefinementFixture } from "../features/plan-your-home/refinement-fixture.ts";
 import { PlanYourHomeShell } from "../features/plan-your-home/plan-your-home-shell.tsx";
 import { privacyDocument } from "../lib/content/legal.ts";
 
@@ -70,6 +71,29 @@ test("the generic inquiry shows privacy and non-contract copy before contact fie
     source.indexOf('<InquiryPrivacyNotice placement="start" />') <
       source.indexOf('name="name"'),
     "The rendered privacy notice must precede the first contact field.",
+  );
+});
+
+test("Plan Your Home links to the privacy policy without restating technical retention details", () => {
+  const contact = render(
+    <PlanYourHomeShell refinementFixture={createPlanHomeRefinementFixture("contact")} />,
+  );
+  const contactLink = contact.getByRole("link", { name: /privacy policy/i });
+  assert.equal(contactLink.getAttribute("href"), "/privacy");
+  assert.doesNotMatch(
+    contact.container.textContent ?? "",
+    /private server draft|180 days|private references|resume email/i,
+  );
+
+  cleanup();
+  const review = render(
+    <PlanYourHomeShell refinementFixture={createPlanHomeRefinementFixture("review")} />,
+  );
+  const reviewLink = review.getByRole("link", { name: /privacy policy/i });
+  assert.equal(reviewLink.getAttribute("href"), "/privacy");
+  assert.doesNotMatch(
+    review.container.textContent ?? "",
+    /proposed retention schedule|24 months|request deletion/i,
   );
 });
 
