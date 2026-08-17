@@ -24,9 +24,10 @@ test("the site footer is a compact branded directory", () => {
     footer.getByRole("navigation", { name: "Agent resources" }),
   );
 
-  for (const label of ["Home", "Projects", "Pricing", "FAQ", "Start a Project"]) {
+  for (const label of ["Projects", "Pricing", "FAQ", "Start a Project"]) {
     assert.ok(explore.getByRole("link", { name: label }));
   }
+  assert.equal(explore.queryByRole("link", { name: "Home" }), null);
   assert.equal(
     contact.getByRole("link", { name: "hello@howethandharp.com" }).getAttribute(
       "href",
@@ -38,6 +39,7 @@ test("the site footer is a compact branded directory", () => {
   assert.ok(agents.getByRole("link", { name: "Markdown Sitemap" }));
   assert.ok(agents.getByRole("link", { name: "Agent Guide" }));
   assert.ok(agents.getByRole("link", { name: "Services Guide" }));
+  assert.ok(footer.getByText("For agents:"));
 
   assert.equal(footer.queryByText("Blake"), null);
   assert.equal(

@@ -15,7 +15,10 @@ function FooterHeading({ label }: { label: string }) {
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
-  const pageLinks = [...siteConfig.nav, siteConfig.primaryCta];
+  const pageLinks = [
+    ...siteConfig.nav.filter((item) => item.href !== "/"),
+    siteConfig.primaryCta,
+  ];
   const agentLinks = [
     agentDiscoveryResources.sitemap,
     agentDiscoveryResources.llms,
@@ -24,32 +27,41 @@ export function SiteFooter() {
 
   return (
     <footer className="relative border-t border-line-strong bg-white/82">
-      <Container size="wide" className="py-7 sm:py-8 lg:py-9">
-        <div className="grid gap-7 border-b border-line pb-6 lg:grid-cols-[minmax(15rem,1.05fr)_minmax(0,2fr)] lg:gap-14 lg:pb-8">
+      <Container size="wide" className="py-6 sm:py-7 lg:py-8">
+        <div className="grid gap-6 border-b border-line pb-5 lg:grid-cols-[minmax(17rem,1.15fr)_minmax(0,2fr)] lg:gap-16 lg:pb-7">
           <div className="self-start">
             <BrandWordmark
-              sizes="(max-width: 640px) 11.5rem, 13rem"
-              className="h-7 w-[11.5rem] sm:h-8 sm:w-[13rem]"
+              sizes="(max-width: 640px) 13.5rem, 15rem"
+              className="-ml-2 h-8 w-[13.5rem] sm:-ml-3 sm:h-9 sm:w-[15rem]"
             />
-            <p className="mt-3 text-sm font-medium tracking-[0.02em] text-muted-strong">
+            <p className="mt-4 text-[0.95rem] font-medium tracking-[0.02em] text-muted-strong">
               {siteConfig.tagline}
             </p>
           </div>
 
-          <div className="border-t border-line sm:grid sm:grid-cols-3 sm:border-t-0">
+          <div className="border-t border-line lg:grid lg:grid-cols-[minmax(10rem,0.9fr)_minmax(15rem,1.35fr)_minmax(7rem,0.65fr)] lg:items-start lg:gap-x-14 lg:border-t-0">
             <nav
               aria-label="Explore"
-              className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 border-b border-line py-3 sm:block sm:border-b-0 sm:border-l sm:py-0 sm:pl-6"
+              className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 border-b border-line py-2 lg:block lg:border-b-0 lg:py-0"
             >
               <FooterHeading label="Explore" />
-              <ul className="-my-1 flex flex-wrap gap-x-5 sm:mt-3 sm:grid sm:grid-cols-2 sm:gap-x-4">
+              <ul className="-my-1 flex flex-wrap gap-x-5 lg:mt-3 lg:grid lg:grid-cols-[max-content_minmax(0,1fr)] lg:gap-x-5">
                 {pageLinks.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href as Route}
-                      className="hh-link hh-touch-target text-sm leading-6 text-muted"
+                      className={`hh-link hh-touch-target whitespace-nowrap text-sm leading-6 ${
+                        item.href === siteConfig.primaryCta.href
+                          ? "font-medium text-accent"
+                          : "text-muted"
+                      }`}
                     >
                       {item.label}
+                      {item.href === siteConfig.primaryCta.href ? (
+                        <span aria-hidden="true" className="ml-2">
+                          →
+                        </span>
+                      ) : null}
                     </Link>
                   </li>
                 ))}
@@ -58,14 +70,14 @@ export function SiteFooter() {
 
             <nav
               aria-label="Contact"
-              className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 border-b border-line py-3 sm:block sm:border-b-0 sm:border-l sm:py-0 sm:pl-6"
+              className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 border-b border-line py-2 lg:block lg:border-b-0 lg:py-0"
             >
               <FooterHeading label="Contact" />
-              <ul className="-my-1 sm:mt-3">
+              <ul className="-my-1 lg:mt-3">
                 <li>
                   <a
                     href={siteConfig.contact.email.href}
-                    className="hh-link hh-touch-target text-sm leading-6 text-muted"
+                    className="hh-link hh-touch-target break-all text-sm leading-6 text-muted"
                   >
                     {siteConfig.contact.email.label}
                   </a>
@@ -75,10 +87,10 @@ export function SiteFooter() {
 
             <nav
               aria-label="Information"
-              className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-3 sm:block sm:border-l sm:py-0 sm:pl-6"
+              className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 py-2 lg:block lg:py-0"
             >
               <FooterHeading label="Information" />
-              <ul className="-my-1 flex flex-wrap gap-x-5 sm:mt-3 sm:block">
+              <ul className="-my-1 flex flex-wrap gap-x-5 lg:mt-3 lg:block">
                 {siteConfig.legalNav.map((item) => (
                   <li key={item.href}>
                     <Link
@@ -94,8 +106,14 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 pt-3 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <nav aria-label="Agent resources">
+        <div className="flex flex-col pt-2 text-xs text-muted sm:min-h-14 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:pt-0">
+          <nav
+            aria-label="Agent resources"
+            className="flex flex-col sm:flex-row sm:items-center sm:gap-4"
+          >
+            <span className="font-mono text-[0.66rem] uppercase tracking-[0.18em] text-muted-strong">
+              For agents:
+            </span>
             <ul className="flex flex-wrap gap-x-5">
               {agentLinks.map((item) => (
                 <li key={item.path}>
