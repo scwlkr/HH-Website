@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { BrandMark, BrandWordmark } from "@/components/brand/brand-logo";
 import { Container } from "@/components/layout/container";
+import { agentDiscoveryResources } from "@/lib/agent-guidance/resources";
 import { siteConfig } from "@/lib/site-config";
 
 function FooterLink({
@@ -41,6 +42,11 @@ export function SiteFooter() {
     label: string;
   }> = [];
   const pageLinks = [...siteConfig.nav, siteConfig.primaryCta];
+  const agentLinks = [
+    agentDiscoveryResources.sitemap,
+    agentDiscoveryResources.llms,
+    agentDiscoveryResources.services,
+  ] as const;
 
   if (siteConfig.contact.phone.href) {
     contactLinks.push({
@@ -61,8 +67,8 @@ export function SiteFooter() {
   return (
     <footer className="relative border-t border-line-strong bg-white/82">
       <Container size="wide" className="py-10 sm:py-12">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-b border-line pb-9 md:grid-cols-3 lg:grid-cols-[minmax(0,1.35fr)_repeat(3,minmax(0,0.55fr))] lg:gap-8">
-          <div className="col-span-2 space-y-5 md:col-span-3 lg:col-span-1 lg:pr-10">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-b border-line pb-9 md:grid-cols-4 lg:grid-cols-[minmax(0,1.35fr)_repeat(4,minmax(0,0.55fr))] lg:gap-8">
+          <div className="col-span-2 space-y-5 md:col-span-4 lg:col-span-1 lg:pr-10">
             <div className="flex items-center gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--hh-radius-pill)] border border-line-strong bg-white">
                 <BrandMark decorative sizes="34px" className="h-7 w-7" />
@@ -125,6 +131,17 @@ export function SiteFooter() {
                   >
                     {item.label}
                   </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <FooterHeading label="Agents" />
+            <ul className="mt-5 space-y-2">
+              {agentLinks.map((item) => (
+                <li key={item.path}>
+                  <FooterLink href={item.path} label={item.footerLabel} />
                 </li>
               ))}
             </ul>

@@ -8,6 +8,9 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin", "/thank-you"],
     },
-    sitemap: absoluteUrl("/sitemap.xml").toString(),
+    sitemap: [
+      absoluteUrl("/sitemap.xml").toString(),
+      absoluteUrl("/sitemap.md").toString(),
+    ],
   };
 }
