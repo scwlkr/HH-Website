@@ -14,6 +14,7 @@ never use: H & H, never use the & ampersand symbol in the naming. It is extremly
 ## reference 
 
 Load: `./docs/devops.md `
+Load: `./docs/agents/index.md`
 
 ## git
 

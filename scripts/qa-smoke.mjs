@@ -1,7 +1,7 @@
 import http from "node:http";
 import { once } from "node:events";
 import { spawn } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { deleteApp, initializeApp } from "firebase-admin/app";
@@ -581,13 +581,15 @@ async function verifyRouteStatuses(baseUrl) {
 async function verifyProjectPublicationBoundary(baseUrl) {
   log("Checking project publication boundaries...");
 
-  const [projectsResponse, sitemapResponse] = await Promise.all([
+  const [projectsResponse, sitemapResponse, markdownSitemapResponse] = await Promise.all([
     fetch(`${baseUrl}/projects`),
     fetch(`${baseUrl}/sitemap.xml`),
+    fetch(`${baseUrl}/sitemap.md`),
   ]);
-  const [projectsHtml, sitemapXml] = await Promise.all([
+  const [projectsHtml, sitemapXml, markdownSitemap] = await Promise.all([
     projectsResponse.text(),
     sitemapResponse.text(),
+    markdownSitemapResponse.text(),
   ]);
   const [publishedFixture, draftFixture, legacyFixture] = publicationFixtures;
 
@@ -609,6 +611,317 @@ async function verifyProjectPublicationBoundary(baseUrl) {
       !sitemapXml.includes(`/projects/${legacyFixture.slug}`),
     "The sitemap must hide draft and legacy projects.",
   );
+  assert(
+    markdownSitemap.includes(`/projects/${publishedFixture.slug}`) &&
+      !markdownSitemap.includes(`/projects/${draftFixture.slug}`) &&
+      !markdownSitemap.includes(`/projects/${legacyFixture.slug}`),
+    "The Markdown sitemap must include only explicitly published projects.",
+  );
+}
+
+async function verifyAgentDiscoveryDocuments(baseUrl) {
+  log("Checking public agent discovery documents...");
+
+  const resourcePaths = ["/llms.txt", "/sitemap.md", "/services.md"];
+  const resources = new Map();
+
+  for (const resourcePath of resourcePaths) {
+    const response = await fetch(`${baseUrl}${resourcePath}`);
+    const body = await response.text();
+
+    assert(
+      response.ok,
+      `Expected ${resourcePath} to return 200, received ${response.status}.`,
+    );
+    assert(
+      response.headers.get("content-type")?.startsWith(
+        resourcePath === "/llms.txt" ? "text/plain" : "text/markdown",
+      ),
+      `${resourcePath} must use its agent-readable content type.`,
+    );
+    assert(
+      response.headers.get("access-control-allow-origin") === "*",
+      `${resourcePath} must allow public cross-origin reads.`,
+    );
+    assert(
+      response.headers.get("cache-control") ===
+        "public, s-maxage=3600, stale-while-revalidate=86400",
+      `${resourcePath} must use the bounded shared-cache policy.`,
+    );
+    assert(
+      response.headers.get("link") ===
+        `<${baseUrl}${resourcePath}>; rel="canonical"`,
+      `${resourcePath} must identify its canonical public document.`,
+    );
+    assert(body.trim().length > 200, `${resourcePath} must contain useful guidance.`);
+    assert(
+      resourcePaths.every((linkedPath) => body.includes(linkedPath)),
+      `${resourcePath} must cross-link the complete discovery bundle.`,
+    );
+    assert(
+      !body.includes("H & H"),
+      `${resourcePath} must preserve canonical Howeth and Harp naming.`,
+    );
+    for (const internalTerm of ["AGENTS.md", "docs/", "Firebase", "HHQ", "npm run"]) {
+      assert(
+        !body.includes(internalTerm),
+        `${resourcePath} must not publish internal operational guidance (${internalTerm}).`,
+      );
+    }
+
+    resources.set(resourcePath, body);
+  }
+
+  const llms = resources.get("/llms.txt");
+  assert(
+    llms.includes("read-only") &&
+      llms.includes("must not submit") &&
+      llms.includes("Howeth and Harp"),
+    "llms.txt must establish identity and read-only referral limits.",
+  );
+
+  const services = resources.get("/services.md");
+  for (const expectedService of [
+    "Architectural Design",
+    "Building",
+    "Remodeling",
+    "Land Development",
+    "Builder Grade",
+    "Builder+",
+    "Custom",
+  ]) {
+    assert(
+      services.includes(expectedService),
+      `services.md must include ${expectedService}.`,
+    );
+  }
+
+  const markdownSitemap = resources.get("/sitemap.md");
+  for (const publicPath of [
+    "/",
+    "/pricing",
+    "/pricing/builder-grade",
+    "/pricing/builder-plus",
+    "/pricing/custom",
+    "/catalog",
+    "/catalog/single-family",
+    "/catalog/multifamily",
+    "/catalog/townhomes",
+    "/catalog/commercial",
+    "/projects",
+    "/faq",
+    "/start",
+    "/inquire",
+  ]) {
+    assert(
+      markdownSitemap.includes(publicPath),
+      `sitemap.md must include ${publicPath}.`,
+    );
+  }
+
+  const [xmlResponse, robotsResponse] = await Promise.all([
+    fetch(`${baseUrl}/sitemap.xml`),
+    fetch(`${baseUrl}/robots.txt`),
+  ]);
+  const [sitemapXml, robots] = await Promise.all([
+    xmlResponse.text(),
+    robotsResponse.text(),
+  ]);
+  const xmlPaths = [...sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((match) => new URL(match[1]).pathname)
+    .sort();
+  const markdownPaths = [
+    ...markdownSitemap.matchAll(/^- \[[^\]]+\]\(([^)]+)\) —/gm),
+  ]
+    .map((match) => new URL(match[1]).pathname)
+    .sort();
+  assert(
+    JSON.stringify(xmlPaths) === JSON.stringify(markdownPaths),
+    "The XML and Markdown sitemaps must consume the same concrete public inventory.",
+  );
+  for (const excludedPath of [
+    "/plan-your-home",
+    "/privacy",
+    "/terms",
+    "/thank-you",
+    "/admin",
+    "/api/",
+  ]) {
+    assert(
+      !xmlPaths.some((path) => path.startsWith(excludedPath)) &&
+        !markdownPaths.some((path) => path.startsWith(excludedPath)),
+      `Public discovery must exclude ${excludedPath}.`,
+    );
+  }
+  assert(
+    robots.includes(`Sitemap: ${baseUrl}/sitemap.xml`) &&
+      robots.includes(`Sitemap: ${baseUrl}/sitemap.md`) &&
+      robots.includes("Disallow: /admin") &&
+      robots.includes("Disallow: /thank-you"),
+    "robots.txt must advertise both sitemap formats and preserve crawler restrictions.",
+  );
+}
+
+async function verifyInternalAgentIndex() {
+  log("Checking the internal task-based agent index...");
+
+  const [rootInstructions, internalIndex, sharedContext] = await Promise.all([
+    readFile(path.join(process.cwd(), "AGENTS.md"), "utf8"),
+    readFile(path.join(process.cwd(), "docs", "agents", "index.md"), "utf8"),
+    readFile(
+      path.join(process.cwd(), "docs", "agent-guidance", "CONTEXT.md"),
+      "utf8",
+    ),
+  ]);
+
+  assert(
+    rootInstructions.includes("Load: `./docs/agents/index.md`"),
+    "Root repository instructions must require the internal agent index.",
+  );
+  for (const taskArea of [
+    "Brand and public content",
+    "Routes, metadata, and discovery",
+    "Shared layouts and visuals",
+    "Project inquiries and Plan Your Home",
+    "HHQ, projects, Firebase, and private data",
+    "Testing, screenshots, deployment, and completion",
+  ]) {
+    assert(
+      internalIndex.includes(`## ${taskArea}`),
+      `The internal agent index must route ${taskArea} work.`,
+    );
+  }
+  for (const requiredDetail of [
+    "Authoritative sources",
+    "Source ownership",
+    "Safeguards",
+    "Verification",
+    "docs/style-guide.md",
+    "app/sitemap.ts",
+    "components/layout/site-footer.tsx",
+    "docs/plan-your-home-product-spec.md",
+    "docs/architecture.md",
+    "npm run qa:smoke",
+  ]) {
+    assert(
+      internalIndex.includes(requiredDetail),
+      `The internal agent index must include ${requiredDetail}.`,
+    );
+  }
+  for (const sharedFact of [
+    "Howeth and Harp",
+    "Architectural Design",
+    "Building",
+    "Land Development",
+    "Public route families",
+    "read-only",
+  ]) {
+    assert(
+      sharedContext.includes(sharedFact),
+      `The shared Agent Guidance context must include ${sharedFact}.`,
+    );
+  }
+}
+
+async function verifyMarkdownTwins(baseUrl) {
+  log("Checking public Markdown twins and content negotiation...");
+
+  const publicPages = [
+    ["/", "/index.md"],
+    ["/pricing", "/pricing.md"],
+    ["/pricing/builder-grade", "/pricing/builder-grade.md"],
+    ["/pricing/builder-plus", "/pricing/builder-plus.md"],
+    ["/pricing/custom", "/pricing/custom.md"],
+    ["/catalog", "/catalog.md"],
+    ["/catalog/single-family", "/catalog/single-family.md"],
+    ["/catalog/multifamily", "/catalog/multifamily.md"],
+    ["/catalog/townhomes", "/catalog/townhomes.md"],
+    ["/catalog/commercial", "/catalog/commercial.md"],
+    ["/projects", "/projects.md"],
+    ["/projects/published-project-smoke", "/projects/published-project-smoke.md"],
+    ["/faq", "/faq.md"],
+    ["/start", "/start.md"],
+    ["/inquire", "/inquire.md"],
+  ];
+
+  for (const [htmlPath, markdownPath] of publicPages) {
+    const [directResponse, negotiatedResponse] = await Promise.all([
+      fetch(`${baseUrl}${markdownPath}`),
+      fetch(`${baseUrl}${htmlPath}`, {
+        headers: { Accept: "text/markdown" },
+      }),
+    ]);
+    const [directBody, negotiatedBody] = await Promise.all([
+      directResponse.text(),
+      negotiatedResponse.text(),
+    ]);
+
+    for (const response of [directResponse, negotiatedResponse]) {
+      assert(
+        response.ok,
+        `Expected the Markdown representation for ${htmlPath} to return 200, received ${response.status}.`,
+      );
+      assert(
+        response.headers.get("content-type")?.startsWith("text/markdown"),
+        `The Markdown representation for ${htmlPath} must use text/markdown.`,
+      );
+      assert(
+        response.headers.get("vary")?.split(/\s*,\s*/).includes("Accept"),
+        `The Markdown representation for ${htmlPath} must vary on Accept.`,
+      );
+      assert(
+        response.headers.get("access-control-allow-origin") === "*" &&
+          response.headers.get("cache-control") ===
+            "public, s-maxage=3600, stale-while-revalidate=86400",
+        `The Markdown representation for ${htmlPath} must use the public agent resource policy.`,
+      );
+      assert(
+        response.headers.get("link") ===
+          `<${baseUrl}${htmlPath}>; rel="canonical"`,
+        `The Markdown representation for ${htmlPath} must identify its canonical HTML response.`,
+      );
+    }
+
+    assert(
+      directBody === negotiatedBody,
+      `Direct and negotiated Markdown for ${htmlPath} must be semantically identical.`,
+    );
+    assert(
+      directBody.startsWith("# ") &&
+        directBody.includes("Canonical HTML") &&
+        directBody.length > 200,
+      `The Markdown twin for ${htmlPath} must preserve useful page meaning and links.`,
+    );
+  }
+
+  for (const privateMarkdownPath of [
+    "/pricing/not-a-finish.md",
+    "/catalog/not-a-type.md",
+    "/projects/draft-project-smoke.md",
+    "/projects/legacy-project-smoke.md",
+    "/plan-your-home.md",
+    "/plan-your-home/resume.md",
+    "/plan-your-home/review.md",
+    "/privacy.md",
+    "/terms.md",
+    "/thank-you.md",
+    "/admin.md",
+  ]) {
+    const response = await fetch(`${baseUrl}${privateMarkdownPath}`);
+    assert(
+      response.status === 404,
+      `Expected excluded Markdown route ${privateMarkdownPath} to return 404, received ${response.status}.`,
+    );
+  }
+
+  const privateNegotiationResponse = await fetch(`${baseUrl}/plan-your-home`, {
+    headers: { Accept: "text/markdown" },
+  });
+  assert(
+    privateNegotiationResponse.headers.get("content-type")?.startsWith("text/html") &&
+      privateNegotiationResponse.headers.get("access-control-allow-origin") === null,
+    "Private HTML routes must not gain public agent representations or headers.",
+  );
 }
 
 async function verifyLinkCoverage(page, baseUrl) {
@@ -626,6 +939,9 @@ async function verifyLinkCoverage(page, baseUrl) {
     'footer a[href="/terms"]',
     'footer a[href="mailto:hello@howethandharp.com"]',
     'footer a[href="tel:+15125550199"]',
+    'footer a[href="/sitemap.md"]',
+    'footer a[href="/llms.txt"]',
+    'footer a[href="/services.md"]',
   ];
 
   for (const selector of selectors) {
@@ -634,6 +950,34 @@ async function verifyLinkCoverage(page, baseUrl) {
       `Expected to find ${selector} on the home page.`,
     );
   }
+
+  const agentsHeading = page.getByText("Agents", { exact: true });
+  assert(
+    (await agentsHeading.count()) === 1,
+    "The public footer must expose one visible Agents heading.",
+  );
+  for (const name of ["Markdown Sitemap", "Agent Guide", "Services Guide"]) {
+    const agentLink = page.getByRole("link", { name, exact: true });
+    const target = await agentLink.boundingBox();
+    assert(
+      target && target.width >= 44 && target.height >= 44,
+      `The ${name} footer link must preserve the 44 by 44 pixel touch target.`,
+    );
+  }
+
+  await page.addScriptTag({ path: axePath });
+  const footerViolations = await page.evaluate(async () => {
+    const audit = await window.axe.run(document.querySelector("footer"), {
+      runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag22aa"] },
+    });
+    return audit.violations
+      .filter((violation) => ["serious", "critical"].includes(violation.impact))
+      .map((violation) => violation.id);
+  });
+  assert(
+    footerViolations.length === 0,
+    `The home footer has serious or critical axe findings: ${footerViolations.join(", ")}.`,
+  );
 
   assert(
     (await page.locator('header a[href="/catalog"]').count()) === 0,
@@ -1575,6 +1919,7 @@ async function main() {
     const firestore = getFirestore(adminApp);
     await seedPublicationFixtures(firestore);
     await seedInquiryQueueFixtures(firestore);
+    await verifyInternalAgentIndex();
 
     log("Running focused Plan Your Home draft emulator tests...");
     const draftTestResult = await runNpmScript({
@@ -1625,6 +1970,8 @@ async function main() {
 
     await verifyRouteStatuses(nextServer.baseUrl);
     await verifyProjectPublicationBoundary(nextServer.baseUrl);
+    await verifyAgentDiscoveryDocuments(nextServer.baseUrl);
+    await verifyMarkdownTwins(nextServer.baseUrl);
 
     browser = await chromium.launch();
     const page = await browser.newPage();

@@ -2,6 +2,31 @@
 
 Agent Guidance gives automated readers and collaborators accurate HH website context while keeping public discovery separate from repository work instructions.
 
+## Business identity
+
+The public business name is **Howeth and Harp**. **h and h**, **H and H**, and **HH** are acceptable shortened names. The full legal name is reserved for legal contexts, and the business name never uses an ampersand.
+
+Howeth and Harp is a multidisciplinary company providing architectural design, building and construction, remodeling, and land-development work. Public descriptions must stay directional and must not imply that general website guidance is a quote, design, feasibility decision, guarantee, or contract.
+
+## Services
+
+- **Architectural Design** covers early planning, massing, circulation, and finish direction.
+- **Building** keeps construction delivery aligned with the planning and design logic of the project.
+- **Land Development** brings lot evaluation, site fit, and early development thinking into scope formation.
+- Remodeling and additions use the general project-brief path alongside multifamily, townhome, commercial, land-only, and uncertain project types.
+
+Finish levels are Builder Grade, Builder+, and Custom. They describe specification, coordination, and customization posture rather than fixed-price packages. Public project categories are single-family, multifamily, townhomes, and commercial work.
+
+## Public route families
+
+The intentionally indexable route families are Home, Pricing and finish details, Catalog and build-type details, Projects and explicitly published project details, FAQ, Start, and the General Project Brief. The typed public route inventory is the canonical discovery source for these pages.
+
+Plan Your Home, resume and owner-review routes, legal drafts, thank-you pages, administration, internal handlers, draft projects, and legacy projects are outside public agent discovery. Indexability policy remains authoritative; agent guidance never makes a route public.
+
+## External-agent boundary
+
+External guidance is read-only. An external agent may index public facts, answer questions from those facts, and direct a person to an appropriate public route. It must not submit an inquiry, provide consent, authenticate, operate HH systems, or claim that public guidance is a project decision or agreement.
+
 ## Language
 
 **Agent guidance system**:
