@@ -98,7 +98,9 @@ async function renderKitchen(checkpointDraft?: PlanHomeDraftAction) {
     ),
   );
   await waitFor(() =>
-    assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 3),
+    assert.ok(
+      view.container.querySelector('[data-scene-variant="kitchen-dining-study"]'),
+    ),
   );
   return { view, query };
 }
@@ -109,9 +111,10 @@ async function answerKitchen(
   container: HTMLElement,
 ) {
   assert.equal(
-    container.querySelector('[data-scene-anchor="range-and-island"]')
-      ?.getAttribute("data-active"),
-    "true",
+    container
+      .querySelector('[data-scene-variant="kitchen-dining-study"]')
+      ?.getAttribute("data-active-anchor"),
+    "range-and-island",
   );
   await user.click(query.getByRole("checkbox", { name: "Everyday cooking" }));
   await user.click(
@@ -129,10 +132,10 @@ async function answerKitchen(
     ),
   );
   assert.equal(
-    container.querySelector('[data-scene-anchor="room-opening"]')?.getAttribute(
-      "data-active",
-    ),
-    "true",
+    container
+      .querySelector('[data-scene-variant="kitchen-dining-study"]')
+      ?.getAttribute("data-active-anchor"),
+    "room-opening",
   );
   await user.click(query.getByRole("radio", { name: "Single island" }));
   await user.click(query.getByRole("button", { name: "Continue" }));
@@ -144,26 +147,27 @@ async function answerKitchen(
     /appliance garages conceal countertop appliances/,
   );
   assert.equal(
-    container.querySelector('[data-scene-anchor="pantry-door"]')?.getAttribute(
-      "data-active",
-    ),
-    "true",
+    container
+      .querySelector('[data-scene-variant="kitchen-dining-study"]')
+      ?.getAttribute("data-active-anchor"),
+    "pantry-door",
   );
   await user.click(query.getByRole("checkbox", { name: "Butler pantry" }));
 }
 
-test("three registered anchors reframe the exact Kitchen prompts and enforce the use limit", async () => {
+test("one still Kitchen sketch carries exact prompts and enforces the use limit", async () => {
   const user = userEvent.setup({ document: window.document });
   const { view, query } = await renderKitchen();
 
   assert.equal(
-    view.container.querySelector('[data-scene-anchor="range-and-island"]')
-      ?.getAttribute("data-active"),
-    "true",
+    view.container
+      .querySelector('[data-scene-variant="kitchen-dining-study"]')
+      ?.getAttribute("data-active-anchor"),
+    "range-and-island",
   );
   assert.equal(
     view.container.querySelectorAll("[data-scene-anchor]").length,
-    3,
+    0,
   );
   assert.equal(query.queryByText("range and island") === null, true);
   assert.equal(
@@ -202,9 +206,10 @@ test("three registered anchors reframe the exact Kitchen prompts and enforce the
 
   await user.click(query.getByRole("button", { name: "Next" }));
   assert.equal(
-    view.container.querySelector('[data-scene-anchor="room-opening"]')
-      ?.getAttribute("data-active"),
-    "true",
+    view.container
+      .querySelector('[data-scene-variant="kitchen-dining-study"]')
+      ?.getAttribute("data-active-anchor"),
+    "room-opening",
   );
   assert.ok(query.getByRole("group", { name: "Work center" }));
   assert.equal(query.queryByRole("group", { name: "Connection" }), null);

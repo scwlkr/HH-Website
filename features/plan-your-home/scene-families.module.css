@@ -47,24 +47,7 @@
   stroke-width: 1.2;
 }
 
-.focus {
-  fill: none;
-  opacity: 0;
-  stroke: #005b41;
-  stroke-dasharray: 5 6;
-  stroke-width: 2.5;
-  transform-box: fill-box;
-  transform-origin: center;
-  transition: opacity 160ms ease, transform 160ms ease;
-}
-
-.focus[data-active="true"] {
-  opacity: 0.9;
-  transform: scale(1.04);
-}
-
-.plaque,
-.caption {
+.plaque {
   position: absolute;
   z-index: 1;
   border: 1px solid rgba(35, 48, 68, 0.18);
@@ -82,8 +65,7 @@
   padding: 0.65rem 0.8rem;
 }
 
-.plaque span,
-.caption {
+.plaque span {
   font-size: 0.62rem;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -93,17 +75,4 @@
   font-family: var(--font-sans), sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
-}
-
-.caption {
-  right: clamp(0.7rem, 3vw, 1.5rem);
-  bottom: clamp(0.7rem, 3vw, 1.25rem);
-  margin: 0;
-  padding: 0.35rem 0.5rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .focus {
-    transition: none;
-  }
 }

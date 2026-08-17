@@ -17,7 +17,6 @@ import {
 } from "../features/plan-your-home/plan-your-home-shell.tsx";
 import {
   planHomeQuestions,
-  planHomeZones,
   summarizePlanHomeAnswer,
 } from "../features/plan-your-home/registry.ts";
 import type { PlanHomeTourState } from "../features/plan-your-home/tour-state.ts";
@@ -144,7 +143,7 @@ async function answerExteriorThroughSpecialty(
   await user.click(query.getByRole("checkbox", { name: "Office" }));
 }
 
-test("the utility threshold opens into one fixed exterior study with every registered anchor", async () => {
+test("the utility threshold opens into one fixed exterior study without moving overlays", async () => {
   const checkpointDraft: PlanHomeDraftAction = async () => ({
     status: "success",
     result: { draftId, revision: 6, applied: true },
@@ -196,26 +195,11 @@ test("the utility threshold opens into one fixed exterior study with every regis
     '[data-scene-variant="exterior-site-study"]',
   );
   assert.ok(scene);
-  assert.deepEqual(
-    Array.from(scene.querySelectorAll("[data-scene-anchor]"), (anchor) =>
-      anchor.getAttribute("data-scene-anchor"),
-    ),
-    [...planHomeZones[5].sceneAnchors],
-  );
+  assert.equal(scene.querySelectorAll("[data-scene-anchor]").length, 0);
   assert.equal(scene.getAttribute("data-active-anchor"), "garage");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
     "xMidYMid slice",
-  );
-  assert.equal(
-    scene
-      .querySelector('[data-scene-anchor="garage"]')
-      ?.getAttribute("data-active"),
-    "true",
-  );
-  assert.equal(
-    scene.querySelector('[data-scene-anchor="garage"]')?.tagName,
-    "path",
   );
   assert.equal(query.queryByText("Fixed exterior and site study"), null);
   assert.equal(query.queryByText("garage"), null);
@@ -271,12 +255,7 @@ test("garage groups and accessible style cards validate without reconfiguring th
     false,
   );
   assert.equal(scene.querySelector("svg")?.innerHTML, fixedSvg);
-  assert.equal(
-    scene.querySelector('[data-scene-anchor="elevation-samples"]')?.getAttribute(
-      "data-active",
-    ),
-    "true",
-  );
+  assert.equal(scene.querySelectorAll("[data-scene-anchor]").length, 0);
 
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
   assert.equal(ranch.checked, false);

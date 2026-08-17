@@ -134,7 +134,7 @@ test("one representative scene serves every bedroom count and validates both gro
   );
   assert.ok(firstScene);
   const fixedArtwork = firstScene.querySelector("svg")?.innerHTML;
-  assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 2);
+  assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 0);
   assert.equal(
     firstScene.getAttribute("data-active-anchor"),
     "bedroom-door-cluster",
@@ -142,17 +142,6 @@ test("one representative scene serves every bedroom count and validates both gro
   assert.equal(
     firstScene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
     "xMidYMid slice",
-  );
-  assert.equal(
-    view.container
-      .querySelector('[data-scene-anchor="bedroom-door-cluster"]')
-      ?.getAttribute("data-active"),
-    "true",
-  );
-  assert.equal(
-    view.container.querySelector('[data-scene-anchor="bedroom-door-cluster"]')
-      ?.tagName,
-    "path",
   );
   assert.equal(query.queryByText("Representative bedroom hall study"), null);
   assert.equal(query.queryByText("bedroom door cluster"), null);
@@ -185,12 +174,6 @@ test("one representative scene serves every bedroom count and validates both gro
     /separate lockable entries/,
   );
   assert.equal(
-    view.container
-      .querySelector('[data-scene-anchor="shared-bath-vanity"]')
-      ?.getAttribute("data-active"),
-    "true",
-  );
-  assert.equal(
     firstScene.getAttribute("data-active-anchor"),
     "shared-bath-vanity",
   );
@@ -214,7 +197,7 @@ test("one representative scene serves every bedroom count and validates both gro
   );
   assert.ok(secondScene);
   assert.equal(secondScene.querySelector("svg")?.innerHTML, fixedArtwork);
-  assert.equal(second.view.container.querySelectorAll("[data-scene-anchor]").length, 2);
+  assert.equal(second.view.container.querySelectorAll("[data-scene-anchor]").length, 0);
 });
 
 test("Back crosses the Primary Suite boundary and keeps the grouped bedroom answer", async () => {

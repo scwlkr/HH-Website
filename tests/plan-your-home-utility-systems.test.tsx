@@ -17,7 +17,6 @@ import {
 } from "../features/plan-your-home/plan-your-home-shell.tsx";
 import {
   planHomeQuestions,
-  planHomeZones,
   summarizePlanHomeAnswer,
 } from "../features/plan-your-home/registry.ts";
 import type { PlanHomeTourState } from "../features/plan-your-home/tour-state.ts";
@@ -125,32 +124,16 @@ async function renderUtility(checkpointDraft?: PlanHomeDraftAction) {
   return { view, query };
 }
 
-test("the registered anchors share one utility hall and every question supports explicit uncertainty", async () => {
+test("one still utility sketch supports every question and explicit uncertainty", async () => {
   const user = userEvent.setup({ document: window.document });
   const { view, query } = await renderUtility();
   const scene = view.container.querySelector('[data-scene-variant="utility-hall"]');
   assert.ok(scene);
-  const registeredAnchors = planHomeZones[4].sceneAnchors;
-  assert.deepEqual(
-    Array.from(scene.querySelectorAll("[data-scene-anchor]"), (anchor) =>
-      anchor.getAttribute("data-scene-anchor"),
-    ),
-    [...registeredAnchors],
-  );
+  assert.equal(scene.querySelectorAll("[data-scene-anchor]").length, 0);
   assert.equal(scene.getAttribute("data-active-anchor"), "washer");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
     "xMidYMid slice",
-  );
-  assert.equal(
-    scene
-      .querySelector('[data-scene-anchor="washer"]')
-      ?.getAttribute("data-active"),
-    "true",
-  );
-  assert.equal(
-    scene.querySelector('[data-scene-anchor="washer"]')?.tagName,
-    "path",
   );
   assert.equal(query.queryByText("Utility hall planning study"), null);
   assert.equal(query.queryByText("washer"), null);

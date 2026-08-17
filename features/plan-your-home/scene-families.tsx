@@ -11,67 +11,6 @@ type Family =
   | "utility-exterior-outdoor"
   | "design-desk-review";
 
-const FAMILY_ANCHORS: Readonly<Record<Family, readonly string[]>> = {
-  "front-door-site": ["rolled-plans", "site-map", "landscape-window"],
-  "living-kitchen-dining": [
-    "floor-plan-rug",
-    "stair",
-    "hall-doors",
-    "seating",
-    "kitchen-opening",
-    "fireplace-window",
-    "finish-board",
-    "range-and-island",
-    "room-opening",
-    "pantry-door",
-  ],
-  "bedrooms-bathrooms": [
-    "hall-stair-marker",
-    "bed-and-window",
-    "bath-vanity",
-    "closet",
-    "bedroom-door-cluster",
-    "shared-bath-vanity",
-  ],
-  "utility-exterior-outdoor": [
-    "washer",
-    "system-panel",
-    "garage",
-    "elevation-samples",
-    "sun-compass-trees",
-    "patio",
-    "outbuilding-plan",
-  ],
-  "design-desk-review": [
-    "mood-board",
-    "pinboard-scanner",
-    "priority-stacks",
-    "ruler-calendar",
-    "review-brief",
-  ],
-};
-
-function FocusMarks({
-  anchors,
-  activeAnchor,
-}: Readonly<{ anchors: readonly string[]; activeAnchor?: string }>) {
-  return anchors.map((anchor, index) => {
-    const column = index % 5;
-    const row = Math.floor(index / 5);
-    const x = 224 + column * 154;
-    const y = 182 + row * 196;
-    return (
-      <path
-        className={styles.focus}
-        data-active={activeAnchor === anchor}
-        data-scene-anchor={anchor}
-        d={`M${x - 34} ${y - 26}H${x + 34}V${y + 26}H${x - 34}Z`}
-        key={anchor}
-      />
-    );
-  });
-}
-
 function FamilyArtwork({ family }: Readonly<{ family: Family }>) {
   if (family === "front-door-site") {
     return (
@@ -87,8 +26,6 @@ function FamilyArtwork({ family }: Readonly<{ family: Family }>) {
         </g>
         <g className={styles.detail}>
           <path d="M718 271V396M652 334H784" />
-          <path d="M936 416V282M891 416L936 326L984 416" />
-          <circle cx="936" cy="259" r="46" />
         </g>
       </>
     );
@@ -184,13 +121,11 @@ function SketchScene({
   activeAnchor,
   variant,
   name,
-  anchors = FAMILY_ANCHORS[family],
 }: Readonly<{
   family: Family;
   activeAnchor?: string;
   variant: string;
   name?: string;
-  anchors?: readonly string[];
 }>) {
   return (
     <div
@@ -203,7 +138,6 @@ function SketchScene({
       <svg viewBox="0 0 1200 650" preserveAspectRatio="xMidYMid slice">
         <rect className={styles.paper} width="1200" height="650" />
         <FamilyArtwork family={family} />
-        <FocusMarks anchors={anchors} activeAnchor={activeAnchor} />
       </svg>
       {name !== undefined ? (
         <div className={styles.plaque}>
@@ -211,7 +145,6 @@ function SketchScene({
           <strong>{name.trim() || "Your name"}</strong>
         </div>
       ) : null}
-      <p className={styles.caption}>Concept sketch · not a proposed design</p>
     </div>
   );
 }
@@ -221,23 +154,23 @@ export function WelcomeExteriorScene({ name }: Readonly<{ name: string }>) {
 }
 
 export function EntryScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="front-door-site" variant="front-door-site" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["front-door-site"]} />;
+  return <SketchScene family="front-door-site" variant="front-door-site" activeAnchor={activeAnchor} />;
 }
 
 export function LivingRoomScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="living-kitchen-dining" variant="living-room-study" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["living-kitchen-dining"].slice(0, 7)} />;
+  return <SketchScene family="living-kitchen-dining" variant="living-room-study" activeAnchor={activeAnchor} />;
 }
 
 export function KitchenDiningScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="living-kitchen-dining" variant="kitchen-dining-study" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["living-kitchen-dining"].slice(7)} />;
+  return <SketchScene family="living-kitchen-dining" variant="kitchen-dining-study" activeAnchor={activeAnchor} />;
 }
 
 export function PrimarySuiteScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="bedrooms-bathrooms" variant="primary-suite" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["bedrooms-bathrooms"].slice(0, 4)} />;
+  return <SketchScene family="bedrooms-bathrooms" variant="primary-suite" activeAnchor={activeAnchor} />;
 }
 
 export function BedroomsSharedBathroomsScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="bedrooms-bathrooms" variant="representative-bedroom-hall" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["bedrooms-bathrooms"].slice(4)} />;
+  return <SketchScene family="bedrooms-bathrooms" variant="representative-bedroom-hall" activeAnchor={activeAnchor} />;
 }
 export function BedroomHallThresholdScene() {
   return <PrimarySuiteScene />;
@@ -247,11 +180,11 @@ export function UtilityHallThresholdScene() {
 }
 
 export function UtilitySystemsScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="utility-exterior-outdoor" variant="utility-hall" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["utility-exterior-outdoor"].slice(0, 2)} />;
+  return <SketchScene family="utility-exterior-outdoor" variant="utility-hall" activeAnchor={activeAnchor} />;
 }
 
 export function ExteriorSiteScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="utility-exterior-outdoor" variant="exterior-site-study" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["utility-exterior-outdoor"].slice(2)} />;
+  return <SketchScene family="utility-exterior-outdoor" variant="exterior-site-study" activeAnchor={activeAnchor} />;
 }
 export function ExteriorBackDoorThresholdScene() {
   return <SketchScene family="utility-exterior-outdoor" variant="exterior" />;
@@ -261,7 +194,7 @@ export function BlueprintDesignDeskThresholdScene() {
 }
 
 export function DesignDeskScene({ activeAnchor }: SceneProps) {
-  return <SketchScene family="design-desk-review" variant="design-desk" activeAnchor={activeAnchor} anchors={FAMILY_ANCHORS["design-desk-review"].slice(0, 4)} />;
+  return <SketchScene family="design-desk-review" variant="design-desk" activeAnchor={activeAnchor} />;
 }
 
 export function ReviewBriefThresholdScene() {

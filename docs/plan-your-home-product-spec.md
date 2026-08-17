@@ -10,6 +10,10 @@ The [Plan Your Home question workbook](https://docs.google.com/spreadsheets/d/1f
 
 The 2026-08-17 editorial pass is reflected below: 31 canonical questions, one conditional site-context prompt, two short-text answers, and the removal of four questions that did not earn their place in the intake.
 
+### Visual editing workflow
+
+Visual and interaction feedback stays outside the question workbook. An annotated screenshot, route, and short description of the desired result are enough to request a change. Each accepted visual edit is applied to the implementation and design rules, checked at phone and desktop sizes, and released after the focused walkthrough proof passes.
+
 The existing `/inquire` experience remains available for remodels, additions, commercial work, land-only work, and other inquiries. **Plan Your Home** is a separate `/plan-your-home` experience for prospective detached single-family new homes.
 
 ## Outcome
@@ -25,7 +29,7 @@ It does not produce a floor plan, specification, price, feasibility decision, or
 - Phone-first, portrait-first, usable without rotating the device.
 - Desktop is a wider version of the same scene, not a form beside an illustration.
 - Fixed, linear order with one active prompt, one obvious next action, visible progress, and Back.
-- Questions open from or visually attach to relevant objects in each scene.
+- Questions appear over the stable sketch family that best matches the topic.
 - Short room-to-room pans, turns, doorway moves, and match cuts create spatial continuity.
 - Every structured prompt requires either an answer or an explicit `Not sure`, `None`, or `Not applicable` response.
 - Optional notes and inspiration are never required.
@@ -35,13 +39,13 @@ It does not produce a floor plan, specification, price, feasibility decision, or
 
 ## Visual Direction
 
-Use five sparse architectural-sketch families with warm paper tones, restrained linework, one quiet focus mark, and limited brand green for active controls and progress. The families are: front door and site; living, kitchen, and dining; bedrooms and bathrooms; utility, exterior, and outdoor; and design desk and review. Reuse each family across its related prompts instead of adding an illustration for every question. Avoid photorealism, configurable 3D, game controls, decorative overload, and imagery that could be mistaken for the customer's promised design.
+Use five sparse architectural-sketch families with warm paper tones and restrained linework. The families are: front door and site; living, kitchen, and dining; bedrooms and bathrooms; utility, exterior, and outdoor; and design desk and review. Reuse each family across its related prompts instead of adding an illustration for every question. Keep the scenes still and unlabeled, with no moving highlights, captions, people, or figure-like decorations. Avoid photorealism, configurable 3D, game controls, decorative overload, and imagery that could be mistaken for the customer's promised design.
 
 Artwork is decorative and `aria-hidden`. The active prompt is one real semantic DOM form; do not maintain a hidden duplicate form for accessibility.
 
 ### Motion
 
-- In-room focus change: 180–250 ms.
+- Prompt-to-prompt content change: 180–250 ms while the sketch stays still.
 - Room transition: 300–450 ms.
 - Animate opacity and transforms only unless a proven exception is required.
 - Load the current and next scene family, rather than all illustration assets at startup.

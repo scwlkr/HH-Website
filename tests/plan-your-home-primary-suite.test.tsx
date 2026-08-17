@@ -98,7 +98,7 @@ async function renderPrimary(checkpointDraft?: PlanHomeDraftAction) {
     ),
   );
   await waitFor(() =>
-    assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 4),
+    assert.ok(view.container.querySelector('[data-scene-variant="primary-suite"]')),
   );
   return { view, query };
 }
@@ -139,19 +139,20 @@ async function answerPrimarySuite(
   );
 }
 
-test("four registered anchors carry exact semantic prompts and explicit uncertainty", async () => {
+test("one still primary-suite sketch carries exact prompts and explicit uncertainty", async () => {
   const user = userEvent.setup({ document: window.document });
   const { view, query } = await renderPrimary();
 
   assert.equal(
     view.container.querySelectorAll("[data-scene-anchor]").length,
-    4,
+    0,
   );
   assert.equal(query.queryByText("hall stair marker") === null, true);
   assert.equal(
-    view.container.querySelector('[data-scene-anchor="hall-stair-marker"]')
-      ?.getAttribute("data-active"),
-    "true",
+    view.container
+      .querySelector('[data-scene-variant="primary-suite"]')
+      ?.getAttribute("data-active-anchor"),
+    "hall-stair-marker",
   );
   assert.equal(
     view.container.querySelector(
@@ -177,9 +178,10 @@ test("four registered anchors carry exact semantic prompts and explicit uncertai
   await user.click(query.getByRole("button", { name: "Next" }));
 
   assert.equal(
-    view.container.querySelector('[data-scene-anchor="bed-and-window"]')
-      ?.getAttribute("data-active"),
-    "true",
+    view.container
+      .querySelector('[data-scene-variant="primary-suite"]')
+      ?.getAttribute("data-active-anchor"),
+    "bed-and-window",
   );
   await user.click(query.getByRole("checkbox", { name: "Sitting area" }));
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
@@ -191,9 +193,10 @@ test("four registered anchors carry exact semantic prompts and explicit uncertai
   await user.click(query.getByRole("button", { name: "Next" }));
 
   assert.equal(
-    view.container.querySelector('[data-scene-anchor="bath-vanity"]')
-      ?.getAttribute("data-active"),
-    "true",
+    view.container
+      .querySelector('[data-scene-variant="primary-suite"]')
+      ?.getAttribute("data-active-anchor"),
+    "bath-vanity",
   );
   await user.click(query.getByRole("checkbox", { name: "Natural light" }));
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
@@ -205,10 +208,10 @@ test("four registered anchors carry exact semantic prompts and explicit uncertai
   await user.click(query.getByRole("button", { name: "Next" }));
 
   assert.equal(
-    view.container.querySelector('[data-scene-anchor="closet"]')?.getAttribute(
-      "data-active",
-    ),
-    "true",
+    view.container
+      .querySelector('[data-scene-variant="primary-suite"]')
+      ?.getAttribute("data-active-anchor"),
+    "closet",
   );
   await user.click(
     query.getByRole("checkbox", { name: "Accessible clearances" }),

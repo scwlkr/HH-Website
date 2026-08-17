@@ -258,12 +258,7 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
   );
   const scene = view.container.querySelector('[data-scene-variant="design-desk"]');
   assert.ok(scene);
-  assert.deepEqual(
-    Array.from(scene.querySelectorAll("[data-scene-anchor]"), (anchor) =>
-      anchor.getAttribute("data-scene-anchor"),
-    ),
-    ["mood-board", "pinboard-scanner", "priority-stacks", "ruler-calendar"],
-  );
+  assert.equal(scene.querySelectorAll("[data-scene-anchor]").length, 0);
   for (const feeling of ["Warm", "Calm", "Bright"]) {
     await user.click(query.getByRole("checkbox", { name: feeling }));
   }
@@ -414,30 +409,13 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
   assert.deepEqual(axeResults.violations.map(({ id }) => id), []);
 });
 
-const designDeskAnchors = planHomeZones[6].sceneAnchors.slice(0, 4);
-
-test("design desk keeps one fixed concept-sketch scene with automatic semantic anchors", () => {
+test("design desk keeps one fixed concept-sketch scene without moving overlays", () => {
   const view = render(<DesignDeskScene activeAnchor="mood-board" />);
   const query = within(view.container);
   const scene = view.container.querySelector('[data-scene-variant="design-desk"]');
   assert.ok(scene);
   assert.equal(scene.getAttribute("data-active-anchor"), "mood-board");
-  assert.deepEqual(
-    Array.from(scene.querySelectorAll("[data-scene-anchor]"), (anchor) =>
-      anchor.getAttribute("data-scene-anchor"),
-    ),
-    [...designDeskAnchors],
-  );
-  assert.equal(
-    scene.querySelector('[data-scene-anchor="mood-board"]')?.tagName,
-    "path",
-  );
-  assert.equal(
-    scene
-      .querySelector('[data-scene-anchor="mood-board"]')
-      ?.getAttribute("data-active"),
-    "true",
-  );
+  assert.equal(scene.querySelectorAll("[data-scene-anchor]").length, 0);
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
     "xMidYMid slice",

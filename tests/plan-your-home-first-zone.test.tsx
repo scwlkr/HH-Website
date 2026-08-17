@@ -163,23 +163,29 @@ test("welcome personalizes decorative plaque and the front-door beat opens exact
   assert.equal(query.getAllByRole("heading", { level: 1 }).length, 1);
   assert.ok(query.getByRole("link", { name: "Save and exit" }));
   await waitFor(() =>
-    assert.ok(query.getByText("Concept sketch · not a proposed design")),
+    assert.ok(
+      view.container.querySelector('[data-scene-variant="welcome-exterior"]'),
+    ),
   );
   assert.equal(
-    query.getByText("Concept sketch · not a proposed design").closest(
-      '[aria-hidden="true"]',
-    ) !== null,
-    true,
+    query.queryByText("Concept sketch · not a proposed design"),
+    null,
   );
+  const welcomeScene = view.container.querySelector(
+    '[data-scene-variant="welcome-exterior"]',
+  );
+  assert.ok(welcomeScene);
+  assert.equal(welcomeScene.querySelectorAll("circle").length, 0);
+  assert.equal(welcomeScene.querySelectorAll("[data-scene-anchor]").length, 0);
   await beginTour(user, query);
   assert.ok(query.getByRole("link", { name: "Save and exit" }));
   assert.equal(query.getByRole("progressbar").getAttribute("value"), "1");
   await waitFor(() =>
     assert.equal(
       view.container
-        .querySelector('[data-scene-anchor="rolled-plans"]')
-        ?.getAttribute("data-active"),
-      "true",
+        .querySelector('[data-scene-variant="front-door-site"]')
+        ?.getAttribute("data-active-anchor"),
+      "rolled-plans",
     ),
   );
 });
