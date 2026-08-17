@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  createInquiryServerErrorState,
   getGeneralInquiryFormValues,
   toGeneralInquirySubmissionInput,
   validateGeneralInquiryValues,
@@ -53,5 +54,59 @@ test("a short general inquiry accepts phone as the only contact channel", () => 
   assert.equal(
     toGeneralInquirySubmissionInput(values).phone,
     "(214) 555-0100",
+  );
+});
+
+test("a short general inquiry rejects missing contact without losing submitted values", () => {
+  const values = {
+    name: "Avery Builder",
+    phone: "",
+    email: "",
+    projectType: "commercial" as const,
+    projectLocation: "",
+    projectDescription: "A small commercial renovation with a new entry.",
+    sourcePage: "/start",
+    utmSource: "",
+    utmMedium: "",
+    utmCampaign: "",
+    company: "",
+  };
+  const result = validateGeneralInquiryValues(values);
+
+  assert.equal(result.success, false);
+  if (result.success) return;
+  assert.deepEqual(result.error.issues.map((issue) => issue.path[0]), ["email"]);
+  assert.deepEqual(
+    createInquiryServerErrorState("Try again.", values, 1),
+    {
+      status: "server-error",
+      message: "Try again.",
+      fieldErrors: {},
+      values,
+      attempt: 1,
+    },
+  );
+});
+
+test("a short general inquiry requires name, project type, and a short description", () => {
+  const result = validateGeneralInquiryValues({
+    name: "",
+    phone: "",
+    email: "avery@example.com",
+    projectType: "",
+    projectLocation: "",
+    projectDescription: "",
+    sourcePage: "/start",
+    utmSource: "",
+    utmMedium: "",
+    utmCampaign: "",
+    company: "",
+  });
+
+  assert.equal(result.success, false);
+  if (result.success) return;
+  assert.deepEqual(
+    new Set(result.error.issues.map((issue) => issue.path[0])),
+    new Set(["name", "projectType", "projectDescription"]),
   );
 });

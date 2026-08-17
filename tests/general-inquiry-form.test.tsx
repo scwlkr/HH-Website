@@ -39,6 +39,14 @@ test("the general project inquiry is a minimal accessible single-screen form", a
   assert.ok(query.getByRole("textbox", { name: "Project location (optional)" }));
   assert.ok(query.getByRole("textbox", { name: "What are you planning?" }));
   assert.ok(query.getByRole("button", { name: "Send Inquiry" }));
+  assert.equal(
+    query.getByRole("textbox", { name: "Email" }).getAttribute("aria-describedby"),
+    "general-inquiry-contact-help",
+  );
+  assert.equal(
+    query.getByRole("textbox", { name: "Phone" }).getAttribute("aria-describedby"),
+    "general-inquiry-contact-help",
+  );
   assert.equal(query.queryByText(/Step \d/i), null);
   assert.equal(query.queryByText(/Finish Direction/i), null);
   assert.equal(query.queryByText(/Budget Range/i), null);

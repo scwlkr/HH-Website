@@ -9,7 +9,7 @@ import {
   finishLevelSlugs,
   getFinishLevelBySlug,
   getFinishLevelHref,
-  getFinishLevelInquiryHref,
+  getFinishLevelProjectStartHref,
   getOtherFinishLevels,
 } from "@/lib/content";
 import { getPublicPricingSettings } from "@/lib/db/operations";
@@ -79,8 +79,8 @@ export default async function FinishDetailPage({
         actions={
           <>
             <ActionLink
-              href={getFinishLevelInquiryHref(finish.slug)}
-              label="Start With This Finish"
+              href={getFinishLevelProjectStartHref()}
+              label="Start A Project"
               variant="ghost"
               trackingLocation="finish-detail-intro"
             />

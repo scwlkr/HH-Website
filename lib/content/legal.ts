@@ -26,14 +26,14 @@ export const privacyDocument: LegalDocument = {
     `${legalName} uses this website to share service information, receive project inquiries, and improve the visitor experience.`,
   effectiveDate: "August 11, 2026",
   intro: [
-    `This policy explains what information ${legalName} may collect through the website, how that information is used, and the choices available to people who contact the company through a project brief or direct email.`,
+    `This policy explains what information ${legalName} may collect through the website, how that information is used, and the choices available to people who contact the company through a general project inquiry, a Plan Your Home brief, or direct email.`,
     "The Plan Your Home retention periods below are product recommendations pending h and h and counsel approval before public launch; they are not represented as counsel-approved policy.",
   ],
   sections: [
     {
       title: "Information Collected",
       paragraphs: [
-        `${legalName} may collect contact details and project details that a visitor submits through the inquiry form, including name, phone, email, project type, finish direction, site context, timing, and project notes.`,
+        `${legalName} may collect the name, phone or email, project type, optional location, and project notes a visitor submits through the general inquiry.`,
         "Plan Your Home may also collect the answers in a saved or submitted planning brief and metadata for private reference files or links, including the original filename, file type, size, link hostname, URL, and optional note.",
         "The site may also store referral or attribution details, such as the page where an inquiry started and campaign information included in the visit URL.",
       ],
@@ -61,7 +61,7 @@ export const privacyDocument: LegalDocument = {
     {
       title: "How Information Is Used",
       paragraphs: [
-        "Inquiry information is used to review project fit, respond to potential clients, and keep a usable record of submitted briefs.",
+        "Inquiry information is used to review project fit, respond to potential clients, and keep a usable record of general project inquiries and Plan Your Home briefs.",
         "Website usage data may be used to understand which information is useful and where the visitor experience can be improved.",
       ],
       bullets: [
@@ -88,7 +88,7 @@ export const privacyDocument: LegalDocument = {
     {
       title: "Retention And Security",
       paragraphs: [
-        "Under the proposed Plan Your Home schedule, anonymous local snapshots expire after 30 days, identified unfinished drafts and their private files expire 180 days after last activity, and submitted briefs and files expire 24 months after submission unless h and h deliberately retains or deletes them sooner.",
+        "Under the proposed Plan Your Home schedule, anonymous local snapshots expire after 30 days, identified unfinished drafts and their private files expire 180 days after last activity, and submitted Plan Your Home briefs and files expire 24 months after submission unless h and h deliberately retains or deletes them sooner.",
         "Expired records, saved resume tokens, and orphan private files are removed by protected cleanup. Authorized h and h staff can also delete a Plan Your Home inquiry, its private files, and its saved resume tokens from HHQ.",
         `${legalName} uses reasonable administrative and technical safeguards for the website and project inquiry process, but no internet-based system can guarantee absolute security.`,
       ],
@@ -97,7 +97,7 @@ export const privacyDocument: LegalDocument = {
       title: "Submission Is Not A Contract",
       paragraphs: [
         "A general project inquiry or Plan Your Home brief starts a conversation. It is not a design, price, estimate, feasibility decision, promise to perform work, or contract.",
-        "Submitting a brief permits project-related contact under the disclosure shown with that brief. It does not provide marketing consent or create a client relationship.",
+        "Submitting either path permits project-related contact under the disclosure shown with that submission. It does not provide marketing consent or create a client relationship.",
       ],
     },
     {
@@ -134,7 +134,7 @@ export const termsDocument: LegalDocument = {
     {
       title: "Inquiry Submission And No Client Relationship",
       paragraphs: [
-        "Submitting the project brief or sending a direct message through the contact information on the site does not create a client, contractor, consultant, fiduciary, or other professional relationship.",
+        "Submitting a general project inquiry or Plan Your Home brief, or sending a direct message through the contact information on the site, does not create a client, contractor, consultant, fiduciary, or other professional relationship.",
         `A working relationship exists only after direct follow-up, scope alignment, and any separate written agreement that ${legalName} chooses to enter into.`,
       ],
     },

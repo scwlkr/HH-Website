@@ -254,10 +254,14 @@ export function mapInquiryFieldErrors(
 
 export function createInquiryServerErrorState(
   message: string,
+  values: GeneralInquiryFormValues,
+  attempt: number,
 ): InquiryActionState {
   return {
     status: "server-error",
     message,
     fieldErrors: {},
+    values,
+    attempt,
   };
 }

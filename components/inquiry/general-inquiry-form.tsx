@@ -31,18 +31,20 @@ export function GeneralInquiryForm({
     submitAction,
     inquiryActionInitialState,
   );
+  const displayedValues = state.values ?? initialValues;
 
   return (
     <CardShell className="px-5 py-5 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
       <form
+        key={state.attempt}
         action={formAction}
         aria-label="General project inquiry"
         noValidate
       >
-        <input type="hidden" name="sourcePage" value={initialValues.sourcePage} />
-        <input type="hidden" name="utmSource" value={initialValues.utmSource} />
-        <input type="hidden" name="utmMedium" value={initialValues.utmMedium} />
-        <input type="hidden" name="utmCampaign" value={initialValues.utmCampaign} />
+        <input type="hidden" name="sourcePage" value={displayedValues.sourcePage} />
+        <input type="hidden" name="utmSource" value={displayedValues.utmSource} />
+        <input type="hidden" name="utmMedium" value={displayedValues.utmMedium} />
+        <input type="hidden" name="utmCampaign" value={displayedValues.utmCampaign} />
         <div
           className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
           aria-hidden="true"
@@ -74,7 +76,7 @@ export function GeneralInquiryForm({
             name="name"
             label="Name"
             autoComplete="name"
-            defaultValue={initialValues.name}
+            defaultValue={displayedValues.name}
             error={state.fieldErrors.name}
             required
           />
@@ -83,7 +85,7 @@ export function GeneralInquiryForm({
             label="Project type"
             options={generalInquiryProjectTypeOptions}
             placeholder="Choose the closest fit"
-            defaultValue={initialValues.projectType}
+            defaultValue={displayedValues.projectType}
             error={state.fieldErrors.projectType}
             required
           />
@@ -98,7 +100,6 @@ export function GeneralInquiryForm({
           </p>
           <div
             className="mt-3 grid gap-5 md:grid-cols-2"
-            aria-describedby="general-inquiry-contact-help"
           >
             <Input
               name="email"
@@ -106,7 +107,8 @@ export function GeneralInquiryForm({
               label="Email"
               autoComplete="email"
               inputMode="email"
-              defaultValue={initialValues.email}
+              defaultValue={displayedValues.email}
+              aria-describedby="general-inquiry-contact-help"
               error={state.fieldErrors.email}
             />
             <Input
@@ -115,7 +117,8 @@ export function GeneralInquiryForm({
               label="Phone"
               autoComplete="tel"
               inputMode="tel"
-              defaultValue={initialValues.phone}
+              defaultValue={displayedValues.phone}
+              aria-describedby="general-inquiry-contact-help"
               error={state.fieldErrors.phone}
             />
           </div>
@@ -127,7 +130,7 @@ export function GeneralInquiryForm({
             label="Project location (optional)"
             autoComplete="street-address"
             placeholder="City, county, address, or target area"
-            defaultValue={initialValues.projectLocation}
+            defaultValue={displayedValues.projectLocation}
             error={state.fieldErrors.projectLocation}
           />
         </div>
@@ -137,7 +140,7 @@ export function GeneralInquiryForm({
             name="projectDescription"
             label="What are you planning?"
             placeholder="A short description is enough."
-            defaultValue={initialValues.projectDescription}
+            defaultValue={displayedValues.projectDescription}
             error={state.fieldErrors.projectDescription}
             required
           />

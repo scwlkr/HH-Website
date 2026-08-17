@@ -88,21 +88,21 @@ export const faqItems = [
     group: "timeline",
     question: "What information is most helpful at the start?",
     answer:
-      "The most useful inputs are the project type, approximate size, location, intended timeline, finish-level direction, and a short description of the goals or constraints. Even partial information is enough to start the conversation.",
+      "For a short general inquiry, share the project type, location if known, a brief description, and either email or phone. Plan Your Home collects more detailed new-home context such as size, timing, and finish direction.",
   },
   {
     id: "next-steps-follow-up",
     group: "next-steps",
     question: "What happens after I submit an inquiry?",
     answer:
-      `${shortName} reviews the information you submitted, then follows up using your preferred contact method to discuss fit and next steps.`,
+      `${shortName} reviews the information you submitted, then follows up using the contact information you provided to discuss fit and next steps.`,
   },
   {
     id: "next-steps-contact-method",
     group: "next-steps",
     question: "Can I still call or email directly?",
     answer:
-      "Yes. You can call or email directly. For a new project, the project brief helps you share the key details up front.",
+      "Yes. You can call or email directly. For a new project, use the short general inquiry or Plan Your Home to share useful details up front.",
   },
 ] satisfies ReadonlyArray<FAQItem>;
 

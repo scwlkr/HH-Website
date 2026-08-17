@@ -49,9 +49,12 @@ export type InquiryActionState = {
   status: "idle" | "field-error" | "server-error";
   message?: string;
   fieldErrors: GeneralInquiryFieldErrors;
+  values?: GeneralInquiryFormValues;
+  attempt: number;
 };
 
 export const inquiryActionInitialState: InquiryActionState = {
   status: "idle",
   fieldErrors: {},
+  attempt: 0,
 };

@@ -6,6 +6,7 @@ import {
   getBuildTypeBySlug,
   getBuildTypeInquiryHref,
   getFinishLevelBySlug,
+  getFinishLevelProjectStartHref,
   marketingPageContent,
 } from "@/lib/content";
 import {
@@ -111,7 +112,7 @@ ${bullets(finish.includedCharacteristics)}
 
 ${bullets(finish.bestFit)}
 
-${markdownLink("Start with this finish direction", `${getPublicRoutePath("start")}?finish=${finish.slug}`)}. This finish guidance is directional, not a price or contractual scope.`,
+${markdownLink("Start a project", getFinishLevelProjectStartHref())}. This finish guidance is directional, not a price or contractual scope.`,
   );
 }
 

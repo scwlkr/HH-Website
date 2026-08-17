@@ -190,6 +190,23 @@ test("the short general inquiry remains readable in HHQ", () => {
       ["What are you planning?", "We need help evaluating a development site."],
     ],
   );
+
+  const idleAction = async () => ({ status: "idle" as const });
+  const view = render(
+    <AdminInquiryDetailView
+      inquiry={detail}
+      statusAction={idleAction}
+      deleteAction={idleAction}
+    />,
+  );
+  const query = within(view.container);
+  assert.ok(query.getByText("General Inquiry"));
+  assert.ok(query.getByRole("heading", { name: "Submission Timing" }));
+  assert.ok(query.getByText("Short general inquiry fields are shown exactly as received."));
+  assert.equal(query.queryByText("Saved zones"), null);
+  assert.equal(query.queryByText("Revision"), null);
+  assert.equal(query.queryByText("Retention date"), null);
+  assert.equal(query.queryByText(/Legacy form fields/), null);
 });
 
 test("private object validation requires the inquiry's exact single-object prefix", () => {

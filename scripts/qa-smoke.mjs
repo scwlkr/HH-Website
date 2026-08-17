@@ -1327,11 +1327,27 @@ async function verifyInquiryFailureState(browser, baseUrl) {
 
   try {
     await page.goto(`${baseUrl}/start#general-inquiry`, { waitUntil: "networkidle" });
+    const invalidSubmission = await fillInquiryForm(page, {
+      name: "Validation Retention Smoke Test",
+      phone: "",
+      email: "",
+    });
     await page.getByRole("button", { name: "Send Inquiry" }).click();
-    await page.getByText("Please share your name.").waitFor();
+    await page
+      .getByText("Share an email address or phone number.", { exact: true })
+      .waitFor();
+    assert(
+      (await page.locator('input[name="name"]').inputValue()) ===
+        invalidSubmission.name &&
+        (await page.locator('select[name="projectType"]').inputValue()) ===
+          invalidSubmission.projectType &&
+        (await page.locator('textarea[name="projectDescription"]').inputValue()) ===
+          invalidSubmission.projectDescription,
+      "Validation feedback must retain the visitor's entered project inquiry.",
+    );
 
     await page.goto(`${baseUrl}/start#general-inquiry`, { waitUntil: "networkidle" });
-    await fillInquiryForm(page, {
+    const failedSubmission = await fillInquiryForm(page, {
       name: "Forced Failure Smoke Test",
       email: "forced-failure@example.com",
     });
@@ -1346,6 +1362,15 @@ async function verifyInquiryFailureState(browser, baseUrl) {
     assert(
       new URL(page.url()).pathname === "/start",
       "A failed Firestore write must keep the visitor on the inquiry form.",
+    );
+    assert(
+      (await page.locator('input[name="name"]').inputValue()) ===
+        failedSubmission.name &&
+        (await page.locator('input[name="email"]').inputValue()) ===
+          failedSubmission.email &&
+        (await page.locator('textarea[name="projectDescription"]').inputValue()) ===
+          failedSubmission.projectDescription,
+      "A failed Firestore write must retain the visitor's entered project inquiry.",
     );
   } finally {
     await page.close();

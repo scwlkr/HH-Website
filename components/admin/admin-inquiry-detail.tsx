@@ -171,48 +171,73 @@ export function AdminInquiryDetailView({
                 "Not provided"
               )}
             </DetailField>
-            <DetailField label="Preferred follow-up">
-              {inquiry.preferredFollowUp ?? "Not provided"}
-            </DetailField>
-            <DetailField label="Manual follow-up disclosure">
-              {inquiry.disclosure}
-            </DetailField>
+            {inquiry.source === "general-inquiry" ? (
+              <DetailField label="Follow-up basis">
+                {inquiry.disclosure}
+              </DetailField>
+            ) : (
+              <>
+                <DetailField label="Preferred follow-up">
+                  {inquiry.preferredFollowUp ?? "Not provided"}
+                </DetailField>
+                <DetailField label="Manual follow-up disclosure">
+                  {inquiry.disclosure}
+                </DetailField>
+              </>
+            )}
           </dl>
         </DetailPanel>
 
-        <DetailPanel title="Progress and Timing">
-          <dl>
-            <DetailField label="Progress">{inquiry.progress.summary}</DetailField>
-            <DetailField label="Current boundary">
-              {inquiry.progress.currentPrompt ?? "Complete"}
-            </DetailField>
-            <DetailField label="Saved zones">
-              {inquiry.progress.completedZones.length > 0
-                ? inquiry.progress.completedZones.join("; ")
-                : "No complete zones recorded"}
-            </DetailField>
-            <DetailField label="Revision">
-              {inquiry.progress.revision ?? "Unavailable"}
-            </DetailField>
-            <DetailField label="Created">
-              {formatTimestamp(inquiry.timestamps.createdAt)}
-            </DetailField>
-            <DetailField label="Last activity">
-              {formatTimestamp(inquiry.timestamps.updatedAt)}
-            </DetailField>
-            <DetailField label="Submitted">
-              {formatTimestamp(inquiry.timestamps.submittedAt)}
-            </DetailField>
-            <DetailField label="Retention date">
-              {formatTimestamp(inquiry.timestamps.expiresAt)}
-            </DetailField>
-            <DetailField label="Inquiry consent">
-              {inquiry.consentVersion
-                ? `${inquiry.consentVersion} · ${formatTimestamp(inquiry.timestamps.consentAcceptedAt)}`
-                : "Not recorded"}
-            </DetailField>
-          </dl>
-        </DetailPanel>
+        {inquiry.source === "plan-your-home" ? (
+          <DetailPanel title="Progress and Timing">
+            <dl>
+              <DetailField label="Progress">{inquiry.progress.summary}</DetailField>
+              <DetailField label="Current boundary">
+                {inquiry.progress.currentPrompt ?? "Complete"}
+              </DetailField>
+              <DetailField label="Saved zones">
+                {inquiry.progress.completedZones.length > 0
+                  ? inquiry.progress.completedZones.join("; ")
+                  : "No complete zones recorded"}
+              </DetailField>
+              <DetailField label="Revision">
+                {inquiry.progress.revision ?? "Unavailable"}
+              </DetailField>
+              <DetailField label="Created">
+                {formatTimestamp(inquiry.timestamps.createdAt)}
+              </DetailField>
+              <DetailField label="Last activity">
+                {formatTimestamp(inquiry.timestamps.updatedAt)}
+              </DetailField>
+              <DetailField label="Submitted">
+                {formatTimestamp(inquiry.timestamps.submittedAt)}
+              </DetailField>
+              <DetailField label="Retention date">
+                {formatTimestamp(inquiry.timestamps.expiresAt)}
+              </DetailField>
+              <DetailField label="Inquiry consent">
+                {inquiry.consentVersion
+                  ? `${inquiry.consentVersion} · ${formatTimestamp(inquiry.timestamps.consentAcceptedAt)}`
+                  : "Not recorded"}
+              </DetailField>
+            </dl>
+          </DetailPanel>
+        ) : (
+          <DetailPanel title="Submission Timing">
+            <dl>
+              <DetailField
+                label={inquiry.source === "general-inquiry" ? "Received" : "Created"}
+              >
+                {formatTimestamp(inquiry.timestamps.createdAt)}
+              </DetailField>
+              {inquiry.source === "legacy" ? (
+                <DetailField label="Last activity">
+                  {formatTimestamp(inquiry.timestamps.updatedAt)}
+                </DetailField>
+              ) : null}
+            </dl>
+          </DetailPanel>
+        )}
       </div>
 
       <section aria-labelledby="inquiry-answers-title" className="space-y-5">
@@ -223,7 +248,9 @@ export function AdminInquiryDetailView({
           <p className="mt-2 text-sm leading-6 text-muted">
             {inquiry.source === "plan-your-home"
               ? "Questions remain in the exact tour order. Missing or unreadable saved values are called out without exposing malformed data."
-              : "Legacy form fields remain grouped in their original project-brief order."}
+              : inquiry.source === "general-inquiry"
+                ? "Short general inquiry fields are shown exactly as received."
+                : "Legacy form fields remain grouped in their original project-brief order."}
           </p>
         </div>
 

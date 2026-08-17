@@ -28,9 +28,8 @@ export async function submitInquiryAction(
   previousState: InquiryActionState = inquiryActionInitialState,
   formData: FormData,
 ): Promise<InquiryActionState> {
-  void previousState;
-
   const values = getGeneralInquiryFormValues(formData);
+  const attempt = previousState.attempt + 1;
 
   if (values.company.trim().length > 0) {
     redirect("/thank-you");
@@ -42,6 +41,8 @@ export async function submitInquiryAction(
   if (!rateLimit.allowed) {
     return createInquiryServerErrorState(
       "Too many submission attempts came through in a short window. Please wait a few minutes and try again.",
+      values,
+      attempt,
     );
   }
 
@@ -52,6 +53,8 @@ export async function submitInquiryAction(
       status: "field-error",
       message: "Please review the highlighted fields before sending the inquiry.",
       fieldErrors: mapInquiryFieldErrors(validationResult.error),
+      values,
+      attempt,
     };
   }
 
@@ -63,6 +66,8 @@ export async function submitInquiryAction(
 
     return createInquiryServerErrorState(
       "The project inquiry could not be sent right now. Please try again in a moment or email h and h directly.",
+      values,
+      attempt,
     );
   }
 

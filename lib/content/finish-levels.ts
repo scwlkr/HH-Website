@@ -253,6 +253,6 @@ export function getFinishLevelHref(slug: FinishLevelSlug) {
   return `/pricing/${slug}`;
 }
 
-export function getFinishLevelInquiryHref(slug: FinishLevelSlug) {
-  return `/start?finish=${slug}`;
+export function getFinishLevelProjectStartHref() {
+  return "/start";
 }

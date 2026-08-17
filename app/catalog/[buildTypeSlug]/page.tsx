@@ -182,9 +182,9 @@ export default async function BuildTypeDetailPage({
 
       <Section>
         <CtaBand
-          eyebrow="Start The Project Brief"
+          eyebrow="Start A Project"
           title={`Planning a ${buildType.title.toLowerCase()} project?`}
-          description="Share the site, size, timing, priorities, and finish direction so h and h can evaluate the right path forward."
+          description="Open the project start page for the guided new-home walkthrough or a short inquiry with your project type, location, and what you are planning."
           primaryAction={{
             href: getBuildTypeInquiryHref(buildType.slug),
             label: "Start With This Category",
@@ -199,7 +199,7 @@ export default async function BuildTypeDetailPage({
           notes={[
             buildType.tagline,
             "Project category shapes planning, finish strategy, and the relevant service mix.",
-            "The brief is where h and h can connect the category to site conditions, size, and timing.",
+            "The project start page keeps the detailed new-home walkthrough and short general inquiry distinct.",
           ]}
         />
       </Section>

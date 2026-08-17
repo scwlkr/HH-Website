@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getBuildTypeInquiryHref } from "../lib/content/build-types.ts";
-import { getFinishLevelInquiryHref } from "../lib/content/finish-levels.ts";
+import { getFinishLevelProjectStartHref } from "../lib/content/finish-levels.ts";
 import { getLegacyInquiryRedirectHref } from "../lib/project-start.ts";
 
 test("public project paths guide single-family visitors to the hero and other work to the short inquiry", () => {
@@ -26,8 +26,8 @@ test("public project paths guide single-family visitors to the hero and other wo
 
 test("legacy inquiry links redirect to the embedded form with safe attribution", () => {
   assert.equal(
-    getFinishLevelInquiryHref("builder-plus"),
-    "/start?finish=builder-plus",
+    getFinishLevelProjectStartHref(),
+    "/start",
   );
   assert.equal(
     getLegacyInquiryRedirectHref({

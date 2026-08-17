@@ -13,6 +13,7 @@ export function Input({
   helperText,
   error,
   id,
+  "aria-describedby": externalDescribedBy,
   ...props
 }: InputProps) {
   const fieldId =
@@ -24,6 +25,9 @@ export function Input({
     : helperText
       ? `${fieldId}-help`
       : undefined;
+  const combinedDescribedBy = [externalDescribedBy, describedById]
+    .filter(Boolean)
+    .join(" ") || undefined;
 
   return (
     <label className="flex flex-col gap-2">
@@ -34,7 +38,7 @@ export function Input({
       ) : null}
       <input
         id={fieldId}
-        aria-describedby={describedById}
+        aria-describedby={combinedDescribedBy}
         aria-invalid={Boolean(error)}
         className={cn(
           "min-h-12 rounded-[var(--hh-radius-input)] border border-line-strong bg-surface-raised px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent-soft",

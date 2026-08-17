@@ -62,9 +62,9 @@ export const marketingPageContent = {
     },
     cta: {
       eyebrow: "Next Step",
-      title: "When the finish direction is close enough to discuss, start the project brief.",
+      title: "When the finish direction is close enough to discuss, start a project.",
       description:
-        `${publicName} can align finish level, build type, site conditions, and timing around the actual scope.`,
+        "Use the project start page for the guided new-home walkthrough or a short general inquiry.",
     },
   },
   catalog: {
@@ -80,7 +80,7 @@ export const marketingPageContent = {
       eyebrow: "Ready To Begin",
       title: "Bring the project into focus.",
       description:
-        `Share the project category, location, finish direction, and timing so ${publicName} can respond with informed next steps.`,
+        "Use the guided new-home walkthrough or send a short inquiry with the project type, location, and what you are planning.",
     },
   },
   faq: {
@@ -94,9 +94,9 @@ export const marketingPageContent = {
       "Have a project in mind? Share what you know today, even if some details are still open.",
     cta: {
       eyebrow: "Ready To Proceed",
-      title: "Use the inquiry form once the major questions are settled.",
+      title: "Choose the project path that fits.",
       description:
-        `The project brief gives ${publicName} the context needed to respond intelligently on scope, finish direction, and next steps.`,
+        "Plan Your Home creates a detailed new-home brief; the general inquiry starts a shorter conversation about other work.",
     },
   },
   thankYou: {

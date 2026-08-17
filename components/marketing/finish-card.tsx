@@ -1,7 +1,7 @@
 import type { FinishLevel } from "@/types/content";
 import {
   getFinishLevelHref,
-  getFinishLevelInquiryHref,
+  getFinishLevelProjectStartHref,
 } from "@/lib/content/finish-levels";
 import { ActionLink } from "@/components/marketing/action-link";
 import { cn } from "@/lib/utils/cn";
@@ -64,8 +64,8 @@ export function FinishCard({
           />
           {showInquiryAction ? (
             <ActionLink
-              href={getFinishLevelInquiryHref(finish.slug)}
-              label="Start With This Finish"
+              href={getFinishLevelProjectStartHref()}
+              label="Start A Project"
               variant="ghost"
             />
           ) : null}
