@@ -155,6 +155,44 @@ components:
     textColor: "{colors.on-surface}"
     rounded: "{rounded.lg}"
     padding: "{spacing.md}"
+  plan-home-header:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.none}"
+    height: 58px
+  plan-home-progress-rail:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.muted-strong}"
+    typography: "{typography.label-sm}"
+    rounded: "{rounded.none}"
+    height: 44px
+  plan-home-context-strip:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.muted-strong}"
+    rounded: "{rounded.none}"
+    height: 22dvh
+  plan-home-question-surface:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.none}"
+    padding: "{spacing.sm}"
+  plan-home-choice:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    typography: "{typography.body-md}"
+    rounded: "{rounded.md}"
+    padding: "8px 12px"
+    height: 54px
+  plan-home-choice-selected:
+    backgroundColor: "{colors.surface-strong}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.md}"
+  plan-home-action-dock:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.on-surface}"
+    rounded: "{rounded.none}"
+    padding: "12px 14px 16px"
+    height: 82px
   paper-band:
     backgroundColor: "{colors.secondary}"
     textColor: "{colors.on-secondary}"
@@ -225,6 +263,8 @@ The active public surfaces are the homepage, Projects, Pricing, FAQ, Inquiry, an
 
 The homepage stays lean: landing section, "What Howeth and Harp Does", and a compact FAQ. The hero headline is "Advancing design, building, and land development." The hero subhead is "Howeth and Harp delivers architectural design, building, and land development with a disciplined eye for scope, site, and finish." The hero has one understated action: View Projects.
 
+Plan Your Home is a guided planning experience first and an illustrated journey second. On phones it must feel calm, direct, and app-like: the customer sees one clear planning task, its choices, and stable navigation without deciphering layered panels. The illustrated home supplies recognizable context and continuity, but never takes space the current task needs.
+
 ## Colors
 
 The color system uses warm architectural paper, near-black ink, clean white surfaces, muted text, deep green emphasis, and restrained drafting ink. Beige must feel clean and architectural, not sepia, aged, or muddy. White surfaces keep the system crisp.
@@ -268,6 +308,10 @@ Public routes use one visual grammar without sharing one rigid template. Route i
 
 On mobile, preserve premium restraint with clean stacking and reduced decoration. Do not force the full desktop drafting-board composition into mobile. On tablet, preserve columns only while they remain readable. On desktop, let the layout breathe through linework, image ratio, and horizontal alignment, not heavy nested frames.
 
+Plan Your Home phone prompt screens use one viewport-locked structure: a compact branded header, a concise zone/progress rail, an architectural context strip near 22% of the dynamic viewport, a task-first question surface, and a fixed Back/Continue dock. The question owns most of the available height. Ordinary prompts do not scroll. Compound prompts become short substeps while retaining the existing question number; user-created collections and enlarged-text or onscreen-keyboard states may use contained scrolling as an accessibility escape hatch.
+
+Plan Your Home review is organized one zone at a time rather than as one 35-answer page. Each zone remains easy to scan and edit, and the fixed navigation pattern continues through the review sequence.
+
 ## Elevation & Depth
 
 Depth is quiet. Use hairline borders, tonal stacking, subtle inset highlights, low shadows, and occasional backdrop blur for sticky or floating surfaces. Avoid large soft SaaS shadows, glossy depth, and repeated panel-on-panel stacking.
@@ -292,11 +336,13 @@ Navigation is lean and header-led. The header carries most navigation. Content s
 
 Forms are functional, readable, and hard to misuse. Inputs use white or raised surfaces, clear labels, strong enough contrast, and visible focus rings. Inquiry progress must remain understandable to screen readers.
 
+Plan Your Home uses the `plan-home-*` component tokens as a single mobile app frame. The context strip is a shallow architectural view, not a backdrop behind controls. Choices are large, flat, and immediately selectable. Back and Continue remain fixed and use the same labels throughout the planning flow. Dense content is divided into focused substeps instead of compressed into a small inner scroller.
+
 Project records link as whole register rows and avoid repeated card CTA buttons. The first record may act as a wider cover sheet; later records remain continuous ruled entries. Projects should be image-led, quiet, and proof-oriented. Badges and metadata stay compact and secondary.
 
 Static marketing content should not use `CardShell`. Use open rules, schedules, registers, title blocks, and image plates. `CardShell` remains appropriate for the active inquiry form and other genuinely interactive work surfaces where containment improves comprehension.
 
-The animated drafting arm remains a signature detail only if it is integrated, subtle, and architectural. Motion is limited to subtle architectural behavior, light hover/focus transitions, and slow quiet signature movement. Do not add scroll theatrics, parallax, reveal animations, or attention-seeking movement.
+The animated drafting arm remains a signature detail only if it is integrated, subtle, and architectural. Motion is limited to subtle architectural behavior, light hover/focus transitions, and slow quiet signature movement. Plan Your Home uses a short, restrained content transition; its scene changes primarily between zones instead of performing dramatic camera movement for every prompt. Do not add scroll theatrics, parallax, reveal animations, or attention-seeking movement.
 
 The paired `DESIGN.html` is a fixed static mock website visualizer, not a production-page preview, documentation page, or editable color tool. It uses the same token direction to stress test fonts, colors, hierarchy, buttons, cards, sections, and states.
 
@@ -314,6 +360,10 @@ Do keep public copy precise, confident, and free of "dream home" language.
 
 Do make accessibility states visible and refined: focus, hover, active, error, and disabled states must be unmistakable during interaction.
 
+Do make Plan Your Home feel like one stable phone application frame with one obvious task per screen.
+
+Do let its illustration provide atmosphere and orientation without competing with questions or actions.
+
 Do keep the footer minimal, light, and necessary.
 
 Don't turn the drafting direction into blueprint cosplay, playful illustration, or decorative overload.
@@ -323,6 +373,8 @@ Don't use generic stock imagery, fake lifestyle visuals, or loud placeholder bad
 Don't reintroduce Panchang unless the brand guide changes intentionally.
 
 Don't add repeated funnel CTAs, bottom-page CTA bands, newsletter-style footer clutter, or sales-heavy card buttons.
+
+Don't place Plan Your Home prompts in a short floating card over a dominant scene, and don't make ordinary customers scroll inside that card to reach expected choices.
 
 Don't bring Catalog back into public navigation, homepage, or footer until that surface is intentionally revisited.
 
