@@ -960,6 +960,16 @@
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
+@media (min-width: 40.0625rem) {
+  .experience:has(> .review) {
+    height: 100dvh;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+  }
+}
+
 @media (max-width: 40rem) {
   .experience:has(> [data-question-id]),
   .experience:has(> [data-tour-beat]) {

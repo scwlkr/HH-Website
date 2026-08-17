@@ -591,6 +591,10 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
     }
     await page.evaluate(() => {
       window.scrollTo({ top: 0, behavior: "instant" });
+      document.querySelector("[data-plan-home-experience]")?.scrollTo({
+        top: 0,
+        behavior: "instant",
+      });
       document.querySelector("[data-plan-home-moment-sheet]")?.scrollTo({
         top: 0,
         behavior: "instant",
@@ -709,6 +713,45 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
       assert(
         result.layout.reviewWorkspace?.top < viewports.desktop.height * 0.7,
         "desktop brief index begins inside the initial viewport",
+      );
+      const reviewScroll = await page.evaluate(() => {
+        const experience = document.querySelector("[data-plan-home-experience]");
+        if (!(experience instanceof HTMLElement)) return null;
+        experience.scrollTo({ top: 0, behavior: "instant" });
+        return {
+          before: experience.scrollTop,
+          clientHeight: experience.clientHeight,
+          scrollHeight: experience.scrollHeight,
+        };
+      });
+      assert(
+        reviewScroll?.scrollHeight > reviewScroll?.clientHeight,
+        "desktop review has a visible scroll range",
+      );
+      const experienceBounds = await page
+        .locator("[data-plan-home-experience]")
+        .boundingBox();
+      assert(experienceBounds, "desktop review app frame is visible");
+      await page.mouse.move(
+        experienceBounds.x + experienceBounds.width / 2,
+        experienceBounds.y + experienceBounds.height / 2,
+      );
+      await page.mouse.wheel(0, Math.round(viewports.desktop.height * 0.75));
+      await page.waitForTimeout(100);
+      assert(
+        (await page.locator("[data-plan-home-experience]").evaluate(
+          (experience) => experience.scrollTop,
+        )) > reviewScroll.before,
+        "desktop review responds to ordinary wheel scrolling",
+      );
+      await page
+        .locator('nav[aria-label="Project brief sections"] a[href="#review-submit"]')
+        .click();
+      await page.waitForTimeout(250);
+      const submission = await page.locator("[data-review-submission]").boundingBox();
+      assert(
+        submission && submission.y < viewports.desktop.height,
+        "desktop brief index brings the submission action into view",
       );
     }
     result.quality = await quality(page);
