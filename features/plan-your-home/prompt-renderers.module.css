@@ -49,11 +49,6 @@
   text-transform: uppercase;
 }
 
-.stagedControls {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .stagedHistory {
   display: grid;
   gap: 0.75rem;
@@ -831,24 +826,8 @@
     overflow-wrap: anywhere;
   }
 
-  .stagedControls button,
   .stagedSummary button {
     min-height: 44px;
-  }
-
-  .stagedControls {
-    position: absolute;
-    z-index: 7;
-    right: 14px;
-    bottom: max(1rem, env(safe-area-inset-bottom));
-    left: 136px;
-    width: auto;
-  }
-
-  .stagedControls button {
-    width: 100%;
-    min-height: 52px;
-    padding-inline: 8px;
   }
 
   .instructions,
@@ -970,16 +949,6 @@
     margin-top: 0.15rem;
     font-size: 0.64rem;
     line-height: 1.2;
-  }
-
-  .stagedControls {
-    right: 12px;
-    bottom: max(0.55rem, env(safe-area-inset-bottom));
-    left: 134px;
-  }
-
-  .stagedControls button {
-    min-height: 48px;
   }
 
   .optionGrid {

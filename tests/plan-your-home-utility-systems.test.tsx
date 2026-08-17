@@ -225,7 +225,7 @@ test("the bedroom hall turns into utility and Back retains in-zone answers", asy
     ),
   );
   await user.click(query.getByRole("radio", { name: "Hall bath" }));
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: "The utility hall is next." })),
   );
@@ -297,11 +297,11 @@ test("question 21 retries one revision-safe checkpoint and reveals only the exte
   await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Energy efficiency" }));
   await user.click(query.getByRole("checkbox", { name: "Smart controls" }));
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
     assert.ok(
@@ -362,7 +362,7 @@ test("question 21 retries one revision-safe checkpoint and reveals only the exte
     true,
   );
 
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -374,7 +374,7 @@ test("question 21 retries one revision-safe checkpoint and reveals only the exte
 
   await user.click(query.getByRole("button", { name: "Back to home systems" }));
   await user.click(query.getByRole("checkbox", { name: "Smart controls" }));
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.equal(calls.length, 3),
   );

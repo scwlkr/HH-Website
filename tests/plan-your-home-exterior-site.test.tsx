@@ -122,9 +122,9 @@ async function renderExterior(checkpointDraft?: PlanHomeDraftAction) {
 
 async function answerGarage(query: ReturnType<typeof within>, user: ReturnType<typeof userEvent.setup>) {
   await user.click(query.getByRole("radio", { name: "2" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Storage" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.type(query.getByRole("textbox", { name: /Other/ }), "Golf cart parking");
   await user.click(query.getByRole("button", { name: "Next" }));
 }
@@ -162,7 +162,7 @@ test("the utility threshold opens into one fixed exterior study without moving o
     ),
   );
   await user.click(query.getByRole("checkbox", { name: "Energy efficiency" }));
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", { name: "The back door opens to the exterior." }),
@@ -211,10 +211,10 @@ test("garage groups and accessible style cards validate without reconfiguring th
   assert.ok(query.getByRole("group", { name: "Bays" }));
   assert.equal(query.queryByRole("group", { name: "Needs" }), null);
   await user.click(query.getByRole("radio", { name: "2" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   assert.equal(query.queryByRole("textbox", { name: /Other/ }), null);
   await user.click(query.getByRole("checkbox", { name: "Storage" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   const other = query.getByRole("textbox", { name: /Other/ }) as HTMLInputElement;
   await user.type(other, "x".repeat(125));
   assert.equal(other.value.length, 120);
@@ -283,7 +283,7 @@ test("garage groups and accessible style cards validate without reconfiguring th
     (query.getByRole("checkbox", { name: "Storage" }) as HTMLInputElement).checked,
     true,
   );
-  await user.click(query.getByRole("button", { name: "Done" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   assert.equal((query.getByRole("textbox", { name: /Other/ }) as HTMLInputElement).value.length, 120);
 
   const results = await axe.run(view.container, {
@@ -303,7 +303,8 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   );
   assert.ok(scene);
   await user.click(query.getByRole("radio", { name: "No garage" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
   await user.click(query.getByRole("button", { name: "Next" }));
@@ -403,11 +404,11 @@ test("question 26 retries one canonical checkpoint and match-cuts to the design 
   const { view, query } = await renderExterior(checkpointDraft);
   const user = userEvent.setup({ document: window.document });
   await answerExteriorThroughSpecialty(query, user);
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -480,7 +481,7 @@ test("question 26 retries one canonical checkpoint and match-cuts to the design 
     (query.getByRole("checkbox", { name: "Office" }) as HTMLInputElement).checked,
     true,
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -492,7 +493,7 @@ test("question 26 retries one canonical checkpoint and match-cuts to the design 
 
   await user.click(query.getByRole("button", { name: "Back to specialty spaces" }));
   await user.click(query.getByRole("checkbox", { name: "Workshop" }));
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() => assert.equal(calls.length, 3));
   assert.notEqual(calls[2].idempotencyKey, calls[0].idempotencyKey);
   assert.equal(calls[2].expectedRevision, 7);

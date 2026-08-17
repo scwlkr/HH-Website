@@ -362,14 +362,6 @@
     box-shadow: 0 -1rem 1.5rem -1.75rem rgba(17, 17, 15, 0.45);
   }
 
-  .promptSheet:has([data-plan-home-staged-controls]) .stageActions {
-    grid-template-columns: 112px minmax(0, 1fr);
-  }
-
-  .promptSheet:has([data-plan-home-staged-controls]) .actionButton:last-child {
-    display: none;
-  }
-
   .actionButton {
     min-height: 52px;
     padding-inline: 8px;

@@ -270,7 +270,7 @@ test("Back crosses the kitchen boundary and returns with the Primary Suite answe
       }),
     ),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -312,11 +312,11 @@ test("question 17 retries one Primary Suite checkpoint and exits to the bedroom 
   const { view, query } = await renderPrimary(checkpointDraft);
   await answerPrimarySuite(user, query);
 
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
     assert.ok(

@@ -194,7 +194,7 @@ async function quality(page) {
     const controls = Array.from(document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, summary, textarea')).filter(visible);
     const labelTargets = Array.from(
       document.querySelectorAll(
-        "[data-plan-home-zone-label], [data-plan-home-actions] button, [data-plan-home-staged-controls] button, [data-plan-home-prompt-scroll] label",
+        "[data-plan-home-zone-label], [data-plan-home-actions] button, [data-plan-home-prompt-scroll] label",
       ),
     ).filter(visible);
     const accessibleName = (element) => {
@@ -317,13 +317,13 @@ async function assertNavigation(page, state, viewportName) {
       : number === 7
         ? page.getByRole("button", { name: "Save and continue" })
         : page.getByRole("button", {
-            name: /^(Next|Save room|Review brief|Open the design desk)$/,
+            name: /^(Next|Open the design desk)$/,
           });
   await activateByKeyboard(page, forward);
   if (number === 27) {
     await activateByKeyboard(
       page,
-      page.getByRole("button", { name: "Save room" }),
+      page.getByRole("button", { name: "Next", exact: true }),
     );
   }
   await page.locator(`[data-plan-home-refinement-state="q${number}"]`).waitFor();
@@ -384,9 +384,6 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
     const actionsRect = document
       .querySelector("[data-plan-home-actions]")
       ?.getBoundingClientRect();
-    const stagedActionsRect = document
-      .querySelector("[data-plan-home-staged-controls]")
-      ?.getBoundingClientRect();
     const targetFor = (control) =>
       "labels" in control
         ? Array.from(control.labels ?? []).find((label) => label.contains(control)) ?? control
@@ -397,7 +394,6 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
       ),
     )
       .filter((control) => control.getClientRects().length > 0)
-      .filter((control) => !control.closest("[data-plan-home-staged-controls]"))
       .map(targetFor);
     const hiddenControls = controls
       .filter((control) => {
@@ -421,8 +417,6 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
       scrollY: window.scrollY,
       actionTop: actionsRect?.top ?? null,
       actionBottom: actionsRect?.bottom ?? null,
-      stagedActionTop: stagedActionsRect?.top ?? null,
-      stagedActionBottom: stagedActionsRect?.bottom ?? null,
       activeControlCount: controls.length,
       hiddenControls,
     };
@@ -449,13 +443,6 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
         metrics.actionTop >= 0 &&
         metrics.actionBottom <= metrics.viewportHeight + 1,
       `${state} keeps Back and Next inside the visible viewport`,
-    );
-    assert(
-      metrics.stagedActionTop === null ||
-        (metrics.stagedActionBottom !== null &&
-          metrics.stagedActionTop >= 0 &&
-          metrics.stagedActionBottom <= metrics.viewportHeight + 1),
-      `${state} keeps the staged action inside the visible viewport`,
     );
     return {
       needed: false,
@@ -490,7 +477,6 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
       ),
     )
       .filter((control) => control.getClientRects().length > 0)
-      .filter((control) => !control.closest("[data-plan-home-staged-controls]"));
     const control = controls.at(-1);
     if (!control) return null;
     const target = "labels" in control
@@ -525,7 +511,7 @@ async function assertPromptScrollReachability(page, state, requireNoScroll) {
 }
 
 async function completeActiveStagedGroup(page) {
-  const action = page.locator("[data-plan-home-staged-controls] button");
+  const action = page.locator("[data-plan-home-staged-advance]");
   if ((await action.count()) === 0) return false;
 
   if (!(await action.isEnabled())) {
@@ -541,7 +527,7 @@ async function completeActiveStagedGroup(page) {
 
   assert.equal(await action.isEnabled(), true, "active staged group can be completed");
   const activeId = await page.locator("[data-plan-home-stage-panel]").getAttribute("data-plan-home-stage-panel");
-  await action.click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
   await page.waitForFunction(
     (previousId) =>
       document
@@ -894,7 +880,7 @@ async function captureKeyboardFallback(browser, baseUrl) {
       await page
         .getByRole("radio", { name: "Own it" })
         .evaluate((control) => control.click());
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Next", exact: true }).click();
       const locationInput = page.getByLabel(
         "City, county, address, or target area",
       );

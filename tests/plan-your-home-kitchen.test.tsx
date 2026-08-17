@@ -138,7 +138,7 @@ async function answerKitchen(
     "room-opening",
   );
   await user.click(query.getByRole("radio", { name: "Single island" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("radio", { name: "Open" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
@@ -255,7 +255,7 @@ test("Back crosses the Living Room boundary without losing the kitchen answer", 
     "Warm, durable finishes with natural wood and simple details",
   );
 
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -300,11 +300,11 @@ test("question 13 retries one Kitchen and Dining checkpoint and enters the prima
   const { view, query } = await renderKitchen(checkpointDraft);
   await answerKitchen(user, query, view.container);
 
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
     assert.ok(

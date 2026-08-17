@@ -744,23 +744,16 @@ export function StagedPrompt({ id, steps }: StagedPromptProps) {
         </p>
         {activeStep.content}
         {activeIndex < steps.length - 1 || editingStepId ? (
-          <div
-            className={styles.stagedControls}
-            data-plan-home-staged-controls
+          <button
+            type="button"
+            hidden
+            tabIndex={-1}
+            data-plan-home-staged-advance
+            disabled={!activeStep.complete && !activeStep.optional}
+            onClick={finishActiveStep}
           >
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={!activeStep.complete && !activeStep.optional}
-              onClick={finishActiveStep}
-            >
-              {editingStepId
-                ? "Done"
-                : activeStep.optional && !activeStep.complete
-                  ? "Skip"
-                  : "Continue"}
-            </Button>
-          </div>
+            Advance question section
+          </button>
         ) : null}
       </div>
     </div>

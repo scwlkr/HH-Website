@@ -3080,22 +3080,6 @@ export function PlanYourHomeShell({
           onNext={() => nextFromQuestion(question)}
           canGoBack
           backLabel={tourState.location.editingFromReview ? "Cancel" : "Back"}
-          nextLabel={
-            tourState.location.editingFromReview
-              ? "Save"
-              : question.number === planHomeQuestions.length
-              ? "Review brief"
-              :
-            question.number === PROJECT_AND_LIVING_LAST_QUESTION ||
-            question.number === KITCHEN_AND_DINING_LAST_QUESTION ||
-            question.number === PRIMARY_SUITE_LAST_QUESTION ||
-            question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION ||
-            question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION ||
-            question.number === EXTERIOR_AND_SITE_LAST_QUESTION
-            || question.number === DESIGN_DESK_LAST_QUESTION
-              ? "Save room"
-              : "Next"
-          }
           error={error}
           reducedMotion={reducedMotion}
         />

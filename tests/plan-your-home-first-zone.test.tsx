@@ -86,12 +86,12 @@ async function answerThroughContactGate(
   await beginTour(user, query);
 
   await user.click(query.getByRole("radio", { name: "Fully custom" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Architectural design" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
   await user.click(query.getByRole("radio", { name: "Own it" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.type(
     query.getByRole("textbox", { name: "City, county, address, or target area" }),
     "Denton County",
@@ -218,7 +218,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
     await user.click(
       within(startingPoint).getByRole("radio", { name: "Fully custom" }),
     );
-    await user.click(query.getByRole("button", { name: "Continue" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
     const services = query.getByRole("group", { name: "Services" });
     await user.click(query.getByRole("button", { name: "Next" }));
 
@@ -301,13 +301,13 @@ test("missing bedroom and bathroom text shows customer-safe guidance and focuses
   try {
     await beginTour(user, query);
     await user.click(query.getByRole("radio", { name: "Fully custom" }));
-    await user.click(query.getByRole("button", { name: "Continue" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
     await user.click(
       query.getByRole("checkbox", { name: "Architectural design" }),
     );
     await user.click(query.getByRole("button", { name: "Next" }));
     await user.click(query.getByRole("radio", { name: "Own it" }));
-    await user.click(query.getByRole("button", { name: "Continue" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
     await user.type(
       query.getByRole("textbox", {
         name: "City, county, address, or target area",
@@ -359,7 +359,7 @@ test("valid choices persist locally before Next and survive refresh without a se
 
   await beginTour(user, firstQuery);
   await user.click(firstQuery.getByRole("radio", { name: "Fully custom" }));
-  await user.click(firstQuery.getByRole("button", { name: "Continue" }));
+  await user.click(firstQuery.getByRole("button", { name: "Next" }));
   await user.click(
     firstQuery.getByRole("checkbox", { name: "Architectural design" }),
   );
@@ -419,13 +419,13 @@ test("valid text persists after a debounce, on blur, and on navigation", async (
 
   await beginTour(user, firstQuery);
   await user.click(firstQuery.getByRole("radio", { name: "Fully custom" }));
-  await user.click(firstQuery.getByRole("button", { name: "Continue" }));
+  await user.click(firstQuery.getByRole("button", { name: "Next" }));
   await user.click(
     firstQuery.getByRole("checkbox", { name: "Architectural design" }),
   );
   await user.click(firstQuery.getByRole("button", { name: "Next" }));
   await user.click(firstQuery.getByRole("radio", { name: "Own it" }));
-  await user.click(firstQuery.getByRole("button", { name: "Continue" }));
+  await user.click(firstQuery.getByRole("button", { name: "Next" }));
   const location = firstQuery.getByRole("textbox", {
     name: "City, county, address, or target area",
   });
@@ -635,7 +635,7 @@ test("refresh restores before and after contact; question 10 checkpoints all fir
     resumed.getByRole("textbox", { name: "Your answer" }),
     "Warm, durable finishes with natural wood",
   );
-  await user.click(resumed.getByRole("button", { name: "Save room" }));
+  await user.click(resumed.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
     assert.ok(

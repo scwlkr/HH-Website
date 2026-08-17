@@ -149,7 +149,7 @@ test("one representative scene serves every bedroom count and validates both gro
   assert.equal(query.queryByRole("group", { name: "Arrangement" }), null);
 
   await user.click(query.getByRole("checkbox", { name: "Children" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   assert.ok(query.getByRole("alert"));
   await user.click(query.getByRole("radio", { name: "Grouped" }));
@@ -158,7 +158,7 @@ test("one representative scene serves every bedroom count and validates both gro
   await user.click(query.getByRole("button", { name: "Next" }));
   assert.ok(query.getByRole("alert"));
   await user.click(query.getByRole("checkbox", { name: "Guests" }));
-  await user.click(query.getByRole("button", { name: "Done" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
@@ -218,7 +218,7 @@ test("Back crosses the Primary Suite boundary and keeps the grouped bedroom answ
     ),
   );
   await user.click(query.getByRole("checkbox", { name: "Children" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("radio", { name: "Grouped" }));
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
@@ -228,7 +228,7 @@ test("Back crosses the Primary Suite boundary and keeps the grouped bedroom answ
       }),
     ),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -282,15 +282,15 @@ test("question 19 retries one checkpoint, stores canonical summaries, and exits 
 
   await user.click(query.getByRole("checkbox", { name: "Children" }));
   await user.click(query.getByRole("checkbox", { name: "Guests" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("radio", { name: "Split for privacy" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("radio", { name: "Jack-and-Jill" }));
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
     assert.ok(

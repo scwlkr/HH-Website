@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test, { afterEach } from "node:test";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { cleanup, render, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
@@ -119,29 +119,42 @@ test("multi-choice renderer enforces limits and exclusive choices", async () => 
 
 test("grouped renderer stages one editable answer group at a time", async () => {
   function Harness() {
+    const promptRef = useRef<HTMLDivElement>(null);
     const [value, setValue] = useState({
       workCenter: null as string | null,
       services: [] as readonly string[],
     });
     return (
-      <GroupedChoicePrompt
-        id="grouped"
-        groups={[
-          { id: "workCenter", label: "Work center", options: basicOptions },
-          {
-            id: "services",
-            label: "Services",
-            options: basicOptions,
-            maxSelections: 2,
-            exclusiveOptionSlugs: ["not-sure-yet"],
-          },
-        ]}
-        value={value}
-        instructions="Choose one response in each group."
-        onChange={(next) =>
-          setValue(next as typeof value)
-        }
-      />
+      <div ref={promptRef}>
+        <GroupedChoicePrompt
+          id="grouped"
+          groups={[
+            { id: "workCenter", label: "Work center", options: basicOptions },
+            {
+              id: "services",
+              label: "Services",
+              options: basicOptions,
+              maxSelections: 2,
+              exclusiveOptionSlugs: ["not-sure-yet"],
+            },
+          ]}
+          value={value}
+          instructions="Choose one response in each group."
+          onChange={(next) => setValue(next as typeof value)}
+        />
+        <button
+          type="button"
+          onClick={() =>
+            promptRef.current
+              ?.querySelector<HTMLButtonElement>(
+                "[data-plan-home-staged-advance]:not(:disabled)",
+              )
+              ?.click()
+          }
+        >
+          Next
+        </button>
+      </div>
     );
   }
 
@@ -150,9 +163,10 @@ test("grouped renderer stages one editable answer group at a time", async () => 
   const query = within(view.container);
   assert.ok(query.getByRole("group", { name: "Work center" }));
   assert.equal(query.queryByRole("group", { name: "Services" }), null);
+  assert.equal(query.queryByRole("button", { name: "Continue" }), null);
 
   await user.click(query.getByRole("radio", { name: "First choice" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
 
   assert.match(
     query.getByRole("group", { name: "Completed Work center" }).textContent ?? "",
@@ -177,7 +191,8 @@ test("grouped renderer stages one editable answer group at a time", async () => 
       .checked,
     true,
   );
-  await user.click(query.getByRole("button", { name: "Done" }));
+  assert.equal(query.queryByRole("button", { name: "Done" }), null);
+  await user.click(query.getByRole("button", { name: "Next" }));
   assert.equal(
     (query.getByRole("checkbox", { name: "Second choice" }) as HTMLInputElement)
       .checked,

@@ -347,12 +347,9 @@ async function answerRegistryQuestion(page, question) {
       for (const value of answerValues(groupAnswer)) {
         await activate(groupControl.locator(`input[value="${value}"]`));
       }
-      const continueButton = page.getByRole("button", {
-        name: "Continue",
-        exact: true,
-      });
-      if ((await continueButton.count()) > 0 && (await continueButton.isVisible())) {
-        await continueButton.click();
+      const stagedAdvance = page.locator("[data-plan-home-staged-advance]");
+      if ((await stagedAdvance.count()) > 0 && (await stagedAdvance.isEnabled())) {
+        await page.getByRole("button", { name: "Next", exact: true }).click();
       }
     }
   } else {
@@ -429,12 +426,6 @@ async function assertRoomTransitionMotion(page, fromQuestion) {
 }
 
 async function advanceQuestion(page, question) {
-  const label =
-    question.number === 31
-      ? "Review brief"
-      : [10, 13, 17, 19, 21, 26, 30].includes(question.number)
-        ? "Save room"
-        : "Next";
   const stage = page.locator("[data-transition-state]");
   if ((await stage.count()) > 0) {
     const [exitMilliseconds, enterMilliseconds] = await Promise.all([
@@ -444,7 +435,7 @@ async function advanceQuestion(page, question) {
     assert.equal(Number(exitMilliseconds) + Number(enterMilliseconds), 300);
   }
   const startedAt = Date.now();
-  await page.getByRole("button", { name: label, exact: true }).click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
   const boundaryButtons = {
     17: "Continue down the hall",
     19: "Turn into the utility hall",
@@ -662,11 +653,8 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
   const radioTabs = await tabTo(page, radio);
   await page.keyboard.press("Space");
   assert.equal(await radio.isChecked(), true);
-  const firstPartContinue = page.getByRole("button", {
-    name: "Continue",
-    exact: true,
-  });
-  const firstPartContinueTabs = await tabTo(page, firstPartContinue);
+  const firstPartNext = page.getByRole("button", { name: "Next", exact: true });
+  const firstPartNextTabs = await tabTo(page, firstPartNext);
   await page.keyboard.press("Enter");
   const checkbox = page.locator('input[value="architectural-design"]');
   const checkboxTabs = await tabTo(page, checkbox);
@@ -697,11 +685,8 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
   const lotStatus = page.locator('input[value="own-it"]');
   const lotTabs = await tabTo(page, lotStatus);
   await page.keyboard.press("Space");
-  const lotContinue = page.getByRole("button", {
-    name: "Continue",
-    exact: true,
-  });
-  const lotContinueTabs = await tabTo(page, lotContinue);
+  const lotNext = page.getByRole("button", { name: "Next", exact: true });
+  const lotNextTabs = await tabTo(page, lotNext);
   await page.keyboard.press("Enter");
   const location = page.getByLabel("City, county, address, or target area");
   const locationTabs = await tabTo(page, location);
@@ -737,11 +722,11 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
       nameTabs,
       openTabs,
       radioTabs,
-      firstPartContinueTabs,
+      firstPartNextTabs,
       checkboxTabs,
       nextTabs,
       lotTabs,
-      lotContinueTabs,
+      lotNextTabs,
       locationTabs,
       backTabs,
       retainedNextTabs,
@@ -1163,10 +1148,10 @@ async function main() {
     const editedAnswerTabs = await tabTo(page, currentAnswer);
     await page.keyboard.press("ArrowDown");
     assert.equal(await editedAnswer.isChecked(), true);
-    const editDone = page.getByRole("button", { name: "Done", exact: true });
+    const editDone = page.getByRole("button", { name: "Next", exact: true });
     const editDoneTabs = await tabTo(page, editDone);
     await page.keyboard.press("Enter");
-    const editSave = page.getByRole("button", { name: "Save", exact: true });
+    const editSave = page.getByRole("button", { name: "Next", exact: true });
     const editSaveTabs = await tabTo(page, editSave);
     await page.keyboard.press("Enter");
     await page.getByText(/^Review 2 of 10 · Entry and Living Room$/).waitFor();

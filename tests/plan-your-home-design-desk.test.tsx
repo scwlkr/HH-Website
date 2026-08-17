@@ -264,7 +264,7 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
   }
   await user.click(query.getByRole("checkbox", { name: "Bold" }));
   assert.match(query.getByRole("alert").textContent ?? "", /no more than 3/);
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.type(
     query.getByRole("textbox", { name: /What do you like or dislike now/ }),
     "Keep the morning light; lose the dark hallway.",
@@ -333,13 +333,13 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
     "Budget excludes land and does not calculate a price.",
   );
   await user.click(query.getByRole("radio", { name: "Under $300k" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("radio", { name: "Within 3 months" }));
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.match(query.getByRole("alert").textContent ?? "", /Try again/),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -394,7 +394,7 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
       }),
     ),
   );
-  await user.click(query.getByRole("button", { name: "Save room" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {

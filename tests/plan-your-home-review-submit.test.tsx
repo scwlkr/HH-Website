@@ -145,7 +145,7 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
     ["email", "phone-call", "text-message"],
   );
   await user.click(query.getByRole("radio", { name: "Phone call" }));
-  await user.click(query.getByRole("button", { name: "Review brief" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
@@ -217,7 +217,8 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
   );
   await user.click(query.getByRole("button", { name: "Edit Starting point" }));
   await user.click(query.getByRole("radio", { name: "Already have a plan" }));
-  await user.click(query.getByRole("button", { name: "Save" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
   );
@@ -244,7 +245,7 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
   const finishDirection = query.getByRole("textbox", { name: "Your answer" });
   await user.clear(finishDirection);
   await user.type(finishDirection, "Custom natural wood and stone finishes");
-  await user.click(query.getByRole("button", { name: "Save" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
   );

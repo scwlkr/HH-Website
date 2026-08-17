@@ -103,15 +103,12 @@ async function answerQuestion(page, question) {
       for (const value of answerValues(groupAnswer)) {
         await activate(groupControl.locator(`input[value="${value}"]`));
       }
-      const continueButton = page.getByRole("button", {
-        name: "Continue",
-        exact: true,
-      });
+      const stagedAdvance = page.locator("[data-plan-home-staged-advance]");
       if (
-        (await continueButton.count()) > 0 &&
-        (await continueButton.isVisible())
+        (await stagedAdvance.count()) > 0 &&
+        (await stagedAdvance.isEnabled())
       ) {
-        await continueButton.click();
+        await page.getByRole("button", { name: "Next", exact: true }).click();
       }
     }
   } else if (question.response.kind === "text") {
@@ -131,13 +128,7 @@ async function answerQuestion(page, question) {
 }
 
 async function advanceQuestion(page, question) {
-  const label =
-    question.number === 31
-      ? "Review brief"
-      : [10, 13, 17, 19, 21, 26, 30].includes(question.number)
-        ? "Save room"
-        : "Next";
-  await page.getByRole("button", { name: label, exact: true }).click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
 
   const boundaryButtons = {
     17: "Continue down the hall",
@@ -343,7 +334,8 @@ async function main() {
       .getByRole("button", { name: "Edit Starting point" })
       .click();
     await activate(page.locator('input[value="adapt-existing-plan"]'));
-    await page.getByRole("button", { name: "Save", exact: true }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
     await page.locator('[data-tour-beat="project-brief-review"]').waitFor();
     assert.match(
       (await page

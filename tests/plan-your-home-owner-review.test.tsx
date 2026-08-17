@@ -121,7 +121,7 @@ test("review mode fake-submits without server, upload, or analytics side effects
     ),
   );
   await user.click(query.getByRole("radio", { name: "Email" }));
-  await user.click(query.getByRole("button", { name: "Review brief" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {

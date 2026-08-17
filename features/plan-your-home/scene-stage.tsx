@@ -96,6 +96,7 @@ export function SceneStage({
   const [phase, setPhase] = useState<TransitionPhase>("idle");
   const [direction, setDirection] = useState<NavigationDirection>("next");
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const promptSheetRef = useRef<HTMLElement>(null);
   const previousQuestionId = useRef(question.id);
   const prefersReducedMotion = usePrefersReducedMotion(reducedMotion);
   const isTransitioning = phase !== "idle";
@@ -149,6 +150,15 @@ export function SceneStage({
     }, EXIT_DURATION_MS);
   }
 
+  function advanceStagedPrompt() {
+    const action = promptSheetRef.current?.querySelector<HTMLButtonElement>(
+      "[data-plan-home-staged-advance]:not(:disabled)",
+    );
+    if (!action) return false;
+    action.click();
+    return true;
+  }
+
   return (
     <section
       className={styles.stage}
@@ -187,6 +197,7 @@ export function SceneStage({
 
       <div className={styles.promptLayer}>
         <section
+          ref={promptSheetRef}
           className={styles.promptSheet}
           data-plan-home-prompt-sheet
           aria-labelledby={`${question.id}-heading`}
@@ -232,7 +243,10 @@ export function SceneStage({
             </Button>
             <Button
               className={styles.actionButton}
-              onClick={() => navigate("next", onNext)}
+              onClick={() => {
+                if (advanceStagedPrompt()) return;
+                void navigate("next", onNext);
+              }}
               disabled={isTransitioning}
             >
               {nextLabel}
