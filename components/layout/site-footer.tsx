@@ -32,7 +32,7 @@ export function SiteFooter() {
               className="h-7 w-[11.5rem] sm:h-8 sm:w-[13rem]"
             />
             <p className="mt-3 text-sm font-medium tracking-[0.02em] text-muted-strong">
-              Design. Build. Develop.
+              {siteConfig.tagline}
             </p>
           </div>
 

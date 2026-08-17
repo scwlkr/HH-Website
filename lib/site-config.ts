@@ -13,6 +13,7 @@ export const siteConfig = {
   legalShortName: "H and H",
   description: "Architectural design, building, and land development.",
   descriptor: "Architectural design, building, and land development.",
+  tagline: "Design. Build. Develop.",
   primaryCta: {
     href: "/start" as Route,
     label: "Start a Project",
