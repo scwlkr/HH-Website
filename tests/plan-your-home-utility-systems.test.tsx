@@ -204,7 +204,7 @@ test("one still utility sketch supports every question and explicit uncertainty"
   );
 });
 
-test("the bedroom hall turns into utility and Back retains in-zone answers", async () => {
+test("the bedroom questions advance directly into utility and Back retains in-zone answers", async () => {
   const calls: Array<{ completedZoneId: string }> = [];
   const checkpointDraft: PlanHomeDraftAction = async (input) => {
     calls.push(input as (typeof calls)[number]);
@@ -227,20 +227,9 @@ test("the bedroom hall turns into utility and Back retains in-zone answers", asy
   await user.click(query.getByRole("radio", { name: "Hall bath" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
-    assert.ok(query.getByRole("heading", { name: "The utility hall is next." })),
+    assert.ok(query.getByRole("heading", { name: "How should laundry work?" })),
   );
   assert.equal(calls[0].completedZoneId, "bedrooms-and-shared-bathrooms");
-  assert.ok(
-    view.container.querySelector(
-      '[data-tour-beat="utility-hall-transition"][data-reduced-motion="true"]',
-    ),
-  );
-  await user.click(query.getByRole("button", { name: "Turn into the utility hall" }));
-  await waitFor(() =>
-    assert.ok(
-      query.getByRole("heading", { name: "How should laundry work?" }),
-    ),
-  );
   assert.ok(
     view.container.querySelector(
       '[data-tour-beat="utility-hall-entrance"][data-reduced-motion="true"]',
@@ -268,7 +257,7 @@ test("the bedroom hall turns into utility and Back retains in-zone answers", asy
   );
 });
 
-test("question 21 retries one revision-safe checkpoint and reveals only the exterior threshold", async () => {
+test("question 21 retries one revision-safe checkpoint and advances directly to exterior", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -306,7 +295,7 @@ test("question 21 retries one revision-safe checkpoint and reveals only the exte
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The back door opens to the exterior.",
+        name: "What should the garage handle?",
       }),
     ),
   );
@@ -329,21 +318,16 @@ test("question 21 retries one revision-safe checkpoint and reveals only the exte
   );
   assert.equal(clientDraft.revision, 6);
   assert.equal(clientDraft.utilityAndSystemsCheckpointKey, calls[0].idempotencyKey);
-  assert.ok(
-    view.container.querySelector(
-      '[data-tour-beat="exterior-back-door-transition"][data-reduced-motion="true"]',
-    ),
-  );
-  assert.equal(query.queryByText("Exterior threshold"), null);
+  assert.equal(query.queryByText("Utility priorities saved"), null);
   await waitFor(() =>
-    assert.ok(view.container.querySelector("[data-scene-variant='exterior']")),
+    assert.ok(view.container.querySelector("[data-scene-variant='exterior-site-study']")),
   );
   assert.equal(
     view.container.querySelector("[data-scene-variant='utility-hall']"),
     null,
   );
 
-  await user.click(query.getByRole("button", { name: "Back to home systems" }));
+  await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -366,13 +350,13 @@ test("question 21 retries one revision-safe checkpoint and reveals only the exte
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The back door opens to the exterior.",
+        name: "What should the garage handle?",
       }),
     ),
   );
   assert.equal(calls.length, 2, "An unchanged boundary crossing must not write again.");
 
-  await user.click(query.getByRole("button", { name: "Back to home systems" }));
+  await user.click(query.getByRole("button", { name: "Back" }));
   await user.click(query.getByRole("checkbox", { name: "Smart controls" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
@@ -383,7 +367,7 @@ test("question 21 retries one revision-safe checkpoint and reveals only the exte
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The back door opens to the exterior.",
+        name: "What should the garage handle?",
       }),
     ),
   );

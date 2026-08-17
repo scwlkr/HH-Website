@@ -200,7 +200,7 @@ test("one representative scene serves every bedroom count and validates both gro
   assert.equal(second.view.container.querySelectorAll("[data-scene-anchor]").length, 0);
 });
 
-test("Back crosses the Primary Suite boundary and keeps the grouped bedroom answer", async () => {
+test("Back crosses directly into the Primary Suite and keeps the grouped bedroom answer", async () => {
   const calls: Array<{ idempotencyKey: string; completedZoneId: string }> = [];
   const checkpointDraft: PlanHomeDraftAction = async (input) => {
     calls.push(input as (typeof calls)[number]);
@@ -232,14 +232,6 @@ test("Back crosses the Primary Suite boundary and keeps the grouped bedroom answ
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The bedroom hall continues beyond the suite.",
-      }),
-    ),
-  );
-  await user.click(query.getByRole("button", { name: "Continue down the hall" }));
-  await waitFor(() =>
-    assert.ok(
-      query.getByRole("heading", {
         name: "Who will use the secondary bedrooms?",
       }),
     ),
@@ -257,7 +249,7 @@ test("Back crosses the Primary Suite boundary and keeps the grouped bedroom answ
   assert.equal(calls[0].completedZoneId, "primary-suite");
 });
 
-test("question 19 retries one checkpoint, stores canonical summaries, and exits to the utility hall", async () => {
+test("question 19 retries one checkpoint, stores canonical summaries, and advances directly to utility", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -278,7 +270,7 @@ test("question 19 retries one checkpoint, stores canonical summaries, and exits 
     };
   };
   const user = userEvent.setup({ document: window.document });
-  const { view, query } = await renderSecondary(checkpointDraft);
+  const { query } = await renderSecondary(checkpointDraft);
 
   await user.click(query.getByRole("checkbox", { name: "Children" }));
   await user.click(query.getByRole("checkbox", { name: "Guests" }));
@@ -294,7 +286,7 @@ test("question 19 retries one checkpoint, stores canonical summaries, and exits 
 
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "The utility hall is next." }),
+      query.getByRole("heading", { name: "How should laundry work?" }),
     ),
   );
   assert.equal(calls.length, 2);
@@ -325,16 +317,9 @@ test("question 19 retries one checkpoint, stores canonical summaries, and exits 
     clientDraft.bedroomsAndSharedBathroomsCheckpointKey,
     calls[0].idempotencyKey,
   );
-  assert.ok(
-    view.container.querySelector(
-      '[data-tour-beat="utility-hall-transition"][data-reduced-motion="true"]',
-    ),
-  );
-  assert.equal(query.queryByText("Utility hall"), null);
+  assert.equal(query.queryByText("Bedrooms and shared bathrooms saved"), null);
 
-  await user.click(
-    query.getByRole("button", { name: "Back to shared bathrooms" }),
-  );
+  await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {

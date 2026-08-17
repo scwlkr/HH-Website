@@ -30,6 +30,7 @@ It does not produce a floor plan, specification, price, feasibility decision, or
 - Desktop is a wider version of the same scene, not a form beside an illustration.
 - Fixed, linear order with one active prompt, one obvious next action, visible progress, and Back.
 - The fixed bottom `Next` button advances compound-question sections before advancing to the next question. Never show a second Continue, Skip, or Done action inside the prompt.
+- Zone checkpoints save in the background. After the final question in a zone, advance directly to the next applicable question without a saved-room or threshold interstitial.
 - Questions appear over the stable sketch family that best matches the topic.
 - Short room-to-room pans, turns, doorway moves, and match cuts create spatial continuity.
 - Every structured prompt requires either an answer or an explicit `Not sure`, `None`, or `Not applicable` response.

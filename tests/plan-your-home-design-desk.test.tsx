@@ -343,7 +343,7 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Your selected sheets are bound into the project brief.",
+        name: "How should we follow up?",
       }),
     ),
   );
@@ -379,14 +379,8 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
   );
   assert.equal(storedClient.revision, 11);
   assert.match(storedClient.designDeskCheckpointKey, /zone:design-desk-and-review/);
-  assert.ok(
-    view.container.querySelector(
-      '[data-tour-beat="design-desk-review-transition"][data-reduced-motion="true"]',
-    ),
-  );
-  await user.click(
-    query.getByRole("button", { name: "Back to budget and timing" }),
-  );
+  assert.equal(query.queryByText("Design desk saved"), null);
+  await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -398,7 +392,7 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Your selected sheets are bound into the project brief.",
+        name: "How should we follow up?",
       }),
     ),
   );

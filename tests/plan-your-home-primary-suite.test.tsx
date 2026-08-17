@@ -288,7 +288,7 @@ test("Back crosses the kitchen boundary and returns with the Primary Suite answe
   assert.equal(calls[0].completedZoneId, "kitchen-and-dining");
 });
 
-test("question 17 retries one Primary Suite checkpoint and exits to the bedroom hall", async () => {
+test("question 17 retries one Primary Suite checkpoint and advances directly to secondary bedrooms", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -309,7 +309,7 @@ test("question 17 retries one Primary Suite checkpoint and exits to the bedroom 
     };
   };
   const user = userEvent.setup({ document: window.document });
-  const { view, query } = await renderPrimary(checkpointDraft);
+  const { query } = await renderPrimary(checkpointDraft);
   await answerPrimarySuite(user, query);
 
   await user.click(query.getByRole("button", { name: "Next" }));
@@ -321,7 +321,7 @@ test("question 17 retries one Primary Suite checkpoint and exits to the bedroom 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The bedroom hall continues beyond the suite.",
+        name: "Who will use the secondary bedrooms?",
       }),
     ),
   );
@@ -350,14 +350,9 @@ test("question 17 retries one Primary Suite checkpoint and exits to the bedroom 
   );
   assert.equal(clientDraft.revision, 4);
   assert.equal(clientDraft.primarySuiteCheckpointKey, calls[0].idempotencyKey);
-  assert.equal(
-    view.container.querySelector(
-      '[data-tour-beat="bedroom-hall-transition"][data-reduced-motion="true"]',
-    ) !== null,
-    true,
-  );
+  assert.equal(query.queryByText("Primary suite saved"), null);
 
-  await user.click(query.getByRole("button", { name: "Back to the closet" }));
+  await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {

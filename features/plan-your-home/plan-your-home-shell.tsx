@@ -22,19 +22,15 @@ import {
   type PlanHomeServerBoundary,
 } from "@/features/plan-your-home/draft-resume-contract";
 import {
-  BlueprintDesignDeskThresholdScene,
-  BedroomHallThresholdScene,
   BedroomsSharedBathroomsScene,
   DesignDeskScene,
   EntryScene,
-  ExteriorBackDoorThresholdScene,
   ExteriorSiteScene,
   KitchenDiningScene,
   LivingRoomScene,
   PlanHomeSceneSuspense,
   PrimarySuiteScene,
   ReviewBriefThresholdScene,
-  UtilityHallThresholdScene,
   UtilitySystemsScene,
   WelcomeExteriorScene,
   preloadNextPlanHomeScene,
@@ -1071,237 +1067,6 @@ function ContactCheckpoint({
   );
 }
 
-function BedroomHallBoundary({
-  onBack,
-  onContinue,
-  reducedMotion,
-}: Readonly<{
-  onBack: () => void;
-  onContinue: () => void;
-  reducedMotion?: boolean;
-}>) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    headingRef.current?.focus({ preventScroll: true });
-  }, []);
-  return (
-    <section
-      className={styles.moment}
-      data-reduced-motion={reducedMotion}
-      data-tour-beat="bedroom-hall-transition"
-    >
-      <div className={styles.momentScene}>
-        <PlanHomeSceneSuspense>
-          <BedroomHallThresholdScene />
-        </PlanHomeSceneSuspense>
-      </div>
-      <div className={styles.momentSheet}>
-        <p className={styles.eyebrow}>Primary suite saved</p>
-        <h1 ref={headingRef} tabIndex={-1}>
-          The bedroom hall continues beyond the suite.
-        </h1>
-        <p className={styles.momentCopy}>
-          Your primary-suite priorities are checkpointed. Secondary bedrooms
-          and shared bathrooms will continue from this hall.
-        </p>
-        <div className={styles.momentActions}>
-          <Button type="button" variant="secondary" onClick={onBack}>
-            Back to the closet
-          </Button>
-          <Button type="button" onClick={onContinue}>
-            Continue down the hall
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function UtilityHallBoundary({
-  onBack,
-  onContinue,
-  reducedMotion,
-}: Readonly<{
-  onBack: () => void;
-  onContinue: () => void;
-  reducedMotion?: boolean;
-}>) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    headingRef.current?.focus({ preventScroll: true });
-  }, []);
-  return (
-    <section
-      className={styles.moment}
-      data-reduced-motion={reducedMotion}
-      data-tour-beat="utility-hall-transition"
-    >
-      <div className={styles.momentScene}>
-        <PlanHomeSceneSuspense>
-          <UtilityHallThresholdScene />
-        </PlanHomeSceneSuspense>
-      </div>
-      <div className={styles.momentSheet}>
-        <p className={styles.eyebrow}>Bedrooms and shared bathrooms saved</p>
-        <h1 ref={headingRef} tabIndex={-1}>
-          The utility hall is next.
-        </h1>
-        <p className={styles.momentCopy}>
-          Bedroom users, arrangement, and bathroom sharing are checkpointed.
-          Laundry and home-system priorities continue from here.
-        </p>
-        <div className={styles.momentActions}>
-          <Button type="button" variant="secondary" onClick={onBack}>
-            Back to shared bathrooms
-          </Button>
-          <Button type="button" onClick={onContinue}>
-            Turn into the utility hall
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ExteriorBackDoorBoundary({
-  onBack,
-  onContinue,
-  reducedMotion,
-}: Readonly<{
-  onBack: () => void;
-  onContinue: () => void;
-  reducedMotion?: boolean;
-}>) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    headingRef.current?.focus({ preventScroll: true });
-  }, []);
-  return (
-    <section
-      className={styles.moment}
-      data-reduced-motion={reducedMotion}
-      data-tour-beat="exterior-back-door-transition"
-    >
-      <div className={styles.momentScene}>
-        <PlanHomeSceneSuspense>
-          <ExteriorBackDoorThresholdScene />
-        </PlanHomeSceneSuspense>
-      </div>
-      <div className={styles.momentSheet}>
-        <p className={styles.eyebrow}>Utility priorities saved</p>
-        <h1 ref={headingRef} tabIndex={-1}>
-          The back door opens to the exterior.
-        </h1>
-        <p className={styles.momentCopy}>
-          Laundry and broad system priorities are checkpointed. The exterior
-          walkthrough begins beyond this threshold.
-        </p>
-        <div className={styles.momentActions}>
-          <Button type="button" variant="secondary" onClick={onBack}>
-            Back to home systems
-          </Button>
-          <Button type="button" onClick={onContinue}>
-            Step through the back door
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function BlueprintDesignDeskBoundary({
-  onBack,
-  onContinue,
-  reducedMotion,
-}: Readonly<{
-  onBack: () => void;
-  onContinue: () => void;
-  reducedMotion?: boolean;
-}>) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    headingRef.current?.focus({ preventScroll: true });
-  }, []);
-  return (
-    <section
-      className={styles.moment}
-      data-reduced-motion={reducedMotion}
-      data-tour-beat="blueprint-design-desk-transition"
-    >
-      <div className={styles.momentScene}>
-        <PlanHomeSceneSuspense>
-          <BlueprintDesignDeskThresholdScene />
-        </PlanHomeSceneSuspense>
-      </div>
-      <div className={styles.momentSheet}>
-        <p className={styles.eyebrow}>Exterior and site priorities saved</p>
-        <h1 ref={headingRef} tabIndex={-1}>
-          The site sheet becomes the design desk.
-        </h1>
-        <p className={styles.momentCopy}>
-          Garage, exterior direction, site relationships, outdoor living, and
-          specialty-space priorities are checkpointed. The blueprint marks the
-          threshold to inspiration and project planning.
-        </p>
-        <div className={styles.momentActions}>
-          <Button type="button" variant="secondary" onClick={onBack}>
-            Back to specialty spaces
-          </Button>
-          <Button type="button" onClick={onContinue}>
-            Open the design desk
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ReviewBriefBoundary({
-  onBack,
-  onContinue,
-  reducedMotion,
-}: Readonly<{
-  onBack: () => void;
-  onContinue: () => void;
-  reducedMotion?: boolean;
-}>) {
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    headingRef.current?.focus({ preventScroll: true });
-  }, []);
-  return (
-    <section
-      className={styles.moment}
-      data-reduced-motion={reducedMotion}
-      data-tour-beat="design-desk-review-transition"
-    >
-      <div className={styles.momentScene}>
-        <PlanHomeSceneSuspense>
-          <ReviewBriefThresholdScene />
-        </PlanHomeSceneSuspense>
-      </div>
-      <div className={styles.momentSheet}>
-        <p className={styles.eyebrow}>Design desk saved</p>
-        <h1 ref={headingRef} tabIndex={-1}>
-          Your selected sheets are bound into the project brief.
-        </h1>
-        <p className={styles.momentCopy}>
-          Feel, references, priorities, budget context, and timing are
-          checkpointed. One final follow-up choice leads to your complete brief.
-        </p>
-        <div className={styles.momentActions}>
-          <Button type="button" variant="secondary" onClick={onBack}>
-            Back to budget and timing
-          </Button>
-          <Button type="button" onClick={onContinue}>
-            Choose follow-up
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ProjectBriefReview({
   state,
   activePage,
@@ -1710,13 +1475,6 @@ export function PlanYourHomeShell({
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [showBedroomHallBoundary, setShowBedroomHallBoundary] = useState(false);
-  const [showUtilityHallBoundary, setShowUtilityHallBoundary] = useState(false);
-  const [showExteriorBackDoorBoundary, setShowExteriorBackDoorBoundary] =
-    useState(false);
-  const [showBlueprintDesignDeskBoundary, setShowBlueprintDesignDeskBoundary] =
-    useState(false);
-  const [showReviewBriefBoundary, setShowReviewBriefBoundary] = useState(false);
   const [submissionConsentAccepted, setSubmissionConsentAccepted] =
     useState(false);
   const [reviewPage, setReviewPage] = useState(0);
@@ -2467,21 +2225,6 @@ export function PlanYourHomeShell({
       if (reviewMode) {
         setError(null);
         commitState(advanced.state);
-        if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
-          setShowBedroomHallBoundary(true);
-        }
-        if (question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
-          setShowUtilityHallBoundary(true);
-        }
-        if (question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION) {
-          setShowExteriorBackDoorBoundary(true);
-        }
-        if (question.number === EXTERIOR_AND_SITE_LAST_QUESTION) {
-          setShowBlueprintDesignDeskBoundary(true);
-        }
-        if (question.number === DESIGN_DESK_LAST_QUESTION) {
-          setShowReviewBriefBoundary(true);
-        }
         return true;
       }
       commitState(answered.state);
@@ -2507,7 +2250,6 @@ export function PlanYourHomeShell({
       ) {
         setError(null);
         commitState(advanced.state);
-        setShowExteriorBackDoorBoundary(true);
         return true;
       }
       if (
@@ -2518,7 +2260,6 @@ export function PlanYourHomeShell({
       ) {
         setError(null);
         commitState(advanced.state);
-        setShowBlueprintDesignDeskBoundary(true);
         return true;
       }
       if (
@@ -2529,7 +2270,6 @@ export function PlanYourHomeShell({
       ) {
         setError(null);
         commitState(advanced.state);
-        setShowReviewBriefBoundary(true);
         return true;
       }
       const checkpointKey =
@@ -2582,21 +2322,6 @@ export function PlanYourHomeShell({
         zone_id: checkpointBoundary.zoneId,
         prompt_index: checkpointBoundary.answerCount,
       });
-      if (question.number === PRIMARY_SUITE_LAST_QUESTION) {
-        setShowBedroomHallBoundary(true);
-      }
-      if (question.number === BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
-        setShowUtilityHallBoundary(true);
-      }
-      if (question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION) {
-        setShowExteriorBackDoorBoundary(true);
-      }
-      if (question.number === EXTERIOR_AND_SITE_LAST_QUESTION) {
-        setShowBlueprintDesignDeskBoundary(true);
-      }
-      if (question.number === DESIGN_DESK_LAST_QUESTION) {
-        setShowReviewBriefBoundary(true);
-      }
       return true;
     }
 
@@ -2705,54 +2430,21 @@ export function PlanYourHomeShell({
     }
   }
 
-  function backFromBoundary() {
-    setShowBedroomHallBoundary(false);
-    setShowUtilityHallBoundary(false);
-    setShowExteriorBackDoorBoundary(false);
-    setShowBlueprintDesignDeskBoundary(false);
-    setShowReviewBriefBoundary(false);
-    const transition = reducePlanHomeTour(tourState, { type: "back" });
-    if (transition.error) return false;
-    commitState(transition.state);
-    return true;
-  }
-
-  function backFromExteriorBoundary() {
+  function backIntoCheckpointedZone(
+    keyField:
+      | "utilityAndSystemsCheckpointKey"
+      | "exteriorAndSiteCheckpointKey"
+      | "designDeskCheckpointKey",
+  ) {
     if (clientDraft) {
       const editableDraft = {
         ...clientDraft,
-        utilityAndSystemsCheckpointKey: null,
+        [keyField]: null,
       } satisfies PlanHomeClientDraftState;
       createPlanHomeClientDraftAdapter(window.localStorage).save(editableDraft);
       setClientDraft(editableDraft);
     }
-    return backFromBoundary();
-  }
-
-  function backFromBlueprintBoundary() {
-    setShowBlueprintDesignDeskBoundary(false);
-    if (clientDraft) {
-      const editableDraft = {
-        ...clientDraft,
-        exteriorAndSiteCheckpointKey: null,
-      } satisfies PlanHomeClientDraftState;
-      createPlanHomeClientDraftAdapter(window.localStorage).save(editableDraft);
-      setClientDraft(editableDraft);
-    }
-    return backFromBoundary();
-  }
-
-  function backFromReviewBriefBoundary() {
-    setShowReviewBriefBoundary(false);
-    if (clientDraft) {
-      const editableDraft = {
-        ...clientDraft,
-        designDeskCheckpointKey: null,
-      } satisfies PlanHomeClientDraftState;
-      createPlanHomeClientDraftAdapter(window.localStorage).save(editableDraft);
-      setClientDraft(editableDraft);
-    }
-    return backFromBoundary();
+    return backFromQuestion();
   }
 
   function editReviewQuestion(questionId: PlanHomeQuestionId) {
@@ -2846,12 +2538,6 @@ export function PlanYourHomeShell({
       zone_id: "design-desk-and-review",
       prompt_index: planHomeQuestions.length,
     });
-  }
-
-  function backFromDesignDeskQuestion() {
-    const moved = backFromQuestion();
-    if (moved) setShowBlueprintDesignDeskBoundary(true);
-    return moved;
   }
 
   function resetReview() {
@@ -2959,46 +2645,6 @@ export function PlanYourHomeShell({
         onSubmit={submitContact}
       />
     );
-  } else if (showBedroomHallBoundary) {
-    content = (
-      <BedroomHallBoundary
-        onBack={backFromBoundary}
-        onContinue={() => setShowBedroomHallBoundary(false)}
-        reducedMotion={reducedMotion}
-      />
-    );
-  } else if (showUtilityHallBoundary) {
-    content = (
-      <UtilityHallBoundary
-        onBack={backFromBoundary}
-        onContinue={() => setShowUtilityHallBoundary(false)}
-        reducedMotion={reducedMotion}
-      />
-    );
-  } else if (showExteriorBackDoorBoundary) {
-    content = (
-      <ExteriorBackDoorBoundary
-        onBack={backFromExteriorBoundary}
-        onContinue={() => setShowExteriorBackDoorBoundary(false)}
-        reducedMotion={reducedMotion}
-      />
-    );
-  } else if (showBlueprintDesignDeskBoundary) {
-    content = (
-      <BlueprintDesignDeskBoundary
-        onBack={backFromBlueprintBoundary}
-        onContinue={() => setShowBlueprintDesignDeskBoundary(false)}
-        reducedMotion={reducedMotion}
-      />
-    );
-  } else if (showReviewBriefBoundary) {
-    content = (
-      <ReviewBriefBoundary
-        onBack={backFromReviewBriefBoundary}
-        onContinue={() => setShowReviewBriefBoundary(false)}
-        reducedMotion={reducedMotion}
-      />
-    );
   } else if (tourState.location.kind === "question") {
     const question = activeQuestion;
     if (!question) throw new Error("The active Plan Your Home question is missing.");
@@ -3072,10 +2718,12 @@ export function PlanYourHomeShell({
             tourState.location.editingFromReview
               ? backFromQuestion
               : question.number === UTILITY_AND_SYSTEMS_LAST_QUESTION + 1
-              ? backFromExteriorBoundary
+              ? () => backIntoCheckpointedZone("utilityAndSystemsCheckpointKey")
               : question.number === EXTERIOR_AND_SITE_LAST_QUESTION + 1
-                ? backFromDesignDeskQuestion
-              : backFromQuestion
+                ? () => backIntoCheckpointedZone("exteriorAndSiteCheckpointKey")
+                : question.number === DESIGN_DESK_LAST_QUESTION + 1
+                  ? () => backIntoCheckpointedZone("designDeskCheckpointKey")
+                  : backFromQuestion
           }
           onNext={() => nextFromQuestion(question)}
           canGoBack

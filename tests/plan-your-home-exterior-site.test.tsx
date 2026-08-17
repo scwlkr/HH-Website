@@ -143,7 +143,7 @@ async function answerExteriorThroughSpecialty(
   await user.click(query.getByRole("checkbox", { name: "Office" }));
 }
 
-test("the utility threshold opens into one fixed exterior study without moving overlays", async () => {
+test("utility advances directly into one fixed exterior study without moving overlays", async () => {
   const checkpointDraft: PlanHomeDraftAction = async () => ({
     status: "success",
     result: { draftId, revision: 6, applied: true },
@@ -165,20 +165,9 @@ test("the utility threshold opens into one fixed exterior study without moving o
   await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "The back door opens to the exterior." }),
-    ),
-  );
-  assert.ok(
-    view.container.querySelector(
-      '[data-tour-beat="exterior-back-door-transition"][data-reduced-motion="true"]',
-    ),
-  );
-  await user.click(
-    query.getByRole("button", { name: "Step through the back door" }),
-  );
-  await waitFor(() =>
-    assert.ok(
-      query.getByRole("heading", { name: "What should the garage handle?" }),
+      query.getByRole("heading", {
+        name: "What should the garage handle?",
+      }),
     ),
   );
   assert.ok(
@@ -380,7 +369,7 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   );
 });
 
-test("question 26 retries one canonical checkpoint and match-cuts to the design desk threshold", async () => {
+test("question 26 retries one canonical checkpoint and advances directly to the design desk", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -412,7 +401,7 @@ test("question 26 retries one canonical checkpoint and match-cuts to the design 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The site sheet becomes the design desk.",
+        name: "How should your new home feel?",
       }),
     ),
   );
@@ -454,22 +443,14 @@ test("question 26 retries one canonical checkpoint and match-cuts to the design 
   );
   assert.equal(clientDraft.revision, 7);
   assert.equal(clientDraft.exteriorAndSiteCheckpointKey, calls[0].idempotencyKey);
-  assert.ok(
-    view.container.querySelector(
-      '[data-tour-beat="blueprint-design-desk-transition"][data-reduced-motion="true"]',
-    ),
-  );
-  assert.equal(query.queryByText("Design desk threshold"), null);
+  assert.equal(query.queryByText("Exterior and site priorities saved"), null);
   await waitFor(() =>
     assert.ok(
-      view.container.querySelector(
-        "[data-scene-variant='blueprint-design-desk-threshold']",
-      ),
+      view.container.querySelector("[data-scene-variant='design-desk']"),
     ),
   );
-  assert.equal(view.container.querySelector("[data-scene-variant='design-desk']"), null);
 
-  await user.click(query.getByRole("button", { name: "Back to specialty spaces" }));
+  await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -485,13 +466,13 @@ test("question 26 retries one canonical checkpoint and match-cuts to the design 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The site sheet becomes the design desk.",
+        name: "How should your new home feel?",
       }),
     ),
   );
   assert.equal(calls.length, 2, "An unchanged boundary crossing must not write again.");
 
-  await user.click(query.getByRole("button", { name: "Back to specialty spaces" }));
+  await user.click(query.getByRole("button", { name: "Back" }));
   await user.click(query.getByRole("checkbox", { name: "Workshop" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() => assert.equal(calls.length, 3));
@@ -500,7 +481,7 @@ test("question 26 retries one canonical checkpoint and match-cuts to the design 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "The site sheet becomes the design desk.",
+        name: "How should your new home feel?",
       }),
     ),
   );

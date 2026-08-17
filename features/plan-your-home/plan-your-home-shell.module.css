@@ -919,29 +919,14 @@
   transform-origin: 18% 52%;
 }
 
-.moment[data-tour-beat="bedroom-hall-transition"] .momentScene {
-  animation: bedroom-hall-pivot 420ms ease both;
-  transform-origin: 88% 54%;
-}
-
 .sceneBeat[data-tour-beat="utility-hall-entrance"] {
   animation: utility-hall-turn 420ms ease both;
   transform-origin: 12% 52%;
 }
 
-.moment[data-tour-beat="exterior-back-door-transition"] .momentScene {
-  animation: exterior-door-open 420ms ease both;
-  transform-origin: 92% 50%;
-}
-
 .sceneBeat[data-tour-beat="exterior-back-door-entrance"] {
   animation: exterior-site-arrive 420ms ease both;
   transform-origin: 82% 52%;
-}
-
-.moment[data-tour-beat="blueprint-design-desk-transition"] .momentScene {
-  animation: blueprint-match-cut 420ms ease both;
-  transform-origin: 84% 82%;
 }
 
 @keyframes exterior-arrive {
@@ -964,29 +949,14 @@
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-@keyframes bedroom-hall-pivot {
-  from { opacity: 0.74; transform: translateX(-1.5%) scale(1.012); }
-  to { opacity: 1; transform: translateX(0) scale(1); }
-}
-
 @keyframes utility-hall-turn {
   from { opacity: 0.74; transform: translateX(1.5%) scale(1.012); }
-  to { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes exterior-door-open {
-  from { opacity: 0.72; transform: translateX(-1.5%) scale(1.018); }
   to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 @keyframes exterior-site-arrive {
   from { opacity: 0.74; transform: translateX(-1.5%) scale(1.016); }
   to { opacity: 1; transform: translateX(0) scale(1); }
-}
-
-@keyframes blueprint-match-cut {
-  from { opacity: 0.72; transform: translate(1.5%, 1%) scale(1.025); }
-  to { opacity: 1; transform: translate(0) scale(1); }
 }
 
 @media (max-width: 40rem) {

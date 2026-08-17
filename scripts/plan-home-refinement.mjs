@@ -316,16 +316,8 @@ async function assertNavigation(page, state, viewportName) {
       ? page.getByRole("button", { name: "Open the front door" })
       : number === 7
         ? page.getByRole("button", { name: "Save and continue" })
-        : page.getByRole("button", {
-            name: /^(Next|Open the design desk)$/,
-          });
+        : page.getByRole("button", { name: "Next", exact: true });
   await activateByKeyboard(page, forward);
-  if (number === 27) {
-    await activateByKeyboard(
-      page,
-      page.getByRole("button", { name: "Next", exact: true }),
-    );
-  }
   await page.locator(`[data-plan-home-refinement-state="q${number}"]`).waitFor();
 }
 

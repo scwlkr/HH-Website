@@ -436,24 +436,10 @@ async function advanceQuestion(page, question) {
   }
   const startedAt = Date.now();
   await page.getByRole("button", { name: "Next", exact: true }).click();
-  const boundaryButtons = {
-    17: "Continue down the hall",
-    19: "Turn into the utility hall",
-    21: "Step through the back door",
-    26: "Open the design desk",
-    30: "Choose follow-up",
-  };
-  const boundaryButton = boundaryButtons[question.number];
-  if (boundaryButton) {
-    const button = page.getByRole("button", { name: boundaryButton });
-    await button.waitFor();
-    await assertRoomTransitionMotion(page, question.number);
-    await button.click();
-  }
   const nextQuestion = planHomeQuestions[question.number];
   if (nextQuestion) {
     await page.getByRole("heading", { name: nextQuestion.prompt }).waitFor();
-    if (roomTransitionQuestions.has(question.number) && !boundaryButton) {
+    if (roomTransitionQuestions.has(question.number)) {
       await assertRoomTransitionMotion(page, question.number);
     }
     await waitForSceneReady(page);
