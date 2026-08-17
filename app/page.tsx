@@ -43,10 +43,6 @@ export default function Home() {
           href: "/start" as Route,
           label: "Start a Project",
         }}
-        secondaryCta={{
-          href: "/inquire" as Route,
-          label: "Other Project Types",
-        }}
       />
 
       <section className="border-b border-line py-16 sm:py-20 lg:py-24">

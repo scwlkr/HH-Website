@@ -1000,8 +1000,8 @@ async function verifyLinkCoverage(page, baseUrl) {
   );
   assert(
     (await page.locator('a[href^="/plan-your-home"]').count()) === 0 &&
-      (await page.locator('main a[href="/inquire"]').count()) > 0,
-    "The home page must keep Plan Your Home unlinked and expose the generic inquiry.",
+      (await page.locator('main a[href="/start"]').count()) > 0,
+    "The home page must keep Plan Your Home unlinked and expose the project start path.",
   );
 }
 

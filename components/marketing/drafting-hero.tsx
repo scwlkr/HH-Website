@@ -11,7 +11,6 @@ type DraftingHeroProps = {
   subhead: string;
   capabilities: ReadonlyArray<{ title: string; index: string }>;
   primaryCta: { href: Route; label: string };
-  secondaryCta?: { href: Route; label: string };
 };
 
 export function DraftingHero({
@@ -19,11 +18,10 @@ export function DraftingHero({
   subhead,
   capabilities,
   primaryCta,
-  secondaryCta,
 }: DraftingHeroProps) {
   return (
-    <section className="hh-home-hero min-h-[calc(100svh-5rem)] border-b border-line-strong">
-      <Container size="wide" className="flex flex-col">
+    <section className="hh-home-hero min-h-[calc(100svh-5rem)] border-b border-line-strong lg:flex">
+      <Container size="wide" className="flex flex-col lg:flex-1">
         <div className="grid flex-1 lg:grid-cols-[minmax(0,1.28fr)_minmax(22rem,0.72fr)]">
           <div className="flex min-h-[34rem] flex-col py-10 sm:py-14 lg:min-h-[38rem] lg:pr-12 lg:py-16 xl:pr-16">
             <DividerFrame
@@ -58,25 +56,6 @@ export function DraftingHero({
                     →
                   </span>
                 </Link>
-                {secondaryCta ? (
-                  <Link
-                    href={secondaryCta.href}
-                    className="hh-home-hero-action group"
-                    {...getCtaAnalyticsAttributes({
-                      label: secondaryCta.label,
-                      destination: secondaryCta.href,
-                      location: "home-drafting-hero",
-                    })}
-                  >
-                    <span>{secondaryCta.label}</span>
-                    <span
-                      aria-hidden="true"
-                      className="text-base transition-transform duration-200 group-hover:translate-x-1"
-                    >
-                      →
-                    </span>
-                  </Link>
-                ) : null}
               </div>
             </div>
 
