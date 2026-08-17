@@ -336,7 +336,7 @@ Navigation is lean and header-led. The header carries most navigation. Content s
 
 Forms are functional, readable, and hard to misuse. Inputs use white or raised surfaces, clear labels, strong enough contrast, and visible focus rings. Inquiry progress must remain understandable to screen readers.
 
-Plan Your Home uses the `plan-home-*` component tokens as a single mobile app frame. The context strip is a shallow architectural view, not a backdrop behind controls. Choices are large, flat, and immediately selectable. Back and Continue remain fixed and use the same labels throughout the planning flow. Dense content is divided into focused substeps instead of compressed into a small inner scroller.
+Plan Your Home uses the `plan-home-*` component tokens as a single mobile app frame. The context strip is a shallow architectural view, not a backdrop behind controls. Choices are large, flat, and immediately selectable. Back and the applicable progression action remain fixed throughout the planning flow. Dense content is divided into focused substeps instead of compressed into a small inner scroller.
 
 Project records link as whole register rows and avoid repeated card CTA buttons. The first record may act as a wider cover sheet; later records remain continuous ruled entries. Projects should be image-led, quiet, and proof-oriented. Badges and metadata stay compact and secondary.
 

@@ -30,7 +30,13 @@ export function PathAwareShell({
           Skip to content
         </a>
       ) : null}
-      <div className="flex min-h-screen flex-col">
+      <div
+        className={
+          isPlanHomeWalkthrough
+            ? "flex h-[100dvh] min-h-0 flex-col overflow-hidden"
+            : "flex min-h-screen flex-col"
+        }
+      >
         {showMarketingChrome ? header : null}
         <main
           id="main-content"

@@ -591,6 +591,11 @@
   gap: 1rem;
 }
 
+.reviewPageStatus,
+.reviewPager {
+  display: none;
+}
+
 .reviewContact {
   display: grid;
   grid-template-columns: minmax(9rem, 0.42fr) minmax(0, 1fr);
@@ -1056,6 +1061,68 @@
     padding: 1rem;
   }
 
+  .moment:is(
+      [data-tour-beat="welcome"],
+      [data-tour-beat="contact-checkpoint"]
+    ) {
+    display: grid;
+    height: 100%;
+    grid-template-rows: clamp(7.75rem, 22dvh, 11.875rem) minmax(0, 1fr);
+    align-items: stretch;
+    border-block: 0;
+    background: var(--hh-surface);
+  }
+
+  .moment:is(
+      [data-tour-beat="welcome"],
+      [data-tour-beat="contact-checkpoint"]
+    ) .momentScene {
+    position: relative;
+    inset: auto;
+    grid-row: 1;
+    overflow: hidden;
+    border-bottom: 1px solid var(--hh-line);
+  }
+
+  .moment:is(
+      [data-tour-beat="welcome"],
+      [data-tour-beat="contact-checkpoint"]
+    ) .momentSheet {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    grid-row: 2;
+    margin: 0;
+    overflow-y: auto;
+    border: 0;
+    border-radius: 0;
+    padding: 1rem;
+    background: var(--hh-surface);
+    box-shadow: none;
+    overscroll-behavior: contain;
+  }
+
+  .moment:is(
+      [data-tour-beat="welcome"],
+      [data-tour-beat="contact-checkpoint"]
+    ) .momentSheet::before,
+  .moment:is(
+      [data-tour-beat="welcome"],
+      [data-tour-beat="contact-checkpoint"]
+    ) .momentSheet::after {
+    display: none;
+  }
+
+  .moment[data-tour-beat="contact-checkpoint"] .momentActions {
+    position: sticky;
+    z-index: 4;
+    bottom: -1rem;
+    margin: 1rem -1rem -1rem;
+    padding: 0.75rem 1rem max(1rem, env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--hh-surface) 98%, var(--hh-paper));
+    box-shadow: 0 -1rem 1.5rem -1.75rem rgba(17, 17, 15, 0.45);
+  }
+
   .welcomeSheet {
     padding-block: 0.8rem;
   }
@@ -1090,59 +1157,131 @@
     width: 100%;
   }
 
+  .review {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
   .reviewHero {
-    min-height: 39rem;
+    min-height: 0;
+    flex: 0 0 clamp(6.5rem, 16dvh, 8.5rem);
   }
 
   .reviewHeroScene {
-    height: 22rem;
+    inset: 0;
+    height: 100%;
+  }
+
+  .reviewHeroScene::after {
+    height: 72%;
   }
 
   .reviewHeader {
-    width: calc(100% - 1rem);
-    margin-bottom: 0.5rem;
-    padding-inline: 1rem;
-  }
-
-  .reviewWorkspace {
-    width: calc(100% - 1rem);
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-  }
-
-  .reviewNavigator {
-    top: 3.25rem;
-    display: flex;
-    overflow-x: auto;
-    border-radius: var(--hh-radius-tight);
-    overscroll-behavior-inline: contain;
-    scrollbar-width: thin;
-  }
-
-  .reviewNavigator > p {
     display: none;
   }
 
-  .reviewNavigator a {
-    min-width: 4.75rem;
-    flex: 0 0 auto;
+  .reviewWorkspace {
+    display: grid;
+    width: 100%;
+    min-height: 0;
+    flex: 1;
     grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    border-right: 1px solid var(--hh-line);
-    border-bottom: 0;
-    padding-inline: 0.6rem;
-    text-align: center;
+    grid-template-rows: minmax(0, 1fr);
+    gap: 0;
+    margin-top: 0;
+    overflow: hidden;
   }
 
-  .reviewNavigator a::before {
+  .reviewNavigator {
+    display: none;
+  }
+
+  .reviewFolio {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .reviewGroups {
+    display: contents;
+  }
+
+  .reviewPageStatus {
     display: block;
-    line-height: 1;
+    grid-row: 1;
+    margin: 0;
+    border-bottom: 1px solid var(--hh-line);
+    padding: 0.65rem 0.9rem;
+    background: var(--hh-paper);
+    color: var(--hh-accent-strong);
+    font-family: var(--font-code), monospace;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  .reviewFolio [data-review-page-active="false"] {
+    display: none;
+  }
+
+  .reviewFolio [data-review-page-active="true"] {
+    grid-row: 2;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .reviewPager {
+    z-index: 4;
+    display: grid;
+    min-height: 5.125rem;
+    grid-row: 3;
+    grid-template-columns: 7rem minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.75rem 0.875rem max(1rem, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--hh-line);
+    background: color-mix(in srgb, var(--hh-surface) 98%, var(--hh-paper));
+    box-shadow: 0 -1rem 1.5rem -1.75rem rgba(17, 17, 15, 0.45);
+  }
+
+  .reviewPager button {
+    min-height: 52px;
+  }
+
+  .reviewFolio:has(.submitPanel[data-review-page-active="true"])
+    .reviewPager button:last-child {
+    visibility: hidden;
+  }
+
+  .submitPanel[data-review-page-active="true"] > button {
+    position: absolute;
+    z-index: 6;
+    right: 0.875rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    width: calc(100% - 9.4rem);
+    min-height: 52px;
+    margin: 0;
   }
 
   .reviewContact,
   .reviewReferences {
     grid-template-columns: minmax(0, 1fr);
+    gap: 0.8rem;
+    border: 0;
+    border-radius: 0;
+    padding: 1rem;
+    box-shadow: none;
   }
 
   .reviewContact dl,
@@ -1158,20 +1297,61 @@
     font-size: 2.75rem;
   }
 
+  .reviewGroup {
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .reviewGroupHeading {
+    padding: 0.9rem 1rem;
+  }
+
+  .reviewAnswers > div {
+    padding: 0.8rem 1rem;
+  }
+
+  .submitPanel {
+    border: 0;
+    border-radius: 0;
+    padding: 1rem;
+    box-shadow: none;
+  }
+
   .confirmation {
+    height: 100%;
+    min-height: 0;
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: clamp(7.75rem, 22dvh, 11.875rem) minmax(0, 1fr);
     align-content: start;
+    overflow: hidden;
+    border-block: 0;
   }
 
   .confirmationScene {
-    min-height: min(38svh, 20rem);
+    min-height: 0;
+    grid-row: 1;
     border-right: 0;
     border-bottom: 1px solid var(--hh-line-strong);
   }
 
   .confirmationSheet {
-    margin: -2.25rem 0.5rem 0.5rem;
-    padding-inline: 1rem;
+    min-height: 0;
+    grid-row: 2;
+    margin: 0;
+    overflow-y: auto;
+    border: 0;
+    border-radius: 0;
+    padding: 1rem;
+    box-shadow: none;
+    overscroll-behavior: contain;
+  }
+
+  .confirmationSheet::before,
+  .confirmationSheet::after {
+    display: none;
   }
 
   .momentActions {

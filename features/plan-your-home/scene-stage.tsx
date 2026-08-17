@@ -172,7 +172,7 @@ export function SceneStage({
         />
       </div>
 
-      <div className={styles.sceneWindow}>
+      <div className={styles.sceneWindow} data-plan-home-context-strip>
         <div
           className={styles.sceneCamera}
           data-camera-key={question.cameraKey}

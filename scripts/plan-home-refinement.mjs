@@ -276,7 +276,7 @@ async function activateByKeyboard(page, control) {
   await page.keyboard.press("Enter");
 }
 
-async function assertNavigation(page, state) {
+async function assertNavigation(page, state, viewportName) {
   if (state === "welcome") {
     const nameInput = page.getByLabel("Your name");
     await nameInput.fill("Refinement Homeowner");
@@ -295,6 +295,9 @@ async function assertNavigation(page, state) {
     return;
   }
   if (state === "review") {
+    if (viewportName !== "desktop") {
+      await activateByKeyboard(page, page.getByRole("button", { name: "Next" }));
+    }
     await activateByKeyboard(page, page.getByRole("button", { name: /Edit/ }).first());
     await page.locator('[data-plan-home-refinement-state^="q"]').waitFor();
     await activateByKeyboard(page, page.getByRole("button", { name: "Cancel" }));
@@ -323,6 +326,15 @@ async function assertNavigation(page, state) {
 }
 
 async function assertReviewSubmission(page, viewportName) {
+  if (viewportName !== "desktop") {
+    for (let pageIndex = 0; pageIndex < 10; pageIndex += 1) {
+      const submission = page.locator(
+        '[data-review-submission][data-review-page-active="true"]',
+      );
+      if ((await submission.count()) > 0) break;
+      await activateByKeyboard(page, page.getByRole("button", { name: "Next" }));
+    }
+  }
   const consent = page.getByRole("checkbox", { name: /I am submitting an inquiry/ });
   await consent.focus();
   await page.keyboard.press("Space");
@@ -592,7 +604,9 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
         .waitFor();
     }
     await page.locator("[data-plan-home-scene-loading]").waitFor({ state: "detached" }).catch(() => {});
-    if (routeTarget === "walkthrough") await assertNavigation(page, state);
+    if (routeTarget === "walkthrough") {
+      await assertNavigation(page, state, viewportName);
+    }
     await page.evaluate(() => {
       window.scrollTo({ top: 0, behavior: "instant" });
       document.querySelector("[data-plan-home-moment-sheet]")?.scrollTo({
@@ -634,6 +648,7 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
       return {
         header: dimensions("[data-plan-home-header]"),
         stageRail: dimensions("[data-plan-home-stage-rail]"),
+        contextStrip: dimensions("[data-plan-home-context-strip]"),
         promptSheet: dimensions("[data-plan-home-prompt-sheet]"),
         momentSheet: dimensions("[data-plan-home-moment-sheet]"),
         visibleChrome: [header?.textContent, stageRail?.textContent]
@@ -652,33 +667,39 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
     });
     if (viewportName !== "desktop") {
       assert(result.layout.header?.height <= 53, "phone header stays within its compact 53px rail");
-      if (state !== "review" && state !== "confirmation") {
-        const documentPosition = await page.evaluate(() => ({
-          height: Math.max(
-            document.documentElement.scrollHeight,
-            document.body.scrollHeight,
-          ),
-          viewportHeight: window.innerHeight,
-          scrollY: window.scrollY,
-        }));
-        assert(
-          documentPosition.height <= documentPosition.viewportHeight + 1,
-          `${state} locks document scroll (${documentPosition.height}px document in ${documentPosition.viewportHeight}px viewport)`,
-        );
-        assert.equal(documentPosition.scrollY, 0, `${state} keeps the document at the top`);
-      }
+      const documentPosition = await page.evaluate(() => ({
+        height: Math.max(
+          document.documentElement.scrollHeight,
+          document.body.scrollHeight,
+        ),
+        viewportHeight: window.innerHeight,
+        scrollY: window.scrollY,
+      }));
+      assert(
+        documentPosition.height <= documentPosition.viewportHeight + 1,
+        `${state} locks document scroll (${documentPosition.height}px document in ${documentPosition.viewportHeight}px viewport)`,
+      );
+      assert.equal(documentPosition.scrollY, 0, `${state} keeps the document at the top`);
       if (state.startsWith("q")) {
         assert(result.layout.stageRail?.height <= 46, "phone zone and progress stay within a compact 46px rail");
         assert(
-          result.layout.promptSheet?.height <= viewports[viewportName].height * 0.38,
-          "phone question sheet uses no more than roughly three-eighths of the initial viewport",
+          result.layout.contextStrip?.height <= viewports[viewportName].height * 0.23,
+          "phone illustration stays within a supporting context strip",
+        );
+        assert(
+          result.layout.promptSheet?.height >= viewports[viewportName].height * 0.5,
+          "phone planning task owns most of the initial viewport",
         );
         assert.match(result.layout.progress?.label ?? "", /^Question \d+ of 35$/, "progress keeps its accessible count");
         assert.equal(/Question \d+ of \d+/i.test(result.layout.visibleChrome), false, "question count is not repeated visually");
       } else if (state === "welcome") {
         assert(
-          result.layout.momentSheet?.height <= viewports[viewportName].height * 0.38,
-          "welcome sheet uses no more than roughly three-eighths of the initial viewport",
+          result.layout.contextStrip?.height <= viewports[viewportName].height * 0.23,
+          "welcome illustration stays within a supporting context strip",
+        );
+        assert(
+          result.layout.momentSheet?.height >= viewports[viewportName].height * 0.5,
+          "welcome task owns most of the initial viewport",
         );
       }
     }
@@ -724,6 +745,9 @@ async function assertFallbackViewport(page, context) {
     const sheet = document
       .querySelector("[data-plan-home-prompt-sheet]")
       ?.getBoundingClientRect();
+    const contextStrip = document
+      .querySelector("[data-plan-home-context-strip]")
+      ?.getBoundingClientRect();
     return {
       documentHeight: Math.max(
         document.documentElement.scrollHeight,
@@ -733,6 +757,9 @@ async function assertFallbackViewport(page, context) {
       scrollY: window.scrollY,
       actionTop: actions?.top ?? null,
       actionBottom: actions?.bottom ?? null,
+      contextBottom: contextStrip?.bottom ?? null,
+      contextHeight: contextStrip?.height ?? null,
+      sheetTop: sheet?.top ?? null,
       sheetHeight: sheet?.height ?? null,
     };
   });
@@ -749,9 +776,20 @@ async function assertFallbackViewport(page, context) {
     `${context} keeps Back and Next visible`,
   );
   assert(
+    geometry.contextHeight !== null &&
+      geometry.contextHeight <= geometry.viewportHeight * 0.23 + 1,
+    `${context} keeps illustration in a supporting context strip`,
+  );
+  assert(
+    geometry.sheetTop !== null &&
+      geometry.contextBottom !== null &&
+      Math.abs(geometry.sheetTop - geometry.contextBottom) <= 1,
+    `${context} places the question surface directly below the context strip`,
+  );
+  assert(
     geometry.sheetHeight !== null &&
-      geometry.sheetHeight <= geometry.viewportHeight * 0.375 + 1,
-    `${context} keeps the prompt sheet within the 37.5svh cap`,
+      geometry.sheetHeight >= geometry.viewportHeight * 0.5,
+    `${context} gives the planning task most of the available viewport`,
   );
   return geometry;
 }

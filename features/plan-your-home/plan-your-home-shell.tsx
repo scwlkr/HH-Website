@@ -883,7 +883,7 @@ function WelcomeStep({
   const describedBy = errorId ? `${privacyId} ${errorId}` : privacyId;
   return (
     <section className={styles.moment} data-tour-beat="welcome">
-      <div className={styles.momentScene}>
+      <div className={styles.momentScene} data-plan-home-context-strip>
         <PlanHomeSceneSuspense>
           <WelcomeExteriorScene name={name} />
         </PlanHomeSceneSuspense>
@@ -967,13 +967,14 @@ function ContactCheckpoint({
   }, []);
   return (
     <section className={styles.moment} data-tour-beat="contact-checkpoint">
-      <div className={styles.momentScene}>
+      <div className={styles.momentScene} data-plan-home-context-strip>
         <PlanHomeSceneSuspense>
           <LivingRoomScene activeAnchor="hall-doors" />
         </PlanHomeSceneSuspense>
       </div>
       <form
         className={styles.momentSheet}
+        data-plan-home-moment-sheet
         aria-labelledby="plan-home-contact-heading"
         onSubmit={onSubmit}
       >
@@ -1287,22 +1288,33 @@ function ReviewBriefBoundary({
 
 function ProjectBriefReview({
   state,
+  activePage,
   consentAccepted,
   error,
   submitting,
+  onPageChange,
   onConsentChange,
   onEdit,
   onSubmit,
 }: Readonly<{
   state: PlanHomeTourState;
+  activePage: number;
   consentAccepted: boolean;
   error: string | null;
   submitting: boolean;
+  onPageChange: (page: number) => void;
   onConsentChange: (accepted: boolean) => void;
   onEdit: (questionId: PlanHomeQuestionId) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }>) {
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const reviewPageLabels = [
+    "Contact details",
+    ...planHomeZones.map((zone) => zone.title),
+    "Files and links",
+    "Submit project brief",
+  ];
+  const lastReviewPage = reviewPageLabels.length - 1;
   useEffect(() => {
     headingRef.current?.focus({ preventScroll: true });
   }, []);
@@ -1335,25 +1347,52 @@ function ProjectBriefReview({
       <div className={styles.reviewWorkspace} data-review-workspace>
         <nav className={styles.reviewNavigator} aria-label="Project brief sections">
           <p>Brief index</p>
-          <a data-index="00" href="#review-contact">Contact</a>
-          {planHomeZones.map((zone) => (
+          <a
+            data-index="00"
+            href="#review-contact"
+            aria-current={activePage === 0 ? "page" : undefined}
+            onClick={() => onPageChange(0)}
+          >
+            Contact
+          </a>
+          {planHomeZones.map((zone, index) => (
             <a
               data-index={String(zone.order).padStart(2, "0")}
               href={`#review-zone-${zone.id}`}
               key={zone.id}
               aria-label={`Zone ${zone.order}: ${zone.title}`}
+              aria-current={activePage === index + 1 ? "page" : undefined}
+              onClick={() => onPageChange(index + 1)}
             >
               Zone {zone.order}
             </a>
           ))}
-          <a data-index="08" href="#review-references">References</a>
-          <a data-index="09" href="#review-submit">Submit</a>
+          <a
+            data-index="08"
+            href="#review-references"
+            aria-current={activePage === 8 ? "page" : undefined}
+            onClick={() => onPageChange(8)}
+          >
+            References
+          </a>
+          <a
+            data-index="09"
+            href="#review-submit"
+            aria-current={activePage === 9 ? "page" : undefined}
+            onClick={() => onPageChange(9)}
+          >
+            Submit
+          </a>
         </nav>
 
         <div className={styles.reviewFolio}>
+          <p className={styles.reviewPageStatus} aria-live="polite">
+            Review {activePage + 1} of {reviewPageLabels.length} · {reviewPageLabels[activePage]}
+          </p>
           <section
             className={styles.reviewContact}
             id="review-contact"
+            data-review-page-active={activePage === 0}
             aria-labelledby="review-contact-heading"
           >
             <div>
@@ -1368,7 +1407,7 @@ function ProjectBriefReview({
           </section>
 
           <div className={styles.reviewGroups}>
-            {planHomeZones.map((zone) => {
+            {planHomeZones.map((zone, zoneIndex) => {
               const questions = planHomeQuestions.filter(
                 (question) => question.zoneId === zone.id,
               );
@@ -1379,6 +1418,7 @@ function ProjectBriefReview({
                   key={zone.id}
                   data-review-zone={zone.id}
                   data-review-sheet
+                  data-review-page-active={activePage === zoneIndex + 1}
                   aria-labelledby={`review-zone-heading-${zone.id}`}
                 >
                   <div className={styles.reviewGroupHeading}>
@@ -1423,6 +1463,7 @@ function ProjectBriefReview({
             className={styles.reviewReferences}
             id="review-references"
             data-review-references
+            data-review-page-active={activePage === 8}
             aria-labelledby="review-references-heading"
           >
             <div>
@@ -1456,6 +1497,7 @@ function ProjectBriefReview({
             className={styles.submitPanel}
             id="review-submit"
             data-review-submission
+            data-review-page-active={activePage === 9}
             onSubmit={onSubmit}
           >
             <p className={styles.eyebrow}>Final inquiry consent</p>
@@ -1490,6 +1532,24 @@ function ProjectBriefReview({
               {submitting ? "Submitting…" : "Submit project brief"}
             </Button>
           </form>
+
+          <div className={styles.reviewPager} data-review-pager>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={activePage === 0}
+              onClick={() => onPageChange(Math.max(0, activePage - 1))}
+            >
+              Back
+            </Button>
+            <Button
+              type="button"
+              disabled={activePage === lastReviewPage}
+              onClick={() => onPageChange(Math.min(lastReviewPage, activePage + 1))}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </main>
@@ -1634,6 +1694,7 @@ export function PlanYourHomeShell({
   const [showReviewBriefBoundary, setShowReviewBriefBoundary] = useState(false);
   const [submissionConsentAccepted, setSubmissionConsentAccepted] =
     useState(false);
+  const [reviewPage, setReviewPage] = useState(0);
   const [submitted, setSubmitted] = useState(refinementFixture?.submitted ?? false);
   const [restoreStatus, setRestoreStatus] = useState<
     "pending" | "ready" | "unavailable"
@@ -2683,6 +2744,11 @@ export function PlanYourHomeShell({
       ...current,
       [questionId]: tourState.answers[questionId],
     }));
+    const question = getPlanHomeQuestion(questionId);
+    const zoneIndex = planHomeZones.findIndex(
+      (zone) => zone.id === question?.zoneId,
+    );
+    if (zoneIndex >= 0) setReviewPage(zoneIndex + 1);
     setFormError(null);
     commitState(transition.state);
   }
@@ -3008,9 +3074,11 @@ export function PlanYourHomeShell({
     content = (
       <ProjectBriefReview
         state={tourState}
+        activePage={reviewPage}
         consentAccepted={submissionConsentAccepted}
         error={formError}
         submitting={saving}
+        onPageChange={setReviewPage}
         onConsentChange={(accepted) => {
           setSubmissionConsentAccepted(accepted);
           setFormError(null);
@@ -3039,6 +3107,7 @@ export function PlanYourHomeShell({
     <div
       ref={experienceRef}
       className={styles.experience}
+      data-plan-home-experience
       data-plan-home-review-mode={reviewMode || undefined}
       data-plan-home-refinement-state={
         refinementFixture

@@ -179,6 +179,25 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   assert.ok(query.getByText("kitchen-inspiration.pdf"));
   assert.ok(query.getByText("https://example.com/exterior-reference"));
   assert.ok(view.container.querySelector("[data-review-references]"));
+  const reviewPager = view.container.querySelector<HTMLElement>(
+    "[data-review-pager]",
+  );
+  const contactPage = view.container.querySelector("#review-contact");
+  const firstZonePage = view.container.querySelector(
+    `[data-review-zone="${planHomeZones[0]?.id}"]`,
+  );
+  assert.ok(reviewPager);
+  assert.equal(contactPage?.getAttribute("data-review-page-active"), "true");
+  assert.equal(firstZonePage?.getAttribute("data-review-page-active"), "false");
+  assert.match(query.getByText(/^Review 1 of 10/).textContent ?? "", /Contact details/);
+
+  await user.click(within(reviewPager).getByRole("button", { name: "Next" }));
+  assert.equal(contactPage?.getAttribute("data-review-page-active"), "false");
+  assert.equal(firstZonePage?.getAttribute("data-review-page-active"), "true");
+  assert.match(
+    query.getByText(/^Review 2 of 10/).textContent ?? "",
+    new RegExp(planHomeZones[0]?.title ?? ""),
+  );
   assert.match(
     view.container.querySelector('[data-review-question="contact.follow-up"]')
       ?.textContent ?? "",
@@ -202,6 +221,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
   );
+  assert.equal(firstZonePage?.getAttribute("data-review-page-active"), "true");
   assert.equal(
     view.container.querySelector('[data-review-question="project.budget-timing"]')
       ?.textContent,

@@ -800,35 +800,30 @@
   }
 
   .optionGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.25rem;
-    margin-top: 0.3rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.45rem;
+    margin-top: 0.5rem;
   }
 
   .optionGrid[data-columns="1"] {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .optionGrid:has(> :nth-child(5)),
   .optionGrid[data-columns="3"] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .optionGrid:has(> :nth-child(7)) {
-    grid-template-columns: repeat(auto-fit, minmax(min(5rem, 100%), 1fr));
-  }
-
-  .optionGrid:has(> :nth-child(5):last-child) > .option:nth-child(4) {
-    grid-column: span 2;
+  .optionGrid:has(> :nth-child(6)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .option {
-    grid-template-columns: 1rem minmax(0, 1fr);
-    gap: 0.35rem;
-    min-height: 44px;
-    padding: 0.35rem 0.4rem;
-    font-size: 0.75rem;
-    line-height: 1.15;
+    grid-template-columns: 1.1rem minmax(0, 1fr);
+    gap: 0.6rem;
+    min-height: 54px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.84rem;
+    line-height: 1.25;
   }
 
   .option > span:last-child {
@@ -843,16 +838,17 @@
 
   .stagedControls {
     position: absolute;
-    z-index: 6;
-    bottom: 0.6rem;
-    left: 50%;
-    width: 140px;
-    transform: translateX(-50%);
+    z-index: 7;
+    right: 0.875rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    left: calc(7rem + 1.525rem);
+    width: auto;
   }
 
   .stagedControls button {
     width: 100%;
-    padding-inline: 4px;
+    min-height: 52px;
+    padding-inline: 8px;
   }
 
   .instructions,
@@ -977,7 +973,13 @@
   }
 
   .stagedControls {
-    bottom: 0.3rem;
+    right: 0.75rem;
+    bottom: max(0.55rem, env(safe-area-inset-bottom));
+    left: calc(7rem + 1.4rem);
+  }
+
+  .stagedControls button {
+    min-height: 48px;
   }
 }
 

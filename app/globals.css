@@ -39,6 +39,14 @@
     text-rendering: optimizeLegibility;
   }
 
+  html:has([data-plan-home-experience]),
+  body:has([data-plan-home-experience]) {
+    height: 100%;
+    min-height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   body::before {
     position: fixed;
     inset: 0;
