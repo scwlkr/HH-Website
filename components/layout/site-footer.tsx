@@ -1,30 +1,9 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { BrandMark, BrandWordmark } from "@/components/brand/brand-logo";
+import { BrandWordmark } from "@/components/brand/brand-logo";
 import { Container } from "@/components/layout/container";
 import { agentDiscoveryResources } from "@/lib/agent-guidance/resources";
 import { siteConfig } from "@/lib/site-config";
-
-function FooterLink({
-  href,
-  label,
-}: {
-  href?: string;
-  label: string;
-}) {
-  if (!href) {
-    return <span className="text-sm leading-7 text-muted">{label}</span>;
-  }
-
-  return (
-    <a
-      href={href}
-      className="hh-link hh-touch-target text-sm leading-7 text-muted"
-    >
-      {label}
-    </a>
-  );
-}
 
 function FooterHeading({ label }: { label: string }) {
   return (
@@ -36,11 +15,6 @@ function FooterHeading({ label }: { label: string }) {
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
-  const contactLinks: Array<{
-    title: string;
-    href: string;
-    label: string;
-  }> = [];
   const pageLinks = [...siteConfig.nav, siteConfig.primaryCta];
   const agentLinks = [
     agentDiscoveryResources.sitemap,
@@ -48,109 +22,96 @@ export function SiteFooter() {
     agentDiscoveryResources.services,
   ] as const;
 
-  if (siteConfig.contact.phone.href) {
-    contactLinks.push({
-      title: siteConfig.contact.phone.title,
-      href: siteConfig.contact.phone.href,
-      label:
-        siteConfig.contact.phone.label ??
-        siteConfig.contact.phone.href.replace(/^tel:/, ""),
-    });
-  }
-
-  contactLinks.push({
-    title: siteConfig.contact.email.title,
-    href: siteConfig.contact.email.href,
-    label: siteConfig.contact.email.label,
-  });
-
   return (
     <footer className="relative border-t border-line-strong bg-white/82">
-      <Container size="wide" className="py-10 sm:py-12">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 border-b border-line pb-9 md:grid-cols-4 lg:grid-cols-[minmax(0,1.35fr)_repeat(4,minmax(0,0.55fr))] lg:gap-8">
-          <div className="col-span-2 space-y-5 md:col-span-4 lg:col-span-1 lg:pr-10">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--hh-radius-pill)] border border-line-strong bg-white">
-                <BrandMark decorative sizes="34px" className="h-7 w-7" />
-              </div>
-              <div className="min-w-0 space-y-2">
-                <BrandWordmark
-                  sizes="(max-width: 640px) 12rem, 15rem"
-                  className="h-8 w-[12rem] sm:h-9 sm:w-[15rem]"
-                />
-                <p className="max-w-sm text-sm leading-7 text-muted">
-                  {siteConfig.descriptor}
-                </p>
-              </div>
-            </div>
-            <p className="max-w-xl text-sm leading-7 text-muted">
-              {siteConfig.contact.note}
+      <Container size="wide" className="py-7 sm:py-8 lg:py-9">
+        <div className="grid gap-7 border-b border-line pb-6 lg:grid-cols-[minmax(15rem,1.05fr)_minmax(0,2fr)] lg:gap-14 lg:pb-8">
+          <div className="self-start">
+            <BrandWordmark
+              sizes="(max-width: 640px) 11.5rem, 13rem"
+              className="h-7 w-[11.5rem] sm:h-8 sm:w-[13rem]"
+            />
+            <p className="mt-3 text-sm font-medium tracking-[0.02em] text-muted-strong">
+              Design. Build. Develop.
             </p>
           </div>
 
-          <div>
-            <FooterHeading label="Contact" />
-            <ul className="mt-5 space-y-4">
-              {contactLinks.map((item) => (
-                <li key={item.title}>
-                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted">
-                    {item.title}
-                  </p>
-                  <div className="mt-1">
-                    <FooterLink href={item.href} label={item.label} />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="border-t border-line sm:grid sm:grid-cols-3 sm:border-t-0">
+            <nav
+              aria-label="Explore"
+              className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 border-b border-line py-3 sm:block sm:border-b-0 sm:border-l sm:py-0 sm:pl-6"
+            >
+              <FooterHeading label="Explore" />
+              <ul className="-my-1 flex flex-wrap gap-x-5 sm:mt-3 sm:grid sm:grid-cols-2 sm:gap-x-4">
+                {pageLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href as Route}
+                      className="hh-link hh-touch-target text-sm leading-6 text-muted"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-          <div>
-            <FooterHeading label="Pages" />
-            <ul className="mt-5 space-y-2">
-              {pageLinks.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href as Route}
-                    className="hh-link hh-touch-target text-sm leading-7 text-muted"
+            <nav
+              aria-label="Contact"
+              className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 border-b border-line py-3 sm:block sm:border-b-0 sm:border-l sm:py-0 sm:pl-6"
+            >
+              <FooterHeading label="Contact" />
+              <ul className="-my-1 sm:mt-3">
+                <li>
+                  <a
+                    href={siteConfig.contact.email.href}
+                    className="hh-link hh-touch-target text-sm leading-6 text-muted"
                   >
-                    {item.label}
-                  </Link>
+                    {siteConfig.contact.email.label}
+                  </a>
                 </li>
-              ))}
-            </ul>
-          </div>
+              </ul>
+            </nav>
 
-          <div>
-            <FooterHeading label="Information" />
-            <ul className="mt-5 space-y-2">
-              {siteConfig.legalNav.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href as Route}
-                    className="hh-link hh-touch-target text-sm leading-7 text-muted"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <FooterHeading label="Agents" />
-            <ul className="mt-5 space-y-2">
-              {agentLinks.map((item) => (
-                <li key={item.path}>
-                  <FooterLink href={item.path} label={item.footerLabel} />
-                </li>
-              ))}
-            </ul>
+            <nav
+              aria-label="Information"
+              className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 py-3 sm:block sm:border-l sm:py-0 sm:pl-6"
+            >
+              <FooterHeading label="Information" />
+              <ul className="-my-1 flex flex-wrap gap-x-5 sm:mt-3 sm:block">
+                {siteConfig.legalNav.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href as Route}
+                      className="hh-link hh-touch-target text-sm leading-6 text-muted"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 pt-4 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>{year} {siteConfig.shortName}. All rights reserved.</p>
-          <p>{siteConfig.descriptor}</p>
+        <div className="flex flex-col gap-1 pt-3 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+          <nav aria-label="Agent resources">
+            <ul className="flex flex-wrap gap-x-5">
+              {agentLinks.map((item) => (
+                <li key={item.path}>
+                  <a
+                    href={item.path}
+                    className="hh-link hh-touch-target text-xs leading-5 text-muted"
+                  >
+                    {item.footerLabel}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <p className="flex min-h-12 shrink-0 items-center">
+            © {year} {siteConfig.shortName}
+          </p>
         </div>
       </Container>
     </footer>
