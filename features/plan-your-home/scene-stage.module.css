@@ -264,7 +264,7 @@
     height: 100%;
     min-height: 0;
     flex: 1;
-    grid-template-rows: 44px clamp(7.75rem, 22dvh, 11.875rem) minmax(0, 1fr);
+    grid-template-rows: 44px clamp(124px, 22dvh, 190px) minmax(0, 1fr);
     border-block: 0;
     background: var(--hh-surface);
   }
@@ -363,7 +363,7 @@
   }
 
   .promptSheet:has([data-plan-home-staged-controls]) .stageActions {
-    grid-template-columns: 7rem minmax(0, 1fr);
+    grid-template-columns: 112px minmax(0, 1fr);
   }
 
   .promptSheet:has([data-plan-home-staged-controls]) .actionButton:last-child {
@@ -400,7 +400,7 @@
 
 @media (max-width: 40rem) and (max-height: 44rem) {
   .stage {
-    grid-template-rows: 44px clamp(6.25rem, 18dvh, 7.75rem) minmax(0, 1fr);
+    grid-template-rows: 44px clamp(80px, 18dvh, 124px) minmax(0, 1fr);
   }
 
   .promptHeader {

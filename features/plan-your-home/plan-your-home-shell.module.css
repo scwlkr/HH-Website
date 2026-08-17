@@ -1067,7 +1067,7 @@
     ) {
     display: grid;
     height: 100%;
-    grid-template-rows: clamp(7.75rem, 22dvh, 11.875rem) minmax(0, 1fr);
+    grid-template-rows: clamp(124px, 22dvh, 190px) minmax(0, 1fr);
     align-items: stretch;
     border-block: 0;
     background: var(--hh-surface);
@@ -1169,7 +1169,7 @@
 
   .reviewHero {
     min-height: 0;
-    flex: 0 0 clamp(6.5rem, 16dvh, 8.5rem);
+    flex: 0 0 clamp(104px, 16dvh, 136px);
   }
 
   .reviewHeroScene {
@@ -1324,7 +1324,7 @@
     height: 100%;
     min-height: 0;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: clamp(7.75rem, 22dvh, 11.875rem) minmax(0, 1fr);
+    grid-template-rows: clamp(124px, 22dvh, 190px) minmax(0, 1fr);
     align-content: start;
     overflow: hidden;
     border-block: 0;

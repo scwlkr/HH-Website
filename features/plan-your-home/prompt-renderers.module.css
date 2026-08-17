@@ -839,9 +839,9 @@
   .stagedControls {
     position: absolute;
     z-index: 7;
-    right: 0.875rem;
+    right: 14px;
     bottom: max(1rem, env(safe-area-inset-bottom));
-    left: calc(7rem + 1.525rem);
+    left: 136px;
     width: auto;
   }
 
@@ -973,13 +973,22 @@
   }
 
   .stagedControls {
-    right: 0.75rem;
+    right: 12px;
     bottom: max(0.55rem, env(safe-area-inset-bottom));
-    left: calc(7rem + 1.4rem);
+    left: 134px;
   }
 
   .stagedControls button {
     min-height: 48px;
+  }
+
+  .optionGrid {
+    gap: 3px;
+  }
+
+  .option {
+    min-height: 46px;
+    padding: 0.3rem 0.55rem;
   }
 }
 
