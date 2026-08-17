@@ -48,6 +48,7 @@ next-env.d.ts
 # agents
 .agents
 /.scratch
+/.worktrees/
 
 # docs
 ignored-docs/
