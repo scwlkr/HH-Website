@@ -30,11 +30,16 @@ export function SiteFooter() {
       <Container size="wide" className="py-6 sm:py-7 lg:py-8">
         <div className="grid gap-6 border-b border-line pb-5 lg:grid-cols-[minmax(17rem,1.15fr)_minmax(0,2fr)] lg:gap-16 lg:pb-7">
           <div className="self-start">
-            <BrandWordmark
-              sizes="(max-width: 640px) 13.5rem, 15rem"
-              className="-ml-2 h-8 w-[13.5rem] sm:-ml-3 sm:h-9 sm:w-[15rem]"
-            />
-            <p className="mt-4 text-[0.95rem] font-medium tracking-[0.02em] text-muted-strong">
+            <Link
+              href="/"
+              className="hh-link hh-touch-target -ml-2 w-fit sm:-ml-3"
+            >
+              <BrandWordmark
+                sizes="(max-width: 640px) 13.5rem, 15rem"
+                className="h-8 w-[13.5rem] sm:h-9 sm:w-[15rem]"
+              />
+            </Link>
+            <p className="mt-2 text-[0.95rem] font-medium tracking-[0.02em] text-muted-strong">
               {siteConfig.tagline}
             </p>
           </div>
@@ -46,25 +51,29 @@ export function SiteFooter() {
             >
               <FooterHeading label="Explore" />
               <ul className="-my-1 flex flex-wrap gap-x-5 lg:mt-3 lg:grid lg:grid-cols-[max-content_minmax(0,1fr)] lg:gap-x-5">
-                {pageLinks.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href as Route}
-                      className={`hh-link hh-touch-target whitespace-nowrap text-sm leading-6 ${
-                        item.href === siteConfig.primaryCta.href
-                          ? "font-medium text-accent"
-                          : "text-muted"
-                      }`}
-                    >
-                      {item.label}
-                      {item.href === siteConfig.primaryCta.href ? (
-                        <span aria-hidden="true" className="ml-2">
-                          →
-                        </span>
-                      ) : null}
-                    </Link>
-                  </li>
-                ))}
+                {pageLinks.map((item) => {
+                  const isPrimaryCta = item.href === siteConfig.primaryCta.href;
+
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href as Route}
+                        className={`hh-link hh-touch-target whitespace-nowrap text-sm leading-6 ${
+                          isPrimaryCta
+                            ? "font-medium text-accent"
+                            : "text-muted"
+                        }`}
+                      >
+                        {item.label}
+                        {isPrimaryCta ? (
+                          <span aria-hidden="true" className="ml-2">
+                            →
+                          </span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </nav>
 
@@ -119,7 +128,7 @@ export function SiteFooter() {
                 <li key={item.path}>
                   <a
                     href={item.path}
-                    className="hh-link hh-touch-target text-xs leading-5 text-muted"
+                    className="hh-link hh-touch-target text-[0.82rem] leading-5 text-muted"
                   >
                     {item.footerLabel}
                   </a>

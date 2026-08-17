@@ -12,7 +12,10 @@ test("the site footer is a compact branded directory", () => {
   const rendered = render(<SiteFooter />);
   const footer = within(rendered.getByRole("contentinfo"));
 
-  assert.ok(footer.getByRole("img", { name: "Howeth and Harp" }));
+  assert.equal(
+    footer.getByRole("link", { name: "Howeth and Harp" }).getAttribute("href"),
+    "/",
+  );
   assert.ok(footer.getByText("Design. Build. Develop."));
 
   const explore = within(footer.getByRole("navigation", { name: "Explore" }));
