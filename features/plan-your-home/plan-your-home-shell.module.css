@@ -182,27 +182,20 @@
   line-height: 1.62;
 }
 
-.privacyNotice {
-  max-width: 31rem;
-  margin-top: 0.75rem;
-  border-left: 2px solid var(--hh-accent);
-  padding-left: 0.75rem;
-  color: var(--hh-muted-strong);
-  font-size: 0.76rem;
-  line-height: 1.55;
-}
-
-.privacyNotice a,
-.submitPanel a {
+.policyLink {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  margin-top: 0.15rem;
   color: var(--hh-ink);
+  font-size: 0.76rem;
   font-weight: 650;
   text-decoration: underline;
   text-decoration-color: var(--hh-accent);
   text-underline-offset: 0.2em;
 }
 
-.privacyNotice a:focus-visible,
-.submitPanel a:focus-visible {
+.policyLink:focus-visible {
   border-radius: var(--hh-radius-tight);
   box-shadow: 0 0 0 3px var(--hh-accent-soft);
   outline: none;
@@ -426,7 +419,7 @@
 .reviewHero {
   position: relative;
   display: grid;
-  min-height: clamp(34rem, 72svh, 44rem);
+  min-height: clamp(26rem, 50svh, 32rem);
   align-items: end;
   overflow: hidden;
   border-bottom: 1px solid var(--hh-line-strong);
@@ -438,7 +431,7 @@
   position: absolute;
   z-index: -1;
   inset: 0 0 auto;
-  height: clamp(22rem, 52svh, 32rem);
+  height: clamp(16rem, 38svh, 24rem);
 }
 
 .reviewHeroScene::after {
@@ -452,17 +445,25 @@
 
 .reviewHeader {
   width: min(calc(100% - 2rem), 52rem);
-  margin: clamp(14rem, 36svh, 22rem) auto 1.5rem;
+  margin: clamp(8.5rem, 20svh, 12rem) auto 1rem;
   border: 1px solid var(--hh-line-strong);
   border-radius: var(--hh-radius-panel);
-  padding: clamp(1.25rem, 4vw, 2.25rem);
+  padding: clamp(1.15rem, 2.5vw, 1.65rem);
   background:
     linear-gradient(90deg, transparent 0 1.5rem, var(--hh-draft-ink-faint) 1.5rem calc(1.5rem + 1px), transparent calc(1.5rem + 1px)),
     color-mix(in srgb, var(--hh-surface) 96%, var(--hh-paper));
   box-shadow: var(--hh-shadow-panel);
 }
 
-.reviewHeader h1,
+.reviewHeader h1 {
+  max-width: 48rem;
+  margin-top: 0.5rem;
+  color: var(--hh-ink);
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
 .confirmationSheet h1 {
   max-width: 48rem;
   margin-top: 0.5rem;
@@ -489,7 +490,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--hh-line);
 }

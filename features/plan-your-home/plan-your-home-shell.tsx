@@ -998,15 +998,6 @@ function ContactCheckpoint({
           We’ll attach these first planning answers to {name.trim()} and keep
           your place in the walkthrough.
         </p>
-        <p className={styles.privacyNotice}>
-          Saving creates a private server draft kept up to 180 days after last
-          activity, including private references you add later. h and h may
-          follow up manually. A one-time resume email is sent only when you
-          request it. See the{" "}
-          <a className="hh-touch-target" href="/privacy">
-            privacy policy
-          </a>{"."}
-        </p>
         <div className={styles.contactGrid}>
           <label className={styles.textLabel} htmlFor="plan-home-contact-email">
             Email
@@ -1049,6 +1040,9 @@ function ContactCheckpoint({
             project. No reminder is sent automatically.
           </span>
         </label>
+        <a className={`${styles.policyLink} hh-touch-target`} href="/privacy">
+          Privacy policy
+        </a>
         {error ? (
           <p id={errorId} className={styles.formError} role="alert">
             {error}
@@ -1102,7 +1096,7 @@ function ProjectBriefReview({
 
   return (
     <main className={styles.review} data-tour-beat="project-brief-review">
-      <section className={styles.reviewHero}>
+      <section className={styles.reviewHero} data-review-hero>
         <div className={styles.reviewHeroScene} aria-hidden="true">
           <PlanHomeSceneSuspense>
             <ReviewBriefThresholdScene />
@@ -1296,15 +1290,6 @@ function ProjectBriefReview({
               This brief starts a conversation. It is not a design, price,
               feasibility decision, or contract.
             </p>
-            <p>
-              Under the proposed retention schedule, a submitted brief and private
-              references are kept up to 24 months unless h and h retains or deletes
-              them sooner. You may request deletion. Review the{" "}
-              <a className="hh-touch-target" href="/privacy">
-                privacy and retention policy
-              </a>{" "}
-              before submitting.
-            </p>
             <label className={styles.disclosure}>
               <input
                 type="checkbox"
@@ -1317,6 +1302,9 @@ function ProjectBriefReview({
                 this project. This is not marketing consent.
               </span>
             </label>
+            <a className={`${styles.policyLink} hh-touch-target`} href="/privacy">
+              Privacy policy
+            </a>
             {error ? <p className={styles.formError} role="alert">{error}</p> : null}
             <Button type="submit" disabled={submitting || !consentAccepted}>
               {submitting ? "Submitting…" : "Submit project brief"}

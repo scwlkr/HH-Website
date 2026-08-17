@@ -622,7 +622,12 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
         const element = document.querySelector(selector);
         if (!element) return null;
         const bounds = element.getBoundingClientRect();
-        return { width: bounds.width, height: bounds.height };
+        return {
+          width: bounds.width,
+          height: bounds.height,
+          top: bounds.top,
+          bottom: bounds.bottom,
+        };
       };
       const header = document.querySelector("[data-plan-home-header]");
       const stageRail = document.querySelector("[data-plan-home-stage-rail]");
@@ -633,6 +638,8 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
         contextStrip: dimensions("[data-plan-home-context-strip]"),
         promptSheet: dimensions("[data-plan-home-prompt-sheet]"),
         momentSheet: dimensions("[data-plan-home-moment-sheet]"),
+        reviewHero: dimensions("[data-review-hero]"),
+        reviewWorkspace: dimensions("[data-review-workspace]"),
         visibleChrome: [header?.textContent, stageRail?.textContent]
           .filter(Boolean)
           .join(" ")
@@ -692,6 +699,16 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
       assert(
         actions.y + actions.height <= viewports[viewportName].height,
         "question actions remain inside the initial viewport",
+      );
+    }
+    if (state === "review" && viewportName === "desktop") {
+      assert(
+        result.layout.reviewHero?.height <= viewports.desktop.height * 0.55,
+        "desktop review cover stays compact",
+      );
+      assert(
+        result.layout.reviewWorkspace?.top < viewports.desktop.height * 0.7,
+        "desktop brief index begins inside the initial viewport",
       );
     }
     result.quality = await quality(page);
