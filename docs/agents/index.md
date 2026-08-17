@@ -1,10 +1,10 @@
 # Internal Agent Index
 
-Use this task-based index at the start of repository work. It routes agents to authoritative documentation and source ownership; it does not replace those sources. Shared public-safe terminology lives in `docs/agent-guidance/CONTEXT.md`. Repository operations remain internal and must never be copied into public agent artifacts.
+Use this task-based index at the start of repository work. It routes agents to authoritative documentation and source ownership; it does not replace those sources. Shared public-safe terminology lives in [docs/agent-guidance/CONTEXT.md](../agent-guidance/CONTEXT.md). Repository operations remain internal and must never be copied into public agent artifacts.
 
 ## Brand and public content
 
-**Authoritative sources:** `AGENTS.md` for naming rules, `docs/style-guide.md` for brand and writing direction, `docs/agent-guidance/CONTEXT.md` for shared agent language, `lib/site-config.ts` for business identity and contact facts, and `lib/content/` for marketing, FAQ, finish-level, and build-type content.
+**Authoritative sources:** [AGENTS.md](../../AGENTS.md) for naming rules, [docs/style-guide.md](../style-guide.md) for brand and writing direction, [docs/agent-guidance/CONTEXT.md](../agent-guidance/CONTEXT.md) for shared agent language, `lib/site-config.ts` for business identity and contact facts, and `lib/content/` for marketing, FAQ, finish-level, and build-type content.
 
 **Source ownership:** Edit shared business facts in `lib/site-config.ts`; edit reusable public copy and registries in `lib/content/`. Do not maintain unrelated copies inside pages or public agent documents.
 
@@ -24,7 +24,7 @@ Use this task-based index at the start of repository work. It routes agents to a
 
 ## Shared layouts and visuals
 
-**Authoritative sources:** `docs/style-guide.md`, `app/globals.css`, `components/layout/`, `components/marketing/`, and the nearest feature-specific context or ADR. Use `docs/devops.md` for the screenshot-review loop.
+**Authoritative sources:** [docs/style-guide.md](../style-guide.md), `app/globals.css`, `components/layout/`, `components/marketing/`, and the nearest feature-specific context or ADR. Use [docs/devops.md](../devops.md) for the screenshot-review loop.
 
 **Source ownership:** Shared marketing chrome belongs in `components/layout/`; reusable public sections belong in `components/marketing/`; route composition remains in `app/`. Preserve established component and utility-class patterns.
 
@@ -34,7 +34,7 @@ Use this task-based index at the start of repository work. It routes agents to a
 
 ## Project inquiries and Plan Your Home
 
-**Authoritative sources:** `docs/inquiry-flow.md` and `docs/virtual-home-project-brief.md` define the generic project brief; `docs/plan-your-home-product-spec.md`, `docs/plan-your-home-implementation-roadmap.md`, and root `CONTEXT.md` define Plan Your Home.
+**Authoritative sources:** [docs/inquiry-flow.md](../inquiry-flow.md) and [docs/virtual-home-project-brief.md](../virtual-home-project-brief.md) define the generic project brief; [docs/plan-your-home-product-spec.md](../plan-your-home-product-spec.md), [docs/plan-your-home-implementation-roadmap.md](../plan-your-home-implementation-roadmap.md), and root [CONTEXT.md](../../CONTEXT.md) define Plan Your Home.
 
 **Source ownership:** Generic inquiry behavior lives under `app/inquire/`, `components/inquiry/`, `lib/inquiry/`, and `lib/validation/inquiry.ts`. Plan Your Home owns `app/plan-your-home/` and `features/plan-your-home/`; do not blur the two project-brief paths.
 
@@ -44,7 +44,7 @@ Use this task-based index at the start of repository work. It routes agents to a
 
 ## HHQ, projects, Firebase, and private data
 
-**Authoritative sources:** `docs/architecture.md`, `docs/operations-portal.md`, `docs/devops.md`, Firestore and Storage rules, and the relevant files under `lib/db/`, `lib/firebase/`, `app/admin/`, and `components/admin/`.
+**Authoritative sources:** [docs/architecture.md](../architecture.md), [docs/operations-portal.md](../operations-portal.md), [docs/devops.md](../devops.md), Firestore and Storage rules, and the relevant files under `lib/db/`, `lib/firebase/`, `app/admin/`, and `components/admin/`.
 
 **Source ownership:** Public project queries and publication enforcement live in `lib/db/operations.ts`; HHQ routes and actions live under `app/admin/`; authentication and provider adapters live in `lib/firebase/`. Keep authorization at server boundaries.
 
@@ -54,7 +54,7 @@ Use this task-based index at the start of repository work. It routes agents to a
 
 ## Testing, screenshots, deployment, and completion
 
-**Authoritative sources:** `docs/devops.md` defines local review and primary gates; `docs/launch-qa.md` defines launch checks; root `AGENTS.md` defines Git, issue-delivery, and naming requirements.
+**Authoritative sources:** [docs/devops.md](../devops.md) defines local review and primary gates; [docs/launch-qa.md](../launch-qa.md) defines launch checks; root [AGENTS.md](../../AGENTS.md) defines Git, issue-delivery, and naming requirements.
 
 **Source ownership:** Unit and rendered tests live in `tests/`; production-boundary acceptance lives in `scripts/qa-smoke.mjs`; route screenshots are produced by `scripts/review.mjs`. Extend existing seams instead of adding duplicate harnesses.
 

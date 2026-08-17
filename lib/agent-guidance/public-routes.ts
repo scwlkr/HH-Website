@@ -20,6 +20,8 @@ export type PublicRouteKind =
   | "start"
   | "inquire";
 
+export type StaticPublicRouteKind = Exclude<PublicRouteKind, "project">;
+
 export type PublicRouteEntry = {
   kind: PublicRouteKind;
   path: string;
@@ -144,6 +146,32 @@ export function createPublicProjectRoute(
 
 export function getStaticPublicRoute(path: string) {
   return staticPublicRoutes.find((route) => route.path === path) ?? null;
+}
+
+export function getStaticPublicRouteByKind(
+  kind: StaticPublicRouteKind,
+  slug?: string,
+) {
+  return (
+    staticPublicRoutes.find(
+      (route) => route.kind === kind && route.slug === slug,
+    ) ?? null
+  );
+}
+
+export function getPublicRoutePath(
+  kind: StaticPublicRouteKind,
+  slug?: string,
+) {
+  const route = getStaticPublicRouteByKind(kind, slug);
+
+  if (!route) {
+    throw new Error(
+      `Missing public route inventory entry for ${kind}${slug ? `:${slug}` : ""}.`,
+    );
+  }
+
+  return route.path;
 }
 
 export function isPotentialPublicRoute(path: string) {

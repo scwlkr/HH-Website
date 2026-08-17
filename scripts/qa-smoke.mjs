@@ -648,6 +648,11 @@ async function verifyAgentDiscoveryDocuments(baseUrl) {
         "public, s-maxage=3600, stale-while-revalidate=86400",
       `${resourcePath} must use the bounded shared-cache policy.`,
     );
+    assert(
+      response.headers.get("link") ===
+        `<${baseUrl}${resourcePath}>; rel="canonical"`,
+      `${resourcePath} must identify its canonical public document.`,
+    );
     assert(body.trim().length > 200, `${resourcePath} must contain useful guidance.`);
     assert(
       resourcePaths.every((linkedPath) => body.includes(linkedPath)),
@@ -679,6 +684,7 @@ async function verifyAgentDiscoveryDocuments(baseUrl) {
   for (const expectedService of [
     "Architectural Design",
     "Building",
+    "Remodeling",
     "Land Development",
     "Builder Grade",
     "Builder+",

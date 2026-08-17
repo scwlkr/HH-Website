@@ -5,25 +5,21 @@ import {
 } from "@/lib/content";
 import {
   createPublicProjectRoute,
+  getPublicRoutePath,
   staticPublicRoutes,
 } from "@/lib/agent-guidance/public-routes";
+import { markdownLink } from "@/lib/agent-guidance/markdown";
+import { agentDiscoveryResourceList } from "@/lib/agent-guidance/resources";
 import { getPublicProjects } from "@/lib/db/operations";
 import { absoluteUrl } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
 
-const discoveryResources = [
-  { path: "/llms.txt", label: "Short agent guide" },
-  { path: "/sitemap.md", label: "Markdown sitemap" },
-  { path: "/services.md", label: "Services guidance" },
-] as const;
-
-function link(label: string, path: string) {
-  return `[${label}](${absoluteUrl(path)})`;
-}
-
 function renderDiscoveryLinks() {
-  return discoveryResources
-    .map((resource) => `- ${link(resource.label, resource.path)}`)
+  return agentDiscoveryResourceList
+    .map(
+      (resource) =>
+        `- ${markdownLink(resource.documentLabel, resource.path)}`,
+    )
     .join("\n");
 }
 
@@ -54,7 +50,7 @@ ${renderDiscoveryLinks()}
 
 This public guidance is read-only. External agents may index public information, answer questions from it, and direct a prospective customer to the appropriate public route. An external agent must not submit an inquiry, provide consent, authenticate, access private systems, or represent public guidance as a quote, design, feasibility decision, price, guarantee, or contract.
 
-For a person ready to begin, use ${absoluteUrl("/start")} to choose a project path or ${absoluteUrl("/inquire")} for the general project brief. Inquiry submission must remain a deliberate human action.`;
+For a person ready to begin, use ${absoluteUrl(getPublicRoutePath("start"))} to choose a project path or ${absoluteUrl(getPublicRoutePath("inquire"))} for the general project brief. Inquiry submission must remain a deliberate human action.`;
 }
 
 export function renderServicesMarkdown() {
@@ -64,16 +60,17 @@ export function renderServicesMarkdown() {
         `### ${capability.title}\n\n${capability.description}`,
     )
     .join("\n\n");
+  const remodeling = `### Remodeling\n\nRemodels and additions use the general project brief. Depending on the scope, the service mix may include architectural design, building, and site or development coordination.`;
   const projectCategories = buildTypes
     .map(
       (buildType) =>
-        `### ${buildType.title}\n\n${buildType.cardSummary}\n\nTypical service mix:\n${buildType.serviceMix.map((service) => `- ${service}`).join("\n")}\n\n${link("View the human-facing category", `/catalog/${buildType.slug}`)}.`,
+        `### ${buildType.title}\n\n${buildType.cardSummary}\n\nTypical service mix:\n${buildType.serviceMix.map((service) => `- ${service}`).join("\n")}\n\n${markdownLink("View the human-facing category", getPublicRoutePath("build-type", buildType.slug))}.`,
     )
     .join("\n\n");
   const finishes = finishLevels
     .map(
       (finish) =>
-        `### ${finish.title}\n\n${finish.cardSummary}\n\n${finish.detailSummary}\n\n${link("View the human-facing finish level", `/pricing/${finish.slug}`)}.`,
+        `### ${finish.title}\n\n${finish.cardSummary}\n\n${finish.detailSummary}\n\n${markdownLink("View the human-facing finish level", getPublicRoutePath("finish-level", finish.slug))}.`,
     )
     .join("\n\n");
 
@@ -89,6 +86,8 @@ ${renderDiscoveryLinks()}
 
 ${capabilities}
 
+${remodeling}
+
 ## Project categories
 
 ${projectCategories}
@@ -99,7 +98,7 @@ ${finishes}
 
 ## Starting a project
 
-Use ${link("Start a Project", "/start")} to choose the appropriate human path, or ${link("General Project Brief", "/inquire")} for work that does not need route selection. These descriptions are guidance only. They are not prices, proposals, designs, feasibility decisions, guarantees, or contracts, and an external agent must not submit information or consent for a person.`;
+Use ${markdownLink("Start a Project", getPublicRoutePath("start"))} to choose the appropriate human path, or ${markdownLink("General Project Brief", getPublicRoutePath("inquire"))} for work that does not need route selection. These descriptions are guidance only. They are not prices, proposals, designs, feasibility decisions, guarantees, or contracts, and an external agent must not submit information or consent for a person.`;
 }
 
 export async function renderMarkdownSitemap() {
@@ -111,7 +110,7 @@ export async function renderMarkdownSitemap() {
   const routeList = routes
     .map(
       (route) =>
-        `- ${link(route.title, route.path)} — ${route.summary} ${link("Markdown twin", route.markdownPath)}`,
+        `- ${markdownLink(route.title, route.path)} — ${route.summary} ${markdownLink("Markdown twin", route.markdownPath)}`,
     )
     .join("\n");
 
@@ -122,7 +121,7 @@ This inventory contains only intentionally indexable public pages. Private, admi
 ## Discovery links
 
 ${renderDiscoveryLinks()}
-- ${link("XML sitemap", "/sitemap.xml")}
+- ${markdownLink("XML sitemap", "/sitemap.xml")}
 
 ## Public pages
 

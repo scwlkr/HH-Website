@@ -7,10 +7,12 @@ export function createAgentResourceResponse({
   body,
   contentType,
   canonicalPath,
+  varyOnAccept = false,
 }: {
   body: string;
   contentType: "text/markdown" | "text/plain";
   canonicalPath?: string;
+  varyOnAccept?: boolean;
 }) {
   const headers = new Headers({
     "Access-Control-Allow-Origin": "*",
@@ -20,6 +22,9 @@ export function createAgentResourceResponse({
 
   if (canonicalPath) {
     headers.set("Link", `<${absoluteUrl(canonicalPath)}>; rel="canonical"`);
+  }
+
+  if (varyOnAccept) {
     headers.set("Vary", "Accept");
   }
 

@@ -31,5 +31,6 @@ export async function GET(request: NextRequest) {
     body,
     contentType: "text/markdown",
     canonicalPath: path,
+    varyOnAccept: true,
   });
 }

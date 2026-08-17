@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { BrandMark, BrandWordmark } from "@/components/brand/brand-logo";
 import { Container } from "@/components/layout/container";
+import { agentDiscoveryResources } from "@/lib/agent-guidance/resources";
 import { siteConfig } from "@/lib/site-config";
 
 function FooterLink({
@@ -42,9 +43,9 @@ export function SiteFooter() {
   }> = [];
   const pageLinks = [...siteConfig.nav, siteConfig.primaryCta];
   const agentLinks = [
-    { href: "/sitemap.md", label: "Markdown Sitemap" },
-    { href: "/llms.txt", label: "Agent Guide" },
-    { href: "/services.md", label: "Services Guide" },
+    agentDiscoveryResources.sitemap,
+    agentDiscoveryResources.llms,
+    agentDiscoveryResources.services,
   ] as const;
 
   if (siteConfig.contact.phone.href) {
@@ -139,8 +140,8 @@ export function SiteFooter() {
             <FooterHeading label="Agents" />
             <ul className="mt-5 space-y-2">
               {agentLinks.map((item) => (
-                <li key={item.href}>
-                  <FooterLink href={item.href} label={item.label} />
+                <li key={item.path}>
+                  <FooterLink href={item.path} label={item.footerLabel} />
                 </li>
               ))}
             </ul>

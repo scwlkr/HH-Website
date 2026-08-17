@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/firebase/proxy";
 import { isPotentialPublicRoute } from "@/lib/agent-guidance/public-routes";
+import { agentDiscoveryResourceList } from "@/lib/agent-guidance/resources";
 
-const standaloneAgentResources = new Set([
-  "/llms.txt",
-  "/sitemap.md",
-  "/services.md",
-]);
+const standaloneAgentResources = new Set<string>(
+  agentDiscoveryResourceList.map((resource) => resource.path),
+);
 
 function getHtmlPathFromMarkdownPath(pathname: string) {
   if (pathname === "/index.md") {

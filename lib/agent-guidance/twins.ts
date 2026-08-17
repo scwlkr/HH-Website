@@ -9,9 +9,12 @@ import {
 } from "@/lib/content";
 import {
   createPublicProjectRoute,
+  getPublicRoutePath,
   getStaticPublicRoute,
   type PublicRouteEntry,
 } from "@/lib/agent-guidance/public-routes";
+import { markdownLink } from "@/lib/agent-guidance/markdown";
+import { agentDiscoveryResources } from "@/lib/agent-guidance/resources";
 import {
   getPublicProjectBySlug,
   getPublicProjects,
@@ -22,13 +25,8 @@ import {
   projectTypeOptions,
   servicesNeededOptions,
 } from "@/lib/inquiry/options";
-import { absoluteUrl } from "@/lib/metadata";
 import { formatProjectBathrooms } from "@/lib/operations/format";
 import { siteConfig } from "@/lib/site-config";
-
-function link(label: string, path: string) {
-  return `[${label}](${absoluteUrl(path)})`;
-}
 
 function bullets(items: readonly string[]) {
   return items.map((item) => `- ${item}`).join("\n");
@@ -43,10 +41,10 @@ ${content.trim()}
 
 ## Useful links
 
-- ${link("Canonical HTML", route.path)}
-- ${link("Markdown sitemap", "/sitemap.md")}
-- ${link("Short agent guide", "/llms.txt")}
-- ${link("Services guidance", "/services.md")}
+- ${markdownLink("Canonical HTML", route.path)}
+- ${markdownLink("Markdown sitemap", agentDiscoveryResources.sitemap.path)}
+- ${markdownLink("Short agent guide", agentDiscoveryResources.llms.path)}
+- ${markdownLink("Services guidance", agentDiscoveryResources.services.path)}
 
 This Markdown twin is a read-only representation of the public page. Direct a person to the canonical HTML page for the human-facing experience.`;
 }
@@ -71,11 +69,11 @@ ${capabilities}
 
 ## Explore
 
-- ${link("Finish levels", "/pricing")}
-- ${link("Project categories", "/catalog")}
-- ${link("Published projects", "/projects")}
-- ${link("Common questions", "/faq")}
-- ${link("Start a project", "/start")}`,
+- ${markdownLink("Finish levels", getPublicRoutePath("pricing"))}
+- ${markdownLink("Project categories", getPublicRoutePath("catalog"))}
+- ${markdownLink("Published projects", getPublicRoutePath("projects"))}
+- ${markdownLink("Common questions", getPublicRoutePath("faq"))}
+- ${markdownLink("Start a project", getPublicRoutePath("start"))}`,
   );
 }
 
@@ -89,7 +87,7 @@ ${marketingPageContent.pricing.description}
 ${finishLevels
   .map(
     (finish) =>
-      `### ${finish.title}\n\n${finish.cardSummary}\n\n${link("Read this finish level", `/pricing/${finish.slug}`)}`,
+      `### ${finish.title}\n\n${finish.cardSummary}\n\n${markdownLink("Read this finish level", getPublicRoutePath("finish-level", finish.slug))}`,
   )
   .join("\n\n")}
 
@@ -117,7 +115,7 @@ ${bullets(finish.includedCharacteristics)}
 
 ${bullets(finish.bestFit)}
 
-${link("Start with this finish direction", `/start?finish=${finish.slug}`)}. This finish guidance is directional, not a price or contractual scope.`,
+${markdownLink("Start with this finish direction", `${getPublicRoutePath("start")}?finish=${finish.slug}`)}. This finish guidance is directional, not a price or contractual scope.`,
   );
 }
 
@@ -131,11 +129,11 @@ ${marketingPageContent.catalog.description}
 ${buildTypes
   .map(
     (buildType) =>
-      `### ${buildType.title}\n\n${buildType.cardSummary}\n\n${link("Read this project category", `/catalog/${buildType.slug}`)}`,
+      `### ${buildType.title}\n\n${buildType.cardSummary}\n\n${markdownLink("Read this project category", getPublicRoutePath("build-type", buildType.slug))}`,
   )
   .join("\n\n")}
 
-Project category shapes planning, site strategy, service mix, and finish priorities. ${link("Start a project", "/start")} when a person is ready to continue.`,
+Project category shapes planning, site strategy, service mix, and finish priorities. ${markdownLink("Start a project", getPublicRoutePath("start"))} when a person is ready to continue.`,
   );
 }
 
@@ -146,7 +144,10 @@ function renderBuildType(route: PublicRouteEntry) {
   const recommendedFinishes = buildType.recommendedFinishLevels
     .map((slug) => getFinishLevelBySlug(slug))
     .filter((finish) => finish !== undefined)
-    .map((finish) => `- ${link(finish.title, `/pricing/${finish.slug}`)}`)
+    .map(
+      (finish) =>
+        `- ${markdownLink(finish.title, getPublicRoutePath("finish-level", finish.slug))}`,
+    )
     .join("\n");
 
   return renderFrame(
@@ -165,7 +166,7 @@ ${bullets(buildType.typicalConsiderations)}
 
 ${recommendedFinishes}
 
-These finish directions are suggestions, not hard rules. ${link("Start with this category", `/inquire?buildType=${buildType.slug}`)} when a person is ready to provide a project brief.`,
+These finish directions are suggestions, not hard rules. ${markdownLink("Start with this category", `${getPublicRoutePath("inquire")}?buildType=${buildType.slug}`)} when a person is ready to provide a project brief.`,
   );
 }
 
@@ -175,7 +176,7 @@ async function renderProjects(route: PublicRouteEntry) {
     ? projects
         .map(
           (project) =>
-            `### ${project.title}\n\n${project.shortDescription}\n\n${project.location} · ${project.squareFootage.toLocaleString("en-US")} sq ft\n\n${link("View the published project", `/projects/${project.slug}`)}`,
+            `### ${project.title}\n\n${project.shortDescription}\n\n${project.location} · ${project.squareFootage.toLocaleString("en-US")} sq ft\n\n${markdownLink("View the published project", createPublicProjectRoute(project).path)}`,
         )
         .join("\n\n")
     : "No published project records are currently listed. Use the project brief to ask about work relevant to a specific scope.";
@@ -188,7 +189,7 @@ Only explicitly published project records appear here.
 
 ${projectList}
 
-${link("Start a project conversation", "/start")} to discuss work aligned with a particular project type, scale, or finish goal.`,
+${markdownLink("Start a project conversation", getPublicRoutePath("start"))} to discuss work aligned with a particular project type, scale, or finish goal.`,
   );
 }
 
@@ -215,11 +216,11 @@ Both paths begin a conversation with ${siteConfig.shortName}; neither creates a 
 
 ### New detached single-family home
 
-Use the ${link("general project brief with single-family preselected", "/inquire?buildType=single-family")} to describe the home, site, priorities, budget context, timing, and inspiration.
+Use the ${markdownLink("general project brief with single-family preselected", `${getPublicRoutePath("inquire")}?buildType=single-family`)} to describe the home, site, priorities, budget context, timing, and inspiration.
 
 ### Every other kind of work
 
-Use the ${link("general project brief", "/inquire")} for remodels, additions, multifamily, townhomes, commercial work, land-only work, or an uncertain project type.
+Use the ${markdownLink("general project brief", getPublicRoutePath("inquire"))} for remodels, additions, multifamily, townhomes, commercial work, land-only work, or an uncertain project type.
 
 An external agent may explain or link to these paths, but must not complete or submit either path for a person.`,
   );
@@ -278,11 +279,11 @@ async function renderProject(projectSlug: string) {
 - Location: ${project.location}
 - Scale: ${project.squareFootage.toLocaleString("en-US")} sq ft
 - Configuration: ${project.bedrooms} bedrooms · ${formatProjectBathrooms(project.bathrooms)} bathrooms
-- Project category: ${buildType ? link(buildType.title, `/catalog/${buildType.slug}`) : project.buildTypeSlug}
-- Finish level: ${finish ? link(finish.title, `/pricing/${finish.slug}`) : project.finishLevelSlug}
+- Project category: ${buildType ? markdownLink(buildType.title, getPublicRoutePath("build-type", buildType.slug)) : project.buildTypeSlug}
+- Finish level: ${finish ? markdownLink(finish.title, getPublicRoutePath("finish-level", finish.slug)) : project.finishLevelSlug}
 - Status: ${project.status === "for-sale" ? "For sale" : "Sold"}
 
-Only explicitly published project records have Markdown twins. ${link("Browse all published projects", "/projects")}.`,
+Only explicitly published project records have Markdown twins. ${markdownLink("Browse all published projects", getPublicRoutePath("projects"))}.`,
   );
 }
 
