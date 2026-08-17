@@ -938,7 +938,6 @@ async function verifyLinkCoverage(page, baseUrl) {
     'footer a[href="/privacy"]',
     'footer a[href="/terms"]',
     'footer a[href="mailto:hello@howethandharp.com"]',
-    'footer a[href="tel:+15125550199"]',
     'footer a[href="/sitemap.md"]',
     'footer a[href="/llms.txt"]',
     'footer a[href="/services.md"]',
@@ -951,10 +950,12 @@ async function verifyLinkCoverage(page, baseUrl) {
     );
   }
 
-  const agentsHeading = page.getByText("Agents", { exact: true });
+  const agentResources = page.getByRole("navigation", {
+    name: "Agent resources",
+  });
   assert(
-    (await agentsHeading.count()) === 1,
-    "The public footer must expose one visible Agents heading.",
+    (await agentResources.count()) === 1,
+    "The public footer must expose one Agent resources navigation.",
   );
   for (const name of ["Markdown Sitemap", "Agent Guide", "Services Guide"]) {
     const agentLink = page.getByRole("link", { name, exact: true });
