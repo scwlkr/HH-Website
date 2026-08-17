@@ -5,7 +5,7 @@ Plan Your Home helps prospective new-home customers create a useful project brie
 ## Language
 
 **Plan Your Home**:
-The customer-facing illustrated walkthrough for detached single-family new-home inquiries.
+The customer-facing guided planning experience for detached single-family new-home inquiries. It produces a project brief, while illustration supplies context and continuity without competing with the customer's current planning task.
 _Avoid_: Tour, questionnaire, contact form
 
 **Illustrated home**:
