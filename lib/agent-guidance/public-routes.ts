@@ -145,3 +145,11 @@ export function createPublicProjectRoute(
 export function getStaticPublicRoute(path: string) {
   return staticPublicRoutes.find((route) => route.path === path) ?? null;
 }
+
+export function isPotentialPublicRoute(path: string) {
+  if (getStaticPublicRoute(path)) {
+    return true;
+  }
+
+  return /^\/projects\/[^/]+$/.test(path);
+}
