@@ -540,7 +540,7 @@
   .hh-home-hero {
     position: relative;
     overflow: clip;
-    background: color-mix(in srgb, var(--hh-surface) 72%, var(--hh-paper));
+    background: var(--hh-surface);
   }
 
   .hh-home-hero::before {

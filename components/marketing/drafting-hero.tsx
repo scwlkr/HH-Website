@@ -22,9 +22,9 @@ export function DraftingHero({
   secondaryCta,
 }: DraftingHeroProps) {
   return (
-    <section className="hh-home-hero border-b border-line-strong">
-      <Container size="wide">
-        <div className="grid lg:grid-cols-[minmax(0,1.28fr)_minmax(22rem,0.72fr)]">
+    <section className="hh-home-hero min-h-[calc(100svh-5rem)] border-b border-line-strong">
+      <Container size="wide" className="flex flex-col">
+        <div className="grid flex-1 lg:grid-cols-[minmax(0,1.28fr)_minmax(22rem,0.72fr)]">
           <div className="flex min-h-[34rem] flex-col py-10 sm:py-14 lg:min-h-[38rem] lg:pr-12 lg:py-16 xl:pr-16">
             <DividerFrame
               label={siteConfig.name}
