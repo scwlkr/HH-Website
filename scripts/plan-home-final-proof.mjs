@@ -453,7 +453,7 @@ async function advanceQuestion(page, question) {
     await page.locator('[data-transition-state="idle"]').waitFor();
   } else {
     await page
-      .getByRole("heading", { name: "One walkthrough, ready for a real conversation." })
+      .getByText(/^Review 1 of 10 · Contact details$/)
       .waitFor();
   }
   const duration = Date.now() - startedAt;
@@ -694,11 +694,12 @@ async function keyboardProof(browser, baseUrl, name, viewport) {
   const backTabs = await tabTo(page, back);
   await page.keyboard.press("Enter");
   await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
-  assert(
-    await page
-      .getByRole("group", { name: "Completed Starting point" })
-      .getByText("Fully custom")
-      .isVisible(),
+  assert.match(
+    (await page
+      .locator('[data-staged-prompt="project.starting-services"]')
+      .textContent()) ?? "",
+    /Starting point[\s\S]*Fully custom/,
+    "Starting point was not retained after Back.",
   );
   assert.equal(await checkbox.isChecked(), true);
   const retainedNextTabs = await tabTo(page, next);
@@ -1120,36 +1121,73 @@ async function main() {
     evidence.tenSteps[2] = true;
     proofStage = "review edit and submission";
     await capture(page, "phone-complete-review");
-    const retainedFollowUp = page.getByText("Email", { exact: true }).last();
-    assert(await retainedFollowUp.isVisible());
     assert.equal(
-      await page.getByRole("button", { name: /^Edit Q\d+:/ }).count(),
+      await page.locator('button[aria-label^="Edit Q"]').count(),
       35,
     );
+    const reviewPager = page.locator("[data-review-pager]");
+    const reviewNext = reviewPager.getByRole("button", { name: "Next", exact: true });
+    const reviewNextTabs = await tabTo(page, reviewNext);
+    await page.keyboard.press("Enter");
+    await page.getByText(/^Review 2 of 10 · Entry and Living Room$/).waitFor();
     const editButton = page.getByRole("button", {
       name: `Edit Q1: ${planHomeQuestions[0].prompt}`,
     });
     const editTabs = await tabTo(page, editButton);
     await page.keyboard.press("Enter");
     await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
-    const editStartingPoint = page.getByRole("button", {
-      name: "Edit Starting point",
+    const editPriorPart = page.getByRole("combobox", {
+      name: "Edit a completed question part",
     });
-    const editStartingPointTabs = await tabTo(page, editStartingPoint);
-    await page.keyboard.press("Enter");
+    const editPriorPartTabs = await tabTo(page, editPriorPart);
+    await editPriorPart.selectOption("startingPoint");
     const currentAnswer = page.locator('input[value="fully-custom"]');
     const editedAnswer = page.locator('input[value="adapt-existing-plan"]');
+    await currentAnswer.waitFor();
     const editedAnswerTabs = await tabTo(page, currentAnswer);
     await page.keyboard.press("ArrowDown");
     assert.equal(await editedAnswer.isChecked(), true);
+    const editDone = page.getByRole("button", { name: "Done", exact: true });
+    const editDoneTabs = await tabTo(page, editDone);
+    await page.keyboard.press("Enter");
     const editSave = page.getByRole("button", { name: "Save", exact: true });
     const editSaveTabs = await tabTo(page, editSave);
     await page.keyboard.press("Enter");
-    await page
-      .getByRole("heading", { name: "One walkthrough, ready for a real conversation." })
-      .waitFor();
-    assert(await page.getByText("Replacement plan direction").isVisible());
-    assert(await retainedFollowUp.isVisible());
+    await page.getByText(/^Review 2 of 10 · Entry and Living Room$/).waitFor();
+    const editedQ1Summary = page.locator(
+      '[data-review-question="project.starting-services"]',
+    );
+    assert(await editedQ1Summary.isVisible(), "Edited Q1 summary is not visible.");
+    assert.match(
+      (await editedQ1Summary.textContent()) ?? "",
+      /Adapt an existing plan/,
+      "Edited Q1 answer was not retained.",
+    );
+
+    for (let reviewNumber = 3; reviewNumber <= 8; reviewNumber += 1) {
+      await reviewNext.click();
+      await page.getByText(new RegExp(`^Review ${reviewNumber} of 10`)).waitFor();
+    }
+    const retainedFollowUp = page.locator(
+      '[data-review-question="contact.follow-up"]',
+    );
+    assert(await retainedFollowUp.isVisible(), "Retained follow-up answer is not visible.");
+    assert.match(
+      (await retainedFollowUp.textContent()) ?? "",
+      /Email/,
+      "Follow-up answer was not retained.",
+    );
+    await reviewNext.click();
+    await page.getByText(/^Review 9 of 10 · Files and links$/).waitFor();
+    const retainedReferences = page.locator("[data-review-references]");
+    assert(await retainedReferences.isVisible(), "Reference review page is not visible.");
+    assert.match(
+      (await retainedReferences.textContent()) ?? "",
+      /Replacement plan direction/,
+      "Reference note was not retained.",
+    );
+    await reviewNext.click();
+    await page.getByText(/^Review 10 of 10 · Submit project brief$/).waitFor();
     evidence.tenSteps[7] = true;
     await page.setViewportSize(viewports.desktop);
     await capture(page, "desktop-review-after-early-edit");
@@ -1175,9 +1213,11 @@ async function main() {
       consentAndSubmit: true,
       reviewTabs: [
         editTabs,
-        editStartingPointTabs,
+        editPriorPartTabs,
         editedAnswerTabs,
+        editDoneTabs,
         editSaveTabs,
+        reviewNextTabs,
         consentTabs,
         submitTabs,
       ],
