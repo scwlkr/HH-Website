@@ -15,10 +15,7 @@ function FooterHeading({ label }: { label: string }) {
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
-  const pageLinks = [
-    ...siteConfig.nav.filter((item) => item.href !== "/"),
-    siteConfig.primaryCta,
-  ];
+  const pageLinks = siteConfig.nav.filter((item) => item.href !== "/");
   const agentLinks = [
     agentDiscoveryResources.sitemap,
     agentDiscoveryResources.llms,
@@ -42,6 +39,15 @@ export function SiteFooter() {
             <p className="mt-2 text-[0.95rem] font-medium tracking-[0.02em] text-muted-strong">
               {siteConfig.tagline}
             </p>
+            <Link
+              href={siteConfig.primaryCta.href}
+              className="hh-link hh-touch-target mt-1 w-fit whitespace-nowrap text-sm font-medium leading-6 text-accent"
+            >
+              {siteConfig.primaryCta.label}
+              <span aria-hidden="true" className="ml-2">
+                →
+              </span>
+            </Link>
           </div>
 
           <div className="border-t border-line lg:grid lg:grid-cols-[minmax(10rem,0.9fr)_minmax(15rem,1.35fr)_minmax(7rem,0.65fr)] lg:items-start lg:gap-x-14 lg:border-t-0">
@@ -51,29 +57,16 @@ export function SiteFooter() {
             >
               <FooterHeading label="Explore" />
               <ul className="-my-1 flex flex-wrap gap-x-5 lg:mt-3 lg:grid lg:grid-cols-[max-content_minmax(0,1fr)] lg:gap-x-5">
-                {pageLinks.map((item) => {
-                  const isPrimaryCta = item.href === siteConfig.primaryCta.href;
-
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href as Route}
-                        className={`hh-link hh-touch-target whitespace-nowrap text-sm leading-6 ${
-                          isPrimaryCta
-                            ? "font-medium text-accent"
-                            : "text-muted"
-                        }`}
-                      >
-                        {item.label}
-                        {isPrimaryCta ? (
-                          <span aria-hidden="true" className="ml-2">
-                            →
-                          </span>
-                        ) : null}
-                      </Link>
-                    </li>
-                  );
-                })}
+                {pageLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href as Route}
+                      className="hh-link hh-touch-target whitespace-nowrap text-sm leading-6 text-muted"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </nav>
 
