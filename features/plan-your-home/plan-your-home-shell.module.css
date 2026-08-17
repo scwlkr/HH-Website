@@ -25,7 +25,8 @@
 }
 
 .experienceBrand,
-.saveExit {
+.saveExit,
+.reviewControl {
   display: inline-flex;
   min-width: 2.75rem;
   min-height: 2.75rem;
@@ -37,7 +38,8 @@
 }
 
 .experienceBrand:focus-visible,
-.saveExit:focus-visible {
+.saveExit:focus-visible,
+.reviewControl:focus-visible {
   box-shadow: 0 0 0 3px var(--hh-accent-soft);
   outline: none;
 }
@@ -80,6 +82,28 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.reviewControls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.reviewControl {
+  min-width: 4.25rem;
+  padding-inline: 0.7rem;
+  color: var(--hh-ink);
+  font-family: var(--font-code), monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reviewControl:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 .moment {
@@ -1012,6 +1036,26 @@
     line-height: 1.15;
     text-align: center;
     white-space: normal;
+  }
+
+  .reviewControls {
+    gap: 4px;
+  }
+
+  .reviewControl {
+    min-width: 44px;
+    min-height: 44px;
+    padding-inline: 5px;
+    font-size: 0.54rem;
+    letter-spacing: 0.05em;
+  }
+
+  .reviewControl:last-child {
+    min-width: 52px;
+  }
+
+  .experienceHeader:has(.reviewControls) .experienceTitle span {
+    display: none;
   }
 
   .restoreRail {

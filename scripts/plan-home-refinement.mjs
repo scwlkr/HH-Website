@@ -607,9 +607,12 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
       hasSaveAndExit: Array.from(document.querySelectorAll("a")).some(
         (link) => link.textContent?.trim() === "Save and exit",
       ),
-      hasResetReview: Array.from(document.querySelectorAll("button")).some(
-        (button) => button.textContent?.trim() === "Reset review",
-      ),
+        hasResetReview: Array.from(document.querySelectorAll("button")).some(
+          (button) => button.getAttribute("aria-label") === "Reset review",
+        ),
+        hasReviewControls: Boolean(
+          document.querySelector('nav[aria-label="Review controls"]'),
+        ),
     }));
     assert.deepEqual(
       result.shell,
@@ -618,6 +621,7 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
         hasMarketingFooter: false,
         hasSaveAndExit: routeTarget === "walkthrough",
         hasResetReview: routeTarget === "owner-review",
+        hasReviewControls: routeTarget === "owner-review",
       },
       "focused walkthrough shell",
     );

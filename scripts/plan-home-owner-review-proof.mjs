@@ -239,6 +239,19 @@ async function main() {
       await page.getByRole("link", { name: "Resume a saved plan" }).count(),
       0,
     );
+    const reviewBack = page.getByRole("button", {
+      name: "Review previous screen",
+    });
+    const reviewNext = page.getByRole("button", {
+      name: "Review next screen",
+    });
+    assert.equal(await reviewBack.isDisabled(), true);
+    await reviewNext.click();
+    await page.getByRole("heading", { name: planHomeQuestions[0].prompt }).waitFor();
+    await reviewBack.click();
+    await page
+      .getByRole("heading", { name: "Let’s put your name on the front door." })
+      .waitFor();
     await page.getByLabel("Your name").fill(fakeVisitor.name);
     await page.getByRole("button", { name: "Open the front door" }).click();
 
@@ -285,6 +298,14 @@ async function main() {
       }
       if (question.number === 6) {
         await page.getByRole("button", { name: "Next", exact: true }).click();
+        await page
+          .getByRole("heading", { name: "Save your progress and resume later." })
+          .waitFor();
+        await reviewNext.click();
+        await page
+          .getByRole("heading", { name: planHomeQuestions[6].prompt })
+          .waitFor();
+        await reviewBack.click();
         await page
           .getByRole("heading", { name: "Save your progress and resume later." })
           .waitFor();

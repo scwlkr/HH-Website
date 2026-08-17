@@ -120,6 +120,40 @@ test("review mode fake-submits without server, upload, or analytics side effects
       query.getByRole("heading", { name: "How should we follow up?" }),
     ),
   );
+  const reviewBack = query.getByRole("button", {
+    name: "Review previous screen",
+  });
+  const reviewNext = query.getByRole("button", {
+    name: "Review next screen",
+  });
+  await user.click(reviewBack);
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", { name: "What are your budget and timing?" }),
+    ),
+  );
+  await user.click(reviewNext);
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", { name: "How should we follow up?" }),
+    ),
+  );
+  await user.click(reviewNext);
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", {
+        name: "One walkthrough, ready for a real conversation.",
+      }),
+    ),
+  );
+  assert.ok(query.getAllByText("Not answered").length > 0);
+  await user.click(reviewBack);
+  await waitFor(() =>
+    assert.ok(
+      query.getByRole("heading", { name: "How should we follow up?" }),
+    ),
+  );
+  assert.deepEqual(calls, []);
   await user.click(query.getByRole("radio", { name: "Email" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>

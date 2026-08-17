@@ -80,6 +80,7 @@ import {
 import {
   createInitialPlanHomeTourState,
   reducePlanHomeTour,
+  type PlanHomeTourLocation,
   type PlanHomeTourState,
   type PlanHomeTourTransition,
 } from "@/features/plan-your-home/tour-state";
@@ -224,6 +225,17 @@ const BEDROOMS_AND_SHARED_BATHROOMS_ZONE = planHomeZones[3];
 const UTILITY_AND_SYSTEMS_ZONE = planHomeZones[4];
 const EXTERIOR_AND_SITE_ZONE = planHomeZones[5];
 const DESIGN_DESK_ZONE = planHomeZones[6];
+
+function summarizeReviewAnswer(
+  questionId: PlanHomeQuestionId,
+  answer: unknown,
+) {
+  try {
+    return summarizePlanHomeAnswer(questionId, answer);
+  } catch {
+    return "Not answered";
+  }
+}
 
 const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "entry-plans": { xPercent: 1.5, yPercent: 0.4, scale: 1.08 },
@@ -1221,7 +1233,7 @@ function ProjectBriefReview({
                         </dt>
                         <dd>
                           <span>
-                            {summarizePlanHomeAnswer(
+                            {summarizeReviewAnswer(
                               question.id,
                               state.answers[question.id],
                             )}
@@ -2539,6 +2551,52 @@ export function PlanYourHomeShell({
     window.location.reload();
   }
 
+  function browseReview(direction: "back" | "next") {
+    if (!reviewMode || restoreStatus !== "ready") return;
+    cancelPendingTextSave();
+    setError(null);
+    setFormError(null);
+    setValidationErrors({});
+    experienceRef.current?.scrollTo?.({ top: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, behavior: "auto" });
+
+    if (submitted) {
+      if (direction === "back") {
+        submissionInFlight.current = false;
+        setSaving(false);
+        setSubmitted(false);
+        setReviewPage(planHomeZones.length + 2);
+      }
+      return;
+    }
+
+    const current = tourStateRef.current;
+    const applicableQuestions = planHomeQuestions.filter((question) =>
+      isPlanHomeQuestionApplicable(question.id, current.answers),
+    );
+    const reviewLocations: PlanHomeTourLocation[] = [{ kind: "welcome" }];
+    for (const question of applicableQuestions) {
+      if (question.number === 7) reviewLocations.push({ kind: "contact-gate" });
+      reviewLocations.push({
+        kind: "question",
+        questionId: question.id,
+        editingFromReview: false,
+      });
+    }
+    reviewLocations.push({ kind: "review" });
+    const currentIndex = reviewLocations.findIndex(
+      (candidate) =>
+        candidate.kind === current.location.kind &&
+        (candidate.kind !== "question" ||
+          (current.location.kind === "question" &&
+            candidate.questionId === current.location.questionId)),
+    );
+    const location =
+      reviewLocations[currentIndex + (direction === "next" ? 1 : -1)];
+    if (!location) return;
+    commitState({ ...current, location });
+  }
+
   const activeQuestion =
     tourState.location.kind === "question"
       ? getPlanHomeQuestion(tourState.location.questionId)
@@ -2599,7 +2657,7 @@ export function PlanYourHomeShell({
     content = (
       <PlanHomeConfirmation
         name={tourState.welcomeName}
-        followUp={summarizePlanHomeAnswer(
+        followUp={summarizeReviewAnswer(
           "contact.follow-up",
           tourState.answers["contact.follow-up"],
         )}
@@ -2752,7 +2810,12 @@ export function PlanYourHomeShell({
           ? "Contact checkpoint"
           : tourState.location.kind === "review"
             ? "Review your brief"
-            : "Welcome";
+          : "Welcome";
+  const reviewBackDisabled =
+    restoreStatus !== "ready" ||
+    (!submitted && tourState.location.kind === "welcome");
+  const reviewNextDisabled =
+    restoreStatus !== "ready" || submitted || tourState.location.kind === "review";
 
   return (
     <div
@@ -2786,9 +2849,34 @@ export function PlanYourHomeShell({
           {shellProgress ? <span>{shellProgress}</span> : null}
         </div>
         {reviewMode ? (
-          <button className={styles.saveExit} type="button" onClick={resetReview}>
-            Reset review
-          </button>
+          <nav className={styles.reviewControls} aria-label="Review controls">
+            <button
+              className={styles.reviewControl}
+              type="button"
+              aria-label="Review previous screen"
+              disabled={reviewBackDisabled}
+              onClick={() => browseReview("back")}
+            >
+              Back
+            </button>
+            <button
+              className={styles.reviewControl}
+              type="button"
+              aria-label="Review next screen"
+              disabled={reviewNextDisabled}
+              onClick={() => browseReview("next")}
+            >
+              Next
+            </button>
+            <button
+              className={styles.reviewControl}
+              type="button"
+              aria-label="Reset review"
+              onClick={resetReview}
+            >
+              Reset
+            </button>
+          </nav>
         ) : (
           <Link className={styles.saveExit} href="/" onClick={saveBeforeExit}>
             Save and exit
