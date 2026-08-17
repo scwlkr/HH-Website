@@ -47,26 +47,27 @@ const baseMatrix = [
   ["q10", "phone"],
   ["q11", "phone"],
   ["q12", "phone"],
-  ["q16", "phone"],
+  ["q14", "phone"],
+  ["q18", "phone"],
   ["q20", "phone"],
-  ["q22", "phone"],
+  ["q23", "phone"],
   ["q27", "phone"],
+  ["q28", "phone"],
+  ["q29", "phone"],
   ["q31", "phone"],
-  ["q32", "phone"],
-  ["q33", "phone"],
-  ["q35", "phone"],
   ["review", "phone"],
   ["confirmation", "phone"],
   ["welcome", "desktop"],
   ["q1", "desktop"],
   ["q4", "desktop"],
   ["q12", "desktop"],
-  ["q33", "desktop"],
-  ["q35", "desktop"],
+  ["q29", "desktop"],
+  ["q31", "desktop"],
   ["review", "desktop"],
   ["confirmation", "desktop"],
 ];
-const noScrollQuestionStates = new Set(["q2", "q6", "q13", "q31", "q34"]);
+const noScrollQuestionStates = new Set(["q2", "q6", "q12", "q27", "q30"]);
+const stagedQuestionStates = new Set(["q2", "q12", "q27", "q30"]);
 const noScrollMatrix = [...noScrollQuestionStates].flatMap((state) =>
   Object.keys(routeTargets).flatMap((routeTarget) =>
     ["phone", "short-phone"].map((viewport) => [state, viewport, routeTarget]),
@@ -87,7 +88,7 @@ const defaultMatrix = [
 
 function parseInput() {
   const values = process.argv.slice(2).filter((value) => value !== "--");
-  if (values.length > 1) throw new Error("Use one named state: welcome, contact, q1-q35, review, or confirmation.");
+  if (values.length > 1) throw new Error("Use one named state: welcome, contact, q1-q31, review, or confirmation.");
   if (values.length === 0) return { focused: false, captures: defaultMatrix };
   const state = normalizePlanHomeRefinementState(values[0]);
   if (!state) {
@@ -319,8 +320,11 @@ async function assertNavigation(page, state, viewportName) {
             name: /^(Next|Save room|Review brief|Open the design desk)$/,
           });
   await activateByKeyboard(page, forward);
-  if (number === 31) {
-    await activateByKeyboard(page, page.getByRole("button", { name: "Save room" }));
+  if (number === 27) {
+    await activateByKeyboard(
+      page,
+      page.getByRole("button", { name: "Save room" }),
+    );
   }
   await page.locator(`[data-plan-home-refinement-state="q${number}"]`).waitFor();
 }
@@ -690,7 +694,7 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
           result.layout.promptSheet?.height >= viewports[viewportName].height * 0.5,
           "phone planning task owns most of the initial viewport",
         );
-        assert.match(result.layout.progress?.label ?? "", /^Question \d+ of 35$/, "progress keeps its accessible count");
+        assert.match(result.layout.progress?.label ?? "", /^Question \d+ of 31$/, "progress keeps its accessible count");
         assert.equal(/Question \d+ of \d+/i.test(result.layout.visibleChrome), false, "question count is not repeated visually");
       } else if (state === "welcome") {
         assert(
@@ -716,13 +720,13 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
     assertQuality(result.quality, "focused walkthrough");
     const requireNoScroll =
       viewportName !== "desktop" && noScrollQuestionStates.has(state);
-    result.promptScroll = requireNoScroll
+    result.promptScroll = requireNoScroll && stagedQuestionStates.has(state)
       ? await assertEveryStagedGroup(
           page,
           state,
           `${state}-${viewportName}${routeSuffix}`,
         )
-      : await assertPromptScrollReachability(page, state, false);
+      : await assertPromptScrollReachability(page, state, requireNoScroll);
     if (state === "review" && routeTarget === "walkthrough") {
       result.submission = await assertReviewSubmission(page, viewportName);
     }
@@ -870,12 +874,12 @@ async function captureLargeTextFallback(browser, baseUrl) {
 
 async function captureReflowFallback(browser, baseUrl) {
   return captureFallback(browser, baseUrl, {
-    state: "q34",
+    state: "q30",
     viewport: "200%-reflow",
     pageViewport: { width: 320, height: 640 },
     layoutContext: "200%-equivalent 320 CSS pixel reflow",
     qualityContext: "200% reflow fallback",
-    screenshot: "q34-200-percent-reflow.png",
+    screenshot: "q30-200-percent-reflow.png",
   });
 }
 

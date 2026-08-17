@@ -49,7 +49,7 @@ function seedPrimaryStart() {
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(15),
+    answers: answersThrough(13),
     location: {
       kind: "question",
       questionId: "primary.location",
@@ -262,7 +262,9 @@ test("Back crosses the kitchen boundary and returns with the Primary Suite answe
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "How should dining work?" }),
+      query.getByRole("heading", {
+        name: "What pantry or support spaces interest you?",
+      }),
     ),
   );
   await user.click(query.getByRole("button", { name: "Save room" }));
@@ -283,7 +285,7 @@ test("Back crosses the kitchen boundary and returns with the Primary Suite answe
   assert.equal(calls[0].completedZoneId, "kitchen-and-dining");
 });
 
-test("question 19 retries one Primary Suite checkpoint and exits to the bedroom hall", async () => {
+test("question 17 retries one Primary Suite checkpoint and exits to the bedroom hall", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -324,7 +326,7 @@ test("question 19 retries one Primary Suite checkpoint and exits to the bedroom 
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 3);
   assert.equal(calls[0].completedZoneId, "primary-suite");
-  assert.equal(Object.keys(calls[0].answers).length, 19);
+  assert.equal(Object.keys(calls[0].answers).length, 17);
   assert.equal(
     summarizePlanHomeAnswer(
       "primary.location",

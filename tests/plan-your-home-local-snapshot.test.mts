@@ -326,7 +326,7 @@ describe("Plan Your Home local snapshot adapter", () => {
     assert.equal(adapter.saveAfterTransition(completed), true);
     assert.deepEqual(adapter.load()?.location, {
       kind: "question",
-      questionId: "home.future-support",
+      questionId: "home.daily-life",
       editingFromReview: false,
     });
   });

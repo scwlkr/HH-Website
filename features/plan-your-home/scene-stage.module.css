@@ -348,16 +348,16 @@
 
   .promptBody {
     margin-top: 0;
-    padding: 0.85rem 1rem 0.5rem;
+    padding: 0.85rem 1rem max(0.75rem, 24px);
     scrollbar-gutter: auto;
   }
 
   .stageActions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.65rem;
-    min-height: 5.125rem;
+    min-height: 82px;
     margin-top: 0;
-    padding: 0.75rem 0.875rem max(1rem, env(safe-area-inset-bottom));
+    padding: 12px 14px max(16px, env(safe-area-inset-bottom));
     background: color-mix(in srgb, var(--hh-surface) 98%, var(--hh-paper));
     box-shadow: 0 -1rem 1.5rem -1.75rem rgba(17, 17, 15, 0.45);
   }
@@ -423,8 +423,8 @@
   }
 
   .stageActions {
-    min-height: 4.5rem;
-    padding: 0.45rem 0.75rem max(0.55rem, env(safe-area-inset-bottom));
+    min-height: 72px;
+    padding: 7px 12px max(9px, env(safe-area-inset-bottom));
   }
 
   .actionButton {

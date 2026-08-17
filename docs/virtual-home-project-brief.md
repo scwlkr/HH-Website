@@ -155,7 +155,7 @@ On a phone, the scene automatically frames the current object or area so the ill
 
 ## Research-Informed Draft Question Inventory
 
-This is a working inventory, not approved public copy. It contains 35 short question interactions: the upper edge of the balanced-discovery target. Conditional details can reduce what an individual customer sees, but the seven visual zones remain fixed.
+This section preserves the original 35-question research inventory for decision history; it is not current public copy. The approved 31-question contract and all available answers now live in [Plan Your Home Product Specification](plan-your-home-product-spec.md), with owner edits tracked in the linked Google Sheet there.
 
 Most answers should use visual cards, checkboxes, ranges, or steppers that appear as part of the active room scene. Free text is reserved for details that structured choices cannot capture.
 
@@ -245,7 +245,7 @@ Use this final illustrated zone as the single reference workspace. Accept house-
 
 ### Save-Progress Checkpoint
 
-After question 6, once the customer has established the home's broad size and bedroom/bathroom count, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** Clearly disclose that h and h may personally follow up about the project. When completed, silently sync the customer's name, answers so far, and contact details as the first identifiable backend draft; do not automatically send a reminder. This checkpoint is separate from the 35 planning decisions above.
+After question 6, once the customer has established the home's broad size and bedroom/bathroom count, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** Clearly disclose that h and h may personally follow up about the project. When completed, silently sync the customer's name, answers so far, and contact details as the first identifiable backend draft; do not automatically send a reminder. This checkpoint is separate from the current 31 planning decisions.
 
 ### Question-Design Rules
 
@@ -322,7 +322,7 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 
 ## Resolved Implementation Planning
 
-The product specification now owns the exact 35-question registry, seven-zone storyboard, hybrid architecture, semantic-control model, CSS/WAAPI motion, upload limits and security, draft retention recommendation, requested resume-email flow, privacy requirements, HHQ contract, and final browser acceptance scenario.
+The product specification now owns the exact 31-question registry, seven-zone storyboard, five sketch families, hybrid architecture, semantic-control model, CSS/WAAPI motion, upload limits and security, draft retention recommendation, requested resume-email flow, privacy requirements, HHQ contract, and final browser acceptance scenario.
 
 ## Decision Log
 

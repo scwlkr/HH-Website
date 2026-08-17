@@ -41,6 +41,13 @@ function startTour() {
   return state;
 }
 
+function exampleAnswer(question: (typeof planHomeQuestions)[number]) {
+  if (question.id === "project.lot-location") {
+    return { lotStatus: "own-it", location: "Denton County", locationUncertain: false };
+  }
+  return question.response.exampleAnswer;
+}
+
 function advanceTo(questionId: PlanHomeQuestionId) {
   let state = startTour();
 
@@ -57,7 +64,7 @@ function advanceTo(questionId: PlanHomeQuestionId) {
     state = apply(state, {
       type: "answer-question",
       questionId: question.id,
-      answer: question.response.exampleAnswer,
+      answer: exampleAnswer(question),
     }).state;
     state = apply(state, { type: "next" }).state;
 
@@ -78,7 +85,7 @@ function completeTour() {
     const answerTransition = apply(state, {
       type: "answer-question",
       questionId: question.id,
-      answer: question.response.exampleAnswer,
+      answer: exampleAnswer(question),
     });
     events.push(...answerTransition.events);
     state = answerTransition.state;
@@ -102,7 +109,7 @@ function completeTour() {
 }
 
 describe("Plan Your Home deterministic tour state", () => {
-  it("completes welcome, contact gate, all 35 canonical answers, review, and submission readiness", () => {
+  it("completes welcome, contact gate, all 31 canonical answers, review, and submission readiness", () => {
     const initial = createInitialPlanHomeTourState();
     assert.deepEqual(initial.location, { kind: "welcome" });
     assert.equal(isPlanHomeSubmissionReady(initial), false);
@@ -115,7 +122,7 @@ describe("Plan Your Home deterministic tour state", () => {
 
     assert.equal(state.welcomeName, "Taylor Homeowner");
     assert.deepEqual(state.location, { kind: "review" });
-    assert.equal(Object.keys(state.answers).length, 35);
+    assert.equal(Object.keys(state.answers).length, 31);
     assert.deepEqual(state.contactCheckpoint, {
       email: "taylor@example.com",
       phone: "+12145550100",
@@ -139,8 +146,58 @@ describe("Plan Your Home deterministic tour state", () => {
     );
   });
 
+  it("skips site context unless the customer owns the lot", () => {
+    let state = startTour();
+    state = apply(state, {
+      type: "answer-question",
+      questionId: "project.starting-services",
+      answer: exampleAnswer(planHomeQuestions[0]),
+    }).state;
+    state = apply(state, { type: "next" }).state;
+    state = apply(state, {
+      type: "answer-question",
+      questionId: "project.lot-location",
+      answer: {
+        lotStatus: "actively-looking",
+        location: "Denton County",
+        locationUncertain: false,
+      },
+    }).state;
+    state = apply(state, { type: "next" }).state;
+
+    assert.deepEqual(state.location, {
+      kind: "question",
+      questionId: "home.heated-square-feet",
+      editingFromReview: false,
+    });
+    assert.deepEqual(state.answers["project.site-context"], ["not-applicable"]);
+
+    state = apply(state, { type: "back" }).state;
+    assert.deepEqual(state.location, {
+      kind: "question",
+      questionId: "project.lot-location",
+      editingFromReview: false,
+    });
+    state = apply(state, {
+      type: "answer-question",
+      questionId: "project.lot-location",
+      answer: {
+        lotStatus: "own-it",
+        location: "Denton County",
+        locationUncertain: false,
+      },
+    }).state;
+    assert.equal(state.answers["project.site-context"], undefined);
+    state = apply(state, { type: "next" }).state;
+    assert.deepEqual(state.location, {
+      kind: "question",
+      questionId: "project.site-context",
+      editingFromReview: false,
+    });
+  });
+
   it("moves Back and Next predictably across the contact gate and zone boundaries", () => {
-    let state = advanceTo("home.future-support");
+    let state = advanceTo("home.daily-life");
 
     state = apply(state, { type: "back" }).state;
     assert.deepEqual(state.location, { kind: "contact-gate" });
@@ -157,15 +214,15 @@ describe("Plan Your Home deterministic tour state", () => {
     state = apply(state, { type: "next" }).state;
     assert.deepEqual(state.location, {
       kind: "question",
-      questionId: "home.future-support",
+      questionId: "home.daily-life",
       editingFromReview: false,
     });
 
-    for (const question of planHomeQuestions.slice(6, 11)) {
+    for (const question of planHomeQuestions.slice(6, 10)) {
       state = apply(state, {
         type: "answer-question",
         questionId: question.id,
-        answer: question.response.exampleAnswer,
+        answer: exampleAnswer(question),
       }).state;
       state = apply(state, { type: "next" }).state;
     }
@@ -201,11 +258,11 @@ describe("Plan Your Home deterministic tour state", () => {
       [
         "home.daily-life",
         [
-          "gathering",
           "quiet-and-privacy",
           "entertaining",
           "remote-work-or-study",
           "hobbies-or-making",
+          "caregiving",
         ],
       ],
       [
@@ -289,7 +346,7 @@ describe("Plan Your Home deterministic tour state", () => {
 
     assert.deepEqual(state.location, { kind: "review" });
     assert.deepEqual(state.answers["project.budget-timing"], laterAnswer);
-    assert.equal(Object.keys(state.answers).length, 35);
+    assert.equal(Object.keys(state.answers).length, 31);
     assert.equal(isPlanHomeSubmissionReady(state), true);
 
     state = apply(state, {
@@ -310,7 +367,7 @@ describe("Plan Your Home deterministic tour state", () => {
     state = apply(state, {
       type: "answer-question",
       questionId: "home.finish-level",
-      answer: "custom",
+      answer: "Warm, durable finishes with natural wood",
     }).state;
 
     const completed = apply(state, { type: "next" });

@@ -43,7 +43,7 @@ pinned Firebase emulator suite:
 npm run proof:plan-home-final:emulator
 ```
 
-The proof exercises all 35 questions, refresh/resume, the fake local email,
+The proof exercises all 31 canonical questions, refresh/resume, the fake local email,
 private references, review editing, submission, HHQ actions/deletion,
 representative keyboard-only reduced-motion controls at phone and desktop
 widths, 200%-equivalent reflow, and a commercial generic inquiry. It retains its
@@ -56,11 +56,9 @@ report, and each retained trace's `trace.trace` and `trace.network` streams for
 any other email-like value or the raw resume token. Screenshots are inspected
 visually but are not OCR-audited.
 
-Run `npm run proof:plan-home-scene-budget` after changing a scene. Each lazy
-scene group is limited to 24 KiB of compressed JavaScript and CSS, and every
-current-plus-next pair is limited to 48 KiB. The issue-18 baseline measured
-2.21–3.57 KiB per group and 4.79–6.39 KiB per adjacent pair, so no exception is
-currently required.
+Run `npm run proof:plan-home-scene-budget` after changing a scene. The shared
+five-family scene bundle is limited to 24 KiB of compressed JavaScript and CSS.
+No exception is currently required.
 
 `npm run review` with no routes checks `/`, `/pricing`, `/projects`, `/faq`, and `/inquire`. It reuses the live server on port `3000`, or starts and stops an isolated dev server. Each route is checked at desktop and mobile sizes for HTTP failure, browser errors, and horizontal overflow.
 
@@ -143,7 +141,7 @@ Capture one deterministic state with generated `.invalid` fixture data:
 npm run refine:plan-home -- q27
 ```
 
-Named states are `welcome`, `contact`, `q1` through `q35`, `review`, and
+Named states are `welcome`, `contact`, `q1` through `q31`, `review`, and
 `confirmation`. A focused run captures phone and desktop and targets 30
 seconds. Run without a state for the phone-heavy representative board, all
 Welcome/Entry/Living Room states (`q1` through `q11`), and deliberate Entry and
@@ -164,8 +162,8 @@ detectable WCAG violation, unnamed control, target smaller than 44px, an
 interactive control obscured in the viewport, a question action dock outside the
 initial viewport, or broken keyboard-driven Back/Next behavior.
 
-The default matrix includes Q35, review, and confirmation at phone and desktop
-sizes. It also proves Q2, Q6, Q13, Q31, and Q34 on both the walkthrough and
+The default matrix includes Q31, review, and confirmation at phone and desktop
+sizes. It also proves Q2, Q6, Q12, Q27, and Q30 on both the walkthrough and
 owner-review routes at 390x844 and the short 375x667 phone viewport. Those
 question captures fail on document scroll, prompt-body scroll, hidden active
 controls, or an action dock outside the visible viewport, including every

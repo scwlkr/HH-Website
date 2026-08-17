@@ -310,7 +310,9 @@ On mobile, preserve premium restraint with clean stacking and reduced decoration
 
 Plan Your Home phone prompt screens use one viewport-locked structure: a compact branded header, a concise zone/progress rail, an architectural context strip near 22% of the dynamic viewport, a task-first question surface, and a fixed Back/Continue dock. The question owns most of the available height. Ordinary prompts do not scroll. Compound prompts become short substeps while retaining the existing question number; user-created collections and enlarged-text or onscreen-keyboard states may use contained scrolling as an accessibility escape hatch.
 
-Plan Your Home review is organized one zone at a time rather than as one 35-answer page. Each zone remains easy to scan and edit, and the fixed navigation pattern continues through the review sequence.
+The context strip uses exactly five sparse sketch families: front door and site; living, kitchen, and dining; bedrooms and bathrooms; utility, exterior, and outdoor; and design desk and review. Each family stays visually fixed across its related prompts. Only one quiet dashed focus mark may change with the question. Keep the artwork atmospheric and professional: few strokes, restrained washes, no labels inside the scene, no customer-specific reconfiguration, and no decorative objects that compete with the task.
+
+Plan Your Home review is organized one zone at a time rather than as one 31-answer page. Each zone remains easy to scan and edit, and the fixed navigation pattern continues through the review sequence. Customers who do not own the lot see 30 prompts; the hidden site-context response remains canonically `Not applicable` for persistence.
 
 ## Elevation & Depth
 

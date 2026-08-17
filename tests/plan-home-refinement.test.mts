@@ -10,8 +10,8 @@ import {
 import { getPlanHomeQuestion } from "../features/plan-your-home/registry.ts";
 
 describe("Plan Your Home refinement fixtures", () => {
-  it("supports Welcome, contact, Q1-Q35, review, and confirmation exactly", () => {
-    assert.equal(PLAN_HOME_REFINEMENT_STATES.length, 39);
+  it("supports Welcome, contact, Q1-Q31, review, and confirmation exactly", () => {
+    assert.equal(PLAN_HOME_REFINEMENT_STATES.length, 35);
     for (const requestedState of PLAN_HOME_REFINEMENT_STATES) {
       const fixture = createPlanHomeRefinementFixture(requestedState);
       const actualState = fixture.submitted
@@ -23,7 +23,7 @@ describe("Plan Your Home refinement fixtures", () => {
             : fixture.state.location.kind;
       assert.equal(actualState, requestedState);
     }
-    assert.equal(normalizePlanHomeRefinementState("Q35"), "q35");
+    assert.equal(normalizePlanHomeRefinementState("Q31"), "q31");
     assert.equal(normalizePlanHomeRefinementState("missing"), null);
   });
 

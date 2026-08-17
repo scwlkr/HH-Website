@@ -28,6 +28,7 @@ export type SceneStageNavigationResult = boolean | Promise<boolean>;
 type SceneStageProps = Readonly<{
   question: PlanHomeQuestionDefinition;
   zone: PlanHomeZoneDefinition;
+  questionPosition?: number;
   totalQuestions: number;
   scene: ReactNode;
   prompt: ReactNode;
@@ -79,6 +80,7 @@ function cameraStyle(frame: SceneCameraFrame) {
 export function SceneStage({
   question,
   zone,
+  questionPosition = question.number,
   totalQuestions,
   scene,
   prompt,
@@ -97,7 +99,7 @@ export function SceneStage({
   const previousQuestionId = useRef(question.id);
   const prefersReducedMotion = usePrefersReducedMotion(reducedMotion);
   const isTransitioning = phase !== "idle";
-  const progressLabel = `Question ${question.number} of ${totalQuestions}`;
+  const progressLabel = `Question ${questionPosition} of ${totalQuestions}`;
   const helperId = question.helper ? `${question.id}-instructions` : undefined;
   const errorId = error ? `${question.id}-stage-error` : undefined;
   const describedBy = [helperId, errorId].filter(Boolean).join(" ") || undefined;
@@ -168,7 +170,7 @@ export function SceneStage({
           className={styles.progress}
           aria-label={progressLabel}
           max={totalQuestions}
-          value={question.number}
+          value={questionPosition}
         />
       </div>
 

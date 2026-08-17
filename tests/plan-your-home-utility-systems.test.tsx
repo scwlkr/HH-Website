@@ -55,7 +55,7 @@ function seedQuestion(questionId: "secondary.bath-sharing" | "utility.laundry") 
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(atUtility ? 21 : 20),
+    answers: answersThrough(atUtility ? 19 : 18),
     location: {
       kind: "question",
       questionId,
@@ -140,7 +140,7 @@ test("the registered anchors share one utility hall and every question supports 
   assert.equal(scene.getAttribute("data-active-anchor"), "washer");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMinYMid slice",
+    "xMidYMid slice",
   );
   assert.equal(
     scene
@@ -150,7 +150,7 @@ test("the registered anchors share one utility hall and every question supports 
   );
   assert.equal(
     scene.querySelector('[data-scene-anchor="washer"]')?.tagName,
-    "g",
+    "path",
   );
   assert.equal(query.queryByText("Utility hall planning study"), null);
   assert.equal(query.queryByText("washer"), null);
@@ -166,47 +166,13 @@ test("the registered anchors share one utility hall and every question supports 
 
   assert.ok(
     query.getByRole("heading", {
-      name: "What should the everyday entry handle?",
-    }),
-  );
-  assert.equal(scene.getAttribute("data-active-anchor"), "mudroom-bench");
-  await user.click(query.getByRole("checkbox", { name: "None" }));
-  await user.click(query.getByRole("checkbox", { name: "Shoes and coats" }));
-  assert.equal(
-    (query.getByRole("checkbox", { name: "None" }) as HTMLInputElement).checked,
-    false,
-  );
-  await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
-  assert.equal(
-    (query.getByRole("checkbox", { name: "Shoes and coats" }) as HTMLInputElement)
-      .checked,
-    false,
-  );
-  await user.click(query.getByRole("button", { name: "Next" }));
-
-  assert.ok(
-    query.getByRole("heading", {
-      name: "Which overlooked storage needs matter?",
-    }),
-  );
-  assert.equal(scene.getAttribute("data-active-anchor"), "storage-built-ins");
-  await user.click(query.getByRole("checkbox", { name: "Linens" }));
-  await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
-  assert.equal(
-    (query.getByRole("checkbox", { name: "Linens" }) as HTMLInputElement).checked,
-    false,
-  );
-  await user.click(query.getByRole("button", { name: "Next" }));
-
-  assert.ok(
-    query.getByRole("heading", {
       name: "Which home comfort and system priorities matter?",
     }),
   );
   assert.equal(scene.getAttribute("data-active-anchor"), "system-panel");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMaxYMid slice",
+    "xMidYMid slice",
   );
   assert.match(
     query.getByText(/Choose up to 6 broad priorities/).textContent ?? "",
@@ -300,7 +266,7 @@ test("the bedroom hall turns into utility and Back retains in-zone answers", asy
   await user.click(query.getByRole("checkbox", { name: "Near bedrooms" }));
   await user.click(query.getByRole("checkbox", { name: "Folding counter" }));
   await user.click(query.getByRole("button", { name: "Next" }));
-  await user.click(query.getByRole("checkbox", { name: "Shoes and coats" }));
+  await user.click(query.getByRole("checkbox", { name: "Generator" }));
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
@@ -319,7 +285,7 @@ test("the bedroom hall turns into utility and Back retains in-zone answers", asy
   );
 });
 
-test("question 25 retries one revision-safe checkpoint and reveals only the exterior threshold", async () => {
+test("question 21 retries one revision-safe checkpoint and reveals only the exterior threshold", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -346,11 +312,6 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
   await user.click(query.getByRole("checkbox", { name: "Near bedrooms" }));
   await user.click(query.getByRole("checkbox", { name: "Folding counter" }));
   await user.click(query.getByRole("button", { name: "Next" }));
-  await user.click(query.getByRole("checkbox", { name: "None" }));
-  await user.click(query.getByRole("button", { name: "Next" }));
-  await user.click(query.getByRole("checkbox", { name: "Linens" }));
-  await user.click(query.getByRole("checkbox", { name: "Seasonal items" }));
-  await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Energy efficiency" }));
   await user.click(query.getByRole("checkbox", { name: "Smart controls" }));
   await user.click(query.getByRole("button", { name: "Save room" }));
@@ -370,18 +331,10 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 5);
   assert.equal(calls[0].completedZoneId, "utility-and-systems");
-  assert.equal(Object.keys(calls[0].answers).length, 25);
+  assert.equal(Object.keys(calls[0].answers).length, 21);
   assert.equal(
     summarizePlanHomeAnswer("utility.laundry", calls[0].answers["utility.laundry"]),
     "Near bedrooms, Folding counter",
-  );
-  assert.equal(
-    summarizePlanHomeAnswer("utility.mudroom", calls[0].answers["utility.mudroom"]),
-    "None",
-  );
-  assert.equal(
-    summarizePlanHomeAnswer("utility.storage", calls[0].answers["utility.storage"]),
-    "Linens, Seasonal items",
   );
   assert.equal(
     summarizePlanHomeAnswer("home.systems", calls[0].answers["home.systems"]),
@@ -400,10 +353,10 @@ test("question 25 retries one revision-safe checkpoint and reveals only the exte
   );
   assert.equal(query.queryByText("Exterior threshold"), null);
   await waitFor(() =>
-    assert.ok(view.container.querySelector("[data-scene-variant='utility-hall']")),
+    assert.ok(view.container.querySelector("[data-scene-variant='exterior']")),
   );
   assert.equal(
-    view.container.querySelector("[data-scene-variant='exterior']"),
+    view.container.querySelector("[data-scene-variant='utility-hall']"),
     null,
   );
 

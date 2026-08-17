@@ -399,7 +399,7 @@ test(
             expectedRevision: 1,
             idempotencyKey: `checkpoint-${randomUUID()}:project-and-living`,
             completedZoneId: "project-and-living",
-            answers: answersThrough(11),
+            answers: answersThrough(10),
           },
           sessionHash,
         ),
@@ -505,7 +505,7 @@ test(
       );
 
       process.stdout.write(
-        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=35, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, generationBoundDeleteImmediate=true, generationHeaderBound=true, exactUploadSizeBound=true, generationBoundReservationDeleted=true, reservingGenerationPending=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, legacyDeleteImmediate=true, tokenPages=2, objectPages=2, mainDeletedPrefixObjects=208, boundDeletedPrefixObjects=1, unrelatedPreserved=true\n",
+        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=31, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, generationBoundDeleteImmediate=true, generationHeaderBound=true, exactUploadSizeBound=true, generationBoundReservationDeleted=true, reservingGenerationPending=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, legacyDeleteImmediate=true, tokenPages=2, objectPages=2, mainDeletedPrefixObjects=208, boundDeletedPrefixObjects=1, unrelatedPreserved=true\n",
       );
     } finally {
       await firestore.recursiveDelete(

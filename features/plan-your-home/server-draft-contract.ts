@@ -295,7 +295,7 @@ export function parseSubmitPlanHomeDraftInput(
 export function createContactGateProgress(): PlanHomeDraftProgress {
   const nextQuestion = planHomeQuestions[contactGateAnswerCount];
   if (!nextQuestion) {
-    throw new Error("Question 7 is required for the contact-gate checkpoint.");
+    throw new Error("A question is required after the contact-gate checkpoint.");
   }
 
   return {

@@ -47,7 +47,7 @@ function seedKitchenStart() {
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(11),
+    answers: answersThrough(10),
     location: {
       kind: "question",
       questionId: "kitchen.use",
@@ -98,7 +98,7 @@ async function renderKitchen(checkpointDraft?: PlanHomeDraftAction) {
     ),
   );
   await waitFor(() =>
-    assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 4),
+    assert.equal(view.container.querySelectorAll("[data-scene-anchor]").length, 3),
   );
   return { view, query };
 }
@@ -124,7 +124,7 @@ async function answerKitchen(
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "How should the kitchen be arranged?",
+        name: "How should the kitchen work and feel?",
       }),
     ),
   );
@@ -150,17 +150,9 @@ async function answerKitchen(
     "true",
   );
   await user.click(query.getByRole("checkbox", { name: "Butler pantry" }));
-  await user.click(query.getByRole("button", { name: "Next" }));
-  assert.equal(
-    container.querySelector('[data-scene-anchor="dining-table"]')?.getAttribute(
-      "data-active",
-    ),
-    "true",
-  );
-  await user.click(query.getByRole("checkbox", { name: "Island seating" }));
 }
 
-test("four registered anchors reframe the exact Kitchen and Dining prompts and enforce the use limit", async () => {
+test("three registered anchors reframe the exact Kitchen prompts and enforce the use limit", async () => {
   const user = userEvent.setup({ document: window.document });
   const { view, query } = await renderKitchen();
 
@@ -171,7 +163,7 @@ test("four registered anchors reframe the exact Kitchen and Dining prompts and e
   );
   assert.equal(
     view.container.querySelectorAll("[data-scene-anchor]").length,
-    4,
+    3,
   );
   assert.equal(query.queryByText("range and island") === null, true);
   assert.equal(
@@ -249,14 +241,13 @@ test("Back crosses the Living Room boundary without losing the kitchen answer", 
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Which whole-home finish level fits you?",
+        name: "What finish direction do you have in mind?",
       }),
     ),
   );
   assert.equal(
-    (query.getByRole("radio", { name: "Builder Grade" }) as HTMLInputElement)
-      .checked,
-    true,
+    (query.getByRole("textbox") as HTMLInputElement).value,
+    "Warm, durable finishes with natural wood and simple details",
   );
 
   await user.click(query.getByRole("button", { name: "Save room" }));
@@ -280,7 +271,7 @@ test("Back crosses the Living Room boundary without losing the kitchen answer", 
   );
 });
 
-test("question 15 retries one Kitchen and Dining checkpoint and enters the primary hall", async () => {
+test("question 13 retries one Kitchen and Dining checkpoint and enters the primary hall", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -321,7 +312,7 @@ test("question 15 retries one Kitchen and Dining checkpoint and enters the prima
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 2);
   assert.equal(calls[0].completedZoneId, "kitchen-and-dining");
-  assert.equal(Object.keys(calls[0].answers).length, 15);
+  assert.equal(Object.keys(calls[0].answers).length, 13);
   assert.equal(
     summarizePlanHomeAnswer("kitchen.arrangement", calls[0].answers["kitchen.arrangement"]),
     "Work center: Single island; Connection: Open",
@@ -346,11 +337,13 @@ test("question 15 retries one Kitchen and Dining checkpoint and enters the prima
   await user.click(query.getByRole("button", { name: "Back" }));
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "How should dining work?" }),
+      query.getByRole("heading", {
+        name: "What pantry or support spaces interest you?",
+      }),
     ),
   );
   assert.equal(
-    (query.getByRole("checkbox", { name: "Island seating" }) as HTMLInputElement)
+    (query.getByRole("checkbox", { name: "Butler pantry" }) as HTMLInputElement)
       .checked,
     true,
   );

@@ -47,7 +47,7 @@ Worker contract:
 - Match existing Next.js, React, TypeScript, Firebase, validation, admin-auth, and visual conventions unless the issue explicitly changes them.
 - Keep the generic /inquire path working for non-new-home inquiries.
 - Keep Plan Your Home in its own versioned domain rather than stretching the flat generic inquiry form.
-- Use a typed registry + pure reducer/persistence interfaces + seven bespoke illustrated React scenes.
+- Use a typed registry + pure reducer/persistence interfaces + five sparse illustrated React scene families shared across seven content zones.
 - Use semantic DOM controls over decorative artwork. Do not create a hidden duplicate form.
 - Use short CSS/WAAPI transforms and opacity for motion; do not add Remotion, XState, 3D, or a general scene DSL unless a later issue documents hard evidence that the planned approach cannot meet its contract.
 - No production deploy, DNS change, real provider signup, marketing launch, or automated abandonment campaign.
@@ -60,7 +60,7 @@ Minimum review evidence:
 
 Final browser acceptance must exercise, not merely render:
 1. At 390x844, enter a name and see it type onto the house plaque.
-2. Complete all 35 questions across the seven fixed illustrated zones.
+2. Complete all 31 canonical questions across the seven fixed content zones, including the 30-visible-question path when site context is not applicable.
 3. Refresh mid-zone and resume at the exact prompt.
 4. Confirm the question-6 contact gate creates an HHQ-visible draft and later zones checkpoint.
 5. Request the fake local resume email and continue from a separate browser context.

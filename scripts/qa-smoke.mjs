@@ -1737,10 +1737,10 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
     );
     await page.getByRole("heading", { name: "Taylor Homeowner" }).waitFor();
     assert(
-      (await page.getByText(/^Question \d+$/).count()) === 35 &&
+      (await page.getByText(/^Question \d+$/).count()) === 31 &&
         (await page.getByText("Not saved yet").count()) === 0 &&
         (await page.getByText("Saved answer could not be read.").count()) === 0,
-      "Plan Your Home detail must render all 35 readable answer summaries in tour order.",
+      "Plan Your Home detail must render all 31 readable answer summaries in tour order.",
     );
     detailEvidence.planHomeQuestionsInOrder = true;
     detailEvidence.completeAnswerSummaries = true;

@@ -197,10 +197,16 @@ async function pageQuality(page, label) {
         const labels = "labels" in element
           ? Array.from(element.labels ?? []).map((item) => item.textContent ?? "").join(" ")
           : "";
+        const descendantImageText = Array.from(
+          element.querySelectorAll("img[alt]"),
+        )
+          .map((image) => image.getAttribute("alt") ?? "")
+          .join(" ");
         return ![
           element.getAttribute("aria-label"),
           labelledText,
           labels,
+          descendantImageText,
           element.textContent,
           element.getAttribute("title"),
           element.getAttribute("alt"),
@@ -307,7 +313,7 @@ function answerValues(answer) {
 async function answerRegistryQuestion(page, question) {
   await page.getByRole("heading", { name: question.prompt }).waitFor();
   const progress = page.getByRole("progressbar", {
-    name: `Question ${question.number} of 35`,
+    name: `Question ${question.number} of 31`,
   });
   await progress.waitFor();
   await waitForSceneReady(page);
@@ -317,16 +323,26 @@ async function answerRegistryQuestion(page, question) {
   if (!evidence.zonesExercised.includes(zone.id)) evidence.zonesExercised.push(zone.id);
   evidence.questionsExercised.push(question.id);
 
-  if (question.number === 32) return;
-  if (question.number === 33) return;
+  if (question.id === "design.references") return;
+  if (question.id === "design.priorities") return;
+
+  const exampleAnswer =
+    question.id === "project.lot-location"
+      ? { lotStatus: "own-it", location: "Denton County", locationUncertain: false }
+      : question.response.exampleAnswer;
+
+  if (question.response.kind === "text") {
+    await page.getByLabel("Your answer").fill(exampleAnswer);
+    return;
+  }
 
   if (
     question.response.kind === "grouped" &&
-    question.response.exampleAnswer &&
-    typeof question.response.exampleAnswer === "object"
+    exampleAnswer &&
+    typeof exampleAnswer === "object"
   ) {
     for (const group of question.response.optionGroups) {
-      const groupAnswer = question.response.exampleAnswer[group.id];
+      const groupAnswer = exampleAnswer[group.id];
       const groupControl = page.getByRole("group", { name: group.label });
       for (const value of answerValues(groupAnswer)) {
         await activate(groupControl.locator(`input[value="${value}"]`));
@@ -340,7 +356,7 @@ async function answerRegistryQuestion(page, question) {
       }
     }
   } else {
-    const values = answerValues(question.response.exampleAnswer);
+    const values = answerValues(exampleAnswer);
     for (const value of values) {
       const input = page.locator(`input[value="${value}"]`);
       if ((await input.count()) > 0) await activate(input);
@@ -353,7 +369,7 @@ async function answerRegistryQuestion(page, question) {
   }
 }
 
-const roomTransitionQuestions = new Set([11, 15, 19, 21, 25, 30, 34]);
+const roomTransitionQuestions = new Set([10, 13, 17, 19, 21, 26, 30]);
 
 async function assertRoomTransitionMotion(page, fromQuestion) {
   const beat = page.locator("[data-tour-beat]").first();
@@ -414,9 +430,9 @@ async function assertRoomTransitionMotion(page, fromQuestion) {
 
 async function advanceQuestion(page, question) {
   const label =
-    question.number === 35
+    question.number === 31
       ? "Review brief"
-      : [11, 15, 19, 21, 25, 30, 34].includes(question.number)
+      : [10, 13, 17, 19, 21, 26, 30].includes(question.number)
         ? "Save room"
         : "Next";
   const stage = page.locator("[data-transition-state]");
@@ -430,11 +446,11 @@ async function advanceQuestion(page, question) {
   const startedAt = Date.now();
   await page.getByRole("button", { name: label, exact: true }).click();
   const boundaryButtons = {
-    19: "Continue down the hall",
-    21: "Turn into the utility hall",
-    25: "Step through the back door",
-    30: "Open the design desk",
-    34: "Choose follow-up",
+    17: "Continue down the hall",
+    19: "Turn into the utility hall",
+    21: "Step through the back door",
+    26: "Open the design desk",
+    30: "Choose follow-up",
   };
   const boundaryButton = boundaryButtons[question.number];
   if (boundaryButton) {
@@ -558,7 +574,7 @@ async function requestResumeInSeparateContext(browser, baseUrl) {
     sources: true,
   });
   await restoredPage.getByRole("link", { name: "Continue Plan Your Home" }).click();
-  await restoredPage.getByRole("heading", { name: planHomeQuestions[11].prompt }).waitFor();
+  await restoredPage.getByRole("heading", { name: planHomeQuestions[10].prompt }).waitFor();
   assert.equal(
     await restoredPage.locator('[data-reduced-motion="true"]').count() > 0,
     true,
@@ -745,7 +761,7 @@ async function assignPrioritiesByKeyboard(page) {
     name: /Edit Nice-to-haves/,
   });
   const items = page.locator("button[data-assignment]");
-  assert((await items.count()) >= 2, "Q33 needs at least two selected features.");
+  assert((await items.count()) >= 2, "Q29 needs at least two selected features.");
   const first = items.nth(0);
   const second = items.nth(1);
 
@@ -862,7 +878,7 @@ async function inspectAndDeleteHq(browser, baseUrl, firestore, bucket, draftId) 
   await loginAdmin(page, baseUrl);
   await page.getByRole("link", { name: visitor.name }).click();
   await page.getByRole("heading", { name: visitor.name }).waitFor();
-  assert.equal(await page.getByText(/^Question \d+$/).count(), 35);
+  assert.equal(await page.getByText(/^Question \d+$/).count(), 31);
   assert.equal(await page.getByRole("button", { name: "Open Private File" }).count(), 2);
   const externalLink = page.getByRole("link", { name: "Open example.com" });
   assert.equal((await externalLink.getAttribute("href")).startsWith("https://"), true);
@@ -893,7 +909,7 @@ async function inspectAndDeleteHq(browser, baseUrl, firestore, bucket, draftId) 
     .get();
   assert.equal(tokens.empty, true);
   evidence.hq = {
-    answers: 35,
+    answers: 31,
     files: 2,
     links: 1,
     statuses: ["submitted", "reviewed", "spam"],
@@ -1066,12 +1082,12 @@ async function main() {
     for (const question of planHomeQuestions) {
       proofStage = `question ${question.number}`;
       await answerRegistryQuestion(page, question);
-      if (question.number === 32) {
+      if (question.id === "design.references") {
         await addReferences(page);
         await capture(page, "phone-references-remove-replace");
         evidence.tenSteps[6] = true;
       }
-      if (question.number === 33) {
+      if (question.id === "design.priorities") {
         await assignPrioritiesByKeyboard(page);
       }
       if (question.number === 8) {
@@ -1098,8 +1114,8 @@ async function main() {
         continue;
       }
       await advanceQuestion(page, question);
-      if (question.number === 11) {
-        const checkpoint = await waitForDraft(firestore, visitor.email, 11);
+      if (question.number === 10) {
+        const checkpoint = await waitForDraft(firestore, visitor.email, 10);
         assert(checkpoint.data.progress.completedZoneIds.includes("project-and-living"));
         evidence.tenSteps[4] = true;
         await mainContext.tracing.stop({
@@ -1115,15 +1131,15 @@ async function main() {
       }
     }
 
-    assert.equal(evidence.questionsExercised.length, 35);
-    assert.equal(new Set(evidence.questionsExercised).size, 35);
+    assert.equal(evidence.questionsExercised.length, 31);
+    assert.equal(new Set(evidence.questionsExercised).size, 31);
     assert.deepEqual(evidence.zonesExercised, planHomeZones.map((zone) => zone.id));
     evidence.tenSteps[2] = true;
     proofStage = "review edit and submission";
     await capture(page, "phone-complete-review");
     assert.equal(
       await page.locator('button[aria-label^="Edit Q"]').count(),
-      35,
+      31,
     );
     const reviewPager = page.locator("[data-review-pager]");
     const reviewNext = reviewPager.getByRole("button", { name: "Next", exact: true });
@@ -1160,7 +1176,7 @@ async function main() {
     assert(await editedQ1Summary.isVisible(), "Edited Q1 summary is not visible.");
     assert.match(
       (await editedQ1Summary.textContent()) ?? "",
-      /Adapt an existing plan/,
+      /Already have a plan/,
       "Edited Q1 answer was not retained.",
     );
 
@@ -1202,7 +1218,7 @@ async function main() {
     await capture(page, "desktop-single-submit-confirmation");
     await page.setViewportSize(viewports.phone);
     await capture(page, "phone-single-submit-confirmation");
-    const submitted = await waitForDraft(firestore, visitor.email, 35);
+    const submitted = await waitForDraft(firestore, visitor.email, 31);
     assert.equal(submitted.id, draftId);
     assert.equal(submitted.data.status, "submitted");
     assert.equal(submitted.data.references.length, 3);
@@ -1250,7 +1266,7 @@ async function main() {
     await auditRetainedArtifacts(rawResumeToken);
     await writeReport();
     log(
-      `Plan Home final proof passed: steps=10/10, questions=35, zones=7, screenshots=${evidence.screenshots.length}, browserErrors=0, failedRequests=0, axeFindings=0, undersizedTargets=0, overflow=0, trace=output/playwright/issue-18/final/trace.zip`,
+      `Plan Home final proof passed: steps=10/10, questions=31, zones=7, screenshots=${evidence.screenshots.length}, browserErrors=0, failedRequests=0, axeFindings=0, undersizedTargets=0, overflow=0, trace=output/playwright/issue-18/final/trace.zip`,
     );
   } catch (error) {
     if (mainContext) {

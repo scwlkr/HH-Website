@@ -585,6 +585,141 @@
         font-weight: 650;
       }
 
+      .pyh-preview {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
+        gap: 48px;
+        align-items: center;
+      }
+
+      .pyh-phone {
+        width: min(100%, 344px);
+        height: 640px;
+        margin-inline: auto;
+        overflow: hidden;
+        border: 1px solid var(--color-line-strong);
+        border-radius: 18px;
+        background: var(--color-surface);
+        box-shadow: 0 24px 60px color-mix(in srgb, var(--color-text) 12%, transparent);
+      }
+
+      .pyh-phone-header,
+      .pyh-phone-progress,
+      .pyh-phone-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--color-line);
+        font-family: var(--font-label);
+        font-size: 0.68rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .pyh-phone-header {
+        height: var(--plan-home-header-height);
+        padding: 0 18px;
+      }
+
+      .pyh-phone-progress {
+        height: var(--plan-home-progress-height);
+        padding: 0 18px;
+        color: var(--color-muted);
+      }
+
+      .pyh-sketch {
+        position: relative;
+        height: var(--plan-home-context-height);
+        min-height: 132px;
+        overflow: hidden;
+        border-bottom: 1px solid var(--color-line);
+        background: color-mix(in srgb, var(--color-secondary) 22%, var(--color-surface));
+      }
+
+      .pyh-sketch::before,
+      .pyh-sketch::after {
+        position: absolute;
+        content: "";
+      }
+
+      .pyh-sketch::before {
+        inset: 28px 34px 18px;
+        border-right: 1px solid var(--color-line-strong);
+        border-bottom: 1px solid var(--color-line-strong);
+        border-left: 1px solid var(--color-line-strong);
+        transform: skewY(-5deg);
+      }
+
+      .pyh-sketch::after {
+        width: 62px;
+        height: 42px;
+        left: 54%;
+        top: 40%;
+        border: 1px dashed var(--color-primary);
+      }
+
+      .pyh-task {
+        height: calc(100% - var(--plan-home-header-height) - var(--plan-home-progress-height) - var(--plan-home-context-height) - var(--plan-home-action-height));
+        min-height: 274px;
+        padding: 28px 22px;
+      }
+
+      .pyh-task span {
+        color: var(--color-muted);
+        font-family: var(--font-label);
+        font-size: 0.68rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .pyh-task h3 {
+        max-width: 14ch;
+        margin-top: 12px;
+        font-size: 1.8rem;
+      }
+
+      .pyh-choice {
+        display: grid;
+        min-height: var(--plan-home-choice-height);
+        margin-top: 24px;
+        padding: 0 16px;
+        align-items: center;
+        border: 1px solid var(--color-primary);
+        border-radius: var(--radius);
+        color: var(--color-text);
+        font-weight: 650;
+      }
+
+      .pyh-phone-actions {
+        height: var(--plan-home-action-height);
+        padding: 0 18px;
+        border-top: 1px solid var(--color-line);
+        border-bottom: 0;
+      }
+
+      .pyh-families {
+        display: grid;
+        gap: 0;
+        margin: 28px 0 0;
+        padding: 0;
+        list-style: none;
+        border-top: 1px solid var(--color-line);
+      }
+
+      .pyh-families li {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 14px;
+        padding: 15px 0;
+        border-bottom: 1px solid var(--color-line);
+      }
+
+      .pyh-families span {
+        color: var(--color-primary);
+        font-family: var(--font-label);
+        font-size: 0.72rem;
+      }
+
       .process {
         position: relative;
       }
@@ -828,6 +963,7 @@
         .grid-3,
         .grid-2,
         .stats,
+        .pyh-preview,
         .footer-grid {
           grid-template-columns: 1fr;
         }
@@ -990,6 +1126,34 @@
           <div class="stat"><strong>8</strong><span>UI patterns</span></div>
           <div class="stat"><strong>1</strong><span>token layer</span></div>
           <div class="stat"><strong>0</strong><span>editing controls</span></div>
+        </div>
+      </section>
+
+      <section class="shell pyh-preview" aria-labelledby="pyh-title">
+        <div class="pyh-phone" aria-label="Plan Your Home mobile frame example">
+          <div class="pyh-phone-header"><strong>h and h</strong><span>Plan Your Home</span></div>
+          <div class="pyh-phone-progress"><span>Living spaces</span><span>8 / 31</span></div>
+          <div class="pyh-sketch" aria-hidden="true"></div>
+          <div class="pyh-task">
+            <span>One clear task</span>
+            <h3>How should the main living spaces feel?</h3>
+            <div class="pyh-choice">Open</div>
+          </div>
+          <div class="pyh-phone-actions"><span>Back</span><strong>Continue</strong></div>
+        </div>
+        <div>
+          <div class="section-heading">
+            <span class="eyebrow">Plan Your Home</span>
+            <h2 id="pyh-title">A fixed app frame with five quiet sketch families.</h2>
+            <p>The question remains primary. A shallow context strip supplies atmosphere and orientation without becoming a second interface or forcing ordinary prompts to scroll.</p>
+          </div>
+          <ol class="pyh-families">
+            <li><span>01</span><strong>Front door and site</strong></li>
+            <li><span>02</span><strong>Living, kitchen, and dining</strong></li>
+            <li><span>03</span><strong>Bedrooms and bathrooms</strong></li>
+            <li><span>04</span><strong>Utility, exterior, and outdoor</strong></li>
+            <li><span>05</span><strong>Design desk and review</strong></li>
+          </ol>
         </div>
       </section>
 

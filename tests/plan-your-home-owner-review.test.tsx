@@ -36,7 +36,7 @@ test("review snapshots resume exactly and clear without touching a customer draf
   assert.equal(review.save(reviewState), true);
   assert.deepEqual(review.load()?.location, {
     kind: "question",
-    questionId: "living.relationship",
+    questionId: "living.features",
     editingFromReview: false,
   });
   assert.notEqual(
@@ -64,7 +64,7 @@ test("review mode fake-submits without server, upload, or analytics side effects
     key: PLAN_HOME_REVIEW_SNAPSHOT_KEY,
   });
   assert.equal(
-    review.save(createPlanHomeRefinementFixture("q35").state),
+    review.save(createPlanHomeRefinementFixture("q31").state),
     true,
   );
   const customer = createPlanHomeLocalSnapshotAdapter({
@@ -117,7 +117,7 @@ test("review mode fake-submits without server, upload, or analytics side effects
 
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", { name: "How should h and h follow up?" }),
+      query.getByRole("heading", { name: "How should we follow up?" }),
     ),
   );
   await user.click(query.getByRole("radio", { name: "Email" }));

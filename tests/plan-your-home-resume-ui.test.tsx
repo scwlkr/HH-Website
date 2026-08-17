@@ -49,7 +49,7 @@ function localIdentifiedState(): PlanHomeTourState {
     answers: answersThrough(6),
     location: {
       kind: "question",
-      questionId: "home.future-support",
+      questionId: "home.daily-life",
       editingFromReview: false,
     },
     contactCheckpoint: contact,

@@ -87,14 +87,18 @@ async function answerQuestion(page, question) {
     })
     .waitFor();
 
-  if (question.number === 32 || question.number === 33) return;
+  if (question.id === "design.references" || question.id === "design.priorities") return;
+  const exampleAnswer =
+    question.id === "project.lot-location"
+      ? { lotStatus: "own-it", location: "Review County", locationUncertain: false }
+      : question.response.exampleAnswer;
   if (
     question.response.kind === "grouped" &&
-    question.response.exampleAnswer &&
-    typeof question.response.exampleAnswer === "object"
+    exampleAnswer &&
+    typeof exampleAnswer === "object"
   ) {
     for (const group of question.response.optionGroups) {
-      const groupAnswer = question.response.exampleAnswer[group.id];
+      const groupAnswer = exampleAnswer[group.id];
       const groupControl = page.getByRole("group", { name: group.label });
       for (const value of answerValues(groupAnswer)) {
         await activate(groupControl.locator(`input[value="${value}"]`));
@@ -110,8 +114,10 @@ async function answerQuestion(page, question) {
         await continueButton.click();
       }
     }
+  } else if (question.response.kind === "text") {
+    await page.getByLabel("Your answer").fill(exampleAnswer);
   } else {
-    for (const value of answerValues(question.response.exampleAnswer)) {
+    for (const value of answerValues(exampleAnswer)) {
       const input = page.locator(`input[value="${value}"]`);
       if ((await input.count()) > 0) await activate(input);
     }
@@ -126,19 +132,19 @@ async function answerQuestion(page, question) {
 
 async function advanceQuestion(page, question) {
   const label =
-    question.number === 35
+    question.number === 31
       ? "Review brief"
-      : [11, 15, 19, 21, 25, 30, 34].includes(question.number)
+      : [10, 13, 17, 19, 21, 26, 30].includes(question.number)
         ? "Save room"
         : "Next";
   await page.getByRole("button", { name: label, exact: true }).click();
 
   const boundaryButtons = {
-    19: "Continue down the hall",
-    21: "Turn into the utility hall",
-    25: "Step through the back door",
-    30: "Open the design desk",
-    34: "Choose follow-up",
+    17: "Continue down the hall",
+    19: "Turn into the utility hall",
+    21: "Step through the back door",
+    26: "Open the design desk",
+    30: "Choose follow-up",
   };
   const boundaryButton = boundaryButtons[question.number];
   if (boundaryButton) {
@@ -151,11 +157,7 @@ async function advanceQuestion(page, question) {
   if (nextQuestion) {
     await page.getByRole("heading", { name: nextQuestion.prompt }).waitFor();
   } else {
-    await page
-      .getByRole("heading", {
-        name: "One walkthrough, ready for a real conversation.",
-      })
-      .waitFor();
+    await page.locator('[data-tour-beat="project-brief-review"]').waitFor();
   }
 }
 
@@ -279,7 +281,7 @@ async function main() {
         );
         await capture(page, "phone-q9-refresh-resume");
       }
-      if (question.number === 32) {
+      if (question.id === "design.references") {
         const fileInput = page.locator('input[type="file"]');
         await fileInput.setInputFiles({
           name: "review-reference.pdf",
@@ -299,7 +301,7 @@ async function main() {
           }),
         );
       }
-      if (question.number === 33) {
+      if (question.id === "design.priorities") {
         await activate(
           page.getByRole("checkbox", { name: "No strong priorities yet" }),
         );
@@ -323,12 +325,12 @@ async function main() {
       await advanceQuestion(page, question);
     }
 
-    assert.equal(exercisedQuestions.length, 35);
-    assert.equal(new Set(exercisedQuestions).size, 35);
+    assert.equal(exercisedQuestions.length, 31);
+    assert.equal(new Set(exercisedQuestions).size, 31);
     assert.deepEqual([...exercisedZones], planHomeZones.map(({ id }) => id));
     assert.equal(
-      await page.getByRole("button", { name: /^Edit Q\d+:/ }).count(),
-      35,
+      await page.locator('button[aria-label^="Edit Q"]').count(),
+      31,
     );
     await capture(page, "phone-complete-review");
     await page.setViewportSize(desktop);
@@ -342,19 +344,27 @@ async function main() {
       .click();
     await activate(page.locator('input[value="adapt-existing-plan"]'));
     await page.getByRole("button", { name: "Save", exact: true }).click();
-    await page
-      .getByRole("heading", {
-        name: "One walkthrough, ready for a real conversation.",
-      })
-      .waitFor();
+    await page.locator('[data-tour-beat="project-brief-review"]').waitFor();
     assert.match(
       (await page
         .locator('[data-review-question="project.starting-services"]')
         .textContent()) ?? "",
-      /Adapt an existing plan/,
+      /Already have a plan/,
     );
 
     await page.setViewportSize(phone);
+    for (let pageIndex = 0; pageIndex < 10; pageIndex += 1) {
+      if (
+        (await page
+          .locator(
+            '[data-review-submission][data-review-page-active="true"]',
+          )
+          .count()) > 0
+      ) {
+        break;
+      }
+      await page.getByRole("button", { name: "Next", exact: true }).click();
+    }
     await activate(
       page.getByRole("checkbox", {
         name: /I am submitting an inquiry and permit h and h to contact me/,

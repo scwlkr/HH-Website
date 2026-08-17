@@ -7,7 +7,6 @@ import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
 import {
   ChoicePrompt,
-  CountPrompt,
   GroupedChoicePrompt,
   MultiChoicePrompt,
   PriorityPrompt,
@@ -219,66 +218,6 @@ test("short text renderer labels optional input, error, count, and uncertainty",
   assert.equal((input as HTMLInputElement).value, "");
   assert.equal((input as HTMLInputElement).disabled, true);
   assert.equal(query.getByText("0 of 160 characters").getAttribute("aria-live"), "polite");
-});
-
-test("count renderer stages each required count and keeps summaries editable", async () => {
-  const question = requireQuestion("home.bed-bath-counts");
-
-  function Harness() {
-    const [value, setValue] = useState<Record<string, string | null>>({
-      bedrooms: null,
-      fullBathrooms: null,
-      halfBathrooms: null,
-    });
-    return (
-      <CountPrompt
-        id="counts"
-        groups={question.response.optionGroups}
-        value={value}
-        instructions="Choose one exact range for each count."
-        onChange={setValue}
-      />
-    );
-  }
-
-  const user = userEvent.setup({ document: window.document });
-  const view = render(<Harness />);
-  const query = within(view.container);
-  const bedrooms = query.getByRole("group", { name: "Bedrooms" });
-  assert.equal(query.queryByRole("group", { name: "Full bathrooms" }), null);
-  assert.match(
-    view.container.querySelector(
-      `#${bedrooms.getAttribute("aria-describedby")}`,
-    )?.textContent ?? "",
-    /Choose one exact range for each count\./,
-  );
-  await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
-
-  const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
-  assert.equal(query.queryByRole("group", { name: "Half bathrooms" }), null);
-  assert.match(
-    query.getByRole("group", { name: "Completed Bedrooms" }).textContent ?? "",
-    /Bedrooms4Edit/,
-  );
-  await user.click(within(fullBathrooms).getByRole("radio", { name: "3" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
-
-  const halfBathrooms = query.getByRole("group", { name: "Half bathrooms" });
-  await user.click(within(halfBathrooms).getByRole("radio", { name: "1" }));
-  assert.equal(
-    (within(halfBathrooms).getByRole("radio", {
-      name: "1",
-    }) as HTMLInputElement).checked,
-    true,
-  );
-
-  await user.click(query.getByRole("button", { name: "Edit Bedrooms" }));
-  assert.equal(query.queryByRole("group", { name: "Half bathrooms" }), null);
-  assert.equal(
-    (query.getByRole("radio", { name: "4" }) as HTMLInputElement).checked,
-    true,
-  );
 });
 
 test("priority renderer progressively assigns groups with buttons and reports limits", async () => {
@@ -513,7 +452,7 @@ test("scene stage moves focus, announces concise progress, and skips delay for r
     "idle",
   );
   assert.equal(
-    query.getByRole("progressbar", { name: "Question 5 of 35" }).getAttribute(
+    query.getByRole("progressbar", { name: "Question 5 of 31" }).getAttribute(
       "value",
     ),
     "5",
@@ -537,7 +476,7 @@ test("scene stage exposes transition lifecycle and associated reducer errors", a
       <SceneStage
         question={question}
         zone={planHomeZones[0]}
-        totalQuestions={35}
+        totalQuestions={31}
         scene={<div>Scene</div>}
         prompt={<button type="button">Prompt control</button>}
         cameraFrame={{ xPercent: 0, yPercent: 0, scale: 1 }}
@@ -582,7 +521,7 @@ test("representative scene stage has no detectable automated accessibility viola
       <SceneStage
         question={question}
         zone={planHomeZones[0]}
-        totalQuestions={35}
+        totalQuestions={31}
         scene={<div>Decorative elevation</div>}
         prompt={
           <ChoicePrompt

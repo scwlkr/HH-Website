@@ -176,7 +176,7 @@ test(
       assert.equal(createdDocument.derived.targetLocation, "Denton County");
       assert.equal(createdDocument.derived.finishLevel, null);
       assert.deepEqual(createdDocument.progress, {
-        currentPromptId: "home.future-support",
+        currentPromptId: "home.daily-life",
         currentZoneId: "project-and-living",
         completedZoneIds: [],
       });
@@ -198,7 +198,7 @@ test(
         expectedRevision: 1,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:project-and-living`,
         completedZoneId: "project-and-living",
-        answers: answersThrough(11),
+        answers: answersThrough(10),
       };
 
       await assert.rejects(
@@ -231,7 +231,7 @@ test(
         applied: false,
       });
 
-      const changedAnswers = answersThrough(11);
+      const changedAnswers = answersThrough(10);
       changedAnswers["home.heated-square-feet"] = "2500-2999";
       const staleCheckpoint = {
         ...zoneCheckpoint,
@@ -264,7 +264,7 @@ test(
         expectedRevision: 2,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:kitchen-and-dining`,
         completedZoneId: "kitchen-and-dining",
-        answers: answersThrough(15),
+        answers: answersThrough(13),
       };
       const kitchenCheckpointResult = await repository.checkpointDraft(
         kitchenCheckpoint,
@@ -282,7 +282,7 @@ test(
         { ...kitchenCheckpointResult, applied: false },
       );
 
-      const conflictingKitchenAnswers = answersThrough(15);
+      const conflictingKitchenAnswers = answersThrough(13);
       conflictingKitchenAnswers["kitchen.use"] = ["large-groups"];
       await assert.rejects(
         repository.checkpointDraft(
@@ -300,7 +300,7 @@ test(
         expectedRevision: 3,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:primary-suite`,
         completedZoneId: "primary-suite",
-        answers: answersThrough(19),
+        answers: answersThrough(17),
       };
       const primarySuiteCheckpointResult = await repository.checkpointDraft(
         primarySuiteCheckpoint,
@@ -325,7 +325,7 @@ test(
         { ...primarySuiteCheckpointResult, applied: false },
       );
 
-      const conflictingPrimaryAnswers = answersThrough(19);
+      const conflictingPrimaryAnswers = answersThrough(17);
       conflictingPrimaryAnswers["primary.location"] = "upper-floor";
       await assert.rejects(
         repository.checkpointDraft(
@@ -343,7 +343,7 @@ test(
         expectedRevision: 4,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:bedrooms-and-shared-bathrooms`,
         completedZoneId: "bedrooms-and-shared-bathrooms",
-        answers: answersThrough(21),
+        answers: answersThrough(19),
       };
       const bedroomsCheckpointResult = await repository.checkpointDraft(
         bedroomsCheckpoint,
@@ -369,7 +369,7 @@ test(
         { ...bedroomsCheckpointResult, applied: false },
       );
 
-      const conflictingBedroomsAnswers = answersThrough(21);
+      const conflictingBedroomsAnswers = answersThrough(19);
       conflictingBedroomsAnswers["secondary.bath-sharing"] = "mixed-approach";
       await assert.rejects(
         repository.checkpointDraft(
@@ -387,7 +387,7 @@ test(
         expectedRevision: 5,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:utility-and-systems`,
         completedZoneId: "utility-and-systems",
-        answers: answersThrough(25),
+        answers: answersThrough(21),
       };
       const utilityCheckpointResult = await repository.checkpointDraft(
         utilityCheckpoint,
@@ -411,7 +411,7 @@ test(
         { ...utilityCheckpointResult, applied: false },
       );
 
-      const conflictingUtilityAnswers = answersThrough(25);
+      const conflictingUtilityAnswers = answersThrough(21);
       conflictingUtilityAnswers["home.systems"] = ["generator"];
       await assert.rejects(
         repository.checkpointDraft(
@@ -429,7 +429,7 @@ test(
         expectedRevision: 6,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:exterior-and-site`,
         completedZoneId: "exterior-and-site",
-        answers: answersThrough(30),
+        answers: answersThrough(26),
       };
       const exteriorCheckpointResult = await repository.checkpointDraft(
         exteriorCheckpoint,
@@ -454,7 +454,7 @@ test(
         { ...exteriorCheckpointResult, applied: false },
       );
 
-      const conflictingExteriorAnswers = answersThrough(30);
+      const conflictingExteriorAnswers = answersThrough(26);
       conflictingExteriorAnswers["home.specialty-spaces"] = ["workshop"];
       await assert.rejects(
         repository.checkpointDraft(
@@ -472,7 +472,7 @@ test(
         expectedRevision: 7,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:design-desk-and-review`,
         completedZoneId: "design-desk-and-review",
-        answers: answersThrough(34),
+        answers: answersThrough(30),
       };
       const designDeskCheckpointResult = await repository.checkpointDraft(
         designDeskCheckpoint,
@@ -495,7 +495,7 @@ test(
         draftId: created.draftId,
         expectedRevision: 8,
         idempotencyKey: submissionKey,
-        answers: answersThrough(35),
+        answers: answersThrough(31),
         references: [],
         consent: {
           version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
@@ -517,7 +517,7 @@ test(
         repository.submitDraft(
           {
             ...submissionInput,
-            answers: answersThrough(34),
+            answers: answersThrough(30),
           },
           sessionTokenHash,
         ),
@@ -581,8 +581,11 @@ test(
         finalDraft.answers["home.heated-square-feet"],
         createInput.answers["home.heated-square-feet"],
       );
-      assert.equal(finalDraft.derived.finishLevel, "builder-grade");
-      assert.equal(Object.keys(finalDraft.answers).length, 35);
+      assert.equal(
+        finalDraft.derived.finishLevel,
+        "Warm, durable finishes with natural wood and simple details",
+      );
+      assert.equal(Object.keys(finalDraft.answers).length, 31);
       assert.deepEqual(finalDraft.progress, {
         currentPromptId: "review",
         currentZoneId: "design-desk-and-review",
@@ -666,20 +669,6 @@ test(
           finalDraft.answers["utility.laundry"],
         ),
         "Near bedrooms",
-      );
-      assert.equal(
-        summarizePlanHomeAnswer(
-          "utility.mudroom",
-          finalDraft.answers["utility.mudroom"],
-        ),
-        "Shoes and coats",
-      );
-      assert.equal(
-        summarizePlanHomeAnswer(
-          "utility.storage",
-          finalDraft.answers["utility.storage"],
-        ),
-        "Linens",
       );
       assert.equal(
         summarizePlanHomeAnswer(

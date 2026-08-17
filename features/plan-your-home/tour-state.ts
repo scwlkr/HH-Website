@@ -3,6 +3,7 @@ import {
   planHomeQuestions,
   planHomeV1Definition,
   planHomeZoneIds,
+  isPlanHomeQuestionApplicable,
   validatePlanHomeAnswer,
   type PlanHomeAnswerMap,
   type PlanHomeQuestionId,
@@ -149,6 +150,25 @@ function answerIsValid(state: PlanHomeTourState, questionId: PlanHomeQuestionId)
   return validatePlanHomeAnswer(questionId, state.answers[questionId]).success;
 }
 
+function nextApplicableQuestion(
+  state: PlanHomeTourState,
+  questionIndex: number,
+) {
+  return planHomeQuestions
+    .slice(questionIndex + 1)
+    .find((question) => isPlanHomeQuestionApplicable(question.id, state.answers));
+}
+
+function previousApplicableQuestion(
+  state: PlanHomeTourState,
+  questionIndex: number,
+) {
+  return planHomeQuestions
+    .slice(0, questionIndex)
+    .toReversed()
+    .find((question) => isPlanHomeQuestionApplicable(question.id, state.answers));
+}
+
 function contactMatches(
   current: PlanHomeContactCheckpoint | null,
   next: PlanHomeContactCheckpoint,
@@ -254,9 +274,32 @@ export function reducePlanHomeTour(
           ? result.data.references
           : state.references;
 
+      const answers = {
+        ...state.answers,
+        [command.questionId]: result.data,
+      } as Record<string, unknown>;
+      if (
+        command.questionId === "project.lot-location" &&
+        result.data &&
+        typeof result.data === "object" &&
+        "lotStatus" in result.data
+      ) {
+        if (result.data.lotStatus === "own-it") {
+          if (
+            Array.isArray(answers["project.site-context"]) &&
+            answers["project.site-context"].length === 1 &&
+            answers["project.site-context"][0] === "not-applicable"
+          ) {
+            delete answers["project.site-context"];
+          }
+        } else {
+          answers["project.site-context"] = ["not-applicable"];
+        }
+      }
+
       return success(state, {
         ...state,
-        answers: { ...state.answers, [command.questionId]: result.data },
+        answers,
         references,
       } as PlanHomeTourState);
     }
@@ -319,7 +362,7 @@ export function reducePlanHomeTour(
         return success(state, { ...state, location: { kind: "contact-gate" } });
       }
 
-      const nextQuestion = planHomeQuestions[questionIndex + 1];
+      const nextQuestion = nextApplicableQuestion(state, questionIndex);
       const crossedZoneBoundary =
         question.id === "project.budget-timing" ||
         !nextQuestion ||
@@ -379,7 +422,7 @@ export function reducePlanHomeTour(
         return success(state, { ...state, location: { kind: "contact-gate" } });
       }
 
-      const previousQuestion = planHomeQuestions[questionIndex - 1];
+      const previousQuestion = previousApplicableQuestion(state, questionIndex);
       if (!previousQuestion) {
         return failure(state, "invalid-command", "The active question is not in the registry.");
       }
@@ -443,6 +486,13 @@ export function reducePlanHomeTour(
           state,
           "answer-required",
           "The selected review answer is not valid.",
+        );
+      }
+      if (!isPlanHomeQuestionApplicable(command.questionId, state.answers)) {
+        return failure(
+          state,
+          "invalid-command",
+          "This question does not apply to the current project brief.",
         );
       }
       return success(state, {

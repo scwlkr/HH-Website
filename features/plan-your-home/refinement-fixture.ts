@@ -52,6 +52,17 @@ function startedFixture() {
   return applyFixtureCommand(state, { type: "next" });
 }
 
+function fixtureAnswer(question: (typeof planHomeQuestions)[number]) {
+  if (question.id === "project.lot-location") {
+    return {
+      lotStatus: "own-it",
+      location: "Denton County",
+      locationUncertain: false,
+    };
+  }
+  return structuredClone(question.response.exampleAnswer);
+}
+
 function advanceFixtureToQuestion(questionId: PlanHomeQuestionId) {
   let state = startedFixture();
   for (const question of planHomeQuestions) {
@@ -59,7 +70,7 @@ function advanceFixtureToQuestion(questionId: PlanHomeQuestionId) {
     state = applyFixtureCommand(state, {
       type: "answer-question",
       questionId: question.id,
-      answer: structuredClone(question.response.exampleAnswer),
+      answer: fixtureAnswer(question),
     });
     state = applyFixtureCommand(state, { type: "next" });
     if (question.number === 6) {
@@ -78,7 +89,7 @@ function completedFixture() {
     state = applyFixtureCommand(state, {
       type: "answer-question",
       questionId: question.id,
-      answer: structuredClone(question.response.exampleAnswer),
+      answer: fixtureAnswer(question),
     });
     state = applyFixtureCommand(state, { type: "next" });
     if (question.number === 6) {
@@ -112,7 +123,7 @@ export function createPlanHomeRefinementFixture(
     state = applyFixtureCommand(state, {
       type: "answer-question",
       questionId: question.id,
-      answer: structuredClone(question.response.exampleAnswer),
+      answer: fixtureAnswer(question),
     });
     state = applyFixtureCommand(state, { type: "next" });
     return { requestedState, state, submitted: false };

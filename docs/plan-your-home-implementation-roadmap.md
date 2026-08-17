@@ -33,7 +33,7 @@ Every issue created from this roadmap contains:
 | Order | Phase | Issue title | Depends on |
 | ---: | --- | --- | --- |
 | 1 | Foundation | Scaffold Plan Your Home and its isolated test harness | None |
-| 2 | Foundation | Define the versioned 35-question registry and project-brief schemas | 1 |
+| 2 | Foundation | Define the versioned 31-question registry and project-brief schemas | 1 |
 | 3 | Foundation | Build deterministic tour navigation and local snapshots | 2 |
 | 4 | Data | Add server draft checkpoints with revision-safe persistence | 2–3 |
 | 5 | Experience | Build the accessible scene stage and shared prompt interactions | 2–3 |
@@ -41,7 +41,7 @@ Every issue created from this roadmap contains:
 | 7 | Experience | Deliver the Kitchen and Dining scene | 6 |
 | 8 | Experience | Deliver the Primary Suite scene | 7 |
 | 9 | Experience | Deliver the Bedrooms and Shared Bathrooms scene | 8 |
-| 10 | Experience | Deliver the Laundry, Mudroom, Storage, and Systems scene | 9 |
+| 10 | Experience | Deliver the Laundry and Home Systems scene | 9 |
 | 11 | Experience | Deliver the Garage, Exterior, Site, Outdoor, and Specialty scene | 10 |
 | 12 | Experience/Data | Deliver the Design Desk with secure files and links | 4, 11 |
 | 13 | Experience/Data | Deliver review, edit, idempotent submission, and confirmation | 12 |
@@ -75,13 +75,13 @@ Every issue created from this roadmap contains:
 
 **Proof:** `npm test`; `npm run lint`; `npm run typecheck`; `npm run review -- /plan-your-home`; inspected mobile and desktop captures.
 
-### 2. Define the versioned 35-question registry and project-brief schemas
+### 2. Define the versioned 31-question registry and project-brief schemas
 
 **Outcome:** The exact product-spec questions have stable typed persistence and display contracts before UI work begins.
 
 **Scope**
 
-- Implement `plan-home-v1` definition, zones, 35 stable IDs, option slugs, response schemas, public copy, summaries, scene anchors, and camera keys.
+- Implement `plan-home-v1` definition, zones, 31 stable IDs, option slugs, response schemas, public copy, summaries, scene anchors, and camera keys.
 - Define separate draft snapshot, reference metadata, and submitted project-brief schemas.
 - Implement pure validation and human-readable answer summaries.
 - Test all registry invariants stated in the product specification.
@@ -90,7 +90,7 @@ Every issue created from this roadmap contains:
 
 **Done bar**
 
-- Exactly 35 contiguous questions and seven ordered zones pass invariant tests.
+- Exactly 31 contiguous questions and seven ordered zones pass invariant tests.
 - Duplicate IDs/options, missing anchors, invalid uncertainty behavior, and incompatible defaults fail tests.
 - Budget bands, square-footage bands, finish levels, limits, and public copy match the product spec.
 
@@ -111,7 +111,7 @@ Every issue created from this roadmap contains:
 
 **Done bar**
 
-- Tests cover all 35 questions, backward edits, retained later answers, invalid progress, refresh restore, 30-day expiration, and unknown schema versions.
+- Tests cover all 31 questions, the conditional site-context path, backward edits, retained later answers, invalid progress, refresh restore, 30-day expiration, and unknown schema versions.
 - Same-device restoration returns to the exact prompt.
 
 **Proof:** focused reducer/snapshot tests plus the standard non-UI gates.
@@ -162,13 +162,13 @@ Every issue created from this roadmap contains:
 
 ### 6. Deliver welcome, project frame, Living Room, and contact checkpoint
 
-**Outcome:** A customer can begin a personalized home, answer questions 1–11, and create the first identified draft after question 6.
+**Outcome:** A customer can begin a personalized home, answer questions 1–10, and create the first identified draft after question 6.
 
 **Scope**
 
 - Create bespoke exterior, entry, and living-room illustration layers and registered anchors.
 - Type the customer's name onto the house plaque.
-- Implement questions 1–11 exactly, including helper copy and limits.
+- Implement questions 1–10 exactly, including helper copy, text fields, conditional site context, and limits.
 - Insert email/phone checkpoint after question 6 with save/resume value and manual-follow-up disclosure.
 - Connect local answers and server draft creation/checkpoint.
 - Implement front-door and living-to-kitchen transition beats.
@@ -186,9 +186,9 @@ Every issue created from this roadmap contains:
 
 ### 7. Deliver the Kitchen and Dining scene
 
-**Outcome:** Questions 12–15 feel integrated into one illustrated kitchen/dining walkthrough and checkpoint at zone completion.
+**Outcome:** Questions 11–13 feel integrated into one illustrated kitchen walkthrough and checkpoint at zone completion.
 
-**Scope:** Bespoke scene, four anchors, exact prompt behavior, living-room turn-in, primary-hall transition, checkpoint, summaries, and tests.
+**Scope:** Shared living/kitchen/dining sketch family, three kitchen anchors, exact prompt behavior, living-room turn-in, primary-hall transition, checkpoint, summaries, and tests.
 
 **Non-goals:** Primary Suite or later art.
 
@@ -198,7 +198,7 @@ Every issue created from this roadmap contains:
 
 ### 8. Deliver the Primary Suite scene
 
-**Outcome:** Questions 16–19 work as a spatial primary-suite walkthrough and checkpoint at completion.
+**Outcome:** Questions 14–17 work as a spatial primary-suite walkthrough and checkpoint at completion.
 
 **Scope:** Bespoke scene and anchors, exact prompts/helper copy, kitchen-hall entrance, bedroom-hall exit, persistence and summaries.
 
@@ -210,7 +210,7 @@ Every issue created from this roadmap contains:
 
 ### 9. Deliver the Bedrooms and Shared Bathrooms scene
 
-**Outcome:** Questions 20–21 clearly capture users/layout and bath sharing without visually multiplying rooms.
+**Outcome:** Questions 18–19 clearly capture users/layout and bath sharing without visually multiplying rooms.
 
 **Scope:** Representative bedroom-hall/bath scene, exact grouped prompts and Jack-and-Jill explanation, transitions, checkpoint, summaries, and tests.
 
@@ -220,9 +220,9 @@ Every issue created from this roadmap contains:
 
 **Proof:** focused tests, checkpoint inspection, phone/desktop screenshots, standard UI gates.
 
-### 10. Deliver the Laundry, Mudroom, Storage, and Systems scene
+### 10. Deliver the Laundry and Home Systems scene
 
-**Outcome:** Questions 22–25 work across one coherent utility-hall scene and checkpoint at completion.
+**Outcome:** Questions 20–21 work across one coherent utility-hall scene and checkpoint at completion.
 
 **Scope:** Bespoke scene and anchors, exact prompts/limits, hall turn-in, exterior back-door reveal, checkpoint, summaries, tests.
 
@@ -234,7 +234,7 @@ Every issue created from this roadmap contains:
 
 ### 11. Deliver the Garage, Exterior, Site, Outdoor, and Specialty scene
 
-**Outcome:** Questions 26–30 capture exterior/site priorities with visual choices and transition naturally to the design desk.
+**Outcome:** Questions 22–26 capture exterior/site priorities with visual choices and transition naturally to the design desk.
 
 **Scope:** Exterior/garage scene, visual style cards, exact grouped and limited prompts, disclaimers, back-door reveal, blueprint match cut, checkpoint, summaries, tests.
 
@@ -246,7 +246,7 @@ Every issue created from this roadmap contains:
 
 ### 12. Deliver the Design Desk with secure files and links
 
-**Outcome:** Questions 31–34 work in the design-desk scene, including private direct uploads and safe reference links.
+**Outcome:** Questions 27–30 work in the design-desk scene, including private direct uploads and safe reference links.
 
 **Scope**
 
@@ -274,7 +274,7 @@ Every issue created from this roadmap contains:
 **Scope**
 
 - Build grouped review summaries and edit/return behavior.
-- Implement question 35, inquiry consent version, submission validation, and atomic status conversion.
+- Implement question 31, inquiry consent version, submission validation, and atomic status conversion.
 - Prevent duplicate records or notifications on repeated requests.
 - Add a Plan Your Home confirmation state/page without changing the generic thank-you contract unnecessarily.
 - Expand emulator smoke coverage for complete submission.
@@ -283,7 +283,7 @@ Every issue created from this roadmap contains:
 
 **Done bar**
 
-- Review shows all 35 responses and references in tour order.
+- Review shows all 31 canonical responses and references in tour order; customers who do not own the lot see 30 prompts because site context is not applicable.
 - Editing an early answer preserves valid later answers and returns to review.
 - Invalid/incomplete drafts cannot submit; double submit creates one submitted record.
 - Submission language does not promise design, price, feasibility, or contract.

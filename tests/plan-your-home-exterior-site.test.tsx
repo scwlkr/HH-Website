@@ -64,7 +64,7 @@ function seedQuestion(questionId: "home.systems" | "exterior.garage") {
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(atExterior ? 25 : 24),
+    answers: answersThrough(atExterior ? 21 : 20),
     location: {
       kind: "question",
       questionId,
@@ -205,7 +205,7 @@ test("the utility threshold opens into one fixed exterior study with every regis
   assert.equal(scene.getAttribute("data-active-anchor"), "garage");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMinYMid slice",
+    "xMidYMid slice",
   );
   assert.equal(
     scene
@@ -215,7 +215,7 @@ test("the utility threshold opens into one fixed exterior study with every regis
   );
   assert.equal(
     scene.querySelector('[data-scene-anchor="garage"]')?.tagName,
-    "g",
+    "path",
   );
   assert.equal(query.queryByText("Fixed exterior and site study"), null);
   assert.equal(query.queryByText("garage"), null);
@@ -331,7 +331,7 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   assert.equal(scene.getAttribute("data-active-anchor"), "sun-compass-trees");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMaxYMid slice",
+    "xMidYMid slice",
   );
 
   assert.equal(
@@ -400,7 +400,7 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   );
 });
 
-test("question 30 retries one canonical checkpoint and match-cuts to the design desk threshold", async () => {
+test("question 26 retries one canonical checkpoint and match-cuts to the design desk threshold", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -441,7 +441,7 @@ test("question 30 retries one canonical checkpoint and match-cuts to the design 
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 6);
   assert.equal(calls[0].completedZoneId, "exterior-and-site");
-  assert.equal(Object.keys(calls[0].answers).length, 30);
+  assert.equal(Object.keys(calls[0].answers).length, 26);
   assert.equal(
     summarizePlanHomeAnswer("exterior.garage", calls[0].answers["exterior.garage"]),
     "Garage bays: 2; Needs: Storage, Golf cart parking",
@@ -482,7 +482,9 @@ test("question 30 retries one canonical checkpoint and match-cuts to the design 
   assert.equal(query.queryByText("Design desk threshold"), null);
   await waitFor(() =>
     assert.ok(
-      view.container.querySelector("[data-scene-variant='exterior-site-study']"),
+      view.container.querySelector(
+        "[data-scene-variant='blueprint-design-desk-threshold']",
+      ),
     ),
   );
   assert.equal(view.container.querySelector("[data-scene-variant='design-desk']"), null);

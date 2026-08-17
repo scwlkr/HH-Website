@@ -156,10 +156,10 @@ describe("Plan Your Home server draft contract", () => {
       idempotencyKey:
         "local-39ef1878-bf95-4873-8610-d51d44a96fe0:plan-home-v1:zone:kitchen-and-dining",
       completedZoneId: "kitchen-and-dining",
-      answers: answersThrough(15),
+      answers: answersThrough(13),
     });
 
-    assert.equal(Object.keys(parsed.answers).length, 15);
+    assert.equal(Object.keys(parsed.answers).length, 13);
     assert.equal(parsed.answers["kitchen.use"]?.length, 1);
     assert.deepEqual(createCompletedZoneProgress("kitchen-and-dining"), {
       currentPromptId: "primary.location",
@@ -170,18 +170,18 @@ describe("Plan Your Home server draft contract", () => {
       () =>
         parseCheckpointPlanHomeDraftInput({
           ...parsed,
-          answers: answersThrough(14),
+          answers: answersThrough(12),
         }),
       PlanHomeDraftValidationError,
     );
   });
 
-  it("requires 35 canonical answers, matching references, and the versioned inquiry consent", () => {
+  it("requires 31 canonical answers, matching references, and the versioned inquiry consent", () => {
     const parsed = parseSubmitPlanHomeDraftInput({
       draftId: `draft-${"c".repeat(40)}`,
       expectedRevision: 8,
       idempotencyKey: `local-${localDraftId}:plan-home-v1:submission`,
-      answers: answersThrough(35),
+      answers: answersThrough(31),
       references: [],
       consent: {
         version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
@@ -189,13 +189,13 @@ describe("Plan Your Home server draft contract", () => {
       },
     });
 
-    assert.equal(Object.keys(parsed.answers).length, 35);
+    assert.equal(Object.keys(parsed.answers).length, 31);
     assert.equal(parsed.answers["contact.follow-up"], "email");
     assert.throws(
       () =>
         parseSubmitPlanHomeDraftInput({
           ...parsed,
-          answers: answersThrough(34),
+          answers: answersThrough(30),
         }),
       PlanHomeDraftValidationError,
     );

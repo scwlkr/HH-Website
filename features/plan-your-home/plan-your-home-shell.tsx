@@ -45,7 +45,6 @@ import {
 } from "@/features/plan-your-home/local-snapshot";
 import {
   ChoicePrompt,
-  CountPrompt,
   ExteriorStylePrompt,
   GroupedChoicePrompt,
   MultiChoicePrompt,
@@ -60,6 +59,7 @@ import {
 } from "@/features/plan-your-home/prompt-renderers";
 import {
   getPlanHomeQuestion,
+  isPlanHomeQuestionApplicable,
   planHomeQuestions,
   planHomeZones,
   summarizePlanHomeAnswer,
@@ -209,13 +209,18 @@ const skippedRestoreAction: PlanHomeRestoreAction = async () => ({
   status: "skipped",
 });
 
-const PROJECT_AND_LIVING_LAST_QUESTION = 11;
-const KITCHEN_AND_DINING_LAST_QUESTION = 15;
-const PRIMARY_SUITE_LAST_QUESTION = 19;
-const BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION = 21;
-const UTILITY_AND_SYSTEMS_LAST_QUESTION = 25;
-const EXTERIOR_AND_SITE_LAST_QUESTION = 30;
-const DESIGN_DESK_LAST_QUESTION = 34;
+function lastQuestionNumber(zoneId: string) {
+  return planHomeQuestions.filter((question) => question.zoneId === zoneId).at(-1)?.number ?? 0;
+}
+
+const PROJECT_AND_LIVING_LAST_QUESTION = lastQuestionNumber("project-and-living");
+const KITCHEN_AND_DINING_LAST_QUESTION = lastQuestionNumber("kitchen-and-dining");
+const PRIMARY_SUITE_LAST_QUESTION = lastQuestionNumber("primary-suite");
+const BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION = lastQuestionNumber("bedrooms-and-shared-bathrooms");
+const UTILITY_AND_SYSTEMS_LAST_QUESTION = lastQuestionNumber("utility-and-systems");
+const EXTERIOR_AND_SITE_LAST_QUESTION = lastQuestionNumber("exterior-and-site");
+const DESIGN_DESK_LAST_QUESTION = getPlanHomeQuestion("project.budget-timing")?.number ?? 0;
+const REFERENCES_QUESTION_NUMBER = getPlanHomeQuestion("design.references")?.number ?? 0;
 const PROJECT_AND_LIVING_ZONE = planHomeZones[0];
 const KITCHEN_AND_DINING_ZONE = planHomeZones[1];
 const PRIMARY_SUITE_ZONE = planHomeZones[2];
@@ -305,19 +310,23 @@ function initialDraftAnswers() {
 
 function sceneForQuestion(question: PlanHomeQuestionDefinition) {
   let scene: ReactNode;
-  if (question.number <= 3) {
+  if (
+    question.id === "project.starting-services" ||
+    question.id === "project.lot-location" ||
+    question.id === "project.site-context"
+  ) {
     scene = <EntryScene activeAnchor={question.sceneAnchor} />;
-  } else if (question.number <= PROJECT_AND_LIVING_LAST_QUESTION) {
+  } else if (question.zoneId === "project-and-living") {
     scene = <LivingRoomScene activeAnchor={question.sceneAnchor} />;
-  } else if (question.number <= KITCHEN_AND_DINING_LAST_QUESTION) {
+  } else if (question.zoneId === "kitchen-and-dining") {
     scene = <KitchenDiningScene activeAnchor={question.sceneAnchor} />;
-  } else if (question.number <= PRIMARY_SUITE_LAST_QUESTION) {
+  } else if (question.zoneId === "primary-suite") {
     scene = <PrimarySuiteScene activeAnchor={question.sceneAnchor} />;
-  } else if (question.number <= BEDROOMS_AND_SHARED_BATHROOMS_LAST_QUESTION) {
+  } else if (question.zoneId === "bedrooms-and-shared-bathrooms") {
     scene = <BedroomsSharedBathroomsScene activeAnchor={question.sceneAnchor} />;
-  } else if (question.number <= UTILITY_AND_SYSTEMS_LAST_QUESTION) {
+  } else if (question.zoneId === "utility-and-systems") {
     scene = <UtilitySystemsScene activeAnchor={question.sceneAnchor} />;
-  } else if (question.number <= EXTERIOR_AND_SITE_LAST_QUESTION) {
+  } else if (question.zoneId === "exterior-and-site") {
     scene = <ExteriorSiteScene activeAnchor={question.sceneAnchor} />;
   } else {
     scene = question.number === planHomeQuestions.length ? (
@@ -399,14 +408,11 @@ const PRIORITY_SOURCE_GROUPS = new Map<string, ReadonlySet<string>>([
   ["kitchen.use", new Set(["kitchenUse"])],
   ["kitchen.arrangement", new Set(["workCenter", "connection"])],
   ["kitchen.support", new Set(["supportSpaces"])],
-  ["dining.use", new Set(["diningUse"])],
   ["primary.bedroom-features", new Set(["features"])],
   ["primary.bath-features", new Set(["features"])],
   ["primary.closet-access", new Set(["closetAccess"])],
   ["secondary.bath-sharing", new Set(["bathSharing"])],
   ["utility.laundry", new Set(["laundry"])],
-  ["utility.mudroom", new Set(["mudroom"])],
-  ["utility.storage", new Set(["storage"])],
   ["home.systems", new Set(["systems"])],
   ["exterior.garage", new Set(["needs"])],
   ["site.relationships", new Set(["relationships"])],
@@ -471,11 +477,6 @@ const CUSTOMER_VALIDATION_GUIDANCE: Partial<
     lotStatus: "Choose a lot status.",
     location: "Enter a location or choose Not sure yet.",
   },
-  "home.bed-bath-counts": {
-    bedrooms: "Choose a bedroom count.",
-    fullBathrooms: "Choose a full-bathroom count.",
-    halfBathrooms: "Choose a half-bathroom count.",
-  },
   "kitchen.arrangement": {
     workCenter: "Choose a work center.",
     connection: "Choose a kitchen connection.",
@@ -515,6 +516,12 @@ function customerValidationFeedback(
   const errors: Record<string, string> = {};
   let firstFieldId: string | null = null;
 
+  if (question.response.kind === "text") {
+    const field = question.response.optionGroups[0]?.id ?? "answer";
+    errors[field] = "Enter a short answer before continuing.";
+    firstFieldId = question.id;
+  }
+
   if (guidance) {
     for (const field of validationFields) {
       const message = field ? guidance[field] : undefined;
@@ -543,6 +550,27 @@ function renderQuestionPrompt(
   designDesk?: DesignDeskPromptContext,
 ) {
   const firstGroup = question.response.optionGroups[0] as PlanHomeOptionGroup;
+
+  if (question.response.kind === "text") {
+    return (
+      <ShortTextPrompt
+        id={question.id}
+        legend={firstGroup.label}
+        label="Your answer"
+        value={typeof answer === "string" ? answer : ""}
+        maxLength={question.response.limits?.maxLength ?? 280}
+        multiline={question.id === "home.finish-level"}
+        placeholder={
+          question.id === "home.bed-bath-counts"
+            ? "For example: 4 bedrooms, 3 full bathrooms, and 1 half bathroom"
+            : "Describe the overall finish direction you have in mind"
+        }
+        error={validationErrors[firstGroup.id]}
+        onChange={(value) => updateAnswer(value, "debounced")}
+        onBlur={flushAnswer}
+      />
+    );
+  }
 
   if (question.id === "project.lot-location") {
     const value = answer as {
@@ -601,20 +629,6 @@ function renderQuestionPrompt(
             ),
           },
         ]}
-      />
-    );
-  }
-
-  if (question.id === "home.bed-bath-counts") {
-    return (
-      <CountPrompt
-        key={question.id}
-        id={question.id}
-        groups={question.response.optionGroups}
-        value={answer as Record<string, string | null>}
-        onChange={updateAnswer}
-        instructions="Choose one exact range for each count."
-        errors={validationErrors}
       />
     );
   }
@@ -701,7 +715,9 @@ function renderQuestionPrompt(
       <ExteriorStylePrompt
         id={question.id}
         legend={firstGroup.label}
-        options={firstGroup.options}
+        options={firstGroup.options.filter(
+          (option) => option.semantic !== "not-applicable",
+        )}
         value={answer as readonly string[]}
         maxSelections={firstGroup.maxSelections ?? 2}
         exclusiveOptionSlugs={firstGroup.exclusiveOptionSlugs}
@@ -983,8 +999,8 @@ function ContactCheckpoint({
           Save your progress and resume later.
         </h1>
         <p className={styles.momentCopy}>
-          We’ll attach these first six answers to {name.trim()} and keep your
-          place in the walkthrough.
+          We’ll attach these first planning answers to {name.trim()} and keep
+          your place in the walkthrough.
         </p>
         <p className={styles.privacyNotice}>
           Saving creates a private server draft kept up to 180 days after last
@@ -1132,7 +1148,7 @@ function UtilityHallBoundary({
         </h1>
         <p className={styles.momentCopy}>
           Bedroom users, arrangement, and bathroom sharing are checkpointed.
-          Laundry, everyday entry, storage, and systems continue from here.
+          Laundry and home-system priorities continue from here.
         </p>
         <div className={styles.momentActions}>
           <Button type="button" variant="secondary" onClick={onBack}>
@@ -1177,8 +1193,8 @@ function ExteriorBackDoorBoundary({
           The back door opens to the exterior.
         </h1>
         <p className={styles.momentCopy}>
-          Laundry, everyday entry, storage, and broad system priorities are
-          checkpointed. The exterior walkthrough begins beyond this threshold.
+          Laundry and broad system priorities are checkpointed. The exterior
+          walkthrough begins beyond this threshold.
         </p>
         <div className={styles.momentActions}>
           <Button type="button" variant="secondary" onClick={onBack}>
@@ -1337,7 +1353,14 @@ function ProjectBriefReview({
             returns directly to this brief without replaying the rest.
           </p>
           <dl className={styles.reviewSummary} aria-label="Project brief summary">
-            <div><dt>Prompts</dt><dd>35</dd></div>
+            <div>
+              <dt>Prompts</dt>
+              <dd>
+                {planHomeQuestions.filter((question) =>
+                  isPlanHomeQuestionApplicable(question.id, state.answers),
+                ).length}
+              </dd>
+            </div>
             <div><dt>Zones</dt><dd>7</dd></div>
             <div><dt>References</dt><dd>{state.references.length}</dd></div>
           </dl>
@@ -1409,7 +1432,9 @@ function ProjectBriefReview({
           <div className={styles.reviewGroups}>
             {planHomeZones.map((zone, zoneIndex) => {
               const questions = planHomeQuestions.filter(
-                (question) => question.zoneId === zone.id,
+                (question) =>
+                  question.zoneId === zone.id &&
+                  isPlanHomeQuestionApplicable(question.id, state.answers),
               );
               return (
                 <section
@@ -1880,7 +1905,7 @@ export function PlanYourHomeShell({
               : null;
           resumeAnalyticsTracked.current = true;
           trackPlanHomeEvent("draft_resumed", {
-            prompt_index: activeQuestion?.number ?? 35,
+            prompt_index: activeQuestion?.number ?? planHomeQuestions.length,
           });
         }
       }
@@ -2099,7 +2124,7 @@ export function PlanYourHomeShell({
       setError(null);
       trackPlanHomeEvent("reference_added", {
         zone_id: "design-desk-and-review",
-        prompt_index: 32,
+        prompt_index: REFERENCES_QUESTION_NUMBER,
         reference_kind: "file",
       });
     } catch (uploadError) {
@@ -2168,7 +2193,7 @@ export function PlanYourHomeShell({
     setError(null);
     trackPlanHomeEvent("reference_added", {
       zone_id: "design-desk-and-review",
-      prompt_index: 32,
+      prompt_index: REFERENCES_QUESTION_NUMBER,
       reference_kind: "link",
     });
   }
@@ -2771,7 +2796,7 @@ export function PlanYourHomeShell({
       if (!reviewMode) {
         trackPlanHomeEvent("plan_home_submitted", {
           zone_id: "design-desk-and-review",
-          prompt_index: 35,
+          prompt_index: planHomeQuestions.length,
         });
       }
       return;
@@ -2819,7 +2844,7 @@ export function PlanYourHomeShell({
     setSubmitted(true);
     trackPlanHomeEvent("plan_home_submitted", {
       zone_id: "design-desk-and-review",
-      prompt_index: 35,
+      prompt_index: planHomeQuestions.length,
     });
   }
 
@@ -2844,6 +2869,9 @@ export function PlanYourHomeShell({
     tourState.location.kind === "question"
       ? getPlanHomeQuestion(tourState.location.questionId)
       : undefined;
+  const applicableQuestions = planHomeQuestions.filter((question) =>
+    isPlanHomeQuestionApplicable(question.id, tourState.answers),
+  );
   const referencesValue = draftAnswers["design.references"] as {
     references: readonly PlanHomeReferenceMetadata[];
     noReferencesYet: boolean;
@@ -2979,19 +3007,19 @@ export function PlanYourHomeShell({
         className={styles.sceneBeat}
         data-reduced-motion={reducedMotion}
         data-tour-beat={
-          question.number === 1
+          question.id === "project.starting-services"
             ? "front-door"
-            : question.number === 12
+            : question.id === "kitchen.use"
               ? "living-to-kitchen"
-              : question.number === 16
+              : question.id === "primary.location"
                 ? "kitchen-hall-to-primary"
-                : question.number === 20
+                : question.id === "secondary.users-layout"
                   ? "bedroom-hall-entrance"
-                  : question.number === 22
+                  : question.id === "utility.laundry"
                     ? "utility-hall-entrance"
-                    : question.number === 26
+                    : question.id === "exterior.garage"
                       ? "exterior-back-door-entrance"
-                      : question.number === 31
+                      : question.id === "design.feeling"
                         ? "design-desk-entrance"
                       : "in-room"
         }
@@ -3013,7 +3041,10 @@ export function PlanYourHomeShell({
                         ? EXTERIOR_AND_SITE_ZONE
                         : DESIGN_DESK_ZONE
           }
-          totalQuestions={planHomeQuestions.length}
+          questionPosition={
+            applicableQuestions.findIndex((item) => item.id === question.id) + 1
+          }
+          totalQuestions={applicableQuestions.length}
           scene={sceneForQuestion(question)}
           prompt={renderQuestionPrompt(
             question,

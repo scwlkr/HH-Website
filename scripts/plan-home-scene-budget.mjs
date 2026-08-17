@@ -3,20 +3,10 @@ import path from "node:path";
 import { gzipSync } from "node:zlib";
 
 const chunkDirectory = path.join(process.cwd(), ".next", "static", "chunks");
-const perSceneBudgetBytes = 24 * 1024;
-const currentAndNextBudgetBytes = 48 * 1024;
+const sharedFamilyBudgetBytes = 24 * 1024;
 
 const sceneGroups = [
-  { id: "project-and-living", module: "first-zone-scenes" },
-  { id: "kitchen-and-dining", module: "kitchen-dining-scene" },
-  { id: "primary-suite", module: "primary-suite-scene" },
-  {
-    id: "bedrooms-and-shared-bathrooms",
-    module: "bedrooms-shared-bathrooms-scene",
-  },
-  { id: "utility-and-systems", module: "utility-systems-scene" },
-  { id: "exterior-and-site", module: "exterior-site-scene" },
-  { id: "design-desk-and-review", module: "design-desk-scene" },
+  { id: "five-scene-families", module: "scene-families" },
 ];
 
 function assert(condition, message) {
@@ -65,8 +55,8 @@ const measurements = sceneGroups.map((group) => {
   const cssGzipBytes = gzipSync(css[0].bytes).byteLength;
   const gzipBytes = javascriptGzipBytes + cssGzipBytes;
   assert(
-    gzipBytes <= perSceneBudgetBytes,
-    `${group.id} contributes ${formatKib(gzipBytes)} compressed, above the ${formatKib(perSceneBudgetBytes)} scene budget.`,
+    gzipBytes <= sharedFamilyBudgetBytes,
+    `${group.id} contributes ${formatKib(gzipBytes)} compressed, above the ${formatKib(sharedFamilyBudgetBytes)} shared-family budget.`,
   );
 
   return {
@@ -79,25 +69,13 @@ const measurements = sceneGroups.map((group) => {
   };
 });
 
-const adjacentMeasurements = measurements.slice(0, -1).map((current, index) => {
-  const next = measurements[index + 1];
-  const gzipBytes = current.gzipBytes + next.gzipBytes;
-  assert(
-    gzipBytes <= currentAndNextBudgetBytes,
-    `${current.id} plus ${next.id} contributes ${formatKib(gzipBytes)} compressed, above the ${formatKib(currentAndNextBudgetBytes)} current-plus-next budget.`,
-  );
-  return { current: current.id, next: next.id, gzipBytes };
-});
-
 process.stdout.write(
   `${JSON.stringify(
     {
       target: {
-        perSceneGzipBytes: perSceneBudgetBytes,
-        currentAndNextGzipBytes: currentAndNextBudgetBytes,
+        sharedFamilyGzipBytes: sharedFamilyBudgetBytes,
       },
       measurements,
-      adjacentMeasurements,
       exceptions: [],
     },
     null,

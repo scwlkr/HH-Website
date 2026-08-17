@@ -22,7 +22,7 @@ test("question chrome keeps visual progress compact and exposes the count access
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Where are you starting?",
+        name: "What do you have in mind?",
       }),
     ),
   );
@@ -45,11 +45,11 @@ test("question chrome keeps visual progress compact and exposes the count access
   assert.ok(promptSheet);
   assert.ok(promptHeader);
 
-  assert.equal(header.textContent?.includes("Question 1 of 35"), false);
+  assert.equal(header.textContent?.includes("Question 1 of 31"), false);
   assert.equal(progressCopy.textContent?.trim(), "Entry and Living Room");
   assert.notEqual(promptHeader.firstElementChild?.tagName, "SPAN");
-  assert.equal(progress.getAttribute("aria-label"), "Question 1 of 35");
+  assert.equal(progress.getAttribute("aria-label"), "Question 1 of 31");
   assert.equal(progress.getAttribute("value"), "1");
-  assert.equal(progress.getAttribute("max"), "35");
+  assert.equal(progress.getAttribute("max"), "31");
   assert.ok(query.getByRole("link", { name: "Save and exit" }));
 });

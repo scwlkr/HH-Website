@@ -48,12 +48,11 @@ function answersThrough(questionNumber: number): Record<string, unknown> {
 }
 
 function seedSecondaryStart(bedrooms: "1" | "6-plus" = "1") {
-  const answers = answersThrough(19);
-  answers["home.bed-bath-counts"] = {
-    bedrooms,
-    fullBathrooms: "3",
-    halfBathrooms: "1",
-  };
+  const answers = answersThrough(17);
+  answers["home.bed-bath-counts"] =
+    bedrooms === "1"
+      ? "1 bedroom, 1 full bathroom"
+      : "6 or more bedrooms, 3 full bathrooms, and 1 half bathroom";
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
@@ -142,7 +141,7 @@ test("one representative scene serves every bedroom count and validates both gro
   );
   assert.equal(
     firstScene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMinYMid slice",
+    "xMidYMid slice",
   );
   assert.equal(
     view.container
@@ -153,7 +152,7 @@ test("one representative scene serves every bedroom count and validates both gro
   assert.equal(
     view.container.querySelector('[data-scene-anchor="bedroom-door-cluster"]')
       ?.tagName,
-    "g",
+    "path",
   );
   assert.equal(query.queryByText("Representative bedroom hall study"), null);
   assert.equal(query.queryByText("bedroom door cluster"), null);
@@ -197,7 +196,7 @@ test("one representative scene serves every bedroom count and validates both gro
   );
   assert.equal(
     firstScene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMaxYMid slice",
+    "xMidYMid slice",
   );
   const results = await axe.run(view.container, {
     rules: { "color-contrast": { enabled: false } },
@@ -275,7 +274,7 @@ test("Back crosses the Primary Suite boundary and keeps the grouped bedroom answ
   assert.equal(calls[0].completedZoneId, "primary-suite");
 });
 
-test("question 21 retries one checkpoint, stores canonical summaries, and exits to the utility hall", async () => {
+test("question 19 retries one checkpoint, stores canonical summaries, and exits to the utility hall", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -319,7 +318,7 @@ test("question 21 retries one checkpoint, stores canonical summaries, and exits 
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 4);
   assert.equal(calls[0].completedZoneId, "bedrooms-and-shared-bathrooms");
-  assert.equal(Object.keys(calls[0].answers).length, 21);
+  assert.equal(Object.keys(calls[0].answers).length, 19);
   assert.equal(
     summarizePlanHomeAnswer(
       "secondary.users-layout",

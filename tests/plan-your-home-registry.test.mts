@@ -21,21 +21,19 @@ const expectedZoneIds = [
 ];
 
 const expectedQuestions = [
-  ["project.starting-services", "Where are you starting?"],
+  ["project.starting-services", "What do you have in mind?"],
   ["project.lot-location", "What is your lot status and location?"],
   ["project.site-context", "What do you know about the site?"],
-  ["home.heated-square-feet", "How much heated space are you considering?"],
+  ["home.heated-square-feet", "How much space are you considering?"],
   ["home.stories", "How many stories are you considering?"],
   ["home.bed-bath-counts", "How many bedrooms and bathrooms do you expect?"],
-  ["home.future-support", "Who should this home support over time?"],
   ["home.daily-life", "Which daily routines should the home support?"],
-  ["living.relationship", "How should the main living areas connect?"],
+  ["living.relationship", "How should the main living spaces feel?"],
   ["living.features", "What matters most in the main living area?"],
-  ["home.finish-level", "Which whole-home finish level fits you?"],
+  ["home.finish-level", "What finish direction do you have in mind?"],
   ["kitchen.use", "How will you use the kitchen?"],
-  ["kitchen.arrangement", "How should the kitchen be arranged?"],
+  ["kitchen.arrangement", "How should the kitchen work and feel?"],
   ["kitchen.support", "What pantry or support spaces interest you?"],
-  ["dining.use", "How should dining work?"],
   ["primary.location", "Where should the primary suite go?"],
   ["primary.bedroom-features", "Which primary-bedroom features matter?"],
   ["primary.bath-features", "Which primary-bath features matter?"],
@@ -43,19 +41,17 @@ const expectedQuestions = [
   ["secondary.users-layout", "Who will use the secondary bedrooms?"],
   ["secondary.bath-sharing", "How should secondary bathrooms be shared?"],
   ["utility.laundry", "How should laundry work?"],
-  ["utility.mudroom", "What should the everyday entry handle?"],
-  ["utility.storage", "Which overlooked storage needs matter?"],
   ["home.systems", "Which home comfort and system priorities matter?"],
   ["exterior.garage", "What should the garage handle?"],
   ["exterior.style", "Which exterior character feels right?"],
-  ["site.relationships", "Which site relationships matter most?"],
+  ["site.relationships", "Which site features matter most?"],
   ["exterior.outdoor-living", "Which outdoor-living features matter?"],
   ["home.specialty-spaces", "Which specialty or future spaces matter?"],
   ["design.feeling", "How should your new home feel?"],
   ["design.references", "What references show your direction?"],
   ["design.priorities", "What are your key priorities?"],
   ["project.budget-timing", "What are your budget and timing?"],
-  ["contact.follow-up", "How should h and h follow up?"],
+  ["contact.follow-up", "How should we follow up?"],
 ];
 
 function question(id: string): PlanHomeQuestionDefinition {
@@ -77,14 +73,14 @@ function withQuestionMutation(
 }
 
 describe("plan-home-v1 registry", () => {
-  it("contains 35 contiguous questions in exactly seven ordered zones", () => {
+  it("contains 31 contiguous questions in exactly seven ordered zones", () => {
     assert.equal(planHomeV1Definition.id, "plan-home-v1");
     assert.deepEqual(planHomeV1Definition.zones.map((zone) => zone.id), expectedZoneIds);
     assert.deepEqual(planHomeV1Definition.zones.map((zone) => zone.order), [1, 2, 3, 4, 5, 6, 7]);
-    assert.equal(planHomeV1Definition.questions.length, 35);
+    assert.equal(planHomeV1Definition.questions.length, 31);
     assert.deepEqual(
       planHomeV1Definition.questions.map((item) => item.number),
-      Array.from({ length: 35 }, (_, index) => index + 1),
+      Array.from({ length: 31 }, (_, index) => index + 1),
     );
     assert.deepEqual(
       planHomeV1Definition.questions.map(({ id, prompt }) => [id, prompt]),
@@ -122,7 +118,7 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "c76f2ad0538a80d97766170c74a6e504eb858344977c704bb558b7633d55a1b3",
+      "48446785968de0d4e2ac90b5afd8537ca36f94a62a4ac905c4af3bd526576899",
     );
     assert.equal(
       question("home.systems").helper,
@@ -162,7 +158,7 @@ describe("plan-home-v1 registry", () => {
   it("keeps IDs, option slugs, scene anchors, camera keys, and defaults valid", () => {
     assert.equal(
       new Set(planHomeV1Definition.questions.map((item) => item.id)).size,
-      35,
+      31,
     );
 
     for (const item of planHomeV1Definition.questions) {
@@ -194,15 +190,8 @@ describe("plan-home-v1 registry", () => {
         ["not-sure-yet", "Not sure yet"],
       ],
     );
-    assert.deepEqual(
-      question("home.finish-level").response.optionGroups[0].options.map(({ slug, label }) => [slug, label]),
-      [
-        ["builder-grade", "Builder Grade"],
-        ["builder-plus", "Builder+"],
-        ["custom", "Custom"],
-        ["not-sure-yet", "Not sure yet"],
-      ],
-    );
+    assert.equal(question("home.finish-level").response.kind, "text");
+    assert.deepEqual(question("home.finish-level").response.limits, { maxLength: 280 });
     assert.deepEqual(
       question("project.budget-timing").response.optionGroups[0].options.map(({ slug, label }) => [slug, label]),
       [
@@ -282,11 +271,11 @@ describe("plan-home-v1 registry", () => {
     );
     assert.equal(
       validatePlanHomeAnswer("home.daily-life", [
-        "gathering",
         "quiet-and-privacy",
         "entertaining",
         "remote-work-or-study",
         "hobbies-or-making",
+        "caregiving",
       ]).success,
       false,
     );
@@ -302,12 +291,11 @@ describe("plan-home-v1 registry", () => {
       "2,500–2,999",
     );
     assert.equal(
-      summarizePlanHomeAnswer("home.bed-bath-counts", {
-        bedrooms: "4",
-        fullBathrooms: "3",
-        halfBathrooms: "1",
-      }),
-      "Bedrooms: 4; Full bathrooms: 3; Half bathrooms: 1",
+      summarizePlanHomeAnswer(
+        "home.bed-bath-counts",
+        "4 bedrooms, 3 full bathrooms, and 1 half bathroom",
+      ),
+      "4 bedrooms, 3 full bathrooms, and 1 half bathroom",
     );
     assert.equal(
       summarizePlanHomeAnswer("project.budget-timing", {
@@ -366,7 +354,7 @@ describe("plan-home-v1 registry", () => {
   it("rejects defaults incompatible with response schemas", () => {
     const invalid = withQuestionMutation("home.bed-bath-counts", (item) => ({
       ...item,
-      response: { ...item.response, defaultAnswer: "not-an-answer-object" },
+      response: { ...item.response, defaultAnswer: 4 },
     }));
     assert.match(validatePlanHomeDefinition(invalid).join("\n"), /default answer/i);
   });

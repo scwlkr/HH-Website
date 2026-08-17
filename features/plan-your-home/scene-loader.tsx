@@ -1,103 +1,49 @@
 "use client";
 
-import { lazy, Suspense, type ReactNode } from "react";
+import { lazy, Suspense, type ComponentType, type ReactNode } from "react";
 
-const loadFirstZoneScenes = () => import("./first-zone-scenes");
-const loadKitchenDiningScene = () => import("./kitchen-dining-scene");
-const loadPrimarySuiteScene = () => import("./primary-suite-scene");
-const loadBedroomsSharedBathroomsScene = () =>
-  import("./bedrooms-shared-bathrooms-scene");
-const loadUtilitySystemsScene = () => import("./utility-systems-scene");
-const loadExteriorSiteScene = () => import("./exterior-site-scene");
-const loadDesignDeskScene = () => import("./design-desk-scene");
+const loadSceneFamilies = () => import("./scene-families");
 
-export const WelcomeExteriorScene = lazy(() =>
-  loadFirstZoneScenes().then(({ WelcomeExteriorScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const EntryScene = lazy(() =>
-  loadFirstZoneScenes().then(({ EntryScene: Scene }) => ({ default: Scene })),
-);
-export const LivingRoomScene = lazy(() =>
-  loadFirstZoneScenes().then(({ LivingRoomScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const KitchenDiningScene = lazy(() =>
-  loadKitchenDiningScene().then(({ KitchenDiningScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const PrimarySuiteScene = lazy(() =>
-  loadPrimarySuiteScene().then(({ PrimarySuiteScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const BedroomHallThresholdScene = lazy(() =>
-  loadPrimarySuiteScene().then(({ BedroomHallThresholdScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const BedroomsSharedBathroomsScene = lazy(() =>
-  loadBedroomsSharedBathroomsScene().then(
-    ({ BedroomsSharedBathroomsScene: Scene }) => ({ default: Scene }),
-  ),
-);
-export const UtilityHallThresholdScene = lazy(() =>
-  loadBedroomsSharedBathroomsScene().then(
-    ({ UtilityHallThresholdScene: Scene }) => ({ default: Scene }),
-  ),
-);
-export const UtilitySystemsScene = lazy(() =>
-  loadUtilitySystemsScene().then(({ UtilitySystemsScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const ExteriorBackDoorThresholdScene = lazy(() =>
-  loadUtilitySystemsScene().then(
-    ({ ExteriorBackDoorThresholdScene: Scene }) => ({ default: Scene }),
-  ),
-);
-export const ExteriorSiteScene = lazy(() =>
-  loadExteriorSiteScene().then(({ ExteriorSiteScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const BlueprintDesignDeskThresholdScene = lazy(() =>
-  loadExteriorSiteScene().then(
-    ({ BlueprintDesignDeskThresholdScene: Scene }) => ({ default: Scene }),
-  ),
-);
-export const DesignDeskScene = lazy(() =>
-  loadDesignDeskScene().then(({ DesignDeskScene: Scene }) => ({
-    default: Scene,
-  })),
-);
-export const ReviewBriefThresholdScene = lazy(() =>
-  loadDesignDeskScene().then(({ ReviewBriefThresholdScene: Scene }) => ({
-    default: Scene,
-  })),
-);
+function lazyScene<Props>(name: keyof typeof import("./scene-families")) {
+  return lazy(() =>
+    loadSceneFamilies().then((scenes) => ({
+      default: scenes[name] as unknown as ComponentType<Props>,
+    })),
+  );
+}
+
+type AnchorProps = Readonly<{ activeAnchor?: string }>;
+type WelcomeProps = Readonly<{ name: string }>;
+
+export const WelcomeExteriorScene = lazyScene<WelcomeProps>("WelcomeExteriorScene");
+export const EntryScene = lazyScene<AnchorProps>("EntryScene");
+export const LivingRoomScene = lazyScene<AnchorProps>("LivingRoomScene");
+export const KitchenDiningScene = lazyScene<AnchorProps>("KitchenDiningScene");
+export const PrimarySuiteScene = lazyScene<AnchorProps>("PrimarySuiteScene");
+export const BedroomHallThresholdScene = lazyScene<Record<never, never>>("BedroomHallThresholdScene");
+export const BedroomsSharedBathroomsScene = lazyScene<AnchorProps>("BedroomsSharedBathroomsScene");
+export const UtilityHallThresholdScene = lazyScene<Record<never, never>>("UtilityHallThresholdScene");
+export const UtilitySystemsScene = lazyScene<AnchorProps>("UtilitySystemsScene");
+export const ExteriorBackDoorThresholdScene = lazyScene<Record<never, never>>("ExteriorBackDoorThresholdScene");
+export const ExteriorSiteScene = lazyScene<AnchorProps>("ExteriorSiteScene");
+export const BlueprintDesignDeskThresholdScene = lazyScene<Record<never, never>>("BlueprintDesignDeskThresholdScene");
+export const DesignDeskScene = lazyScene<AnchorProps>("DesignDeskScene");
+export const ReviewBriefThresholdScene = lazyScene<Record<never, never>>("ReviewBriefThresholdScene");
 
 const sceneLoaders = [
-  loadFirstZoneScenes,
-  loadKitchenDiningScene,
-  loadPrimarySuiteScene,
-  loadBedroomsSharedBathroomsScene,
-  loadUtilitySystemsScene,
-  loadExteriorSiteScene,
-  loadDesignDeskScene,
+  loadSceneFamilies,
+  loadSceneFamilies,
+  loadSceneFamilies,
+  loadSceneFamilies,
+  loadSceneFamilies,
 ] as const;
 
 export function planHomeSceneIndex(questionNumber: number | null) {
-  if (questionNumber === null || questionNumber <= 11) return 0;
-  if (questionNumber <= 15) return 1;
+  if (questionNumber === null || questionNumber <= 3) return 0;
+  if (questionNumber <= 13) return 1;
   if (questionNumber <= 19) return 2;
-  if (questionNumber <= 21) return 3;
-  if (questionNumber <= 25) return 4;
-  if (questionNumber <= 30) return 5;
-  return 6;
+  if (questionNumber <= 26) return 3;
+  return 4;
 }
 
 export function preloadNextPlanHomeScene(

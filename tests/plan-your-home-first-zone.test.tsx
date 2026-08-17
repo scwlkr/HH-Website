@@ -67,14 +67,14 @@ async function beginTour(
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Where are you starting?",
+        name: "What do you have in mind?",
       }),
     ),
   );
   assert.equal(
     window.document.activeElement,
     query.getByRole("heading", {
-      name: "Where are you starting?",
+      name: "What do you have in mind?",
     }),
   );
 }
@@ -107,14 +107,10 @@ async function answerThroughContactGate(
   await user.click(query.getByRole("radio", { name: "One" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
-  const bedrooms = query.getByRole("group", { name: "Bedrooms" });
-  await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
-  const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
-  await user.click(within(fullBathrooms).getByRole("radio", { name: "3" }));
-  await user.click(query.getByRole("button", { name: "Continue" }));
-  const halfBathrooms = query.getByRole("group", { name: "Half bathrooms" });
-  await user.click(within(halfBathrooms).getByRole("radio", { name: "1" }));
+  await user.type(
+    query.getByRole("textbox", { name: "Your answer" }),
+    "4 bedrooms, 3 full bathrooms, and 1 half bathroom",
+  );
   await user.click(query.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>
@@ -147,14 +143,14 @@ async function saveContact(
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Who should this home support over time?",
+        name: "Which daily routines should the home support?",
       }),
     ),
   );
   assert.equal(
     window.document.activeElement,
     query.getByRole("heading", {
-      name: "Who should this home support over time?",
+      name: "Which daily routines should the home support?",
     }),
   );
 }
@@ -167,10 +163,10 @@ test("welcome personalizes decorative plaque and the front-door beat opens exact
   assert.equal(query.getAllByRole("heading", { level: 1 }).length, 1);
   assert.ok(query.getByRole("link", { name: "Save and exit" }));
   await waitFor(() =>
-    assert.ok(query.getByText("An illustrated walkthrough, not a proposed design")),
+    assert.ok(query.getByText("Concept sketch · not a proposed design")),
   );
   assert.equal(
-    query.getByText("An illustrated walkthrough, not a proposed design").closest(
+    query.getByText("Concept sketch · not a proposed design").closest(
       '[aria-hidden="true"]',
     ) !== null,
     true,
@@ -272,7 +268,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
     await waitFor(() =>
       assert.ok(
         query.getByRole("heading", {
-          name: "Where are you starting?",
+          name: "What do you have in mind?",
         }),
       ),
     );
@@ -290,7 +286,7 @@ test("missing grouped choices use one safe instruction per group and refocus as 
   }
 });
 
-test("missing bedroom and bathroom counts show customer-safe guidance and focus the first incomplete group", async () => {
+test("missing bedroom and bathroom text shows customer-safe guidance and focuses the field", async () => {
   const user = userEvent.setup({ document: window.document });
   const view = render(<PlanYourHomeShell reducedMotion />);
   const query = within(view.container);
@@ -320,43 +316,18 @@ test("missing bedroom and bathroom counts show customer-safe guidance and focus 
     await user.click(query.getByRole("radio", { name: "One" }));
     await user.click(query.getByRole("button", { name: "Next" }));
 
-    const bedrooms = query.getByRole("group", { name: "Bedrooms" });
-    assert.equal(query.queryByRole("group", { name: "Full bathrooms" }), null);
+    const counts = query.getByRole("textbox", { name: "Your answer" });
     await user.click(query.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
       assert.deepEqual(
         query.getAllByRole("alert").map((alert) => alert.textContent),
-        ["Choose a bedroom count."],
+        ["Enter a short answer before continuing."],
       );
-      assert.equal(
-        window.document.activeElement,
-        within(bedrooms).getAllByRole("radio")[0],
-      );
+      assert.equal(window.document.activeElement, counts);
     });
     assert.equal(query.queryByText(/Invalid option:/), null);
-    assert.equal(scroll.targets.at(-1), bedrooms);
-
-    await user.click(within(bedrooms).getByRole("radio", { name: "4" }));
-    await user.click(query.getByRole("button", { name: "Continue" }));
-    const fullBathrooms = query.getByRole("group", { name: "Full bathrooms" });
-    await user.click(query.getByRole("button", { name: "Next" }));
-
-    await waitFor(() => {
-      assert.deepEqual(
-        query.getAllByRole("alert").map((alert) => alert.textContent),
-        ["Choose a full-bathroom count."],
-      );
-      assert.equal(
-        window.document.activeElement,
-        within(fullBathrooms).getAllByRole("radio")[0],
-      );
-    });
-    assert.equal(scroll.targets.at(-1), fullBathrooms);
-    assert.match(
-      query.getByRole("group", { name: "Completed Bedrooms" }).textContent ?? "",
-      /Bedrooms4Edit/,
-    );
+    assert.equal(scroll.targets.at(-1), counts.closest("fieldset"));
     const accessibility = await axe.run(view.container, {
       rules: { "color-contrast": { enabled: false } },
     });
@@ -409,7 +380,7 @@ test("valid choices persist locally before Next and survive refresh without a se
   await waitFor(() =>
     assert.ok(
       refreshed.getByRole("heading", {
-        name: "Where are you starting?",
+        name: "What do you have in mind?",
       }),
     ),
   );
@@ -596,7 +567,7 @@ test("contact validation stays customer-safe, retains answers, and retries one s
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
 });
 
-test("refresh restores before and after contact; question 11 checkpoints all first-zone answers", async () => {
+test("refresh restores before and after contact; question 10 checkpoints all first-zone answers", async () => {
   const createCalls: unknown[] = [];
   const checkpointCalls: unknown[] = [];
   const createDraft = successfulCreate(createCalls);
@@ -643,20 +614,21 @@ test("refresh restores before and after contact; question 11 checkpoints all fir
   await waitFor(() =>
     assert.ok(
       resumed.getByRole("heading", {
-        name: "Who should this home support over time?",
+        name: "Which daily routines should the home support?",
       }),
     ),
   );
 
-  await user.click(resumed.getByRole("checkbox", { name: "Growing family" }));
-  await user.click(resumed.getByRole("button", { name: "Next" }));
-  await user.click(resumed.getByRole("checkbox", { name: "Gathering" }));
+  await user.click(resumed.getByRole("checkbox", { name: "Quiet and privacy" }));
   await user.click(resumed.getByRole("button", { name: "Next" }));
   await user.click(resumed.getByRole("radio", { name: "Open" }));
   await user.click(resumed.getByRole("button", { name: "Next" }));
   await user.click(resumed.getByRole("checkbox", { name: "Fireplace" }));
   await user.click(resumed.getByRole("button", { name: "Next" }));
-  await user.click(resumed.getByRole("radio", { name: "Builder Grade" }));
+  await user.type(
+    resumed.getByRole("textbox", { name: "Your answer" }),
+    "Warm, durable finishes with natural wood",
+  );
   await user.click(resumed.getByRole("button", { name: "Save room" }));
 
   await waitFor(() =>
@@ -674,7 +646,7 @@ test("refresh restores before and after contact; question 11 checkpoints all fir
   };
   assert.equal(checkpoint.expectedRevision, 1);
   assert.equal(checkpoint.completedZoneId, "project-and-living");
-  assert.equal(Object.keys(checkpoint.answers).length, 11);
+  assert.equal(Object.keys(checkpoint.answers).length, 10);
 });
 
 test("contact checkpoint has no detectable automated accessibility violations", async () => {

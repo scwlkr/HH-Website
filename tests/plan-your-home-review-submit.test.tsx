@@ -50,7 +50,7 @@ const references: readonly PlanHomeReferenceMetadata[] = [
 
 function seedFinalQuestion() {
   const answers: Record<string, unknown> = Object.fromEntries(
-    planHomeQuestions.slice(0, 34).map((question) => [
+    planHomeQuestions.slice(0, 30).map((question) => [
       question.id,
       structuredClone(question.response.exampleAnswer),
     ]),
@@ -99,7 +99,7 @@ function seedFinalQuestion() {
   );
 }
 
-test("Q35 leads to a complete grouped review, direct edit-return, consent, and idempotent confirmation", async () => {
+test("Q31 leads to a complete grouped review, direct edit-return, consent, and idempotent confirmation", async () => {
   seedFinalQuestion();
   const submitCalls: unknown[] = [];
   const checkpointCalls: unknown[] = [];
@@ -136,7 +136,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "How should h and h follow up?",
+        name: "How should we follow up?",
       }),
     ),
   );
@@ -167,13 +167,13 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   assert.ok(view.container.querySelector("[data-review-workspace]"));
   assert.equal(
     view.container.querySelectorAll("[data-review-question]").length,
-    35,
+    31,
   );
   assert.equal(view.container.querySelectorAll("[data-review-zone]").length, 7);
   assert.equal(view.container.querySelectorAll("[data-review-sheet]").length, 7);
   assert.equal(
     query.getAllByRole("button", { name: /^Edit Q\d+:/ }).length,
-    35,
+    31,
   );
   assert.ok(query.getByText("taylor@example.com"));
   assert.ok(query.getByText("kitchen-inspiration.pdf"));
@@ -213,10 +213,10 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
     }),
   );
   await waitFor(() =>
-    assert.ok(query.getByRole("heading", { name: /Where are you starting/ })),
+    assert.ok(query.getByRole("heading", { name: /What do you have in mind/ })),
   );
   await user.click(query.getByRole("button", { name: "Edit Starting point" }));
-  await user.click(query.getByRole("radio", { name: "Adapt an existing plan" }));
+  await user.click(query.getByRole("radio", { name: "Already have a plan" }));
   await user.click(query.getByRole("button", { name: "Save" }));
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
@@ -230,18 +230,20 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   assert.match(
     view.container.querySelector('[data-review-question="project.starting-services"]')
       ?.textContent ?? "",
-    /Adapt an existing plan/,
+    /Already have a plan/,
   );
 
-  await user.click(query.getByRole("button", { name: /^Edit Q11:/ }));
+  await user.click(query.getByRole("button", { name: /^Edit Q10:/ }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
-        name: "Which whole-home finish level fits you?",
+        name: "What finish direction do you have in mind?",
       }),
     ),
   );
-  await user.click(query.getByRole("radio", { name: "Custom" }));
+  const finishDirection = query.getByRole("textbox", { name: "Your answer" });
+  await user.clear(finishDirection);
+  await user.type(finishDirection, "Custom natural wood and stone finishes");
   await user.click(query.getByRole("button", { name: "Save" }));
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
@@ -250,7 +252,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
   assert.match(
     view.container.querySelector('[data-review-question="home.finish-level"]')
       ?.textContent ?? "",
-    /Custom/,
+    /Custom natural wood and stone finishes/,
   );
 
   await user.click(
@@ -310,7 +312,7 @@ test("Q35 leads to a complete grouped review, direct edit-return, consent, and i
     idempotencyKey: string;
   };
   assert.equal(submission.expectedRevision, 8);
-  assert.equal(Object.keys(submission.answers).length, 35);
+  assert.equal(Object.keys(submission.answers).length, 31);
   assert.equal(submission.answers["contact.follow-up"], "phone-call");
   assert.deepEqual(submission.references, references);
   assert.deepEqual(submission.consent, {

@@ -23,7 +23,7 @@ export type PlanHomeOptionGroup = Readonly<{
 }>;
 
 export type PlanHomeResponseDefinition = Readonly<{
-  kind: "choice" | "multi-choice" | "grouped" | "references" | "priorities";
+  kind: "choice" | "multi-choice" | "grouped" | "text" | "references" | "priorities";
   optionGroups: readonly PlanHomeOptionGroup[];
   limits?: Readonly<Record<string, number>>;
   responseSchema: z.ZodType;
@@ -185,6 +185,27 @@ function groupedResponse<
   return { kind: "grouped" as const, ...definition };
 }
 
+function textResponse(
+  groupId: string,
+  groupLabel: string,
+  maxLength: number,
+  exampleAnswer: string,
+) {
+  const responseSchema = z.string().max(maxLength);
+  const answerSchema = z.string().trim().min(2).max(maxLength);
+
+  return {
+    kind: "text",
+    optionGroups: [{ id: groupId, label: groupLabel, options: [] }],
+    limits: { maxLength },
+    responseSchema,
+    answerSchema,
+    defaultAnswer: "",
+    exampleAnswer,
+    summarize: (answer: unknown) => answerSchema.parse(answer),
+  } satisfies PlanHomeResponseDefinition;
+}
+
 function formatParts(parts: readonly [string, string][]) {
   return parts.map(([label, value]) => `${label}: ${value}`).join("; ");
 }
@@ -216,7 +237,6 @@ export const planHomeZones = [
       "floor-plan-rug",
       "stair",
       "hall-doors",
-      "family-photos",
       "seating",
       "kitchen-opening",
       "fireplace-window",
@@ -229,7 +249,6 @@ export const planHomeZones = [
       "living-floor-plan",
       "living-stair",
       "living-hall",
-      "living-family",
       "living-seating",
       "living-connection",
       "living-features",
@@ -240,8 +259,8 @@ export const planHomeZones = [
     order: 2,
     id: "kitchen-and-dining",
     title: "Kitchen and Dining",
-    sceneAnchors: ["range-and-island", "room-opening", "pantry-door", "dining-table"],
-    cameraKeys: ["kitchen-use", "kitchen-arrangement", "kitchen-support", "dining-use"],
+    sceneAnchors: ["range-and-island", "room-opening", "pantry-door"],
+    cameraKeys: ["kitchen-use", "kitchen-arrangement", "kitchen-support"],
   },
   {
     order: 3,
@@ -260,9 +279,9 @@ export const planHomeZones = [
   {
     order: 5,
     id: "utility-and-systems",
-    title: "Laundry, Mudroom, Storage, and Home Systems",
-    sceneAnchors: ["washer", "mudroom-bench", "storage-built-ins", "system-panel"],
-    cameraKeys: ["utility-laundry", "utility-mudroom", "utility-storage", "home-systems"],
+    title: "Laundry and Home Systems",
+    sceneAnchors: ["washer", "system-panel"],
+    cameraKeys: ["utility-laundry", "home-systems"],
   },
   {
     order: 6,
@@ -288,8 +307,8 @@ export const planHomeZones = [
 
 const startingPointOptions = [
   option("fully-custom", "Fully custom"),
-  option("adapt-existing-plan", "Adapt an existing plan"),
-  option("bring-completed-plan", "Bring a completed plan"),
+  option("adapt-existing-plan", "Already have a plan"),
+  option("bring-completed-plan", "Somewhere in between"),
   uncertain(),
 ] as const;
 const serviceOptions = [
@@ -334,7 +353,6 @@ const startingServicesResponse = groupedResponse({
 
 const lotStatusOptions = [
   option("own-it", "Own it"),
-  option("under-contract", "Under contract"),
   option("actively-looking", "Actively looking"),
   option("need-h-and-h-evaluation", "Need h and h to evaluate options"),
   uncertain(),
@@ -379,7 +397,7 @@ const lotLocationResponse = groupedResponse({
   answerSchema: lotLocationAnswerSchema,
   defaultAnswer: { lotStatus: null, location: "", locationUncertain: false },
   exampleAnswer: {
-    lotStatus: "actively-looking",
+    lotStatus: "own-it",
     location: "Denton County",
     locationUncertain: false,
   },
@@ -403,6 +421,7 @@ const siteContextOptions = [
   option("existing-structure", "Existing structure"),
   none("nothing-known-yet", "Nothing known yet"),
   uncertain(),
+  option("not-applicable", "Not applicable", "not-applicable"),
 ] as const;
 
 const squareFootageOptions = [
@@ -419,78 +438,20 @@ const squareFootageOptions = [
 
 const storyOptions = [
   option("one", "One"),
-  option("one-and-a-half", "One-and-a-half"),
   option("two", "Two"),
-  option("three-or-more", "Three or more"),
   uncertain(),
 ] as const;
-
-const bedroomOptions = [
-  option("1", "1"),
-  option("2", "2"),
-  option("3", "3"),
-  option("4", "4"),
-  option("5", "5"),
-  option("6-plus", "6+"),
-  uncertain("not-sure", "Not sure"),
-] as const;
-const fullBathroomOptions = bedroomOptions;
-const halfBathroomOptions = [
-  option("0", "0"),
-  option("1", "1"),
-  option("2", "2"),
-  option("3", "3"),
-  option("4-plus", "4+"),
-  uncertain("not-sure", "Not sure"),
-] as const;
-const bedBathResponseSchema = z.object({
-  bedrooms: optionEnum(bedroomOptions).nullable(),
-  fullBathrooms: optionEnum(fullBathroomOptions).nullable(),
-  halfBathrooms: optionEnum(halfBathroomOptions).nullable(),
-});
-const bedBathAnswerSchema = z.object({
-  bedrooms: optionEnum(bedroomOptions),
-  fullBathrooms: optionEnum(fullBathroomOptions),
-  halfBathrooms: optionEnum(halfBathroomOptions),
-});
-const bedBathResponse = groupedResponse({
-  optionGroups: [
-    { id: "bedrooms", label: "Bedrooms", options: bedroomOptions },
-    { id: "fullBathrooms", label: "Full bathrooms", options: fullBathroomOptions },
-    { id: "halfBathrooms", label: "Half bathrooms", options: halfBathroomOptions },
-  ],
-  responseSchema: bedBathResponseSchema,
-  answerSchema: bedBathAnswerSchema,
-  defaultAnswer: { bedrooms: null, fullBathrooms: null, halfBathrooms: null },
-  exampleAnswer: { bedrooms: "4", fullBathrooms: "3", halfBathrooms: "1" },
-  summarize: (answer) => {
-    const value = bedBathAnswerSchema.parse(answer);
-    return formatParts([
-      ["Bedrooms", optionLabel(bedroomOptions, value.bedrooms)],
-      ["Full bathrooms", optionLabel(fullBathroomOptions, value.fullBathrooms)],
-      ["Half bathrooms", optionLabel(halfBathroomOptions, value.halfBathrooms)],
-    ]);
-  },
-});
-
-const futureSupportOptions = [
-  option("growing-family", "Growing family"),
-  option("multigenerational-household", "Multigenerational household"),
-  option("frequent-guests", "Frequent guests"),
-  option("aging-in-place", "Aging in place"),
-  option("mobility-or-accessibility-needs", "Mobility or accessibility needs"),
-  option("pets", "Pets"),
-  option("live-in-caregiver", "Live-in caregiver"),
-  option("downsizing", "Downsizing"),
-  none("no-major-change-expected", "No major change expected"),
-  uncertain(),
-] as const;
+const bedBathResponse = textResponse(
+  "counts",
+  "Bedrooms and bathrooms",
+  120,
+  "4 bedrooms, 3 full bathrooms, and 1 half bathroom",
+);
 const dailyLifeOptions = [
-  option("gathering", "Gathering"),
   option("quiet-and-privacy", "Quiet and privacy"),
   option("entertaining", "Entertaining"),
   option("remote-work-or-study", "Remote work or study"),
-  option("hobbies-or-making", "Hobbies or making"),
+  option("hobbies-or-making", "Hobbies"),
   option("caregiving", "Caregiving"),
   option("pet-routines", "Pet routines"),
   option("indoor-outdoor-living", "Indoor-outdoor living"),
@@ -513,12 +474,12 @@ const livingFeatureOptions = [
   none(),
   uncertain(),
 ] as const;
-const finishLevelOptions = [
-  option("builder-grade", "Builder Grade"),
-  option("builder-plus", "Builder+"),
-  option("custom", "Custom"),
-  uncertain(),
-] as const;
+const finishLevelResponse = textResponse(
+  "finishDirection",
+  "General finish direction",
+  280,
+  "Warm, durable finishes with natural wood and simple details",
+);
 
 const kitchenUseOptions = [
   option("everyday-cooking", "Everyday cooking"),
@@ -576,16 +537,6 @@ const kitchenSupportOptions = [
   none(),
   uncertain(),
 ] as const;
-const diningUseOptions = [
-  option("island-seating", "Island seating"),
-  option("breakfast-nook", "Breakfast nook"),
-  option("open-everyday-dining", "Open everyday dining"),
-  option("formal-dining", "Formal dining"),
-  option("large-group-dining", "Large-group dining"),
-  option("outdoor-connection", "Outdoor connection"),
-  uncertain(),
-] as const;
-
 const primaryLocationOptions = [
   option("main-floor", "Main floor"),
   option("upper-floor", "Upper floor"),
@@ -685,28 +636,6 @@ const laundryOptions = [
   option("sink", "Sink"),
   option("hanging-space", "Hanging space"),
   option("linen-storage", "Linen storage"),
-  uncertain(),
-] as const;
-const mudroomOptions = [
-  option("shoes-and-coats", "Shoes and coats"),
-  option("bags", "Bags"),
-  option("deliveries", "Deliveries"),
-  option("pet-gear", "Pet gear"),
-  option("dog-wash", "Dog wash"),
-  option("extra-fridge-or-freezer", "Extra fridge or freezer"),
-  option("charging-drop-zone", "Charging/drop zone"),
-  none(),
-  uncertain(),
-] as const;
-const storageOptions = [
-  option("linens", "Linens"),
-  option("seasonal-items", "Seasonal items"),
-  option("sports-or-outdoor-gear", "Sports or outdoor gear"),
-  option("hobbies", "Hobbies"),
-  option("food-or-bulk-goods", "Food or bulk goods"),
-  option("cleaning-supplies", "Cleaning supplies"),
-  option("luggage", "Luggage"),
-  option("safe-or-storm-storage", "Safe or storm storage"),
   uncertain(),
 ] as const;
 const systemOptions = [
@@ -1034,7 +963,7 @@ export const planHomeQuestions = [
     number: 1,
     id: "project.starting-services",
     zoneId: "project-and-living",
-    prompt: "Where are you starting?",
+    prompt: "What do you have in mind?",
     sceneAnchor: "rolled-plans",
     cameraKey: "entry-plans",
     response: startingServicesResponse,
@@ -1057,14 +986,14 @@ export const planHomeQuestions = [
     sceneAnchor: "landscape-window",
     cameraKey: "entry-landscape",
     response: multiChoiceResponse("siteContext", "Site context", siteContextOptions, {
-      exclusiveOptionSlugs: ["nothing-known-yet", "not-sure-yet"],
+      exclusiveOptionSlugs: ["nothing-known-yet", "not-sure-yet", "not-applicable"],
     }),
   },
   {
     number: 4,
     id: "home.heated-square-feet",
     zoneId: "project-and-living",
-    prompt: "How much heated space are you considering?",
+    prompt: "How much space are you considering?",
     helper: "Heated square footage excludes garages, porches, and unfinished areas.",
     sceneAnchor: "floor-plan-rug",
     cameraKey: "living-floor-plan",
@@ -1090,18 +1019,6 @@ export const planHomeQuestions = [
   },
   {
     number: 7,
-    id: "home.future-support",
-    zoneId: "project-and-living",
-    prompt: "Who should this home support over time?",
-    helper: "Think about now and the next 5–10 years.",
-    sceneAnchor: "family-photos",
-    cameraKey: "living-family",
-    response: multiChoiceResponse("futureSupport", "Future support", futureSupportOptions, {
-      exclusiveOptionSlugs: ["no-major-change-expected", "not-sure-yet"],
-    }),
-  },
-  {
-    number: 8,
     id: "home.daily-life",
     zoneId: "project-and-living",
     prompt: "Which daily routines should the home support?",
@@ -1113,16 +1030,16 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 9,
+    number: 8,
     id: "living.relationship",
     zoneId: "project-and-living",
-    prompt: "How should the main living areas connect?",
+    prompt: "How should the main living spaces feel?",
     sceneAnchor: "kitchen-opening",
     cameraKey: "living-connection",
     response: choiceResponse("relationship", "Living-area relationship", livingRelationshipOptions),
   },
   {
-    number: 10,
+    number: 9,
     id: "living.features",
     zoneId: "project-and-living",
     prompt: "What matters most in the main living area?",
@@ -1134,17 +1051,17 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 11,
+    number: 10,
     id: "home.finish-level",
     zoneId: "project-and-living",
-    prompt: "Which whole-home finish level fits you?",
-    helper: "Choose one finish direction for the full home, not a price quote.",
+    prompt: "What finish direction do you have in mind?",
+    helper: "Choose a general finish direction for the home.",
     sceneAnchor: "finish-board",
     cameraKey: "living-finishes",
-    response: choiceResponse("finishLevel", "Finish level", finishLevelOptions),
+    response: finishLevelResponse,
   },
   {
-    number: 12,
+    number: 11,
     id: "kitchen.use",
     zoneId: "kitchen-and-dining",
     prompt: "How will you use the kitchen?",
@@ -1156,16 +1073,16 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 13,
+    number: 12,
     id: "kitchen.arrangement",
     zoneId: "kitchen-and-dining",
-    prompt: "How should the kitchen be arranged?",
+    prompt: "How should the kitchen work and feel?",
     sceneAnchor: "room-opening",
     cameraKey: "kitchen-arrangement",
     response: kitchenArrangementResponse,
   },
   {
-    number: 14,
+    number: 13,
     id: "kitchen.support",
     zoneId: "kitchen-and-dining",
     prompt: "What pantry or support spaces interest you?",
@@ -1177,18 +1094,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 15,
-    id: "dining.use",
-    zoneId: "kitchen-and-dining",
-    prompt: "How should dining work?",
-    sceneAnchor: "dining-table",
-    cameraKey: "dining-use",
-    response: multiChoiceResponse("diningUse", "Dining use", diningUseOptions, {
-      exclusiveOptionSlugs: ["not-sure-yet"],
-    }),
-  },
-  {
-    number: 16,
+    number: 14,
     id: "primary.location",
     zoneId: "primary-suite",
     prompt: "Where should the primary suite go?",
@@ -1197,7 +1103,7 @@ export const planHomeQuestions = [
     response: choiceResponse("location", "Primary-suite location", primaryLocationOptions),
   },
   {
-    number: 17,
+    number: 15,
     id: "primary.bedroom-features",
     zoneId: "primary-suite",
     prompt: "Which primary-bedroom features matter?",
@@ -1208,7 +1114,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 18,
+    number: 16,
     id: "primary.bath-features",
     zoneId: "primary-suite",
     prompt: "Which primary-bath features matter?",
@@ -1219,7 +1125,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 19,
+    number: 17,
     id: "primary.closet-access",
     zoneId: "primary-suite",
     prompt: "What should the suite's closet and access support?",
@@ -1230,7 +1136,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 20,
+    number: 18,
     id: "secondary.users-layout",
     zoneId: "bedrooms-and-shared-bathrooms",
     prompt: "Who will use the secondary bedrooms?",
@@ -1239,7 +1145,7 @@ export const planHomeQuestions = [
     response: secondaryLayoutUsersResponse,
   },
   {
-    number: 21,
+    number: 19,
     id: "secondary.bath-sharing",
     zoneId: "bedrooms-and-shared-bathrooms",
     prompt: "How should secondary bathrooms be shared?",
@@ -1249,7 +1155,7 @@ export const planHomeQuestions = [
     response: choiceResponse("bathSharing", "Bathroom sharing", bathSharingOptions),
   },
   {
-    number: 22,
+    number: 20,
     id: "utility.laundry",
     zoneId: "utility-and-systems",
     prompt: "How should laundry work?",
@@ -1260,29 +1166,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 23,
-    id: "utility.mudroom",
-    zoneId: "utility-and-systems",
-    prompt: "What should the everyday entry handle?",
-    sceneAnchor: "mudroom-bench",
-    cameraKey: "utility-mudroom",
-    response: multiChoiceResponse("mudroom", "Mudroom", mudroomOptions, {
-      exclusiveOptionSlugs: ["none", "not-sure-yet"],
-    }),
-  },
-  {
-    number: 24,
-    id: "utility.storage",
-    zoneId: "utility-and-systems",
-    prompt: "Which overlooked storage needs matter?",
-    sceneAnchor: "storage-built-ins",
-    cameraKey: "utility-storage",
-    response: multiChoiceResponse("storage", "Storage", storageOptions, {
-      exclusiveOptionSlugs: ["not-sure-yet"],
-    }),
-  },
-  {
-    number: 25,
+    number: 21,
     id: "home.systems",
     zoneId: "utility-and-systems",
     prompt: "Which home comfort and system priorities matter?",
@@ -1295,7 +1179,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 26,
+    number: 22,
     id: "exterior.garage",
     zoneId: "exterior-and-site",
     prompt: "What should the garage handle?",
@@ -1305,7 +1189,7 @@ export const planHomeQuestions = [
     response: garageNeedsResponse,
   },
   {
-    number: 27,
+    number: 23,
     id: "exterior.style",
     zoneId: "exterior-and-site",
     prompt: "Which exterior character feels right?",
@@ -1318,10 +1202,10 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 28,
+    number: 24,
     id: "site.relationships",
     zoneId: "exterior-and-site",
-    prompt: "Which site relationships matter most?",
+    prompt: "Which site features matter most?",
     helper: "Planning priorities only—not zoning, setbacks, feasibility, or engineering review.",
     sceneAnchor: "sun-compass-trees",
     cameraKey: "site-context",
@@ -1331,7 +1215,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 29,
+    number: 25,
     id: "exterior.outdoor-living",
     zoneId: "exterior-and-site",
     prompt: "Which outdoor-living features matter?",
@@ -1343,7 +1227,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 30,
+    number: 26,
     id: "home.specialty-spaces",
     zoneId: "exterior-and-site",
     prompt: "Which specialty or future spaces matter?",
@@ -1355,7 +1239,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 31,
+    number: 27,
     id: "design.feeling",
     zoneId: "design-desk-and-review",
     prompt: "How should your new home feel?",
@@ -1365,7 +1249,7 @@ export const planHomeQuestions = [
     response: feelingResponse,
   },
   {
-    number: 32,
+    number: 28,
     id: "design.references",
     zoneId: "design-desk-and-review",
     prompt: "What references show your direction?",
@@ -1375,7 +1259,7 @@ export const planHomeQuestions = [
     response: referencesResponse,
   },
   {
-    number: 33,
+    number: 29,
     id: "design.priorities",
     zoneId: "design-desk-and-review",
     prompt: "What are your key priorities?",
@@ -1385,7 +1269,7 @@ export const planHomeQuestions = [
     response: prioritiesResponse,
   },
   {
-    number: 34,
+    number: 30,
     id: "project.budget-timing",
     zoneId: "design-desk-and-review",
     prompt: "What are your budget and timing?",
@@ -1395,10 +1279,10 @@ export const planHomeQuestions = [
     response: budgetTimingResponse,
   },
   {
-    number: 35,
+    number: 31,
     id: "contact.follow-up",
     zoneId: "design-desk-and-review",
-    prompt: "How should h and h follow up?",
+    prompt: "How should we follow up?",
     helper: "Choose one project follow-up method. This is not marketing consent.",
     sceneAnchor: "review-brief",
     cameraKey: "review-follow-up",
@@ -1423,6 +1307,16 @@ export type PlanHomeAnswerByQuestionId = {
 };
 export type PlanHomeAnswerMap = Partial<PlanHomeAnswerByQuestionId>;
 
+export function isPlanHomeQuestionApplicable(
+  questionId: PlanHomeQuestionId,
+  answers: Readonly<Record<string, unknown>>,
+) {
+  if (questionId !== "project.site-context") return true;
+  const lot = answers["project.lot-location"];
+  if (!lot || typeof lot !== "object" || !("lotStatus" in lot)) return true;
+  return lot.lotStatus === null || lot.lotStatus === "own-it";
+}
+
 export const planHomeQuestionIds = planHomeQuestions.map(
   ({ id }) => id,
 ) as [PlanHomeQuestionId, ...PlanHomeQuestionId[]];
@@ -1439,8 +1333,8 @@ export function validatePlanHomeDefinition(definition: PlanHomeDefinition) {
   if (definition.zones.length !== 7) {
     issues.push("Registry must contain exactly seven zones.");
   }
-  if (definition.questions.length !== 35) {
-    issues.push("Registry must contain exactly 35 questions.");
+  if (definition.questions.length !== 31) {
+    issues.push("Registry must contain exactly 31 questions.");
   }
 
   const zoneIds = definition.zones.map(({ id }) => id);

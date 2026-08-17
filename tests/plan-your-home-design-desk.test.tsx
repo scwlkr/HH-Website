@@ -66,7 +66,7 @@ function seedDesignDesk(questionId = "design.feeling") {
   const completedZoneIds = planHomeZones
     .slice(0, 6)
     .map(({ id }) => id) as PlanHomeTourState["completedZoneIds"];
-  const answers = answersThrough(30);
+  const answers = answersThrough(26);
   answers["home.daily-life"] = ["not-sure-yet"];
   answers["living.features"] = ["none"];
   answers["exterior.garage"] = {
@@ -107,7 +107,7 @@ function seedDesignDesk(questionId = "design.feeling") {
   );
 }
 
-test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoints the review threshold", async () => {
+test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoints the review threshold", async () => {
   seedDesignDesk();
   let revision = 7;
   let uploadAttempts = 0;
@@ -365,7 +365,7 @@ test("the fixed Design Desk runs Q31-34, retries private uploads, and checkpoint
     checkpoint.idempotencyKey,
   );
   assert.equal(checkpoint.completedZoneId, "design-desk-and-review");
-  assert.equal(Object.keys(checkpoint.answers).length, 34);
+  assert.equal(Object.keys(checkpoint.answers).length, 30);
   assert.equal(checkpoint.expectedRevision, 10);
   assert.equal(
     summarizePlanHomeAnswer("design.references", checkpoint.answers["design.references"]),
@@ -430,7 +430,7 @@ test("design desk keeps one fixed concept-sketch scene with automatic semantic a
   );
   assert.equal(
     scene.querySelector('[data-scene-anchor="mood-board"]')?.tagName,
-    "g",
+    "path",
   );
   assert.equal(
     scene
@@ -440,7 +440,7 @@ test("design desk keeps one fixed concept-sketch scene with automatic semantic a
   );
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMinYMid slice",
+    "xMidYMid slice",
   );
   assert.equal(query.queryByText("Fixed design desk study"), null);
   assert.equal(query.queryByText("mood board"), null);
@@ -455,14 +455,14 @@ test("design desk reframes the same artwork for references, priorities, and timi
   );
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMaxYMax slice",
+    "xMidYMid slice",
   );
 
   view.rerender(<DesignDeskScene activeAnchor="priority-stacks" />);
   assert.equal(scene.getAttribute("data-active-anchor"), "priority-stacks");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMinYMax slice",
+    "xMidYMid slice",
   );
   assert.deepEqual(
     Array.from(scene.querySelectorAll("path"), (path) => path.getAttribute("d")),
@@ -473,6 +473,6 @@ test("design desk reframes the same artwork for references, priorities, and timi
   assert.equal(scene.getAttribute("data-active-anchor"), "ruler-calendar");
   assert.equal(
     scene.querySelector("svg")?.getAttribute("preserveAspectRatio"),
-    "xMaxYMax slice",
+    "xMidYMid slice",
   );
 });

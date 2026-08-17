@@ -62,7 +62,7 @@ export const completePlanHomeAnswerMapSchema = z
     if (Object.keys(answers).length !== planHomeQuestionIds.length) {
       context.addIssue({
         code: "custom",
-        message: "A submitted project brief must contain exactly 35 canonical answers.",
+        message: `A submitted project brief must contain exactly ${planHomeQuestionIds.length} canonical answers.`,
       });
     }
   });
