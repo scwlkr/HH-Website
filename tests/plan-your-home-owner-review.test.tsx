@@ -141,12 +141,18 @@ test("review mode fake-submits without server, upload, or analytics side effects
   await user.click(reviewNext);
   await waitFor(() =>
     assert.ok(
-      query.getByRole("heading", {
-        name: "One walkthrough, ready for a real conversation.",
-      }),
+      query.getByText("Review 1 of 10 · Contact details"),
     ),
   );
   assert.ok(query.getAllByText("Not answered").length > 0);
+  await user.click(reviewNext);
+  await waitFor(() =>
+    assert.ok(query.getByText(/Review 2 of 10/)),
+  );
+  await user.click(reviewBack);
+  await waitFor(() =>
+    assert.ok(query.getByText("Review 1 of 10 · Contact details")),
+  );
   await user.click(reviewBack);
   await waitFor(() =>
     assert.ok(

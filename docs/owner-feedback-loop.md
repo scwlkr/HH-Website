@@ -7,7 +7,8 @@ resume links, tokens, or admin information in screenshots or notes.
 1. Open the page being reviewed. For Plan Your Home, use the unlinked
    `/plan-your-home/review` URL and reset it when a clean walkthrough is needed.
    Its header Back and Next controls are review-only shortcuts: they browse
-   screens without requiring answers and never change the customer route.
+   questions, the contact gate, and final-brief pages without requiring answers
+   and never change the customer route.
 2. Walk naturally on the phone. When friction appears, take a screenshot without
    leaving the flow; collect rough notes and keep moving.
 3. Upload the screenshot batch and notes to Codex after the session.

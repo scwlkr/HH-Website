@@ -330,6 +330,10 @@ async function main() {
       await page.locator('button[aria-label^="Edit Q"]').count(),
       31,
     );
+    await reviewNext.click();
+    await page.getByText(/Review 2 of 10/).waitFor();
+    await reviewBack.click();
+    await page.getByText("Review 1 of 10 · Contact details").waitFor();
     await capture(page, "phone-complete-review");
     await page.setViewportSize(desktop);
     await capture(page, "desktop-complete-review");

@@ -2571,6 +2571,18 @@ export function PlanYourHomeShell({
     }
 
     const current = tourStateRef.current;
+    const lastReviewPage = planHomeZones.length + 2;
+    if (current.location.kind === "review") {
+      if (direction === "back" && reviewPage > 0) {
+        setReviewPage(reviewPage - 1);
+        return;
+      }
+      if (direction === "next" && reviewPage < lastReviewPage) {
+        setReviewPage(reviewPage + 1);
+        return;
+      }
+      if (direction === "next") return;
+    }
     const applicableQuestions = planHomeQuestions.filter((question) =>
       isPlanHomeQuestionApplicable(question.id, current.answers),
     );
@@ -2594,6 +2606,7 @@ export function PlanYourHomeShell({
     const location =
       reviewLocations[currentIndex + (direction === "next" ? 1 : -1)];
     if (!location) return;
+    if (location.kind === "review") setReviewPage(0);
     commitState({ ...current, location });
   }
 
@@ -2815,7 +2828,10 @@ export function PlanYourHomeShell({
     restoreStatus !== "ready" ||
     (!submitted && tourState.location.kind === "welcome");
   const reviewNextDisabled =
-    restoreStatus !== "ready" || submitted || tourState.location.kind === "review";
+    restoreStatus !== "ready" ||
+    submitted ||
+    (tourState.location.kind === "review" &&
+      reviewPage === planHomeZones.length + 2);
 
   return (
     <div
