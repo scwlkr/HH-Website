@@ -32,6 +32,10 @@ _Avoid_: Step, section, page
 A non-realistic architectural concept sketch that gives spatial context to a zone's prompts. Its composition is designed for a phone first and adapted to wider screens, using confident ink lines, construction marks, selective shadow, and translucent material washes without looking like a promised design.
 _Avoid_: Background, rendering, room page
 
+**Exterior elevation style**:
+A single recognizable architectural direction represented by a straight-on front elevation with coherent form, roof, opening, porch, material, and detail cues. It records customer preference without depicting a promised customer design.
+_Avoid_: Catalog, Transitional, combined-style label, promised design
+
 **Prompt**:
 One planning question presented in relation to a meaningful object or area in the illustrated home.
 _Avoid_: Form field, survey item
