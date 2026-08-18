@@ -13,8 +13,7 @@ import {
   type AdminInquiryDetail,
 } from "@/features/plan-your-home/admin-inquiry-detail";
 import { formatAdminPageTitle } from "@/lib/admin/branding";
-import { getAdminInquiryDetailRepository } from "@/lib/db/admin-inquiry-detail";
-import { requireAdminUser } from "@/lib/firebase/auth";
+import { getAuthorizedAdminInquiryDetailRepository } from "@/lib/db/admin-inquiry-detail";
 import { createPageMetadata } from "@/lib/metadata";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +38,8 @@ export default async function AdminInquiryDetailPage({
   params,
   searchParams,
 }: AdminInquiryDetailPageProps) {
-  const admin = await requireAdminUser();
+  const { admin, repository } =
+    await getAuthorizedAdminInquiryDetailRepository();
   const { id } = await params;
   const { updated, file, deletion } = await searchParams;
   let inquiry: AdminInquiryDetail | null = null;
@@ -47,7 +47,7 @@ export default async function AdminInquiryDetailPage({
   let errorMessage: string | null = null;
 
   try {
-    inquiry = await getAdminInquiryDetailRepository().read(id, {
+    inquiry = await repository.read(id, {
       uid: admin.uid,
     });
   } catch (error) {

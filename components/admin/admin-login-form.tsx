@@ -1,10 +1,10 @@
 "use client";
 
-import { FirebaseError } from "firebase/app";
 import { useActionState } from "react";
 import { loginAdminAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { adminLoginFailureMessage } from "@/lib/admin/login-policy";
 import {
   clearFirebaseClientAuth,
   signInForAdminSession,
@@ -29,36 +29,10 @@ function normalizeNextPath(nextPath: string) {
     : "/admin/projects";
 }
 
-function getFirebaseLoginErrorState(error: unknown): AdminLoginActionState {
-  if (error instanceof FirebaseError) {
-    if (error.code === "auth/user-disabled") {
-      return {
-        status: "server-error",
-        message: "This account has been disabled.",
-        fieldErrors: {},
-      };
-    }
-
-    if (error.code === "auth/too-many-requests") {
-      return {
-        status: "server-error",
-        message: "Too many sign-in attempts. Wait a moment and try again.",
-        fieldErrors: {},
-      };
-    }
-
-    if (error.code === "auth/network-request-failed") {
-      return {
-        status: "server-error",
-        message: "The login service could not be reached. Try again.",
-        fieldErrors: {},
-      };
-    }
-  }
-
+function getFirebaseLoginErrorState(): AdminLoginActionState {
   return {
     status: "server-error",
-    message: "Email or password is incorrect.",
+    message: adminLoginFailureMessage,
     fieldErrors: {},
   };
 }
@@ -88,9 +62,9 @@ export function AdminLoginForm({ nextPath }: AdminLoginFormProps) {
         validationResult.data.email,
         validationResult.data.password,
       );
-    } catch (error) {
+    } catch {
       await clearFirebaseClientAuth().catch(() => undefined);
-      return getFirebaseLoginErrorState(error);
+      return getFirebaseLoginErrorState();
     }
 
     const sessionFormData = new FormData();
@@ -103,16 +77,16 @@ export function AdminLoginForm({ nextPath }: AdminLoginFormProps) {
         adminLoginActionInitialState,
         sessionFormData,
       );
-    } catch (error) {
-      console.error("Admin session creation failed", error);
+    } catch {
+      console.error("Admin session creation failed.");
       sessionState = {
         status: "server-error",
-        message: "HHQ login could not be completed right now.",
+        message: adminLoginFailureMessage,
         fieldErrors: {},
       };
     } finally {
-      await clearFirebaseClientAuth().catch((error) => {
-        console.error("Firebase client sign-out failed", error);
+      await clearFirebaseClientAuth().catch(() => {
+        console.error("Firebase client sign-out failed.");
       });
     }
 

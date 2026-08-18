@@ -1,9 +1,11 @@
 "use server";
 
 import { updateTag } from "next/cache";
+import { headers } from "next/headers";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
-import { adminBrand } from "@/lib/admin/branding";
+import { adminLoginFailureMessage } from "@/lib/admin/login-policy";
+import { checkAdminLoginRateLimit } from "@/lib/admin/login-rate-limit";
 import {
   getProjectSlugAvailability,
   pricingSettingsCacheTag,
@@ -12,7 +14,6 @@ import {
   upsertPricingSettings,
 } from "@/lib/db/operations";
 import {
-  AdminAuthorizationError,
   clearAdminSession,
   createAdminSession,
   isFirebaseAuthConfigured,
@@ -43,6 +44,14 @@ import {
   type ProjectActionState,
 } from "@/types/operations";
 
+function getAdminLoginRateLimitKey(headerList: Headers) {
+  const forwardedFor = headerList.get("x-forwarded-for");
+  const realIp = headerList.get("x-real-ip");
+  const ipAddress = forwardedFor?.split(",")[0]?.trim() || realIp?.trim();
+
+  return ipAddress && ipAddress.length > 0 ? ipAddress : "unknown";
+}
+
 export async function loginAdminAction(
   previousState: AdminLoginActionState = adminLoginActionInitialState,
   formData: FormData,
@@ -50,32 +59,29 @@ export async function loginAdminAction(
   void previousState;
 
   if (!isFirebaseAuthConfigured()) {
-    return createAdminLoginServerErrorState(
-      `${adminBrand.name} login is temporarily unavailable.`,
-    );
+    return createAdminLoginServerErrorState(adminLoginFailureMessage);
+  }
+
+  const headerList = await headers();
+  const rateLimit = checkAdminLoginRateLimit(
+    getAdminLoginRateLimitKey(headerList),
+  );
+
+  if (!rateLimit.allowed) {
+    return createAdminLoginServerErrorState(adminLoginFailureMessage);
   }
 
   const idToken = formData.get("idToken");
 
   if (typeof idToken !== "string" || idToken.length === 0) {
-    return createAdminLoginServerErrorState(
-      `${adminBrand.name} login could not be completed right now.`,
-    );
+    return createAdminLoginServerErrorState(adminLoginFailureMessage);
   }
 
   try {
     await createAdminSession(idToken);
-  } catch (error) {
-    if (error instanceof AdminAuthorizationError) {
-      return createAdminLoginServerErrorState(
-        `This account is not authorized to access ${adminBrand.name}.`,
-      );
-    }
-
-    console.error("Admin login failed", error);
-    return createAdminLoginServerErrorState(
-      `${adminBrand.name} login could not be completed right now.`,
-    );
+  } catch {
+    console.error("Admin login failed.");
+    return createAdminLoginServerErrorState(adminLoginFailureMessage);
   }
 
   return adminLoginActionInitialState;

@@ -6,13 +6,18 @@ import {
   getFirebaseStorageBucket,
   isFirebaseAdminConfigured,
 } from "@/lib/db/client";
+import { requireAdminUser } from "@/lib/firebase/auth";
 
-export function getAdminInquiryDetailRepository() {
+export async function getAuthorizedAdminInquiryDetailRepository() {
+  const admin = await requireAdminUser();
   if (!isFirebaseAdminConfigured()) {
     throw new Error("Firebase admin credentials are not configured.");
   }
-  return createAdminInquiryDetailRepository(
-    getFirebaseDatabase(),
-    getFirebaseStorageBucket(),
-  );
+  return {
+    admin,
+    repository: createAdminInquiryDetailRepository(
+      getFirebaseDatabase(),
+      getFirebaseStorageBucket(),
+    ),
+  };
 }

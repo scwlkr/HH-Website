@@ -294,6 +294,12 @@ test("detail UI exposes safe file/link actions and an accessible destructive con
   const dialog = query.getByRole("dialog", { name: "Delete this inquiry?" });
   assert.equal(dialog.hasAttribute("open"), true);
   assert.ok(
+    within(dialog).getByText(
+      "This permanently removes the inquiry, resume material (including resume links and pending uploads), and every private file saved for this inquiry. None of it can be recovered.",
+      { exact: true },
+    ),
+  );
+  assert.ok(
     within(dialog).getByRole("button", {
       name: "Delete Inquiry and Files",
     }),

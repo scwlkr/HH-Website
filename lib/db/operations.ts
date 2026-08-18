@@ -6,6 +6,7 @@ import {
   getFirebaseStorageBucket,
   isFirebaseAdminConfigured,
 } from "@/lib/db/client";
+import { requireAdminUser } from "@/lib/firebase/auth";
 import type {
   ExistingProjectImageFormInput,
   PricingSettings,
@@ -421,10 +422,12 @@ export async function getPublicPricingSettings() {
 }
 
 export async function listAdminProjects() {
+  await requireAdminUser();
   return queryAdminProjects();
 }
 
 export async function getAdminProjectById(projectId: string) {
+  await requireAdminUser();
   if (!isFirebaseAdminConfigured()) {
     return null;
   }
@@ -434,6 +437,7 @@ export async function getAdminProjectById(projectId: string) {
 }
 
 export async function getAdminPricingSettings() {
+  await requireAdminUser();
   return queryPricingSettings();
 }
 
@@ -441,6 +445,7 @@ export async function getProjectSlugAvailability(
   slug: string,
   currentProjectId?: string,
 ) {
+  await requireAdminUser();
   if (!isFirebaseAdminConfigured()) {
     return true;
   }
@@ -551,6 +556,7 @@ export async function saveProject(params: {
   galleryImages: File[];
   expectedRevision?: number;
 }) {
+  await requireAdminUser();
   if (!isFirebaseAdminConfigured()) {
     throw new Error("Firebase admin credentials are not configured.");
   }
@@ -778,6 +784,7 @@ export async function saveProject(params: {
 }
 
 export async function upsertPricingSettings(input: PricingWriteInput) {
+  await requireAdminUser();
   if (!isFirebaseAdminConfigured()) {
     throw new Error("Firebase admin credentials are not configured.");
   }

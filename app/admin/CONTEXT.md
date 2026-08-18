@@ -1,6 +1,6 @@
 # HHQ
 
-HHQ is the private operations workspace for named h and h staff. It remains part of the existing website and is not a customer or contractor portal.
+HHQ is the private operations workspace for authorized h and h staff. It remains part of the existing website and is not a customer or contractor portal.
 
 ## Language
 
@@ -9,7 +9,7 @@ The staff-only operations workspace used to review inquiries and manage complete
 _Avoid_: Admin panel, customer portal, contractor portal
 
 **Staff member**:
-A named h and h owner or employee authorized to use HHQ.
+An h and h owner or employee authorized to use the shared HHQ account.
 _Avoid_: Customer, contractor, general user
 
 **HHQ access**:

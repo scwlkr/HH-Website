@@ -1,13 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { isAdminInquiryId } from "@/features/plan-your-home/admin-inquiry-detail";
-import { getAdminInquiryDetailRepository } from "@/lib/db/admin-inquiry-detail";
-import { requireAdminUser } from "@/lib/firebase/auth";
+import { getAuthorizedAdminInquiryDetailRepository } from "@/lib/db/admin-inquiry-detail";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  const admin = await requireAdminUser();
+  const { admin, repository } =
+    await getAuthorizedAdminInquiryDetailRepository();
   const formData = await request.formData();
   const inquiryId = formData.get("inquiryId");
   const referenceId = formData.get("referenceId");
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     );
     try {
       const capability =
-        await getAdminInquiryDetailRepository().issueSignedRead(
+        await repository.issueSignedRead(
           inquiryId,
           referenceId,
           { uid: admin.uid },

@@ -111,6 +111,19 @@ Admin access requires both:
 
 The shared rule lives in `lib/firebase/admin-access.ts`. It is used by `lib/firebase/auth.ts`, `lib/firebase/proxy.ts`, and `app/admin/actions.ts`.
 
+The one intended HHQ identity is a shared password-only account with one equal
+access level. Its trusted-device session lasts five days and uses an HttpOnly,
+production-Secure, SameSite=Lax cookie scoped to `/admin`. Protected layouts,
+mutations, private-file handlers, and administrative data operations authorize
+on the server; the proxy redirect is an additional navigation guard. Firebase
+session verification checks revocation and returns no HHQ content when Firebase
+Admin is unavailable.
+
+All HTML responses deny framing and MIME sniffing, apply a conservative referrer
+and browser-capability policy, and use a Content Security Policy limited to the
+current Next.js, Firebase Auth, image, and analytics requirements. HHQ responses
+also use private no-store caching and explicit noindex headers.
+
 ## Firebase Shape
 
 | Resource | Contract |

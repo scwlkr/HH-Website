@@ -59,7 +59,7 @@ export default async function AdminInquiriesPage({
 
       {resolvedSearchParams.deleted === "1" ? (
         <AdminNotice tone="success">
-          Inquiry, resume links, and private files were deleted.
+          Inquiry, resume material, and private files were permanently deleted.
         </AdminNotice>
       ) : null}
 

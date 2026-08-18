@@ -12,8 +12,7 @@ import {
   adminInquiryActionInitialState,
   type AdminInquiryActionState,
 } from "@/features/plan-your-home/admin-inquiry-actions";
-import { getAdminInquiryDetailRepository } from "@/lib/db/admin-inquiry-detail";
-import { requireAdminUser } from "@/lib/firebase/auth";
+import { getAuthorizedAdminInquiryDetailRepository } from "@/lib/db/admin-inquiry-detail";
 
 function readFormValue(formData: FormData, name: string) {
   const value = formData.get(name);
@@ -29,7 +28,8 @@ export async function updateAdminInquiryStatusAction(
   formData: FormData,
 ): Promise<AdminInquiryActionState> {
   void previousState;
-  const admin = await requireAdminUser();
+  const { admin, repository } =
+    await getAuthorizedAdminInquiryDetailRepository();
   const inquiryId = readFormValue(formData, "inquiryId");
   const requestedStatus = readFormValue(formData, "status");
   if (
@@ -46,7 +46,7 @@ export async function updateAdminInquiryStatusAction(
   }
 
   try {
-    await getAdminInquiryDetailRepository().updateStatus(
+    await repository.updateStatus(
       inquiryId,
       requestedStatus as AdminInquiryMutableStatus,
       { uid: admin.uid },
@@ -68,7 +68,8 @@ export async function deleteAdminInquiryAction(
   formData: FormData,
 ): Promise<AdminInquiryActionState> {
   void previousState;
-  const admin = await requireAdminUser();
+  const { admin, repository } =
+    await getAuthorizedAdminInquiryDetailRepository();
   const inquiryId = readFormValue(formData, "inquiryId");
   const confirmation = readFormValue(formData, "confirmation");
   if (!isAdminInquiryId(inquiryId) || confirmation !== "delete-inquiry") {
@@ -80,7 +81,7 @@ export async function deleteAdminInquiryAction(
 
   let result;
   try {
-    result = await getAdminInquiryDetailRepository().deleteInquiry(inquiryId, {
+    result = await repository.deleteInquiry(inquiryId, {
       uid: admin.uid,
     });
   } catch {

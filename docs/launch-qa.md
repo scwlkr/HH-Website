@@ -86,8 +86,21 @@ Set these on the `scwlkrs-projects/hh-website` Vercel project for both preview a
 - Confirm Firestore and Storage rules deny direct client access.
 - Create the intended admin user.
 - Set that user's Firebase custom claim to `{ "role": "admin" }`.
-- Confirm public signup behavior matches the owner-approved access model.
+- Keep email/password as the only intended sign-in method, enable email
+  enumeration protection, and confirm only approved production and local Auth
+  domains remain authorized. Creating an ordinary Firebase user must not grant
+  HHQ access.
 - Configure Vercel OIDC through the `vercel` Workload Identity pool and provider.
+- Restrict the Workload Identity provider subject to the intended Vercel project
+  and production environment. Confirm the dedicated Google service account has
+  only the Firestore, Storage, Auth, token-signing, and impersonation access the
+  server actually uses, and has no user-managed JSON keys.
+
+Record live provider evidence separately from emulator proof. Before launch and
+after staffing changes, verify the deployed rules, sign-in methods, authorized
+domains, OIDC subject restriction, service-account roles/key absence, and an
+old-session denial. Never copy tokens, passwords, customer data, signed file
+URLs, or environment values into the evidence.
 
 ## Local Emulators
 

@@ -112,9 +112,9 @@ export function AdminInquiryActions({
               id="delete-inquiry-description"
               className="mt-3 text-sm leading-6 text-muted-strong"
             >
-              This permanently removes the inquiry, resume links, pending
-              uploads, and every private file saved for this draft. This cannot
-              be undone.
+              This permanently removes the inquiry, resume material (including
+              resume links and pending uploads), and every private file saved
+              for this inquiry. None of it can be recovered.
             </p>
           </div>
 

@@ -4,13 +4,11 @@ import {
   firebaseSessionCookieName,
   verifyAdminSessionCookie,
 } from "@/lib/firebase/auth";
+import { getAdminSessionCookieOptions } from "@/lib/firebase/admin-session-policy";
 
 function clearInvalidSessionCookie(response: NextResponse) {
   response.cookies.set(firebaseSessionCookieName, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
+    ...getAdminSessionCookieOptions(process.env.NODE_ENV === "production"),
     maxAge: 0,
   });
 }

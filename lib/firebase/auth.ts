@@ -7,10 +7,12 @@ import { redirect } from "next/navigation";
 import { env } from "@/lib/env";
 import { getFirebaseAdminAuth } from "@/lib/firebase/admin";
 import { isAuthorizedAdminClaims } from "@/lib/firebase/admin-access";
+import {
+  adminSessionCookieName,
+  adminSessionDurationSeconds,
+  getAdminSessionCookieOptions,
+} from "@/lib/firebase/admin-session-policy";
 
-export const firebaseSessionCookieName = "__session";
-
-const sessionDurationSeconds = 60 * 60 * 24 * 5;
 const recentSignInWindowSeconds = 5 * 60;
 
 export class AdminAuthorizationError extends Error {
@@ -18,15 +20,6 @@ export class AdminAuthorizationError extends Error {
     super(message);
     this.name = "AdminAuthorizationError";
   }
-}
-
-function getSessionCookieOptions() {
-  return {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    path: "/",
-  };
 }
 
 export function isFirebaseAuthConfigured() {
@@ -50,14 +43,15 @@ export async function createAdminSession(idToken: string) {
   }
 
   const sessionCookie = await auth.createSessionCookie(idToken, {
-    expiresIn: sessionDurationSeconds * 1000,
+    expiresIn: adminSessionDurationSeconds * 1000,
   });
   const cookieStore = await cookies();
 
-  cookieStore.set(firebaseSessionCookieName, sessionCookie, {
-    ...getSessionCookieOptions(),
-    maxAge: sessionDurationSeconds,
-  });
+  cookieStore.set(
+    adminSessionCookieName,
+    sessionCookie,
+    getAdminSessionCookieOptions(process.env.NODE_ENV === "production"),
+  );
 
   return decodedToken;
 }
@@ -88,7 +82,7 @@ export async function getAuthenticatedAdminUser() {
 
   const cookieStore = await cookies();
   return verifyAdminSessionCookie(
-    cookieStore.get(firebaseSessionCookieName)?.value,
+    cookieStore.get(adminSessionCookieName)?.value,
   );
 }
 
@@ -104,8 +98,10 @@ export async function requireAdminUser() {
 
 export async function clearAdminSession() {
   const cookieStore = await cookies();
-  cookieStore.set(firebaseSessionCookieName, "", {
-    ...getSessionCookieOptions(),
+  cookieStore.set(adminSessionCookieName, "", {
+    ...getAdminSessionCookieOptions(process.env.NODE_ENV === "production"),
     maxAge: 0,
   });
 }
+
+export { adminSessionCookieName as firebaseSessionCookieName };

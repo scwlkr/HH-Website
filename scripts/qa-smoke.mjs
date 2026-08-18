@@ -30,6 +30,17 @@ const smokeAdmin = {
   uid: "firebase-admin-smoke",
 };
 
+const smokeNonAdmin = {
+  email: "firebase-non-admin-smoke@example.com",
+  password: "FirebaseNonAdminSmokePassword123!",
+  uid: "firebase-non-admin-smoke",
+};
+
+const adminSessionCookieName = "__session";
+const adminSessionDurationSeconds = 60 * 60 * 24 * 5;
+const adminLoginFailureMessage =
+  "HHQ login could not be completed. Check your details or wait a moment and try again.";
+
 const revisionConflictProject = {
   id: "revision-conflict-smoke",
   originalImageId: "revision-conflict-original-image",
@@ -191,8 +202,8 @@ function getFirebaseEmulatorConfig() {
   };
 }
 
-async function seedAdminUser(projectId) {
-  log("Seeding an authorized admin in the Authentication emulator...");
+async function seedAdminUsers(projectId) {
+  log("Seeding authorized and non-admin users in the Authentication emulator...");
 
   const app = initializeApp(
     { projectId },
@@ -200,22 +211,25 @@ async function seedAdminUser(projectId) {
   );
   const auth = getAuth(app);
 
-  try {
-    const existingUser = await auth.getUserByEmail(smokeAdmin.email);
-    await auth.deleteUser(existingUser.uid);
-  } catch (error) {
-    if (error?.code !== "auth/user-not-found") {
-      await deleteApp(app);
-      throw error;
+  for (const fixture of [smokeAdmin, smokeNonAdmin]) {
+    try {
+      const existingUser = await auth.getUserByEmail(fixture.email);
+      await auth.deleteUser(existingUser.uid);
+    } catch (error) {
+      if (error?.code !== "auth/user-not-found") {
+        await deleteApp(app);
+        throw error;
+      }
     }
+
+    await auth.createUser({
+      email: fixture.email,
+      emailVerified: true,
+      password: fixture.password,
+      uid: fixture.uid,
+    });
   }
 
-  await auth.createUser({
-    email: smokeAdmin.email,
-    emailVerified: true,
-    password: smokeAdmin.password,
-    uid: smokeAdmin.uid,
-  });
   await auth.setCustomUserClaims(smokeAdmin.uid, { role: "admin" });
 
   return app;
@@ -1623,7 +1637,114 @@ async function verifyProjectRevisionConflict(browser, baseUrl, firestore) {
   }
 }
 
-async function verifyAdminAuth(browser, baseUrl, firestore) {
+async function verifySecurityHeaders(baseUrl) {
+  log("Checking public and HHQ response security headers...");
+
+  for (const { path: routePath, admin } of [
+    { path: "/", admin: false },
+    { path: "/admin/login", admin: true },
+    { path: "/admin/inquiries", admin: true },
+  ]) {
+    const response = await fetch(`${baseUrl}${routePath}`, {
+      redirect: "manual",
+    });
+    const contentSecurityPolicy =
+      response.headers.get("content-security-policy") ?? "";
+
+    assert(
+      contentSecurityPolicy.includes("frame-ancestors 'none'") &&
+        contentSecurityPolicy.includes("object-src 'none'") &&
+        contentSecurityPolicy.includes("https://identitytoolkit.googleapis.com"),
+      `Expected ${routePath} to receive the compatible content security policy.`,
+    );
+    assert(
+      response.headers.get("x-frame-options") === "DENY" &&
+        response.headers.get("x-content-type-options") === "nosniff" &&
+        response.headers.get("referrer-policy") ===
+          "strict-origin-when-cross-origin" &&
+        response.headers.get("permissions-policy")?.includes("camera=()") &&
+        response.headers.get("strict-transport-security")?.includes(
+          "max-age=63072000",
+        ),
+      `Expected ${routePath} to receive framing, MIME, referrer, capability, and transport protections.`,
+    );
+    assert(
+      response.headers.get("x-powered-by") === null,
+      `Expected ${routePath} not to disclose the framework header.`,
+    );
+
+    if (admin) {
+      assert(
+        response.headers.get("cache-control") ===
+            "private, no-store, max-age=0" &&
+          response.headers.get("x-robots-tag") ===
+            "noindex, nofollow, noarchive",
+        `Expected ${routePath} to remain private and non-indexable.`,
+      );
+    }
+  }
+}
+
+async function verifyNonAdminDenied(browser, baseUrl) {
+  log("Checking rendered non-admin denial with generic login feedback...");
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  try {
+    await page.goto(`${baseUrl}/admin/login?next=/admin/inquiries`, {
+      waitUntil: "networkidle",
+    });
+    await page.getByLabel("Email").fill(smokeNonAdmin.email);
+    await page.getByLabel("Password").fill(smokeNonAdmin.password);
+    await page.getByRole("button", { name: "Sign In" }).click();
+    await page.getByText(adminLoginFailureMessage, { exact: true }).waitFor();
+    assert(
+      new URL(page.url()).pathname === "/admin/login",
+      "A valid Firebase user without the HHQ claim must remain on login.",
+    );
+    assert(
+      (await context.cookies(`${baseUrl}/admin/inquiries`)).every(
+        (cookie) => cookie.name !== adminSessionCookieName,
+      ),
+      "A valid non-admin Firebase user must not receive an HHQ session.",
+    );
+    assert(
+      !(await page.locator("body").textContent())?.includes(
+        "Private legacy description for queue smoke proof.",
+      ),
+      "Non-admin denial must not render protected inquiry content.",
+    );
+  } finally {
+    await context.close();
+  }
+}
+
+async function verifyAdminAuthFailureState(browser, baseUrl) {
+  log("Checking Firebase Admin authentication failure closes HHQ...");
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  try {
+    await page.goto(`${baseUrl}/admin/login?next=/admin/inquiries`, {
+      waitUntil: "networkidle",
+    });
+    await page.getByLabel("Email").fill(smokeAdmin.email);
+    await page.getByLabel("Password").fill(smokeAdmin.password);
+    await page.getByRole("button", { name: "Sign In" }).click();
+    await page.getByText(adminLoginFailureMessage, { exact: true }).waitFor();
+    assert(
+      new URL(page.url()).pathname === "/admin/login" &&
+        (await context.cookies(`${baseUrl}/admin/inquiries`)).every(
+          (cookie) => cookie.name !== adminSessionCookieName,
+        ),
+      "Firebase Admin authentication failure must not issue or enter an HHQ session.",
+    );
+  } finally {
+    await context.close();
+  }
+}
+
+async function verifyAdminAuth(browser, baseUrl, firestore, auth) {
   log("Checking Firebase admin login, protected routes, and logout...");
   await mkdir(inquiryQueueOutputDirectory, { recursive: true });
   await mkdir(inquiryDetailOutputDirectory, { recursive: true });
@@ -1634,7 +1755,9 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
   const evidence = {
     axeSeriousOrCritical: [],
     browserErrors: [],
+    cookiePolicy: false,
     overflow: false,
+    revocationDenied: false,
     unauthorizedRedirect: false,
   };
   const detailEvidence = {
@@ -1656,6 +1779,36 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
   });
 
   try {
+    const anonymousResponse = await fetch(`${baseUrl}/admin/inquiries`, {
+      redirect: "manual",
+    });
+    const anonymousBody = await anonymousResponse.text();
+    assert(
+      [307, 308].includes(anonymousResponse.status) &&
+        anonymousResponse.headers.get("location")?.includes(
+          "/admin/login?next=%2Fadmin%2Finquiries",
+        ) &&
+        !anonymousBody.includes("Private legacy description for queue smoke proof."),
+      "Anonymous HHQ requests must redirect without returning protected content.",
+    );
+
+    const anonymousFileResponse = await fetch(
+      `${baseUrl}/admin/inquiries/file`,
+      {
+        body: new URLSearchParams({
+          inquiryId: "queue-submitted-smoke",
+          referenceId: "file-66666666-6666-4666-8666-666666666666",
+        }),
+        method: "POST",
+        redirect: "manual",
+      },
+    );
+    assert(
+      [303, 307, 308].includes(anonymousFileResponse.status) &&
+        anonymousFileResponse.headers.get("location")?.includes("/admin/login"),
+      "Anonymous private-file requests must be denied at the server boundary.",
+    );
+
     await page.goto(`${baseUrl}/admin/inquiries`, { waitUntil: "networkidle" });
 
     const loginUrl = new URL(page.url());
@@ -1676,6 +1829,31 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
     await page.waitForURL(`${baseUrl}/admin/inquiries`);
     await page.getByText(smokeAdmin.email).waitFor();
     await page.getByRole("heading", { name: "Project Inquiries" }).waitFor();
+
+    const adminCookies = await context.cookies(
+      `${baseUrl}/admin/inquiries`,
+    );
+    const sessionCookie = adminCookies.find(
+      (cookie) => cookie.name === adminSessionCookieName,
+    );
+    const publicCookies = await context.cookies(`${baseUrl}/`);
+    assert(sessionCookie, "Authorized HHQ login must issue a session cookie.");
+    assert(
+      sessionCookie.path === "/admin" &&
+        sessionCookie.httpOnly &&
+        sessionCookie.secure &&
+        sessionCookie.sameSite === "Lax" &&
+        Math.abs(
+          sessionCookie.expires -
+            (Date.now() / 1000 + adminSessionDurationSeconds),
+        ) < 30 &&
+        publicCookies.every((cookie) => cookie.name !== adminSessionCookieName) &&
+        !(await page.evaluate(() => document.cookie)).includes(
+          `${adminSessionCookieName}=`,
+        ),
+      "The HHQ cookie must be HttpOnly, production Secure, SameSite=Lax, five days, and scoped to /admin.",
+    );
+    evidence.cookiePolicy = true;
 
     const queueRows = page.getByRole("list", { name: "Inquiries" }).getByRole("listitem");
     const queueNames = await queueRows.evaluateAll((rows) =>
@@ -1805,6 +1983,13 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
       name: "Delete this inquiry?",
     });
     await deleteDialog.waitFor();
+    await deleteDialog
+      .getByText(
+        "This permanently removes the inquiry, resume material (including resume links and pending uploads), and every private file saved for this inquiry. None of it can be recovered.",
+        { exact: true },
+      )
+      .waitFor();
+    await captureInquiryDetail(page, "desktop-delete-warning");
     await deleteDialog.getByRole("button", { name: "Cancel" }).click();
     assert(
       (await deleteDialog.count()) === 0 || !(await deleteDialog.isVisible()),
@@ -1821,6 +2006,16 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
     );
     detailEvidence.deleteCancel = true;
 
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole("button", { name: "Delete Inquiry" }).click();
+    await page.getByRole("dialog", { name: "Delete this inquiry?" }).waitFor();
+    await captureInquiryDetail(page, "phone-delete-warning");
+    await page
+      .getByRole("dialog", { name: "Delete this inquiry?" })
+      .getByRole("button", { name: "Cancel" })
+      .click();
+    await page.setViewportSize({ width: 1440, height: 1000 });
+
     await page.getByRole("button", { name: "Delete Inquiry" }).click();
     await page
       .getByRole("dialog", { name: "Delete this inquiry?" })
@@ -1828,7 +2023,9 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
       .click();
     await page.waitForURL(`${baseUrl}/admin/inquiries?deleted=1`);
     await page
-      .getByText("Inquiry, resume links, and private files were deleted.")
+      .getByText(
+        "Inquiry, resume material, and private files were permanently deleted.",
+      )
       .waitFor();
     assert(
       !(await firestore
@@ -1836,6 +2033,10 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
         .doc("queue-submitted-smoke")
         .get()).exists,
       "Confirmed deletion must remove the inquiry record.",
+    );
+    assert(
+      (await page.getByRole("button", { name: /undo|restore/i }).count()) === 0,
+      "Permanent deletion must not offer undo or restore controls.",
     );
     detailEvidence.deleteComplete = true;
     await captureInquiryDetail(page, "desktop-return-after-delete");
@@ -1873,12 +2074,34 @@ async function verifyAdminAuth(browser, baseUrl, firestore) {
     await page.getByRole("button", { name: "Sign Out" }).click();
     await page.waitForURL(`${baseUrl}/admin/login?signed_out=1`);
     await page.getByText("You have been signed out.").waitFor();
+    assert(
+      (await context.cookies(`${baseUrl}/admin/inquiries`)).every(
+        (cookie) => cookie.name !== adminSessionCookieName,
+      ),
+      "Sign out must explicitly expire the HHQ session cookie.",
+    );
 
     await page.goto(`${baseUrl}/admin/inquiries`, { waitUntil: "networkidle" });
     assert(
       new URL(page.url()).pathname === "/admin/login",
       "Logged-out admin access must return to the login page.",
     );
+
+    await page.getByLabel("Email").fill(smokeAdmin.email);
+    await page.getByLabel("Password").fill(smokeAdmin.password);
+    await page.getByRole("button", { name: "Sign In" }).click();
+    await page.waitForURL(`${baseUrl}/admin/inquiries`);
+    await new Promise((resolve) => setTimeout(resolve, 1_100));
+    await auth.revokeRefreshTokens(smokeAdmin.uid);
+    await page.goto(`${baseUrl}/admin/inquiries`, { waitUntil: "networkidle" });
+    assert(
+      new URL(page.url()).pathname === "/admin/login" &&
+        (await context.cookies(`${baseUrl}/admin/inquiries`)).every(
+          (cookie) => cookie.name !== adminSessionCookieName,
+        ),
+      "Revoking the shared account must invalidate and clear an existing HHQ session.",
+    );
+    evidence.revocationDenied = true;
   } finally {
     await context.close();
   }
@@ -1888,7 +2111,9 @@ async function main() {
   const firebaseEmulators = getFirebaseEmulatorConfig();
   const appPort = await getAvailablePort();
   const failureAppPort = await getAvailablePort();
+  const authFailureAppPort = await getAvailablePort();
   const unavailableFirestorePort = await getAvailablePort();
+  const unavailableAuthPort = await getAvailablePort();
   const qaEnv = {
     FIREBASE_PROJECT_ID: firebaseEmulators.projectId,
     NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${appPort}`,
@@ -1910,11 +2135,13 @@ async function main() {
 
   let nextServer;
   let failureServer;
+  let authFailureServer;
   let browser;
   let adminApp;
 
   try {
-    adminApp = await seedAdminUser(firebaseEmulators.projectId);
+    adminApp = await seedAdminUsers(firebaseEmulators.projectId);
+    const auth = getAuth(adminApp);
     const firestore = getFirestore(adminApp);
     await seedPublicationFixtures(firestore);
     await seedInquiryQueueFixtures(firestore);
@@ -1968,6 +2195,7 @@ async function main() {
     });
 
     await verifyRouteStatuses(nextServer.baseUrl);
+    await verifySecurityHeaders(nextServer.baseUrl);
     await verifyProjectPublicationBoundary(nextServer.baseUrl);
     await verifyAgentDiscoveryDocuments(nextServer.baseUrl);
     await verifyMarkdownTwins(nextServer.baseUrl);
@@ -1990,7 +2218,8 @@ async function main() {
       nextServer.baseUrl,
       firestore,
     );
-    await verifyAdminAuth(browser, nextServer.baseUrl, firestore);
+    await verifyNonAdminDenied(browser, nextServer.baseUrl);
+    await verifyAdminAuth(browser, nextServer.baseUrl, firestore, auth);
 
     log("Starting a second app instance against an unavailable Firestore port...");
     failureServer = await startNextServer({
@@ -2003,6 +2232,16 @@ async function main() {
     });
     await verifyInquiryFailureState(browser, failureServer.baseUrl);
     await verifyAdminInquiryFailureState(browser, failureServer.baseUrl);
+
+    log("Starting a third app instance against an unavailable Auth port...");
+    authFailureServer = await startNextServer({
+      port: authFailureAppPort,
+      env: {
+        ...qaEnv,
+        FIREBASE_AUTH_EMULATOR_HOST: `127.0.0.1:${unavailableAuthPort}`,
+      },
+    });
+    await verifyAdminAuthFailureState(browser, authFailureServer.baseUrl);
 
     log("Firebase emulator smoke QA passed.");
   } catch (error) {
@@ -2018,6 +2257,7 @@ async function main() {
     for (const [label, server] of [
       ["Next server", nextServer],
       ["Failure-path Next server", failureServer],
+      ["Auth-failure Next server", authFailureServer],
     ]) {
       if (!server) {
         continue;
@@ -2046,6 +2286,10 @@ async function main() {
 
     if (failureServer) {
       await failureServer.close();
+    }
+
+    if (authFailureServer) {
+      await authFailureServer.close();
     }
 
     if (adminApp) {
