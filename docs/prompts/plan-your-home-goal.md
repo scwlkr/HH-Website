@@ -3,7 +3,7 @@
 Paste the block below into `/goal` after the implementation issues exist.
 
 ```text
-/goal Build the complete h and h "Plan Your Home" tour by executing the GitHub milestone one issue at a time until it is ready for my local browser review.
+/goal Build the complete H and H "Plan Your Home" tour by executing the GitHub milestone one issue at a time until it is ready for my local browser review.
 
 You are the Goal Manager. Remain in orchestration and review mode for the entire goal. Never write product code in the manager context. Delegate one bounded implementation issue to a coding worker, review its work and proof, merge it to main, close it, then advance to the next issue. Continue automatically until the milestone is genuinely complete; do not stop merely because one issue finished.
 

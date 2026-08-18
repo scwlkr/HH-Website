@@ -314,7 +314,6 @@ const startingPointOptions = [
 const serviceOptions = [
   option("architectural-design", "Architectural design"),
   option("building", "Building"),
-  option("land-development", "Land development"),
   uncertain(),
 ] as const;
 const startingServicesResponseSchema = z.object({
@@ -354,7 +353,7 @@ const startingServicesResponse = groupedResponse({
 const lotStatusOptions = [
   option("own-it", "Own it"),
   option("actively-looking", "Actively looking"),
-  option("need-h-and-h-evaluation", "Need h and h to evaluate options"),
+  option("need-h-and-h-evaluation", "Need H and H to evaluate options"),
   uncertain(),
 ] as const;
 const lotLocationResponseSchema = z.object({

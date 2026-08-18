@@ -8,7 +8,7 @@ Use this task-based index at the start of repository work. It routes agents to a
 
 **Source ownership:** Edit shared business facts in `lib/site-config.ts`; edit reusable public copy and registries in `lib/content/`. Do not maintain unrelated copies inside pages or public agent documents.
 
-**Safeguards:** Use Howeth and Harp, h and h, H and H, or HH; never use an ampersand in the business name. Do not invent services, prices, guarantees, project facts, or legal approval.
+**Safeguards:** Use Howeth and Harp or H and H. Always capitalize H and H; never use its lowercase or ampersand forms. Reserve HH for established identifiers such as HHQ. Do not invent services, prices, guarantees, project facts, or legal approval.
 
 **Verification:** Run `npm test`, `npm run lint`, and `npm run typecheck`. Capture affected public routes with `npm run review -- <routes>` and inspect the resulting screenshots.
 

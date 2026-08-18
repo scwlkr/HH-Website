@@ -50,7 +50,7 @@ export default function ThankYouPage() {
       <Section
         eyebrow="Next Steps"
         title="We'll review your inquiry and follow up."
-        description="h and h will review the project details and respond using the contact information you provided."
+        description="H and H will review the project details and respond using the contact information you provided."
       >
         <div className="grid border-y border-line-strong lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.7fr)]">
           <div className="py-7 lg:pr-10">
@@ -78,7 +78,7 @@ export default function ThankYouPage() {
             </p>
             <div className="mt-5 space-y-4 text-sm leading-7 text-muted">
               <p>
-                If you need to add or correct a detail, email h and h while your project
+                If you need to add or correct a detail, email H and H while your project
                 inquiry is being reviewed.
               </p>
               <a

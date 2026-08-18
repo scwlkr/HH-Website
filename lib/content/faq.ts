@@ -39,14 +39,14 @@ export const faqItems = [
     group: "process",
     question: "Do you handle both design and construction?",
     answer:
-      `${publicName} provides architectural design, building, and land development. Depending on the project, h and h can provide one service or coordinate several.`,
+      `${publicName} provides architectural design, building, and land development. Depending on the project, H and H can provide one service or coordinate several.`,
   },
   {
     id: "process-land-first",
     group: "process",
     question: "Can I start an inquiry if I only have land or a target area?",
     answer:
-      "Yes. You can begin with a lot you own, a site you are evaluating, or simply a target area. Share what you know, and h and h can help determine the next useful step.",
+      "Yes. You can begin with a lot you own, a site you are evaluating, or simply a target area. Share what you know, and H and H can help determine the next useful step.",
   },
   {
     id: "pricing-finish-levels",
@@ -60,7 +60,7 @@ export const faqItems = [
     group: "pricing",
     question: "How should I choose between Builder Grade, Builder+, and Custom?",
     answer:
-      "The right finish level depends on how much customization the project needs, how visible the finish decisions are to the overall experience, and where you want to place the budget emphasis. If you are unsure, choose the closest direction and h and h can help refine it around your priorities and budget.",
+      "The right finish level depends on how much customization the project needs, how visible the finish decisions are to the overall experience, and where you want to place the budget emphasis. If you are unsure, choose the closest direction and H and H can help refine it around your priorities and budget.",
   },
   {
     id: "project-types-residential",

@@ -14,7 +14,8 @@
 
 ## Naming
 - Full Public Name: Howeth and Harp
-- Short Public Name: H&H
+- Short Public Name: H and H
 - Full Legal Name: H and H Advancement LLC
 - Short Legal Name: H and H
-- Naming should never be: "HH" "Howeth & Harp" "Howeth-Harp" "HowethHarp" "howeth and harp" "howeth & harp" "howeth-harp" "howethharp"
+- Public business-name copy must use "Howeth and Harp" or "H and H".
+- Never use lowercase "h and h", "HH", an ampersand, a hyphen, or a joined spelling as the public business name. Established identifiers such as HHQ remain unchanged.

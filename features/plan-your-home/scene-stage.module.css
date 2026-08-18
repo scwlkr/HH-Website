@@ -103,11 +103,12 @@
 .promptLayer {
   position: absolute;
   z-index: 3;
-  bottom: max(0.5rem, env(safe-area-inset-bottom));
+  top: 50%;
+  bottom: auto;
   left: 50%;
   width: min(100% - (var(--stage-gutter) * 2), 48rem);
   max-height: min(calc(100% - 6rem), 46rem);
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 .promptSheet {

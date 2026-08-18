@@ -171,7 +171,7 @@ test("review mode fake-submits without server, upload, or analytics side effects
   );
   await user.click(
     query.getByRole("checkbox", {
-      name: /I am submitting an inquiry and permit h and h to contact me/,
+      name: /I am submitting an inquiry and permit H and H to contact me/,
     }),
   );
   await user.click(

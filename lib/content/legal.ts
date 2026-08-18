@@ -27,7 +27,7 @@ export const privacyDocument: LegalDocument = {
   effectiveDate: "August 11, 2026",
   intro: [
     `This policy explains what information ${legalName} may collect through the website, how that information is used, and the choices available to people who contact the company through a general project inquiry, a Plan Your Home brief, or direct email.`,
-    "The Plan Your Home retention periods below are product recommendations pending h and h and counsel approval before public launch; they are not represented as counsel-approved policy.",
+    "The Plan Your Home retention periods below are product recommendations pending approval from H and H and its counsel before public launch; they are not represented as counsel-approved policy.",
   ],
   sections: [
     {
@@ -47,15 +47,15 @@ export const privacyDocument: LegalDocument = {
       title: "Plan Your Home Drafts And References",
       paragraphs: [
         "Before the contact checkpoint, Plan Your Home saves answers in this browser only. The local snapshot expires after 30 days and does not contain raw file contents or resume tokens.",
-        "Providing contact details creates a private server draft so progress can be saved. h and h may personally follow up about that project; no automated abandoned-draft reminder is sent.",
-        "Reference files upload to private storage and remain connected to the draft or submitted brief. Links are stored as part of the brief; h and h does not fetch those customer-provided links on the server.",
+        "Providing contact details creates a private server draft so progress can be saved. H and H may personally follow up about that project; no automated abandoned-draft reminder is sent.",
+        "Reference files upload to private storage and remain connected to the draft or submitted brief. Links are stored as part of the brief; H and H does not fetch those customer-provided links on the server.",
       ],
     },
     {
       title: "Requested Resume Email",
       paragraphs: [
         "A resume email is sent only after the visitor asks for one. The response does not reveal whether a matching draft exists.",
-        "Any available resume link is single use, expires after 15 minutes, and contains no contact information in the link. h and h does not use this feature for automated abandoned-draft or marketing messages.",
+        "Any available resume link is single use, expires after 15 minutes, and contains no contact information in the link. H and H does not use this feature for automated abandoned-draft or marketing messages.",
       ],
     },
     {
@@ -88,8 +88,8 @@ export const privacyDocument: LegalDocument = {
     {
       title: "Retention And Security",
       paragraphs: [
-        "Under the proposed Plan Your Home schedule, anonymous local snapshots expire after 30 days, identified unfinished drafts and their private files expire 180 days after last activity, and submitted Plan Your Home briefs and files expire 24 months after submission unless h and h deliberately retains or deletes them sooner.",
-        "Expired records, saved resume tokens, and orphan private files are removed by protected cleanup. Authorized h and h staff can also delete a Plan Your Home inquiry, its private files, and its saved resume tokens from HHQ.",
+        "Under the proposed Plan Your Home schedule, anonymous local snapshots expire after 30 days, identified unfinished drafts and their private files expire 180 days after last activity, and submitted Plan Your Home briefs and files expire 24 months after submission unless H and H deliberately retains or deletes them sooner.",
+        "Expired records, saved resume tokens, and orphan private files are removed by protected cleanup. Authorized H and H staff can also delete a Plan Your Home inquiry, its private files, and its saved resume tokens from HHQ.",
         `${legalName} uses reasonable administrative and technical safeguards for the website and project inquiry process, but no internet-based system can guarantee absolute security.`,
       ],
     },

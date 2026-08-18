@@ -370,7 +370,7 @@ async function main() {
     }
     await activate(
       page.getByRole("checkbox", {
-        name: /I am submitting an inquiry and permit h and h to contact me/,
+        name: /I am submitting an inquiry and permit H and H to contact me/,
       }),
     );
     await page

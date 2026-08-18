@@ -5,9 +5,8 @@ Use this language across active docs and public-facing repo copy.
 | Term | Use |
 | --- | --- |
 | Howeth and Harp | Full public business name. |
-| HH | Short public name after the full name is clear. |
+| H and H | Short public name after the full name is clear. Always capitalize it. |
 | H and H Advancement LLC | Full legal name. Use only where legal context is needed. |
-| H and H | Short legal name. Use only where legal context is needed. |
 | HHQ | Internal admin workspace name. |
 | Project brief | The detailed result created by the Plan Your Home walkthrough. |
 | General project inquiry | The short single-screen form at `/start#general-inquiry` for projects outside the walkthrough. |
@@ -23,8 +22,7 @@ Use this language across active docs and public-facing repo copy.
 
 ## Do Not Use
 
-- "HH" as a public shorthand.
-- "Howeth & Harp" in docs or public repo copy.
-- "Howeth-Harp", "HowethHarp", "howeth and harp", "howeth & harp", "howeth-harp", or "howethharp".
+- Lowercase "h and h", "HH", ampersand forms, hyphenated forms, and joined spellings as public business-name copy.
+- Established identifiers such as HHQ remain valid.
 - "Project brief" when describing the short general project inquiry.
 - "Catalog" when the subject is a completed-home project record.

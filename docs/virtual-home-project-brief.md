@@ -8,11 +8,11 @@ This document preserves the research and decision history. Where working copy, r
 
 ## Working Idea
 
-Evolve the existing `/inquire` project brief into a visual journey through a representative home. A customer would establish the broad shape of the project, move through a fixed sequence of rooms, make selections, attach inspiration, and submit one coherent brief for h and h to review before following up.
+Evolve the existing `/inquire` project brief into a visual journey through a representative home. A customer would establish the broad shape of the project, move through a fixed sequence of rooms, make selections, attach inspiration, and submit one coherent brief for H and H to review before following up.
 
 The illustrated home is an engaging way to navigate a long questionnaire. It does not generate or reconfigure a floor plan from the customer's answers. Short room-to-room animations should turn, pan, or move through a doorway so the experience feels spatial rather than like unrelated form pages. The experience should feel closer to walking through and describing a future home than filling out a conventional form.
 
-The customer-facing experience is called **Plan Your Home**. The structured result sent to h and h remains a **project brief**.
+The customer-facing experience is called **Plan Your Home**. The structured result sent to H and H remains a **project brief**.
 
 The phone is the canonical design and testing viewport. The room illustration automatically pans or zooms to frame the active object and opens a touch-sized prompt within that area. Desktop presents the same interaction in a wider horizontal stage rather than introducing a separate desktop form layout. Predominantly mobile usage is a working product assumption to validate after launch, not a confirmed measurement.
 
@@ -21,12 +21,12 @@ The phone is the canonical design and testing viewport. The room illustration au
 At the end of the experience:
 
 - the customer feels that they have communicated the home they want
-- h and h receives structured, room-level information that is useful before the first conversation
-- h and h can distinguish requirements, preferences, open questions, and inspiration
+- H and H receives structured, room-level information that is useful before the first conversation
+- H and H can distinguish requirements, preferences, open questions, and inspiration
 - the customer sees a clear summary and can correct it before submitting
 - the submission starts a design conversation; it does not promise a final plan, specification, price, or build commitment
 
-The primary success test is whether h and h can enter the first customer meeting with enough context to ask informed design and fit questions instead of repeating basic intake. Completion, abandonment, and identifiable-draft conversion are supporting health metrics rather than the main goal.
+The primary success test is whether H and H can enter the first customer meeting with enough context to ask informed design and fit questions instead of repeating basic intake. Completion, abandonment, and identifiable-draft conversion are supporting health metrics rather than the main goal.
 
 ## Existing Baseline
 
@@ -99,9 +99,9 @@ These repeatedly appear once a company wants a useful design conversation rather
 
 The longest questionnaires also ask for exact room dimensions, furniture sizes, detailed adjacencies, appliance brands, hardware, plumbing fixtures, ceiling treatments, HVAC, wiring, energy systems, surveys, covenants, and financing details.
 
-Those details are useful after a real project relationship begins, but most are too specific for an initial h and h inquiry. Asking them too early would make **Plan Your Home** feel like unpaid design work and increase abandonment.
+Those details are useful after a real project relationship begins, but most are too specific for an initial H and H inquiry. Asking them too early would make **Plan Your Home** feel like unpaid design work and increase abandonment.
 
-### Research Direction For h and h
+### Research Direction For H and H
 
 The strongest fit is a middle layer between the two market extremes:
 
@@ -126,10 +126,10 @@ This is a conversation starter, not an approved flow.
 
 1. **Personalized welcome** — Ask only for the customer's name, then type it onto the illustrated home's address plaque or nameplate so the walkthrough immediately feels like their home.
 2. **Home basics** — Complete the first room's broad home questions without another identity form.
-3. **Save progress** — Ask for email and phone after question 6, explain that they can resume later and h and h may personally follow up about the project, then sync the first backend draft without sending an automatic reminder.
+3. **Save progress** — Ask for email and phone after question 6, explain that they can resume later and H and H may personally follow up about the project, then sync the first backend draft without sending an automatic reminder.
 4. **Walk through the home** — Continue through the fixed illustrated room sequence using visual choices, lists, checkboxes, and short answers, syncing after every room.
 5. **Set priorities and add inspiration** — Separate must-haves from preferences, then upload plans or images and add useful links.
-6. **Review and submit** — See one editable summary, confirm follow-up preferences and consent, and send the project brief to h and h.
+6. **Review and submit** — See one editable summary, confirm follow-up preferences and consent, and send the project brief to H and H.
 
 ## Fixed Walkthrough
 
@@ -180,7 +180,7 @@ Before the numbered planning questions, ask **Customer name** only. As the custo
 | 8 | What parts of daily life should the home support especially well? | Gathering, quiet time, entertaining, remote work, hobbies, caregiving, accessibility, or other |
 | 9 | How should the main living areas connect? | Open, partly open, more defined, or not sure |
 | 10 | What matters most in the main living area? | Fireplace, television, built-ins, high ceilings, strong views, outdoor connection, flexible furniture, or other |
-| 11 | Which of h and h's three finish levels fits the home as a whole? | Builder Grade, Builder+, Custom, or not sure |
+| 11 | Which of the three H and H finish levels fits the home as a whole? | Builder Grade, Builder+, Custom, or not sure |
 
 ### 2. Kitchen And Dining
 
@@ -241,18 +241,18 @@ Use this final illustrated zone as the single reference workspace. Accept house-
 
 | # | Working question | Likely response |
 | --- | --- | --- |
-| 35 | How should h and h follow up once you submit this project brief? | Preferred contact method and consent; name, email, and phone are already present |
+| 35 | How should H and H follow up once you submit this project brief? | Preferred contact method and consent; name, email, and phone are already present |
 
 ### Save-Progress Checkpoint
 
-After question 6, once the customer has established the home's broad size and bedroom/bathroom count, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** Clearly disclose that h and h may personally follow up about the project. When completed, silently sync the customer's name, answers so far, and contact details as the first identifiable backend draft; do not automatically send a reminder. This checkpoint is separate from the current 31 planning decisions.
+After question 6, once the customer has established the home's broad size and bedroom/bathroom count, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** Clearly disclose that H and H may personally follow up about the project. When completed, silently sync the customer's name, answers so far, and contact details as the first identifiable backend draft; do not automatically send a reminder. This checkpoint is separate from the current 31 planning decisions.
 
 ### Question-Design Rules
 
 - Keep all seven zones visible even when a conditional detail is not applicable.
 - Integrate prompts with relevant room objects or areas instead of exposing a separate form column.
 - Guide customers through one active prompt at a time; do not display a field of competing hotspots.
-- Offer **not sure yet** wherever a customer may reasonably need h and h's guidance.
+- Offer **not sure yet** wherever a customer may reasonably need guidance from H and H.
 - Require every structured prompt to be acknowledged; use explicit **none** or **not applicable** choices when relevant rather than leaving ambiguous blanks.
 - Allow optional notes without making customers type after every choice.
 - Ask for requirements and preferences, not final specifications.
@@ -264,13 +264,13 @@ After question 6, once the customer has established the home's broad size and be
 
 ### Whole Project
 
-- project path and requested h and h services
+- project path and requested H and H services
 - location, lot status, and site context
 - target total square-footage range
 - number of stories
 - bedroom and bathroom counts
 - target timeline and investment range
-- one of h and h's three whole-home finish levels
+- one of the three H and H whole-home finish levels
 - customer priorities and constraints
 
 ### Per Room Or Zone
@@ -294,7 +294,7 @@ After question 6, once the customer has established the home's broad size and be
 
 - contact details and preferred contact method
 - customer-visible submission summary
-- internal h and h review summary
+- internal H and H review summary
 - unanswered or contradictory selections worth discussing
 
 ### HHQ Review
@@ -307,18 +307,18 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 - Never make a selection feel like a binding specification.
 - Do not imply that visuals exactly represent the final material, layout, or price.
 - Avoid presenting an automatic price as authoritative before site, design, and scope review.
-- Keep every home feature available regardless of the customer's stated budget; reconcile scope and budget with h and h during the later in-person design conversation.
+- Keep every home feature available regardless of the customer's stated budget; reconcile scope and budget with H and H during the later in-person design conversation.
 - Let customers choose an explicit uncertainty response, go back, and revise without losing work.
 - Autosave each answer locally, sync a server draft after every completed room, and return a resumed customer to their last position.
-- Show unfinished room-by-room drafts in h and h's backend without treating them as completed submissions.
-- Send no automatic abandoned-draft reminder; allow disclosed, manual h and h follow-up.
+- Show unfinished room-by-room drafts in the H and H backend without treating them as completed submissions.
+- Send no automatic abandoned-draft reminder; allow disclosed, manual H and H follow-up.
 - Ensure every integrated prompt remains a real semantic control with a clear label, focus state, and ordered keyboard path.
 - Keep transitions short, preserve answers during movement, and honor reduced-motion preferences with an immediate alternative.
 - Keep a complete keyboard- and screen-reader-friendly form path alongside visual navigation.
 - Design and test the phone experience first, including touch target size, text legibility, viewport changes, and one-handed use.
 - Do not require landscape orientation or depend on hover.
 - Treat desktop as a wider rendering of the same guided experience, not a separate form layout.
-- Ask only questions that improve qualification or the first h and h conversation.
+- Ask only questions that improve qualification or the first H and H conversation.
 
 ## Resolved Implementation Planning
 
@@ -347,7 +347,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 ### 2026-07-13 — Plan Your Home
 
 - Use **Plan Your Home** as the customer-facing experience name and call to action.
-- Describe the result as a **project brief** in supporting copy, the review screen, and h and h's internal workflow.
+- Describe the result as a **project brief** in supporting copy, the review screen, and the H and H internal workflow.
 - Avoid language implying that the website produces final designs, specifications, or pricing.
 
 ### 2026-07-13 — Linear navigation
@@ -373,7 +373,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 
 - Target roughly 25 to 35 short decision interactions.
 - Use structured visual choices for most answers, with optional notes and conditional detail.
-- Capture enough context to prepare h and h for the first conversation without drifting into detailed architectural programming.
+- Capture enough context to prepare H and H for the first conversation without drifting into detailed architectural programming.
 
 ### 2026-07-13 — One whole-home finish level
 
@@ -433,7 +433,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 
 - Continue saving each answer locally so an interrupted question does not disappear.
 - After every completed room, sync the accumulated answers to a server-side draft.
-- Show the unfinished draft, completed rooms, current position, answers so far, and last activity time in h and h's backend.
+- Show the unfinished draft, completed rooms, current position, answers so far, and last activity time in the H and H backend.
 - On the same device, resume the exact prompt from local progress; on another device, resume immediately after the last room synced to the server.
 - Keep **draft** and **submitted inquiry** as distinct statuses; completing a room does not imply that the customer submitted the project brief.
 - Create the first identifiable server draft after question 6 when the customer provides email and phone at the save-progress checkpoint.
@@ -445,7 +445,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 - Present the bands as one simple stepped selector or equivalent single-choice control.
 - Do not calculate, display, update, or warn about pricing while the customer plans the home.
 - Do not hide, disable, or discourage features based on the selected range.
-- Let the customer describe the home they want; h and h will align the design and budget during a later in-person meeting.
+- Let the customer describe the home they want; H and H will align the design and budget during a later in-person meeting.
 
 ### 2026-07-13 — Personalized welcome and earned contact checkpoint
 
@@ -454,14 +454,14 @@ The product specification now owns the exact 31-question registry, seven-zone st
 - Keep progress local while the customer completes the first room.
 - After question 6, ask for email and phone with a clear **Save your progress and resume later** explanation.
 - Once contact details are provided, sync the name, answers so far, and contact details as the first identifiable backend draft; sync again after each completed zone.
-- Collect the preferred follow-up method and final submission confirmation at the end; separately explain the possibility of manual h and h contact at the save-progress checkpoint.
+- Collect the preferred follow-up method and final submission confirmation at the end; separately explain the possibility of manual H and H contact at the save-progress checkpoint.
 
 ### 2026-07-13 — Silent draft saving with manual follow-up
 
 - Do not automatically email or text a resume reminder when an identifiable draft becomes inactive.
-- Keep the unfinished draft and its progress visible in h and h's backend.
-- Allow a member of the h and h team to follow up manually using the saved email or phone number.
-- Disclose at the save-progress checkpoint that h and h may use the contact details to personally follow up about the project; do not imply they are used only for technical draft storage.
+- Keep the unfinished draft and its progress visible in the H and H backend.
+- Allow a member of the H and H team to follow up manually using the saved email or phone number.
+- Disclose at the save-progress checkpoint that H and H may use the contact details to personally follow up about the project; do not imply they are used only for technical draft storage.
 - Let returning customers initiate resume from the site using a secure recovery flow; settle its exact verification method during implementation planning.
 
 ### 2026-07-13 — One whole-home square-footage range
@@ -476,7 +476,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 
 - Collect all plans, photos, and website references in the illustrated **Design Desk and Inspiration** zone near the end.
 - Accept house-plan PDFs, phone images, and repeatable website links as the working content types.
-- Allow a short optional note on each reference so h and h knows what the customer likes or wants to discuss.
+- Allow a short optional note on each reference so H and H knows what the customer likes or wants to discuss.
 - Do not interrupt earlier rooms with upload controls.
 - Keep all inspiration optional; a customer with no files or links should continue without friction.
 - Use the exact formats, limits, private-storage rules, and link-security behavior in the product specification.
@@ -495,7 +495,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 - Include **Not sure yet**, **None**, or **Not applicable** wherever those are honest possible answers.
 - Keep optional notes, uploads, and inspiration links optional.
 - Preserve **Back** and revision controls so acknowledgment does not make an answer feel permanent.
-- Store explicit uncertainty separately from missing or invalid data so h and h can understand the customer's actual level of clarity.
+- Store explicit uncertainty separately from missing or invalid data so H and H can understand the customer's actual level of clarity.
 
 ### 2026-07-13 — Seven-zone working route
 
@@ -507,10 +507,10 @@ The product specification now owns the exact 31-question registry, seven-zone st
 
 ### 2026-07-13 — First-meeting preparedness is the primary outcome
 
-- Judge the experience primarily by whether h and h can start the first meeting with informed design and project-fit questions instead of repeating basic intake.
-- Use a lightweight internal review after early real inquiries to learn whether the brief was useful, what h and h still had to re-ask, and which answers created noise.
+- Judge the experience primarily by whether H and H can start the first meeting with informed design and project-fit questions instead of repeating basic intake.
+- Use a lightweight internal review after early real inquiries to learn whether the brief was useful, what H and H still had to re-ask, and which answers created noise.
 - Track completion rate, abandonment by zone, identifiable-draft-to-submission conversion, and completion time as supporting health metrics.
-- Do not maximize form completion or early contact capture at the expense of the information h and h needs for a productive conversation.
+- Do not maximize form completion or early contact capture at the expense of the information H and H needs for a productive conversation.
 
 ## Brainstorming Checkpoint
 

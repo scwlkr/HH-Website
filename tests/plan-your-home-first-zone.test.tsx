@@ -136,7 +136,7 @@ async function saveContact(
   await user.type(query.getByRole("textbox", { name: "Phone" }), "+1 214 555 0100");
   await user.click(
     query.getByRole("checkbox", {
-      name: /Save my progress\. h and h may personally follow up/,
+      name: /Save my progress\. H and H may personally follow up/,
     }),
   );
   await user.click(query.getByRole("button", { name: "Save and continue" }));

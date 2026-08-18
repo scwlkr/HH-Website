@@ -28,7 +28,7 @@ Before opening a PR:
 - Run `npm run typecheck`.
 - Run `npm run qa:smoke` when the change touches routes, forms, admin surfaces, metadata, links, or layout behavior.
 - Update the relevant docs in `docs/`.
-- Confirm public copy uses "Howeth and Harp" or "H&H", not disallowed variants.
+- Confirm public copy uses "Howeth and Harp" or capitalized "H and H"; never use lowercase or ampersand forms of the shortened name.
 - Confirm any new environment variable appears in `.env.example` and docs by name only.
 
 ## Documentation Standard

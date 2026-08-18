@@ -5,7 +5,8 @@
 - Write in present tense.
 - Prefer concrete file names, route names, commands, and environment variable names.
 - Keep public language aligned with [glossary.md](glossary.md).
-- Use "Howeth and Harp" first, then "H&H" when a shorter label helps.
+- Use "Howeth and Harp" first, then "H and H" when a shorter label helps.
+- Always capitalize "H and H". Never use lowercase "h and h" or an ampersand in the business name. Apply this rule to website copy, task prompts, and repository documentation.
 - Keep the tone precise and useful. The visual system is drafting-inspired, but docs should not perform the aesthetic.
 
 ## Files

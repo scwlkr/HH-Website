@@ -33,7 +33,7 @@ export function ProjectStartContent({
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-muted-strong sm:text-lg">
                 Walk through the home, site, priorities, timing, and inspiration
-                so h and h has a useful project brief before the first
+                so H and H has a useful project brief before the first
                 conversation.
               </p>
               <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted">
@@ -41,11 +41,12 @@ export function ProjectStartContent({
                 <li>Save and resume</li>
                 <li>Detailed project brief</li>
               </ul>
-              <div className="mt-6">
+              <div className="mt-7">
                 <ActionLink
                   href="/plan-your-home"
-                  label="Start Plan Your Home"
-                  size="lg"
+                  label="Start Your Home Plan"
+                  size="xl"
+                  className="w-full shadow-[0_20px_38px_-24px_rgba(17,17,15,0.72)] sm:w-auto sm:min-w-[20rem]"
                   trackingLocation="project-start-hero"
                   trackingContext="Plan Your Home"
                 />

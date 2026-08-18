@@ -72,7 +72,7 @@ export default async function PlanHomeResumePage({
                 exists.
               </p>
               <p className={styles.privacyNote}>
-                Before you enter an email: h and h uses it only to send the
+                Before you enter an email: H and H uses it only to send the
                 one-time resume link you request, never an automatic abandoned-
                 plan reminder. Read the{" "}
                 <Link className="hh-touch-target" href="/privacy">

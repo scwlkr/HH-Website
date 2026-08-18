@@ -640,12 +640,30 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
       const header = document.querySelector("[data-plan-home-header]");
       const stageRail = document.querySelector("[data-plan-home-stage-rail]");
       const progress = document.querySelector("[data-plan-home-stage-rail] progress");
+      const planningSurface = document.querySelector(
+        "[data-plan-home-prompt-sheet], [data-plan-home-moment-sheet]",
+      );
       return {
         header: dimensions("[data-plan-home-header]"),
         stageRail: dimensions("[data-plan-home-stage-rail]"),
         contextStrip: dimensions("[data-plan-home-context-strip]"),
         promptSheet: dimensions("[data-plan-home-prompt-sheet]"),
         momentSheet: dimensions("[data-plan-home-moment-sheet]"),
+        planningFrame: planningSurface
+          ? (() => {
+              const frame = planningSurface.closest(
+                "[data-question-id], [data-tour-beat]",
+              );
+              if (!frame) return null;
+              const bounds = frame.getBoundingClientRect();
+              return {
+                width: bounds.width,
+                height: bounds.height,
+                top: bounds.top,
+                bottom: bounds.bottom,
+              };
+            })()
+          : null,
         reviewHero: dimensions("[data-review-hero]"),
         reviewWorkspace: dimensions("[data-review-workspace]"),
         visibleChrome: [header?.textContent, stageRail?.textContent]
@@ -697,6 +715,18 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
         assert(
           result.layout.momentSheet?.height >= viewports[viewportName].height * 0.5,
           "welcome task owns most of the initial viewport",
+        );
+      }
+    } else {
+      const planningSurface =
+        result.layout.promptSheet ?? result.layout.momentSheet;
+      const planningFrame = result.layout.planningFrame;
+      if (planningSurface && planningFrame) {
+        const surfaceCenter = (planningSurface.top + planningSurface.bottom) / 2;
+        const frameCenter = (planningFrame.top + planningFrame.bottom) / 2;
+        assert(
+          Math.abs(surfaceCenter - frameCenter) <= 2,
+          `${state} centers its planning card in the desktop experience`,
         );
       }
     }

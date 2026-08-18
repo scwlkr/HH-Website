@@ -310,7 +310,7 @@ Every issue created from this roadmap contains:
 
 ### 15. Add the HHQ inquiry queue
 
-**Outcome:** Authorized h and h staff can review one clean list of legacy, draft, and submitted inquiries.
+**Outcome:** Authorized H and H staff can review one clean list of legacy, draft, and submitted inquiries.
 
 **Scope:** Add Inquiries navigation and authenticated list with name/contact, status, progress, last activity, location, status filter, last-activity sort, responsive empty/error states, and legacy handling.
 
@@ -345,7 +345,7 @@ Every issue created from this roadmap contains:
 - Add protected scheduled cleanup for expired drafts, tokens, records, and orphan files plus HHQ manual deletion compatibility.
 - Document required counsel approval and production environment/provider prerequisites.
 
-**Non-goals:** Deploying publicly, changing DNS, adding automated marketing, obtaining legal approval on h and h's behalf.
+**Non-goals:** Deploying publicly, changing DNS, adding automated marketing, obtaining legal approval on behalf of H and H.
 
 **Done bar:** Both public paths are obvious and functional; analytics payload tests exclude PII/answers; cleanup is idempotent and protected; privacy links/copy appear before data collection/submission; generic regression passes.
 

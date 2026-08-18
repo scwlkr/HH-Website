@@ -53,7 +53,7 @@ export default async function ProjectsPage() {
         eyebrow="Selected Work"
         title="Completed Work"
         lede="Architecture, construction, and development shaped by site, scope, and long-term use."
-        description="h and h works across single-family, multifamily, townhome, commercial, and land-development projects."
+        description="H and H works across single-family, multifamily, townhome, commercial, and land-development projects."
         detail={
           <div className="space-y-5">
             <DividerFrame label="Project Focus" detail="Built around scope" />

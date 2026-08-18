@@ -805,7 +805,7 @@ async function proveGeneric(browser, baseUrl, firestore) {
     waitUntil: "networkidle",
   });
   assert.equal(
-    await page.getByRole("link", { name: "Start Plan Your Home" }).getAttribute("href"),
+    await page.getByRole("link", { name: "Start Your Home Plan" }).getAttribute("href"),
     "/plan-your-home",
   );
   assert.equal(

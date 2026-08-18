@@ -496,7 +496,7 @@ function mapPlanHomeDetail(
     preferredFollowUp: humanizeSlug(contact.preferredFollowUp),
     disclosure:
       contact.manualFollowUpDisclosureAccepted === true
-        ? "Accepted: progress may be saved and h and h may personally follow up about this project. No reminder is sent automatically."
+        ? "Accepted: progress may be saved and H and H may personally follow up about this project. No reminder is sent automatically."
         : "Manual follow-up disclosure acceptance is unavailable.",
     progress: {
       summary:

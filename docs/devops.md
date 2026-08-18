@@ -32,7 +32,7 @@ Plan Your Home has a public project-entry path in this build. Open it directly a
 npm run review -- /plan-your-home
 ```
 
-The active walkthrough uses its own focused shell with the h and h brand,
+The active walkthrough uses its own focused shell with the H and H brand,
 concise progress, and Save and exit. The shared marketing navigation and footer
 remain available on other public routes but are intentionally absent here.
 
@@ -102,7 +102,7 @@ RFC-reserved `.invalid` domain; the final proof allowlists those fixtures and th
 site's public contact address, and rejects any other email-like string or its raw
 resume token in server logs, reports, and traces.
 
-Production delivery is deliberately unconfigured. After h and h provides a
+Production delivery is deliberately unconfigured. After H and H provides a
 verified sending domain and API key, set `PLAN_HOME_RESUME_MAIL_TRANSPORT=resend`,
 `PLAN_HOME_RESUME_EMAIL_FROM`, `RESEND_API_KEY`, `PLAN_HOME_RESUME_SECRET`, and an
 HTTPS `PLAN_HOME_PUBLIC_ORIGIN`. Keep all except the public origin server-only.

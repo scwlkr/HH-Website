@@ -20,7 +20,7 @@ The short general project inquiry at `/start#general-inquiry` remains available 
 
 Plan Your Home turns a detailed new-home intake into a short, linear walkthrough of an illustrated house. Every customer sees the same seven zones. Their answers change the project brief, not the rooms or artwork.
 
-The experience succeeds when h and h can enter the first conversation knowing the customer's project frame, household needs, room priorities, finish direction, site context, budget range, timing, and inspiration without asking the basic intake questions again.
+The experience succeeds when H and H can enter the first conversation knowing the customer's project frame, household needs, room priorities, finish direction, site context, budget range, timing, and inspiration without asking the basic intake questions again.
 
 It does not produce a floor plan, specification, price, feasibility decision, or construction commitment.
 
@@ -36,7 +36,7 @@ It does not produce a floor plan, specification, price, feasibility decision, or
 - Every structured prompt requires either an answer or an explicit `Not sure`, `None`, or `Not applicable` response.
 - Optional notes and inspiration are never required.
 - Answers save locally as they are made. Identified server drafts checkpoint at the contact gate and after each zone.
-- Unfinished identified drafts are visible to h and h and may receive disclosed manual follow-up. There are no automated abandoned-draft reminders.
+- Unfinished identified drafts are visible to H and H and may receive disclosed manual follow-up. There are no automated abandoned-draft reminders.
 - A review screen lets the customer edit any answer before submission.
 
 ## Visual Direction
@@ -78,7 +78,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
 | 1 `project.starting-services` | What do you have in mind? | Starting point, one: Fully custom; Already have a plan; Somewhere in between; Not sure yet. Services, many: Architectural design; Building; Land development; Not sure yet. `Not sure` is exclusive within services. |
-| 2 `project.lot-location` | What is your lot status and location? | Lot status, one: Own it; Actively looking; Need h and h to evaluate options; Not sure yet. Location: city, county, address, or target area text; or explicit Not sure yet. |
+| 2 `project.lot-location` | What is your lot status and location? | Lot status, one: Own it; Actively looking; Need H and H to evaluate options; Not sure yet. Location: city, county, address, or target area text; or explicit Not sure yet. |
 | 3 `project.site-context` | What do you know about the site? | Show only when question 2 is `Own it`; otherwise store internal `Not applicable`. Many: Flat or gently sloped; Steep or complex slope; Wooded; Important views or water; Utilities available; Well or septic; HOA or deed restrictions; Existing structure; Nothing known yet; Not sure yet. The last two are exclusive. |
 
 ### Living Room And Home Basics
@@ -88,7 +88,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | 4 `home.heated-square-feet` | How much space are you considering? | One: Under 1,000; 1,000–1,499; 1,500–1,999; 2,000–2,499; 2,500–2,999; 3,000–3,999; 4,000–4,999; 5,000+; Not sure yet. Explain that garages, porches, and unfinished areas are excluded. |
 | 5 `home.stories` | How many stories are you considering? | One; Two; Not sure yet. |
 | 6 `home.bed-bath-counts` | How many bedrooms and bathrooms do you expect? | Required short text, up to 120 characters. Example: `4 bedrooms, 3 full bathrooms, and 1 half bathroom`. |
-| — `contact.checkpoint` | Save your progress and resume later. | Email and phone required. Reuse welcome name. Disclose: progress will be saved, h and h may personally follow up about this project, and no reminder is sent automatically. Link to `/privacy`; keep server, retention, storage, and resume-token details on that page instead of restating them in the form. This checkpoint is not one of the 31 planning questions. |
+| — `contact.checkpoint` | Save your progress and resume later. | Email and phone required. Reuse welcome name. Disclose: progress will be saved, H and H may personally follow up about this project, and no reminder is sent automatically. Link to `/privacy`; keep server, retention, storage, and resume-token details on that page instead of restating them in the form. This checkpoint is not one of the 31 planning questions. |
 | 7 `home.daily-life` | Which daily routines should the home support? | Choose up to 4: Quiet and privacy; Entertaining; Remote work or study; Hobbies; Caregiving; Pet routines; Indoor-outdoor living; Not sure yet. |
 | 8 `living.relationship` | How should the main living spaces feel? | Open; Connected but defined; Mostly separate; Not sure yet. |
 | 9 `living.features` | What matters most in the main living area? | Choose up to 5: Fireplace; TV or media; Built-ins; Vaulted or tall ceilings; Strong views; Outdoor connection; Flexible furniture layout; None; Not sure yet. `None` and `Not sure` are exclusive. |
@@ -167,7 +167,7 @@ Submission converts the draft to `submitted` atomically, records the accepted co
 - HHQ file access uses short-lived signed reads.
 - Links accept only normalized `http` and `https` URLs. Never fetch customer URLs on the server. Open with `noopener,noreferrer` and show the hostname.
 - A removed file or abandoned, expired upload is deleted by cleanup.
-- The customer keeps responsibility for material they provide. Submission gives h and h permission to review it for the inquiry; it does not transfer ownership.
+- The customer keeps responsibility for material they provide. Submission gives H and H permission to review it for the inquiry; it does not transfer ownership.
 
 ## Architecture Contract
 
@@ -214,7 +214,7 @@ All Firestore and Storage access continues through trusted server code. Do not o
 - Cross-device resume returns to the last server-synced boundary.
 - `/plan-your-home/resume` accepts an email address, always displays a generic result, and sends a link only when an eligible draft exists.
 - The resume link is requested by the customer, not an abandonment reminder. Use a 15-minute, single-use token; store only its hash; keep contact data out of the URL; rotate it after use; and establish an `HttpOnly`, `Secure` in production, `SameSite=Lax` draft session cookie.
-- Rate-limit requests and test with a fake local mail adapter. Production email may use Resend after h and h supplies a verified sending domain and API key.
+- Rate-limit requests and test with a fake local mail adapter. Production email may use Resend after H and H supplies a verified sending domain and API key.
 
 ### Retention Recommendation
 
@@ -222,7 +222,7 @@ This is a product recommendation to review with counsel before launch:
 
 - Anonymous local snapshots: expire after 30 days.
 - Identified unfinished drafts and their files: delete 180 days after last activity.
-- Submitted briefs and files: retain 24 months after submission unless h and h deliberately retains or deletes them.
+- Submitted briefs and files: retain 24 months after submission unless H and H deliberately retains or deletes them.
 - Provide manual deletion in HHQ and a protected scheduled cleanup route for expired records and orphan objects.
 
 ## HHQ Contract
@@ -273,11 +273,11 @@ Allowed properties are anonymous session ID, zone ID, prompt index, reference ki
 ## Public Entry And Legal Copy
 
 - Use `/start` as the single public project-entry page. Remove the long intake-register introduction and equal-weight path rows; show the Plan Your Home hero first and the embedded general project inquiry below it.
-- Keep the Plan Your Home primary action visible in the first phone viewport. Use the established sketched front-door scene as a static, non-interactive preview and link only the `Start Plan Your Home` action to `/plan-your-home`; do not add a resume link to `/start`.
-- Use the hero headline `Plan your new home, one space at a time.` and explain that the guided walkthrough covers the home, site, priorities, timing, and inspiration so h and h has a useful project brief before the first conversation. Identify the experience as a guided walkthrough that supports save and resume and produces a detailed project brief.
+- Keep the dominant `Start Your Home Plan` primary action visible in the first phone viewport. Use the established sketched front-door scene as a static, non-interactive preview and link only that action to `/plan-your-home`; do not add a resume link to `/start`.
+- Use the hero headline `Plan your new home, one space at a time.` and explain that the guided walkthrough covers the home, site, priorities, timing, and inspiration so H and H has a useful project brief before the first conversation. Identify the experience as a guided walkthrough that supports save and resume and produces a detailed project brief.
 - Present the subordinate inquiry with `Other Projects`, `Have something else in mind?`, and concise guidance for remodels, additions, multifamily, commercial work, land development, or anything that does not fit the walkthrough. Both paths remain available to every visitor; project type guides the choice but does not gate either path.
 - Keep the general project inquiry to one screen with name required; at least one of email or phone required; project type required; project location optional; and a required short `What are you planning?` message. Project-type choices are New single-family home, Remodel or addition, Multifamily or townhomes, Commercial, Land or site development, and Other or not sure. Do not add square footage, finish level, services, lot status, timeline, budget, a stepper, or a review screen.
-- Submit the general project inquiry to the existing private HHQ inquiry queue, then redirect to `/thank-you`. Use `project inquiry` rather than `project brief` in its confirmation copy and say h and h will respond using the contact information provided.
+- Submit the general project inquiry to the existing private HHQ inquiry queue, then redirect to `/thank-you`. Use `project inquiry` rather than `project brief` in its confirmation copy and say H and H will respond using the contact information provided.
 - Redirect `/inquire` to `/start#general-inquiry` while preserving safe project-type and non-contact attribution parameters. Keep one canonical general inquiry form rather than duplicating the experience.
 - Keep `/plan-your-home` out of search indexing when it becomes publicly linked from `/start`; search discovery remains a separate launch decision.
 - Place one concise privacy sentence and a privacy-policy link beside the general inquiry's deliberate `Send Inquiry` action. Do not add marketing consent or technical retention copy.
@@ -285,7 +285,7 @@ Allowed properties are anonymous session ID, zone ID, prompt index, reference ki
 - Keep technical privacy and retention explanations on `/privacy`. Plan Your Home should show only the consent needed for the current action plus a concise privacy-policy link.
 - State near the budget question that it is planning context only, land is excluded, all features remain explorable, and no live estimate is being produced.
 - State before submission that the brief starts a conversation and is not a design, price, feasibility decision, or contract.
-- Legal and retention language requires h and h/counsel approval before public launch.
+- Legal and retention language requires approval from H and H and its counsel before public launch.
 
 ## Technical Research Basis
 

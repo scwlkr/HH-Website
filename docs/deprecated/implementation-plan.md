@@ -6,7 +6,7 @@ Replacement: [Architecture](../architecture.md), [Launch QA](../launch-qa.md), a
 
 Reason: this phase plan records historical build sequencing. Current behavior now lives in the active manual path.
 
-# HOWETH & HARP — IMPLEMENTATION PLAN
+# HOWETH AND HARP — IMPLEMENTATION PLAN
 
 ## 1. Purpose
 

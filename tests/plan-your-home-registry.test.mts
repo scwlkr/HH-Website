@@ -89,6 +89,21 @@ describe("plan-home-v1 registry", () => {
     assert.deepEqual(validatePlanHomeDefinition(planHomeV1Definition), []);
   });
 
+  it("keeps Plan Your Home services focused on designing and building the home", () => {
+    const services = question("project.starting-services").response.optionGroups.find(
+      (group) => group.id === "services",
+    );
+
+    assert.deepEqual(
+      services?.options.map(({ slug, label }) => [slug, label]),
+      [
+        ["architectural-design", "Architectural design"],
+        ["building", "Building"],
+        ["not-sure-yet", "Not sure yet"],
+      ],
+    );
+  });
+
   it("locks the complete public copy, stable slugs, limits, and scene bindings", () => {
     const publicContract = planHomeV1Definition.questions.map((item) => ({
       number: item.number,
@@ -118,7 +133,7 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "48446785968de0d4e2ac90b5afd8537ca36f94a62a4ac905c4af3bd526576899",
+      "7ed80a33a928c9c80b6b269fbc2e5c814b835480838431d80288312952489bdc",
     );
     assert.equal(
       question("home.systems").helper,

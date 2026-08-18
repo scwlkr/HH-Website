@@ -536,6 +536,13 @@ async function runNpmScript({ script, args = [], env }) {
   };
 }
 
+function assertCanonicalBusinessName(content, context) {
+  assert(
+    !/\bh and h\b/.test(content) && !/H\s*&\s*H/.test(content),
+    `${context} must preserve canonical H and H naming.`,
+  );
+}
+
 async function verifyRouteStatuses(baseUrl) {
   log("Checking public route coverage and invalid slug behavior...");
 
@@ -568,6 +575,9 @@ async function verifyRouteStatuses(baseUrl) {
   for (const route of routes) {
     const response = await fetch(`${baseUrl}${route}`);
     assert(response.ok, `Expected ${route} to return 200, received ${response.status}.`);
+    if (response.headers.get("content-type")?.startsWith("text/html")) {
+      assertCanonicalBusinessName(await response.text(), route);
+    }
   }
 
   for (const route of [
@@ -672,10 +682,7 @@ async function verifyAgentDiscoveryDocuments(baseUrl) {
       resourcePaths.every((linkedPath) => body.includes(linkedPath)),
       `${resourcePath} must cross-link the complete discovery bundle.`,
     );
-    assert(
-      !body.includes("H & H"),
-      `${resourcePath} must preserve canonical Howeth and Harp naming.`,
-    );
+    assertCanonicalBusinessName(body, resourcePath);
     for (const internalTerm of ["AGENTS.md", "docs/", "Firebase", "HHQ", "npm run"]) {
       assert(
         !body.includes(internalTerm),
@@ -1026,7 +1033,7 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
     { waitUntil: "networkidle" },
   );
   const planHomeLink = page.getByRole("link", {
-    name: "Start Plan Your Home",
+    name: "Start Your Home Plan",
     exact: true,
   });
   const planHomeTarget = await planHomeLink.boundingBox();
@@ -1370,7 +1377,7 @@ async function verifyInquiryFailureState(browser, baseUrl) {
     await submitButton.click();
     await page
       .getByText(
-        "The project inquiry could not be sent right now. Please try again in a moment or email h and h directly.",
+        "The project inquiry could not be sent right now. Please try again in a moment or email H and H directly.",
       )
       .waitFor();
     assert(

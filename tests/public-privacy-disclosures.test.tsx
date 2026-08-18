@@ -131,6 +131,6 @@ test("the privacy draft covers every Plan Your Home disclosure without claiming 
   ]) {
     assert.match(copy, new RegExp(required, "i"));
   }
-  assert.match(copy, /pending h and h and counsel approval/i);
+  assert.match(copy, /pending approval from H and H and its counsel/i);
   assert.doesNotMatch(copy, /counsel approved|approved by counsel/i);
 });

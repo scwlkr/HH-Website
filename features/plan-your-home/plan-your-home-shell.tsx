@@ -822,7 +822,7 @@ function renderQuestionPrompt(
           bytesPerFile: number;
           totalFileBytes: number;
         }}
-        instructions="Files upload directly to private Cloud Storage. h and h may review submitted material for this inquiry; ownership stays with you."
+        instructions="Files upload directly to private Cloud Storage. H and H may review submitted material for this inquiry; ownership stays with you."
       />
     );
   }
@@ -1048,7 +1048,7 @@ function ContactCheckpoint({
             }
           />
           <span>
-            Save my progress. h and h may personally follow up about this
+            Save my progress. H and H may personally follow up about this
             project. No reminder is sent automatically.
           </span>
         </label>
@@ -1310,7 +1310,7 @@ function ProjectBriefReview({
                 onChange={(event) => onConsentChange(event.target.checked)}
               />
               <span>
-                I am submitting an inquiry and permit h and h to contact me about
+                I am submitting an inquiry and permit H and H to contact me about
                 this project. This is not marketing consent.
               </span>
             </label>
@@ -1366,7 +1366,7 @@ function PlanHomeConfirmation({
         <p className={styles.eyebrow}>Project brief received</p>
         <h1 ref={headingRef} tabIndex={-1}>Thank you, {name}.</h1>
         <p>
-          Your seven-zone project brief is with h and h. The answers and
+          Your seven-zone project brief is with H and H. The answers and
           references you submitted stay together for review.
         </p>
         <h2>What happens next</h2>
@@ -1377,7 +1377,7 @@ function PlanHomeConfirmation({
           </li>
           <li data-confirmation-step>
             <span>02</span>
-            <div><strong>Personal review</strong><p>h and h reviews the project context.</p></div>
+            <div><strong>Personal review</strong><p>H and H reviews the project context.</p></div>
           </li>
           <li data-confirmation-step>
             <span>03</span>

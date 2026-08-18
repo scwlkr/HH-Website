@@ -1,6 +1,6 @@
 # General Project Inquiry
 
-The short general project inquiry is embedded at `/start#general-inquiry` below the primary Plan Your Home path. It gives remodel, multifamily, commercial, land-development, and other projects a simple way to contact h and h without presenting the general inquiry as a detailed project brief. Legacy `/inquire` URLs redirect to this canonical form.
+The short general project inquiry is embedded at `/start#general-inquiry` below the primary Plan Your Home path. It gives remodel, multifamily, commercial, land-development, and other projects a simple way to contact H and H without presenting the general inquiry as a detailed project brief. Legacy `/inquire` URLs redirect to this canonical form.
 
 ## Runtime Path
 
@@ -42,7 +42,7 @@ Project types are New single-family home, Remodel or addition, Multifamily or to
 | Honeypot filled | Redirects to `/thank-you` without writing to Firestore. |
 | Rate limit tripped | Shows a retry-later error. |
 | Field validation failed | Returns field-specific feedback without losing entered data. |
-| Firestore write failed | Shows a server-error state and asks the user to retry or email h and h. |
+| Firestore write failed | Shows a server-error state and asks the user to retry or email H and H. |
 
 ## Firestore Contract
 

@@ -4,7 +4,7 @@ Agent Guidance gives automated readers and collaborators accurate HH website con
 
 ## Business identity
 
-The public business name is **Howeth and Harp**. **h and h**, **H and H**, and **HH** are acceptable shortened names. The full legal name is reserved for legal contexts, and the business name never uses an ampersand.
+The public business name is **Howeth and Harp** and the only shortened public name is **H and H**. Always capitalize **H and H**; never use its lowercase or ampersand forms. The full legal name is reserved for legal contexts. Established identifiers such as HHQ remain unchanged.
 
 Howeth and Harp is a multidisciplinary company providing architectural design, building and construction, remodeling, and land-development work. Public descriptions must stay directional and must not imply that general website guidance is a quote, design, feasibility decision, guarantee, or contract.
 

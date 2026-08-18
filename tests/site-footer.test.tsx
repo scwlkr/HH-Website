@@ -58,5 +58,5 @@ test("the site footer is a compact branded directory", () => {
     footer.queryByText(/Planning a project\? Share your location/i),
     null,
   );
-  assert.match(footer.getByText(/h and h$/).textContent ?? "", /^© \d{4} h and h$/);
+  assert.match(footer.getByText(/H and H$/).textContent ?? "", /^© \d{4} H and H$/);
 });

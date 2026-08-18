@@ -34,7 +34,7 @@ export function ResumeRequestForm() {
         aria-describedby="plan-home-resume-help"
       />
       <p id="plan-home-resume-help">
-        We send a link only when you ask. h and h does not send automatic
+        We send a link only when you ask. H and H does not send automatic
         abandoned-plan reminders.
       </p>
       <Button type="submit" disabled={pending} className={styles.submit}>

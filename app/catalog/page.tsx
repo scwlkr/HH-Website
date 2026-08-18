@@ -84,7 +84,7 @@ export default function CatalogPage() {
           notes={[
             `${buildTypes.length} project categories spanning residential and commercial work.`,
             "Project type shapes planning, site strategy, service mix, and finish priorities.",
-            "h and h can help refine the category when a project crosses more than one type.",
+            "H and H can help refine the category when a project crosses more than one type.",
           ]}
         />
       </Section>

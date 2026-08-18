@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
-type ButtonSize = "sm" | "md" | "lg";
+type ButtonSize = "sm" | "md" | "lg" | "xl";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
@@ -17,6 +17,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   sm: "min-h-10 px-3.5 text-[0.68rem]",
   md: "min-h-11 px-4.5 text-[0.72rem]",
   lg: "min-h-12 px-5.5 text-[0.76rem]",
+  xl: "min-h-16 px-8 text-[0.84rem]",
 };
 
 export function buttonVariants({

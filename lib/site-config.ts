@@ -8,7 +8,7 @@ export type SiteLink = {
 
 export const siteConfig = {
   name: "Howeth and Harp",
-  shortName: "h and h",
+  shortName: "H and H",
   legalName: "H and H Advancement LLC",
   legalShortName: "H and H",
   description: "Architectural design, building, and land development.",

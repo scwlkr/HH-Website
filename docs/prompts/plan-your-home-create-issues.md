@@ -3,7 +3,7 @@
 Paste the block below into a new Codex task from the repository root after these planning docs are on `main`.
 
 ```text
-Create the complete GitHub implementation backlog for the h and h "Plan Your Home" tour. This is a planning/GitHub task only: do not implement product code, change production configuration, deploy, or begin issue 1.
+Create the complete GitHub implementation backlog for the H and H "Plan Your Home" tour. This is a planning/GitHub task only: do not implement product code, change production configuration, deploy, or begin issue 1.
 
 Repository: scwlkr/HH-Website
 

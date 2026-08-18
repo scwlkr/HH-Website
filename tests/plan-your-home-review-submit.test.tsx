@@ -258,7 +258,7 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
 
   await user.click(
     query.getByRole("checkbox", {
-      name: /I am submitting an inquiry and permit h and h to contact me/,
+      name: /I am submitting an inquiry and permit H and H to contact me/,
     }),
   );
   const readySubmit = query.getByRole("button", {

@@ -5,7 +5,7 @@
 
 ## Context
 
-h and h is expediting a small business with roughly five customers. HHQ needs practical protection for customer inquiries, private references, completed homes, and pricing without the delay and daily friction of a separate admin deployment, individual permission tiers, multi-factor codes, or recovery infrastructure.
+H and H is expediting a small business with roughly five customers. HHQ needs practical protection for customer inquiries, private references, completed homes, and pricing without the delay and daily friction of a separate admin deployment, individual permission tiers, multi-factor codes, or recovery infrastructure.
 
 ## Decision
 
