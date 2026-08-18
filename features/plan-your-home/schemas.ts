@@ -5,6 +5,7 @@ import {
   planHomeQuestionIds,
   planHomeZoneIds,
   validatePlanHomeAnswer,
+  type PlanHomeAnswerMap,
 } from "./registry.ts";
 
 const timestampSchema = z.string().datetime({ offset: true });
@@ -25,6 +26,35 @@ const normalizedPhoneSchema = z
     const digits = value.replace(/\D/g, "");
     return value.startsWith("+") ? `+${digits}` : digits;
   });
+
+export function normalizeLegacyPlanHomeAnswers(
+  answers: Readonly<Record<string, unknown>>,
+): PlanHomeAnswerMap {
+  const startingServices = answers["project.starting-services"];
+  if (
+    !startingServices ||
+    typeof startingServices !== "object" ||
+    Array.isArray(startingServices) ||
+    !("services" in startingServices) ||
+    !Array.isArray(startingServices.services) ||
+    !startingServices.services.includes("land-development")
+  ) {
+    return answers as PlanHomeAnswerMap;
+  }
+
+  const supportedServices = startingServices.services.filter(
+    (service) => service !== "land-development",
+  );
+
+  return {
+    ...answers,
+    "project.starting-services": {
+      ...startingServices,
+      services:
+        supportedServices.length > 0 ? supportedServices : ["not-sure-yet"],
+    },
+  } as PlanHomeAnswerMap;
+}
 
 function addAnswerIssues(
   answers: Record<string, unknown>,

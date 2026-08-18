@@ -77,7 +77,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
-| 1 `project.starting-services` | What do you have in mind? | Starting point, one: Fully custom; Already have a plan; Somewhere in between; Not sure yet. Services, many: Architectural design; Building; Land development; Not sure yet. `Not sure` is exclusive within services. |
+| 1 `project.starting-services` | What do you have in mind? | Starting point, one: Fully custom; Already have a plan; Somewhere in between; Not sure yet. Services, many: Architectural design; Building; Not sure yet. `Not sure` is exclusive within services. Legacy saved `land-development` selections are removed during restore; when no supported service remains, restore uses `Not sure yet` so existing progress stays usable. |
 | 2 `project.lot-location` | What is your lot status and location? | Lot status, one: Own it; Actively looking; Need H and H to evaluate options; Not sure yet. Location: city, county, address, or target area text; or explicit Not sure yet. |
 | 3 `project.site-context` | What do you know about the site? | Show only when question 2 is `Own it`; otherwise store internal `Not applicable`. Many: Flat or gently sloped; Steep or complex slope; Wooded; Important views or water; Utilities available; Well or septic; HOA or deed restrictions; Existing structure; Nothing known yet; Not sure yet. The last two are exclusive. |
 

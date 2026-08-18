@@ -81,6 +81,40 @@ function completedReviewState() {
 }
 
 describe("Plan Your Home local snapshot adapter", () => {
+  it("migrates the removed land-development service in saved local progress", () => {
+    const storage = new MemoryStorage();
+    const now = () => new Date("2026-07-13T12:00:00.000Z");
+    const adapter = createPlanHomeLocalSnapshotAdapter({ storage, now });
+    let state = namedState();
+
+    state = reducePlanHomeTour(state, { type: "next" }).state;
+    state = reducePlanHomeTour(state, {
+      type: "answer-question",
+      questionId: "project.starting-services",
+      answer: planHomeQuestions[0].response.exampleAnswer,
+    }).state;
+    state = reducePlanHomeTour(state, { type: "next" }).state;
+    assert.equal(adapter.save(state), true);
+
+    const saved = JSON.parse(storage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "");
+    saved.answers["project.starting-services"].services = ["land-development"];
+    storage.setItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY, JSON.stringify(saved));
+
+    const restored = adapter.load();
+    assert.deepEqual(
+      restored?.answers["project.starting-services"],
+      {
+        startingPoint: "fully-custom",
+        services: ["not-sure-yet"],
+      },
+    );
+    assert.deepEqual(restored?.location, {
+      kind: "question",
+      questionId: "project.lot-location",
+      editingFromReview: false,
+    });
+  });
+
   it("saves valid answer transitions and restores the exact prompt mid-zone", () => {
     const storage = new MemoryStorage();
     const now = () => new Date("2026-07-13T12:00:00.000Z");

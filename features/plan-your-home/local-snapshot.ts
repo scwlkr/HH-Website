@@ -1,4 +1,7 @@
-import { localDraftSnapshotSchema } from "./schemas.ts";
+import {
+  localDraftSnapshotSchema,
+  normalizeLegacyPlanHomeAnswers,
+} from "./schemas.ts";
 import {
   validatePlanHomeTourState,
   type PlanHomeTourState,
@@ -103,6 +106,23 @@ export function createPlanHomeLocalSnapshotAdapter({
     } catch {
       clear();
       return null;
+    }
+
+    if (
+      raw &&
+      typeof raw === "object" &&
+      !Array.isArray(raw) &&
+      "answers" in raw &&
+      raw.answers &&
+      typeof raw.answers === "object" &&
+      !Array.isArray(raw.answers)
+    ) {
+      raw = {
+        ...raw,
+        answers: normalizeLegacyPlanHomeAnswers(
+          raw.answers as Readonly<Record<string, unknown>>,
+        ),
+      };
     }
 
     const snapshot = localDraftSnapshotSchema.safeParse(raw);

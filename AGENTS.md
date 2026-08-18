@@ -8,8 +8,8 @@ this website is for `H and H` a multi-disciplined company that does land develop
 
 The colloquial name is always `H and H`. The full legal name is `H and H Advancement LLC` and is reserved for legal contexts. `H and H` stands for `Howeth and Harp`.
 
-Acceptable public names: H and H, Howeth and Harp
-Never use the lowercase `h and h` spelling or an ampersand in the business name. `HH` is reserved for established identifiers such as HHQ, not public business-name copy. This is a hard rule for every task, website surface, and repository document.
+Acceptable public names: HH, H and H, Howeth and Harp
+Never use the lowercase `h and h` spelling or an ampersand in the business name. This capitalization rule applies to every task, website surface, and repository document.
 
 ## reference 
 

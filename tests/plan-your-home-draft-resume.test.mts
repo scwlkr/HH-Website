@@ -67,6 +67,31 @@ function localAhead(): PlanHomeTourState {
 }
 
 describe("Plan Your Home draft resume contract", () => {
+  it("migrates the removed land-development service in server progress", () => {
+    const trusted = boundary();
+    const legacy = {
+      ...trusted,
+      answers: {
+        ...trusted.answers,
+        "project.starting-services": {
+          startingPoint: "fully-custom",
+          services: ["architectural-design", "land-development"],
+        },
+      },
+    } as unknown as PlanHomeServerBoundary;
+
+    const restored = createTourStateFromServerBoundary(legacy);
+    assert.deepEqual(restored.answers["project.starting-services"], {
+      startingPoint: "fully-custom",
+      services: ["architectural-design"],
+    });
+    assert.deepEqual(restored.location, {
+      kind: "question",
+      questionId: "primary.location",
+      editingFromReview: false,
+    });
+  });
+
   it("keeps the exact same-device prompt only at the current trusted revision", () => {
     const trusted = boundary();
     const result = reconcilePlanHomeDraft({

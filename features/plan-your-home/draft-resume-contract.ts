@@ -8,7 +8,10 @@ import {
   type PlanHomeZoneId,
 } from "./registry.ts";
 import type { PlanHomeReferenceMetadata } from "./references.ts";
-import type { PlanHomeContactCheckpoint } from "./schemas.ts";
+import {
+  normalizeLegacyPlanHomeAnswers,
+  type PlanHomeContactCheckpoint,
+} from "./schemas.ts";
 import {
   createInitialPlanHomeTourState,
   validatePlanHomeTourState,
@@ -57,7 +60,7 @@ export function createTourStateFromServerBoundary(
   return {
     definitionId: "plan-home-v1",
     welcomeName: boundary.welcomeName,
-    answers: boundary.answers,
+    answers: normalizeLegacyPlanHomeAnswers(boundary.answers),
     location: boundaryLocation(boundary.progress.currentPromptId),
     contactCheckpoint: boundary.contact,
     completedZoneIds: boundary.progress.completedZoneIds,
@@ -96,7 +99,12 @@ export function reconcilePlanHomeDraft(params: {
   boundary: PlanHomeServerBoundary;
 }) {
   const serverState = createTourStateFromServerBoundary(params.boundary);
-  const local = params.local;
+  const local = params.local
+    ? {
+        ...params.local,
+        answers: normalizeLegacyPlanHomeAnswers(params.local.answers),
+      }
+    : null;
   const canKeepExactLocalPrompt = Boolean(
     local &&
       params.localDraftId === params.boundary.draftId &&
@@ -117,7 +125,7 @@ export function reconcilePlanHomeDraft(params: {
     checkpointedZoneIds: params.boundary.progress.completedZoneIds,
     references: params.boundary.references,
     answers: {
-      ...params.boundary.answers,
+      ...serverState.answers,
       ...local.answers,
       ...(params.boundary.answers["design.references"]
         ? {

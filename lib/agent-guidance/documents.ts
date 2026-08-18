@@ -35,7 +35,7 @@ export function renderLlmsText() {
 
   return `# ${siteConfig.name}
 
-${siteConfig.description} ${siteConfig.shortName} is the colloquial name for ${siteConfig.name}. Use “Howeth and Harp” or “H and H” in public business-name copy. Always capitalize “H and H,” never use an ampersand, and reserve “HH” for established identifiers.
+${siteConfig.description} ${siteConfig.shortName} is the colloquial name for ${siteConfig.name}. Use “Howeth and Harp,” “H and H,” or “HH” in public business-name copy. Always capitalize “H and H” and never use an ampersand.
 
 ## Public route families
 
