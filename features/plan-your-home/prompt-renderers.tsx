@@ -283,11 +283,24 @@ export function ChoicePrompt({
               type="radio"
               name={`${id}-${ids.instructions}`}
               value={option.slug}
+              aria-label={option.label}
+              aria-describedby={
+                option.description ? `${id}-${option.slug}-description` : undefined
+              }
               checked={value === option.slug}
               onChange={() => onChange(option.slug)}
             />
             <OptionMark multiple={false} />
-            <span>{option.label}</span>
+            {option.description ? (
+              <span className={styles.optionCopy}>
+                <strong>{option.label}</strong>
+                <span id={`${id}-${option.slug}-description`}>
+                  {option.description}
+                </span>
+              </span>
+            ) : (
+              <span>{option.label}</span>
+            )}
           </label>
         ))}
       </div>
@@ -313,11 +326,13 @@ export function MultiChoicePrompt({
   const limitInstruction = maxSelections
     ? `Choose up to ${maxSelections}. ${instructions ?? ""}`.trim()
     : instructions;
+  const currentSlugs = new Set(options.map(({ slug }) => slug));
+  const currentValue = value.filter((slug) => currentSlugs.has(slug));
 
   function toggle(slug: string) {
-    if (value.includes(slug)) {
+    if (currentValue.includes(slug)) {
       setLimitError(null);
-      onChange(value.filter((item) => item !== slug));
+      onChange(currentValue.filter((item) => item !== slug));
       return;
     }
 
@@ -327,7 +342,7 @@ export function MultiChoicePrompt({
       return;
     }
 
-    const withoutExclusive = value.filter(
+    const withoutExclusive = currentValue.filter(
       (item) => !exclusiveOptionSlugs.includes(item),
     );
     if (maxSelections !== undefined && withoutExclusive.length >= maxSelections) {
@@ -939,8 +954,8 @@ export function CountPrompt({
 }
 
 const PRIORITY_CATEGORIES = [
-  "must-have",
   "nice-to-have",
+  "must-have",
   "deal-breaker",
 ] as const satisfies readonly PriorityCategory[];
 
@@ -1003,9 +1018,9 @@ export function PriorityPrompt({
   const [localError, setLocalError] = useState<string | null>(null);
   const [customLabel, setCustomLabel] = useState(value.customItem?.label ?? "");
   const [activeCategory, setActiveCategory] =
-    useState<PriorityCategory>("must-have");
+    useState<PriorityCategory>("nice-to-have");
   const displayedError = error || localError;
-  const limitText = `Choose a group, then choose features with keyboard or touch. Up to ${limits.mustHave} must-haves, ${limits.niceToHave} nice-to-haves, and ${limits.dealBreaker} deal-breakers.`;
+  const limitText = `Choose a group, then choose features with keyboard or touch. Up to ${limits.niceToHave} nice-to-haves, ${limits.mustHave} must-haves, and ${limits.dealBreaker} deal-breakers.`;
 
   function categoryLimit(category: PriorityCategory) {
     return limits[PRIORITY_CATEGORY_CONFIG[category].limitKey];

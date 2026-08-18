@@ -367,7 +367,7 @@ describe("Plan Your Home deterministic tour state", () => {
     state = apply(state, {
       type: "answer-question",
       questionId: "home.finish-level",
-      answer: "Warm, durable finishes with natural wood",
+      answer: "builder-plus",
     }).state;
 
     const completed = apply(state, { type: "next" });

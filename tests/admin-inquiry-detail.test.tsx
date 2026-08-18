@@ -162,6 +162,39 @@ test("malformed answers and references fail closed while legacy records remain r
   );
 });
 
+test("HHQ preserves former Plan Your Home answers in readable customer language", () => {
+  const record = completePlanHomeRecord();
+  record.answers = {
+    ...record.answers,
+    "project.site-context": ["well-or-septic"],
+    "home.finish-level": "Warm wood and hand-finished trim",
+    "kitchen.support": ["none"],
+    "primary.bath-features": ["curbless-or-accessible-layout"],
+    "primary.closet-access": ["accessible-clearances"],
+  };
+
+  const detail = mapAdminInquiryDetail(inquiryId, record);
+  assert(detail);
+  const summaries = Object.fromEntries(
+    detail.answerSections
+      .flatMap(({ answers }) => answers)
+      .map(({ id, summary, state }) => [id, { summary, state }]),
+  );
+  assert.deepEqual(summaries["project.site-context"], {
+    summary: "Well or septic (previous answer)",
+    state: "saved",
+  });
+  assert.deepEqual(summaries["home.finish-level"], {
+    summary: "Previously saved: Warm wood and hand-finished trim",
+    state: "saved",
+  });
+  assert.deepEqual(summaries["kitchen.support"], {
+    summary: "None (previous answer)",
+    state: "saved",
+  });
+  assert.equal(summaries["home.stories"]?.state, "saved");
+});
+
 test("the short general inquiry remains readable in HHQ", () => {
   const detail = mapAdminInquiryDetail("general-detail", {
     schemaVersion: 1,

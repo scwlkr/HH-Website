@@ -11,6 +11,7 @@ export type PlanHomeOptionSemantic = "uncertain" | "none" | "not-applicable";
 export type PlanHomeOption = Readonly<{
   slug: string;
   label: string;
+  description?: string;
   semantic?: PlanHomeOptionSemantic;
 }>;
 
@@ -62,8 +63,26 @@ function option<const Slug extends string, const Label extends string>(
   slug: Slug,
   label: Label,
   semantic?: PlanHomeOptionSemantic,
-): Readonly<{ slug: Slug; label: Label; semantic?: PlanHomeOptionSemantic }> {
+): Readonly<{
+  slug: Slug;
+  label: Label;
+  description?: string;
+  semantic?: PlanHomeOptionSemantic;
+}> {
   return semantic ? { slug, label, semantic } : { slug, label };
+}
+
+function describedOption<
+  const Slug extends string,
+  const Label extends string,
+  const Description extends string,
+>(slug: Slug, label: Label, description: Description) {
+  return { slug, label, description } as Readonly<{
+    slug: Slug;
+    label: Label;
+    description: Description;
+    semantic?: PlanHomeOptionSemantic;
+  }>;
 }
 
 function optionEnum<
@@ -176,6 +195,58 @@ function multiChoiceResponse<
     exampleAnswer: [example.slug],
     summarize: (answer: unknown) =>
       optionLabels(options, schemas.answerSchema.parse(answer)),
+  } satisfies PlanHomeResponseDefinition;
+}
+
+function legacyCompatibleMultiChoiceResponse<
+  const Options extends readonly [PlanHomeOption, ...PlanHomeOption[]],
+  const LegacyOptions extends readonly [PlanHomeOption, ...PlanHomeOption[]],
+>(
+  groupId: string,
+  groupLabel: string,
+  options: Options,
+  legacyOptions: LegacyOptions,
+  settings: Readonly<{
+    maxSelections?: number;
+    exclusiveOptionSlugs?: readonly string[];
+  }> = {},
+) {
+  const current = multiChoiceResponse(groupId, groupLabel, options, settings);
+  const allOptions = [...options, ...legacyOptions] as [
+    PlanHomeOption,
+    ...PlanHomeOption[],
+  ];
+  const legacySlugs: ReadonlySet<string> = new Set(
+    legacyOptions.map(({ slug }) => slug),
+  );
+  const legacyExclusiveOptionSlugs = legacyOptions
+    .filter(({ semantic }) => semantic !== undefined)
+    .map(({ slug }) => slug);
+  const legacyAnswerSchema = multiChoiceSchemas(
+    allOptions,
+    settings.maxSelections,
+    [
+      ...(settings.exclusiveOptionSlugs ?? []),
+      ...legacyExclusiveOptionSlugs,
+    ],
+  )
+    .answerSchema
+    .refine(
+      (values) => values.some((value) => legacySlugs.has(value)),
+      "A previous answer must include a retired choice.",
+    );
+  const responseSchema = z.union([
+    current.responseSchema,
+    legacyAnswerSchema,
+  ]);
+  const answerSchema = z.union([current.answerSchema, legacyAnswerSchema]);
+
+  return {
+    ...current,
+    responseSchema,
+    answerSchema,
+    summarize: (answer: unknown) =>
+      optionLabels(allOptions, answerSchema.parse(answer)),
   } satisfies PlanHomeResponseDefinition;
 }
 
@@ -415,12 +486,16 @@ const siteContextOptions = [
   option("wooded", "Wooded"),
   option("important-views-or-water", "Important views or water"),
   option("utilities-available", "Utilities available"),
-  option("well-or-septic", "Well or septic"),
+  option("well-water", "Well water"),
+  option("septic-system", "Septic system"),
   option("hoa-or-deed-restrictions", "HOA or deed restrictions"),
   option("existing-structure", "Existing structure"),
   none("nothing-known-yet", "Nothing known yet"),
   uncertain(),
   option("not-applicable", "Not applicable", "not-applicable"),
+] as const;
+const legacySiteContextOptions = [
+  option("well-or-septic", "Well or septic (previous answer)"),
 ] as const;
 
 const squareFootageOptions = [
@@ -473,12 +548,48 @@ const livingFeatureOptions = [
   none(),
   uncertain(),
 ] as const;
-const finishLevelResponse = textResponse(
+const finishLevelOptions = [
+  describedOption(
+    "builder-grade",
+    "Builder",
+    "Budget-conscious finishes selected from a fixed standard palette. Prioritizes dependable, affordable materials with no fixture, finish, or trim customization.",
+  ),
+  describedOption(
+    "builder-plus",
+    "Builder+",
+    "Mid-grade finishes balancing affordability with greater choice. Offers upgraded materials and more flexibility to modify fixtures, finishes, and trim.",
+  ),
+  describedOption(
+    "custom",
+    "Custom",
+    "Premium, fully personalized finish direction. Supports top-tier materials, custom fixtures, millwork, trim, and one-of-a-kind details.",
+  ),
+] as const;
+const legacyFinishLevelAnswerSchema = z
+  .object({ legacyText: z.string().trim().min(2).max(280) })
+  .strict();
+const currentFinishLevelResponse = choiceResponse(
   "finishDirection",
   "General finish direction",
-  280,
-  "Warm, durable finishes with natural wood and simple details",
+  finishLevelOptions,
 );
+const finishLevelResponse = {
+  ...currentFinishLevelResponse,
+  responseSchema: z.union([
+    currentFinishLevelResponse.responseSchema,
+    legacyFinishLevelAnswerSchema,
+  ]),
+  answerSchema: z.union([
+    currentFinishLevelResponse.answerSchema,
+    legacyFinishLevelAnswerSchema,
+  ]),
+  summarize: (answer: unknown) => {
+    const previous = legacyFinishLevelAnswerSchema.safeParse(answer);
+    return previous.success
+      ? `Previously saved: ${previous.data.legacyText}`
+      : currentFinishLevelResponse.summarize(answer);
+  },
+} satisfies PlanHomeResponseDefinition;
 
 const kitchenUseOptions = [
   option("everyday-cooking", "Everyday cooking"),
@@ -533,8 +644,10 @@ const kitchenSupportOptions = [
   option("butler-pantry", "Butler pantry"),
   option("scullery-or-prep-kitchen", "Scullery or prep kitchen"),
   option("appliance-garage", "Appliance garage"),
-  none(),
   uncertain(),
+] as const;
+const legacyKitchenSupportOptions = [
+  option("none", "None (previous answer)", "none"),
 ] as const;
 const primaryLocationOptions = [
   option("main-floor", "Main floor"),
@@ -560,18 +673,25 @@ const primaryBathFeatureOptions = [
   option("separate-vanities", "Separate vanities"),
   option("private-toilet-room", "Private toilet room"),
   option("natural-light", "Natural light"),
-  option("curbless-or-accessible-layout", "Curbless or accessible layout"),
   option("linen-storage", "Linen storage"),
   uncertain(),
+] as const;
+const legacyPrimaryBathFeatureOptions = [
+  option(
+    "curbless-or-accessible-layout",
+    "Curbless or accessible layout (previous answer)",
+  ),
 ] as const;
 const primaryClosetOptions = [
   option("one-shared-walk-in", "One shared walk-in"),
   option("separate-walk-ins", "Separate walk-ins"),
   option("direct-laundry-access", "Direct laundry access"),
   option("closet-built-ins", "Closet built-ins"),
-  option("accessible-clearances", "Accessible clearances"),
-  none(),
   uncertain(),
+] as const;
+const legacyPrimaryClosetOptions = [
+  option("accessible-clearances", "Accessible clearances (previous answer)"),
+  option("none", "None (previous answer)", "none"),
 ] as const;
 
 const secondaryUserOptions = [
@@ -889,8 +1009,8 @@ const prioritiesResponse = {
     }
 
     return formatParts([
-      ["Must-haves", value.mustHave.join(", ") || "None"],
       ["Nice-to-haves", value.niceToHave.join(", ") || "None"],
+      ["Must-haves", value.mustHave.join(", ") || "None"],
       ["Deal-breakers", value.dealBreakers.join(", ") || "None"],
       [
         "Custom",
@@ -984,9 +1104,15 @@ export const planHomeQuestions = [
     prompt: "What do you know about the site?",
     sceneAnchor: "landscape-window",
     cameraKey: "entry-landscape",
-    response: multiChoiceResponse("siteContext", "Site context", siteContextOptions, {
-      exclusiveOptionSlugs: ["nothing-known-yet", "not-sure-yet", "not-applicable"],
-    }),
+    response: legacyCompatibleMultiChoiceResponse(
+      "siteContext",
+      "Site context",
+      siteContextOptions,
+      legacySiteContextOptions,
+      {
+        exclusiveOptionSlugs: ["nothing-known-yet", "not-sure-yet", "not-applicable"],
+      },
+    ),
   },
   {
     number: 4,
@@ -1088,9 +1214,13 @@ export const planHomeQuestions = [
     helper: "Butler pantries support serving; sculleries contain prep; appliance garages conceal countertop appliances.",
     sceneAnchor: "pantry-door",
     cameraKey: "kitchen-support",
-    response: multiChoiceResponse("supportSpaces", "Pantry and support spaces", kitchenSupportOptions, {
-      exclusiveOptionSlugs: ["none", "not-sure-yet"],
-    }),
+    response: legacyCompatibleMultiChoiceResponse(
+      "supportSpaces",
+      "Pantry and support spaces",
+      kitchenSupportOptions,
+      legacyKitchenSupportOptions,
+      { exclusiveOptionSlugs: ["not-sure-yet"] },
+    ),
   },
   {
     number: 14,
@@ -1119,9 +1249,13 @@ export const planHomeQuestions = [
     prompt: "Which primary-bath features matter?",
     sceneAnchor: "bath-vanity",
     cameraKey: "primary-bath",
-    response: multiChoiceResponse("features", "Primary-bath features", primaryBathFeatureOptions, {
-      exclusiveOptionSlugs: ["not-sure-yet"],
-    }),
+    response: legacyCompatibleMultiChoiceResponse(
+      "features",
+      "Primary-bath features",
+      primaryBathFeatureOptions,
+      legacyPrimaryBathFeatureOptions,
+      { exclusiveOptionSlugs: ["not-sure-yet"] },
+    ),
   },
   {
     number: 17,
@@ -1130,9 +1264,13 @@ export const planHomeQuestions = [
     prompt: "What should the suite's closet and access support?",
     sceneAnchor: "closet",
     cameraKey: "primary-closet",
-    response: multiChoiceResponse("closetAccess", "Closet and access", primaryClosetOptions, {
-      exclusiveOptionSlugs: ["none", "not-sure-yet"],
-    }),
+    response: legacyCompatibleMultiChoiceResponse(
+      "closetAccess",
+      "Closet and access",
+      primaryClosetOptions,
+      legacyPrimaryClosetOptions,
+      { exclusiveOptionSlugs: ["not-sure-yet"] },
+    ),
   },
   {
     number: 18,
@@ -1433,6 +1571,64 @@ export function validatePlanHomeDefinition(definition: PlanHomeDefinition) {
 
 export function getPlanHomeQuestion(id: string) {
   return planHomeQuestions.find((question) => question.id === id);
+}
+
+export function normalizeLegacyPlanHomeFinishAnswer(answer: unknown) {
+  if (typeof answer !== "string") return answer;
+  if (finishLevelOptions.some(({ slug }) => slug === answer)) return answer;
+  const parsed = z.string().trim().min(2).max(280).safeParse(answer);
+  return parsed.success ? { legacyText: parsed.data } : answer;
+}
+
+function legacyOptionsForQuestion(id: string): readonly PlanHomeOption[] {
+  if (id === "project.site-context") return legacySiteContextOptions;
+  if (id === "kitchen.support") return legacyKitchenSupportOptions;
+  if (id === "primary.bath-features") return legacyPrimaryBathFeatureOptions;
+  if (id === "primary.closet-access") return legacyPrimaryClosetOptions;
+  return [];
+}
+
+export function getPlanHomeLegacyAnswerSignature(id: string, answer: unknown) {
+  if (id === "home.finish-level") {
+    const previous = legacyFinishLevelAnswerSchema.safeParse(
+      normalizeLegacyPlanHomeFinishAnswer(answer),
+    );
+    return previous.success
+      ? JSON.stringify({ legacyText: previous.data.legacyText })
+      : null;
+  }
+
+  const legacyOptions = legacyOptionsForQuestion(id);
+  if (!Array.isArray(answer) || legacyOptions.length === 0) return null;
+  const legacySlugs: ReadonlySet<string> = new Set(
+    legacyOptions.map(({ slug }) => slug),
+  );
+  const selections = answer.filter(
+    (slug): slug is string => typeof slug === "string",
+  );
+  return selections.some((slug) => legacySlugs.has(slug))
+    ? JSON.stringify(selections.sort())
+    : null;
+}
+
+export function getPlanHomeLegacyAnswerNotice(id: string, answer: unknown) {
+  if (id === "home.finish-level") {
+    const previous = legacyFinishLevelAnswerSchema.safeParse(answer);
+    return previous.success
+      ? `Previously saved: ${previous.data.legacyText}. Choose a current option only if you want to replace it.`
+      : null;
+  }
+
+  const legacyOptions = legacyOptionsForQuestion(id);
+  if (!Array.isArray(answer) || legacyOptions.length === 0) return null;
+  const previousLabels: string[] = [];
+  for (const slug of answer) {
+    const label = legacyOptions.find((option) => option.slug === slug)?.label;
+    if (label) previousLabels.push(label);
+  }
+  return previousLabels.length > 0
+    ? `Previously saved: ${previousLabels.join(", ")}. Choose current options only if you want to replace them.`
+    : null;
 }
 
 export function validatePlanHomeAnswer(id: string, answer: unknown) {

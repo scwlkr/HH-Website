@@ -7,6 +7,7 @@ import {
 import { planHomeReferenceCollectionSchema } from "./references.ts";
 import type { PlanHomeReferenceMetadata } from "./references.ts";
 import {
+  getPlanHomeLegacyAnswerSignature,
   planHomeQuestions,
   planHomeZoneIds,
   validatePlanHomeAnswer,
@@ -222,6 +223,28 @@ function parseCanonicalAnswerPrefix(
   return canonicalAnswers as PlanHomeAnswerMap;
 }
 
+export function assertPlanHomeLegacyAnswersMatchStored(
+  incomingAnswers: Readonly<Record<string, unknown>>,
+  storedAnswers: Readonly<Record<string, unknown>>,
+) {
+  const issues: string[] = [];
+
+  for (const [id, answer] of Object.entries(incomingAnswers)) {
+    const incomingSignature = getPlanHomeLegacyAnswerSignature(id, answer);
+    if (
+      incomingSignature !== null &&
+      incomingSignature !==
+        getPlanHomeLegacyAnswerSignature(id, storedAnswers[id])
+    ) {
+      issues.push(`${id}: A retired answer can only be retained from this saved draft.`);
+    }
+  }
+
+  if (issues.length > 0) {
+    throw new PlanHomeDraftValidationError(issues);
+  }
+}
+
 function questionCountThroughZone(zoneId: PlanHomeZoneId) {
   if (zoneId === "design-desk-and-review") {
     return planHomeQuestions.findIndex(
@@ -243,13 +266,14 @@ export function parseCreatePlanHomeDraftInput(
   input: unknown,
 ): ParsedCreatePlanHomeDraftInput {
   const parsed = parseEnvelope(createEnvelopeSchema.safeParse(input));
+  const answers = parseCanonicalAnswerPrefix(
+    parsed.answers,
+    contactGateAnswerCount,
+  );
 
   return {
     ...parsed,
-    answers: parseCanonicalAnswerPrefix(
-      parsed.answers,
-      contactGateAnswerCount,
-    ),
+    answers,
   };
 }
 
@@ -358,6 +382,14 @@ export function createPlanHomeDraftDerived(
       : null;
   const squareFootageBand = answers["home.heated-square-feet"];
   const finishLevel = answers["home.finish-level"];
+  const legacyFinishLevel =
+    finishLevel &&
+    typeof finishLevel === "object" &&
+    !Array.isArray(finishLevel) &&
+    "legacyText" in finishLevel &&
+    typeof finishLevel.legacyText === "string"
+      ? finishLevel.legacyText
+      : null;
 
   if (typeof squareFootageBand !== "string") {
     throw new PlanHomeDraftValidationError([
@@ -371,6 +403,7 @@ export function createPlanHomeDraftDerived(
     phone: contact.phone,
     targetLocation,
     squareFootageBand,
-    finishLevel: typeof finishLevel === "string" ? finishLevel : null,
+    finishLevel:
+      typeof finishLevel === "string" ? finishLevel : legacyFinishLevel,
   };
 }

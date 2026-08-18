@@ -251,8 +251,8 @@ test("Back crosses the Living Room boundary without losing the kitchen answer", 
     ),
   );
   assert.equal(
-    (query.getByRole("textbox") as HTMLInputElement).value,
-    "Warm, durable finishes with natural wood and simple details",
+    (query.getByRole("radio", { name: "Builder" }) as HTMLInputElement).checked,
+    true,
   );
 
   await user.click(query.getByRole("button", { name: "Next" }));

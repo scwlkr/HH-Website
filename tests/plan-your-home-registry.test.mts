@@ -122,6 +122,7 @@ describe("plan-home-v1 registry", () => {
         options: group.options.map((item) => ({
           slug: item.slug,
           label: item.label,
+          description: item.description ?? null,
           semantic: item.semantic ?? null,
         })),
       })),
@@ -133,7 +134,7 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "7ed80a33a928c9c80b6b269fbc2e5c814b835480838431d80288312952489bdc",
+      "14f68fc69c8250d1f7ebedf42705ca856767276469e1754b375000ba02534295",
     );
     assert.equal(
       question("home.systems").helper,
@@ -205,8 +206,29 @@ describe("plan-home-v1 registry", () => {
         ["not-sure-yet", "Not sure yet"],
       ],
     );
-    assert.equal(question("home.finish-level").response.kind, "text");
-    assert.deepEqual(question("home.finish-level").response.limits, { maxLength: 280 });
+    assert.equal(question("home.finish-level").response.kind, "choice");
+    assert.deepEqual(
+      question("home.finish-level").response.optionGroups[0].options.map(
+        ({ slug, label, description }) => [slug, label, description],
+      ),
+      [
+        [
+          "builder-grade",
+          "Builder",
+          "Budget-conscious finishes selected from a fixed standard palette. Prioritizes dependable, affordable materials with no fixture, finish, or trim customization.",
+        ],
+        [
+          "builder-plus",
+          "Builder+",
+          "Mid-grade finishes balancing affordability with greater choice. Offers upgraded materials and more flexibility to modify fixtures, finishes, and trim.",
+        ],
+        [
+          "custom",
+          "Custom",
+          "Premium, fully personalized finish direction. Supports top-tier materials, custom fixtures, millwork, trim, and one-of-a-kind details.",
+        ],
+      ],
+    );
     assert.deepEqual(
       question("project.budget-timing").response.optionGroups[0].options.map(({ slug, label }) => [slug, label]),
       [
@@ -298,6 +320,106 @@ describe("plan-home-v1 registry", () => {
       validatePlanHomeAnswer("contact.follow-up", "marketing-email").success,
       false,
     );
+    assert.equal(
+      validatePlanHomeAnswer("home.finish-level", "not-sure-yet").success,
+      false,
+    );
+  });
+
+  it("keeps revised choices current while retaining only the known legacy values", () => {
+    assert.deepEqual(
+      question("project.site-context").response.optionGroups[0].options.map(
+        ({ slug }) => slug,
+      ),
+      [
+        "flat-or-gently-sloped",
+        "steep-or-complex-slope",
+        "wooded",
+        "important-views-or-water",
+        "utilities-available",
+        "well-water",
+        "septic-system",
+        "hoa-or-deed-restrictions",
+        "existing-structure",
+        "nothing-known-yet",
+        "not-sure-yet",
+        "not-applicable",
+      ],
+    );
+    assert.deepEqual(
+      question("kitchen.support").response.optionGroups[0].options.map(({ slug }) => slug),
+      [
+        "cabinet-pantry",
+        "walk-in-pantry",
+        "butler-pantry",
+        "scullery-or-prep-kitchen",
+        "appliance-garage",
+        "not-sure-yet",
+      ],
+    );
+    assert.deepEqual(
+      question("primary.bath-features").response.optionGroups[0].options.map(({ slug }) => slug),
+      [
+        "large-shower",
+        "soaking-tub",
+        "separate-vanities",
+        "private-toilet-room",
+        "natural-light",
+        "linen-storage",
+        "not-sure-yet",
+      ],
+    );
+    assert.deepEqual(
+      question("primary.closet-access").response.optionGroups[0].options.map(({ slug }) => slug),
+      [
+        "one-shared-walk-in",
+        "separate-walk-ins",
+        "direct-laundry-access",
+        "closet-built-ins",
+        "not-sure-yet",
+      ],
+    );
+
+    assert.equal(
+      validatePlanHomeAnswer("project.site-context", ["well-or-septic"]).success,
+      true,
+    );
+    assert.equal(validatePlanHomeAnswer("kitchen.support", ["none"]).success, true);
+    assert.equal(
+      validatePlanHomeAnswer("primary.bath-features", [
+        "curbless-or-accessible-layout",
+      ]).success,
+      true,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("primary.closet-access", [
+        "accessible-clearances",
+      ]).success,
+      true,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("primary.closet-access", ["none"]).success,
+      true,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("project.site-context", [
+        "well-or-septic",
+        "not-sure-yet",
+      ]).success,
+      false,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("kitchen.support", ["none", "cabinet-pantry"])
+        .success,
+      false,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("primary.closet-access", [
+        "accessible-clearances",
+        "none",
+      ]).success,
+      false,
+    );
   });
 
   it("produces human-readable answer summaries", () => {
@@ -318,6 +440,16 @@ describe("plan-home-v1 registry", () => {
         designStart: "3-6-months",
       }),
       "Budget: $500k–$749k; Design start: 3–6 months",
+    );
+    assert.equal(
+      summarizePlanHomeAnswer("design.priorities", {
+        mustHave: ["Large shower"],
+        niceToHave: ["Outdoor connection"],
+        dealBreakers: ["No garage"],
+        customItem: null,
+        noStrongPrioritiesYet: false,
+      }),
+      "Nice-to-haves: Outdoor connection; Must-haves: Large shower; Deal-breakers: No garage; Custom: None",
     );
   });
 

@@ -303,6 +303,46 @@ describe("Plan Your Home local snapshot adapter", () => {
     );
   });
 
+  it("restores former finish and retired choice answers without changing unrelated answers", () => {
+    const storage = new MemoryStorage();
+    const adapter = createPlanHomeLocalSnapshotAdapter({
+      storage,
+      now: () => new Date("2026-07-13T12:00:00.000Z"),
+    });
+    const reviewState = completedReviewState();
+    assert.equal(adapter.save(reviewState), true);
+
+    const saved = JSON.parse(
+      storage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) as string,
+    );
+    saved.answers["project.site-context"] = ["wooded", "well-or-septic"];
+    saved.answers["home.finish-level"] = "Warm wood and hand-finished trim";
+    saved.answers["kitchen.support"] = ["none"];
+    saved.answers["primary.bath-features"] = [
+      "curbless-or-accessible-layout",
+    ];
+    saved.answers["primary.closet-access"] = ["accessible-clearances"];
+    storage.setItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY, JSON.stringify(saved));
+
+    const restored = adapter.load();
+    assert(restored);
+    assert.deepEqual(restored.location, { kind: "review" });
+    assert.deepEqual(restored.answers["home.finish-level"], {
+      legacyText: "Warm wood and hand-finished trim",
+    });
+    assert.deepEqual(restored.answers["project.site-context"], [
+      "wooded",
+      "well-or-septic",
+    ]);
+    assert.deepEqual(restored.answers["primary.closet-access"], [
+      "accessible-clearances",
+    ]);
+    assert.equal(
+      restored.answers["home.stories"],
+      reviewState.answers["home.stories"],
+    );
+  });
+
   it("never writes and always rejects raw blobs or sensitive resume tokens", () => {
     const storage = new MemoryStorage();
     const adapter = createPlanHomeLocalSnapshotAdapter({
