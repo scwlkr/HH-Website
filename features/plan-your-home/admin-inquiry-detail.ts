@@ -1,4 +1,4 @@
-import { FieldValue, type Firestore } from "firebase-admin/firestore";
+import type { Firestore } from "firebase-admin/firestore";
 import type {
   Bucket,
   File,
@@ -917,15 +917,21 @@ export function createAdminInquiryDetailRepository(
           return { status: nextStatus, applied: false } as const;
         }
         const changedAt = now();
+        const statusAudit = Array.isArray(record.adminStatusAudit)
+          ? record.adminStatusAudit
+          : [];
         const update: Record<string, unknown> = {
           status: nextStatus,
           updatedAt: changedAt,
-          adminStatusAudit: FieldValue.arrayUnion({
-            fromStatus: status,
-            toStatus: nextStatus,
-            changedAt,
-            ...actorAudit(actor),
-          }),
+          adminStatusAudit: [
+            ...statusAudit,
+            {
+              fromStatus: status,
+              toStatus: nextStatus,
+              changedAt,
+              ...actorAudit(actor),
+            },
+          ],
         };
         if (source === "plan-your-home") {
           update["derived.lastActivityAt"] = changedAt;
