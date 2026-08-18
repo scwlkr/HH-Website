@@ -56,7 +56,7 @@ test("exterior elevation catalog keeps the exact approved alphabetical styles an
   }
 });
 
-test("Q23 exposes the approved names only, three selections, and exclusive uncertainty", () => {
+test("Q24 exposes the approved names only, three selections, and exclusive uncertainty", () => {
   const question = getPlanHomeQuestion("exterior.style");
   assert.ok(question);
   const group = question.response.optionGroups[0];

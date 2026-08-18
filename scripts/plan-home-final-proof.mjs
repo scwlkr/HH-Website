@@ -732,7 +732,7 @@ async function assignPrioritiesByKeyboard(page) {
     name: /Edit Nice-to-haves/,
   });
   const items = page.locator("button[data-assignment]");
-  assert((await items.count()) >= 2, "Q29 needs at least two selected features.");
+  assert((await items.count()) >= 2, "Q30 needs at least two selected features.");
   const first = items.nth(0);
   const second = items.nth(1);
 
