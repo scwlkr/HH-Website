@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { exteriorStyleCatalog } from "@/features/plan-your-home/exterior-style-catalog";
-import { ExteriorStyleSketch } from "@/features/plan-your-home/exterior-style-sketches";
+import {
+  exteriorStyleCatalog,
+  exteriorStyleImageSrc,
+} from "@/features/plan-your-home/exterior-style-catalog";
 import { isLoopbackPlanHomeRefinementRequest } from "@/features/plan-your-home/refinement-fixture";
 import styles from "./style-review.module.css";
 
@@ -30,7 +33,7 @@ export default async function ExteriorStyleReviewPage() {
         <h1>Exterior elevation styles</h1>
         <p className={styles.intro}>
           Eighteen straight-on architectural archetypes for Plan Your Home. Each
-          fictional sketch must communicate its approved form, roof, openings,
+          fictional illustration must communicate its approved form, roof, openings,
           porch, materials, and signature details without depicting a promised
           customer design.
         </p>
@@ -40,7 +43,15 @@ export default async function ExteriorStyleReviewPage() {
         {exteriorStyleCatalog.map((style) => (
           <article className={styles.card} key={style.slug}>
             <div className={styles.art}>
-              <ExteriorStyleSketch slug={style.slug} />
+              <Image
+                alt=""
+                className={styles.image}
+                height={512}
+                loading="eager"
+                src={exteriorStyleImageSrc(style.slug)}
+                unoptimized
+                width={768}
+              />
             </div>
             <div className={styles.content}>
               <p className={styles.kicker}>Exterior elevation</p>
@@ -60,19 +71,19 @@ export default async function ExteriorStyleReviewPage() {
 
       <section className={styles.method} aria-labelledby="method-title">
         <p className={styles.eyebrow}>Production method evaluation</p>
-        <h2 id="method-title">React-rendered inline SVG is approved</h2>
+        <h2 id="method-title">Curated generated static imagery is approved</h2>
         <div className={styles.methodGrid}>
           <article>
-            <h3>Generated or raster imagery</h3>
-            <p>Variable architectural fidelity and rendering, difficult edits, and the largest asset cost. Exploration only.</p>
+            <h3>React-rendered inline SVG</h3>
+            <p>Rejected after review because construction strokes read as disconnected debris and weakened architectural credibility.</p>
           </article>
           <article>
-            <h3>Static SVG assets</h3>
-            <p>Crisp and efficient, but duplicates shared framing and material rules across separate files.</p>
+            <h3>Hand-authored static SVG</h3>
+            <p>Potentially crisp, but eighteen detailed elevations would be costly to author and difficult to keep equally resolved.</p>
           </article>
           <article className={styles.recommended}>
-            <h3>React-rendered inline SVG</h3>
-            <p>Direct architectural control, consistent materials, phone clarity, decorative accessibility, maintainability, and measurable budget.</p>
+            <h3>Curated generated WebP</h3>
+            <p>Approved visual fidelity and distinction, locked 3:2 framing, reusable prompts, decorative accessibility, and a 588 KB asset set.</p>
           </article>
         </div>
       </section>

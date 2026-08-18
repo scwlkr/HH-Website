@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync, statSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { renderToStaticMarkup } from "react-dom/server";
-import { exteriorStyleCatalog } from "../features/plan-your-home/exterior-style-catalog.ts";
-import { ExteriorStyleSketch } from "../features/plan-your-home/exterior-style-sketches.tsx";
+import {
+  exteriorStyleCatalog,
+  exteriorStyleImageSrc,
+} from "../features/plan-your-home/exterior-style-catalog.ts";
 
 const approvedLabels = [
   "Acadian",
@@ -52,16 +55,23 @@ test("exterior elevation catalog keeps the exact approved alphabetical styles an
   }
 });
 
-test("every approved exterior style renders one distinct decorative React SVG", () => {
-  const sketches = exteriorStyleCatalog.map(({ slug }) =>
-    renderToStaticMarkup(<ExteriorStyleSketch slug={slug} />),
-  );
+test("every approved exterior style has one budgeted 3:2 WebP asset", () => {
+  let totalBytes = 0;
 
-  assert.equal(new Set(sketches).size, exteriorStyleCatalog.length);
-  for (const sketch of sketches) {
-    assert.match(sketch, /<svg/);
-    assert.match(sketch, /aria-hidden="true"/);
-    assert.match(sketch, /data-exterior-style-sketch="true"/);
-    assert.doesNotMatch(sketch, />\?</);
+  for (const { slug } of exteriorStyleCatalog) {
+    const publicPath = exteriorStyleImageSrc(slug);
+    const assetPath = fileURLToPath(
+      new URL(`../public${publicPath}`, import.meta.url),
+    );
+    const asset = readFileSync(assetPath);
+    const frameMarker = asset.indexOf(Buffer.from([0x9d, 0x01, 0x2a]));
+
+    assert.notEqual(frameMarker, -1, `${slug} is an encoded lossy WebP`);
+    assert.equal(asset.readUInt16LE(frameMarker + 3) & 0x3fff, 768);
+    assert.equal(asset.readUInt16LE(frameMarker + 5) & 0x3fff, 512);
+    assert.ok(statSync(assetPath).size <= 50 * 1024, `${slug} stays under 50 KB`);
+    totalBytes += statSync(assetPath).size;
   }
+
+  assert.ok(totalBytes <= 700 * 1024, "the complete catalog stays under 700 KB");
 });

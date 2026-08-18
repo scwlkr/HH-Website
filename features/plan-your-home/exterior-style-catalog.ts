@@ -193,3 +193,7 @@ export const exteriorStyleCatalog = [
 ] as const satisfies readonly ExteriorStyleDefinition[];
 
 export type ExteriorStyleSlug = (typeof exteriorStyleCatalog)[number]["slug"];
+
+export function exteriorStyleImageSrc(slug: ExteriorStyleSlug) {
+  return `/images/plan-your-home/exterior-styles/${slug}.webp`;
+}

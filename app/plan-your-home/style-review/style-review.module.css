@@ -65,10 +65,16 @@
 }
 
 .art {
-  height: 12rem;
-  padding: 0.55rem;
+  aspect-ratio: 3 / 2;
   border-bottom: 1px solid var(--hh-line);
-  background: color-mix(in srgb, var(--hh-paper) 84%, #dce7e1);
+  background: #f6f0e2;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .content {
@@ -162,7 +168,4 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .art {
-    height: 10rem;
-  }
 }
