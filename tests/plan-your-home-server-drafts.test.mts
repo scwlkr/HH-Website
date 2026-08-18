@@ -211,6 +211,52 @@ describe("Plan Your Home server draft contract", () => {
       PlanHomeDraftValidationError,
     );
   });
+
+  it("accepts restored legacy answers while rejecting a new free-text finish answer", () => {
+    const answers: Record<string, unknown> = answersThrough(31);
+    answers["project.site-context"] = ["well-or-septic"];
+    answers["home.finish-level"] = {
+      legacyText: "Warm wood and hand-finished trim",
+    };
+    answers["kitchen.support"] = ["none"];
+    answers["primary.bath-features"] = ["curbless-or-accessible-layout"];
+    answers["primary.closet-access"] = ["accessible-clearances", "none"];
+    const input = {
+      draftId: `draft-${"c".repeat(40)}`,
+      expectedRevision: 8,
+      idempotencyKey: `local-${localDraftId}:plan-home-v1:submission`,
+      answers,
+      references: [],
+      consent: {
+        version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
+        inquiryAndProjectContactAccepted: true,
+      },
+    };
+
+    const parsed = parseSubmitPlanHomeDraftInput(input);
+    assert.deepEqual(parsed.answers["home.finish-level"], {
+      legacyText: "Warm wood and hand-finished trim",
+    });
+    const contact = createPlanHomeDraftContact(
+      "Taylor Homeowner",
+      parseCreatePlanHomeDraftInput(validCreateInput()).contact,
+    );
+    assert.equal(
+      createPlanHomeDraftDerived(contact, parsed.answers).finishLevel,
+      "Warm wood and hand-finished trim",
+    );
+    assert.throws(
+      () =>
+        parseSubmitPlanHomeDraftInput({
+          ...input,
+          answers: {
+            ...answers,
+            "home.finish-level": "A new arbitrary free-text answer",
+          },
+        }),
+      PlanHomeDraftValidationError,
+    );
+  });
 });
 
 describe("Plan Your Home draft session token", () => {

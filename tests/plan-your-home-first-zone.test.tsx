@@ -631,10 +631,7 @@ test("refresh restores before and after contact; question 10 checkpoints all fir
   await user.click(resumed.getByRole("button", { name: "Next" }));
   await user.click(resumed.getByRole("checkbox", { name: "Fireplace" }));
   await user.click(resumed.getByRole("button", { name: "Next" }));
-  await user.type(
-    resumed.getByRole("textbox", { name: "Your answer" }),
-    "Warm, durable finishes with natural wood",
-  );
+  await user.click(resumed.getByRole("radio", { name: /Builder\+/ }));
   await user.click(resumed.getByRole("button", { name: "Next" }));
 
   await waitFor(() =>

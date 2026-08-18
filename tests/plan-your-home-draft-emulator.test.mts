@@ -583,7 +583,7 @@ test(
       );
       assert.equal(
         finalDraft.derived.finishLevel,
-        "Warm, durable finishes with natural wood and simple details",
+        "builder-grade",
       );
       assert.equal(Object.keys(finalDraft.answers).length, 31);
       assert.deepEqual(finalDraft.progress, {

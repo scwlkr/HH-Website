@@ -79,7 +79,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | --- | --- | --- |
 | 1 `project.starting-services` | What do you have in mind? | Starting point, one: Fully custom; Already have a plan; Somewhere in between; Not sure yet. Services, many: Architectural design; Building; Not sure yet. `Not sure` is exclusive within services. Legacy saved `land-development` selections are removed during restore; when no supported service remains, restore uses `Not sure yet` so existing progress stays usable. |
 | 2 `project.lot-location` | What is your lot status and location? | Lot status, one: Own it; Actively looking; Need H and H to evaluate options; Not sure yet. Location: city, county, address, or target area text; or explicit Not sure yet. |
-| 3 `project.site-context` | What do you know about the site? | Show only when question 2 is `Own it`; otherwise store internal `Not applicable`. Many: Flat or gently sloped; Steep or complex slope; Wooded; Important views or water; Utilities available; Well or septic; HOA or deed restrictions; Existing structure; Nothing known yet; Not sure yet. The last two are exclusive. |
+| 3 `project.site-context` | What do you know about the site? | Show only when question 2 is `Own it`; otherwise store internal `Not applicable`. Many: Flat or gently sloped; Steep or complex slope; Wooded; Important views or water; Utilities available; Well water; Septic system; HOA or deed restrictions; Existing structure; Nothing known yet; Not sure yet. The last two are exclusive. Legacy `Well or septic` answers remain readable until replaced. |
 
 ### Living Room And Home Basics
 
@@ -92,7 +92,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | 7 `home.daily-life` | Which daily routines should the home support? | Choose up to 4: Quiet and privacy; Entertaining; Remote work or study; Hobbies; Caregiving; Pet routines; Indoor-outdoor living; Not sure yet. |
 | 8 `living.relationship` | How should the main living spaces feel? | Open; Connected but defined; Mostly separate; Not sure yet. |
 | 9 `living.features` | What matters most in the main living area? | Choose up to 5: Fireplace; TV or media; Built-ins; Vaulted or tall ceilings; Strong views; Outdoor connection; Flexible furniture layout; None; Not sure yet. `None` and `Not sure` are exclusive. |
-| 10 `home.finish-level` | What finish direction do you have in mind? | Required short text, up to 280 characters. Helper: Choose a general finish direction for the home. |
+| 10 `home.finish-level` | What finish direction do you have in mind? | One required choice: Builder, budget-conscious finishes from a fixed standard palette with no fixture, finish, or trim customization; Builder+, mid-grade finishes with upgraded materials and more flexibility; Custom, premium fully personalized finishes, fixtures, millwork, trim, and one-of-a-kind details. No free text or uncertain option. Legacy text remains readable until replaced. |
 
 ### Kitchen And Dining
 
@@ -100,7 +100,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | --- | --- | --- |
 | 11 `kitchen.use` | How will you use the kitchen? | Choose up to 4: Everyday cooking; Serious cooking or baking; Family gathering; Entertaining; Large groups; Catering or separate prep; Not sure yet. |
 | 12 `kitchen.arrangement` | How should the kitchen work and feel? | Work center, one: Single island; Double island; Peninsula; No island; Not sure. Connection, one: Open; Connected but defined; Separate; Not sure. |
-| 13 `kitchen.support` | What pantry or support spaces interest you? | Many: Cabinet pantry; Walk-in pantry; Butler pantry; Scullery or prep kitchen; Appliance garage; None; Not sure yet. Define unfamiliar terms in helper copy. |
+| 13 `kitchen.support` | What pantry or support spaces interest you? | Many: Cabinet pantry; Walk-in pantry; Butler pantry; Scullery or prep kitchen; Appliance garage; Not sure yet. Define unfamiliar terms in helper copy. Legacy `None` answers remain readable until replaced. |
 
 ### Primary Suite
 
@@ -108,8 +108,8 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | --- | --- | --- |
 | 14 `primary.location` | Where should the primary suite go? | Main floor; Upper floor; Separate wing; No preference; Not sure yet. |
 | 15 `primary.bedroom-features` | Which primary-bedroom features matter? | Many: Sitting area; Fireplace; Outdoor access; Morning bar; Strong view; Vaulted or tall ceiling; Compact and simple; None; Not sure yet. |
-| 16 `primary.bath-features` | Which primary-bath features matter? | Many: Large shower; Soaking tub; Separate vanities; Private toilet room; Natural light; Curbless or accessible layout; Linen storage; Not sure yet. |
-| 17 `primary.closet-access` | What should the suite's closet and access support? | Many: One shared walk-in; Separate walk-ins; Direct laundry access; Closet built-ins; Accessible clearances; None; Not sure yet. |
+| 16 `primary.bath-features` | Which primary-bath features matter? | Many: Large shower; Soaking tub; Separate vanities; Private toilet room; Natural light; Linen storage; Not sure yet. Legacy `Curbless or accessible layout` answers remain readable until replaced. |
+| 17 `primary.closet-access` | What should the suite's closet and access support? | Many: One shared walk-in; Separate walk-ins; Direct laundry access; Closet built-ins; Not sure yet. Legacy `Accessible clearances` and `None` answers remain readable until replaced. |
 
 ### Bedrooms And Shared Bathrooms
 
@@ -141,7 +141,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | --- | --- | --- |
 | 27 `design.feeling` | How should your new home feel? | Choose up to 3: Warm; Calm; Bright; Cozy; Open and airy; Refined; Simple; Bold. Optional short text for current-home likes and dislikes. |
 | 28 `design.references` | What references show your direction? | Zero or more approved files and links, each with optional note; or explicit `I do not have references yet`. See reference contract below. |
-| 29 `design.priorities` | What are your key priorities? | Assign previously selected features plus one custom item to: Must-have, up to 5; Nice-to-have, up to 5; Deal-breaker, up to 3. Offer `No strong priorities yet`. Do not make drag-and-drop the only interaction. |
+| 29 `design.priorities` | What are your key priorities? | Present and summarize Nice-to-haves first, then Must-haves, then Deal-breakers; open Nice-to-haves initially. Assign previously selected features plus one custom item to: Nice-to-have, up to 5; Must-have, up to 5; Deal-breaker, up to 3. Offer `No strong priorities yet`. Do not make drag-and-drop the only interaction. |
 | 30 `project.budget-timing` | What are your budget and timing? | Budget, one: Under $300k; $300k–$499k; $500k–$749k; $750k–$999k; $1m–$1.49m; $1.5m–$2.49m; $2.5m+; Not sure yet. State that land is excluded and no price is calculated. Design start, one: As soon as practical; Within 3 months; 3–6 months; 6–12 months; More than 12 months; Just exploring. |
 
 ### Review And Follow-Up

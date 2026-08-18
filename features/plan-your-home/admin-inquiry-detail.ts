@@ -13,6 +13,7 @@ import {
   summarizePlanHomeAnswer,
   validatePlanHomeAnswer,
 } from "./registry.ts";
+import { normalizeLegacyPlanHomeAnswers } from "./schemas.ts";
 import {
   planHomeReferenceMetadataSchema,
   type PlanHomeFileReference,
@@ -435,7 +436,9 @@ function mapPlanHomeDetail(
   const contact = readRecord(record.contact);
   const derived = readRecord(record.derived);
   const progress = readRecord(record.progress);
-  const answers = readRecord(record.answers);
+  const answers = readRecord(
+    normalizeLegacyPlanHomeAnswers(readRecord(record.answers)),
+  );
   const completedZones = readCompletedZones(record);
   const currentPromptId = normalizeSingleLine(progress.currentPromptId);
   const currentQuestion = currentPromptId

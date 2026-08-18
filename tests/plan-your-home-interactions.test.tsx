@@ -278,19 +278,19 @@ test("priority renderer progressively assigns groups with buttons and reports li
   await user.keyboard(" ");
   assert.match(
     query.getByLabelText("Serialized priority answer").textContent ?? "",
-    /"mustHave":\["Outdoor connection"\]/,
+    /"niceToHave":\["Outdoor connection"\]/,
   );
   await user.click(
     query.getByRole("button", {
       name: "Accessible clearances: Not assigned",
     }),
   );
-  assert.equal(query.getByRole("alert").textContent, "Must-have limit reached.");
+  assert.equal(query.getByRole("alert").textContent, "Nice-to-have limit reached.");
 
-  const niceToHaves = query.getByRole("button", {
-    name: "Edit Nice-to-haves, 0 of 1",
+  const mustHaves = query.getByRole("button", {
+    name: "Edit Must-haves, 0 of 1",
   });
-  niceToHaves.focus();
+  mustHaves.focus();
   await user.keyboard(" ");
   await user.click(
     query.getByRole("button", {
@@ -302,9 +302,9 @@ test("priority renderer progressively assigns groups with buttons and reports li
     "Quiet mechanical room",
   );
   await user.click(
-    query.getByRole("button", { name: "Assign custom to Nice-to-haves" }),
+    query.getByRole("button", { name: "Assign custom to Must-haves" }),
   );
-  assert.equal(query.getByRole("alert").textContent, "Nice-to-have limit reached.");
+  assert.equal(query.getByRole("alert").textContent, "Must-have limit reached.");
 
   await user.click(
     query.getByRole("button", { name: "Edit Deal-breakers, 0 of 1" }),
@@ -317,8 +317,8 @@ test("priority renderer progressively assigns groups with buttons and reports li
       query.getByLabelText("Serialized priority answer").textContent ?? "{}",
     ),
     {
-      mustHave: ["Outdoor connection"],
-      niceToHave: ["Accessible clearances"],
+      mustHave: ["Accessible clearances"],
+      niceToHave: ["Outdoor connection"],
       dealBreakers: [],
       customItem: {
         label: "Quiet mechanical room",

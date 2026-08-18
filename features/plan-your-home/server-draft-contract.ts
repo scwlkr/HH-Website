@@ -358,6 +358,14 @@ export function createPlanHomeDraftDerived(
       : null;
   const squareFootageBand = answers["home.heated-square-feet"];
   const finishLevel = answers["home.finish-level"];
+  const legacyFinishLevel =
+    finishLevel &&
+    typeof finishLevel === "object" &&
+    !Array.isArray(finishLevel) &&
+    "legacyText" in finishLevel &&
+    typeof finishLevel.legacyText === "string"
+      ? finishLevel.legacyText
+      : null;
 
   if (typeof squareFootageBand !== "string") {
     throw new PlanHomeDraftValidationError([
@@ -371,6 +379,7 @@ export function createPlanHomeDraftDerived(
     phone: contact.phone,
     targetLocation,
     squareFootageBand,
-    finishLevel: typeof finishLevel === "string" ? finishLevel : null,
+    finishLevel:
+      typeof finishLevel === "string" ? finishLevel : legacyFinishLevel,
   };
 }

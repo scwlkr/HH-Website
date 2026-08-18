@@ -242,9 +242,7 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
       }),
     ),
   );
-  const finishDirection = query.getByRole("textbox", { name: "Your answer" });
-  await user.clear(finishDirection);
-  await user.type(finishDirection, "Custom natural wood and stone finishes");
+  await user.click(query.getByRole("radio", { name: "Custom" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await waitFor(() =>
     assert.ok(query.getByRole("heading", { name: /One walkthrough/ })),
@@ -253,7 +251,7 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
   assert.match(
     view.container.querySelector('[data-review-question="home.finish-level"]')
       ?.textContent ?? "",
-    /Custom natural wood and stone finishes/,
+    /Custom/,
   );
 
   await user.click(

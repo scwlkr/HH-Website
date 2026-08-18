@@ -54,6 +54,7 @@ import {
   type ReferencePromptItem,
 } from "@/features/plan-your-home/prompt-renderers";
 import {
+  getPlanHomeLegacyAnswerNotice,
   getPlanHomeQuestion,
   isPlanHomeQuestionApplicable,
   planHomeQuestions,
@@ -558,6 +559,10 @@ function renderQuestionPrompt(
   designDesk?: DesignDeskPromptContext,
 ) {
   const firstGroup = question.response.optionGroups[0] as PlanHomeOptionGroup;
+  const legacyAnswerNotice = getPlanHomeLegacyAnswerNotice(
+    question.id,
+    answer,
+  );
 
   if (question.response.kind === "text") {
     return (
@@ -567,12 +572,7 @@ function renderQuestionPrompt(
         label="Your answer"
         value={typeof answer === "string" ? answer : ""}
         maxLength={question.response.limits?.maxLength ?? 280}
-        multiline={question.id === "home.finish-level"}
-        placeholder={
-          question.id === "home.bed-bath-counts"
-            ? "For example: 4 bedrooms, 3 full bathrooms, and 1 half bathroom"
-            : "Describe the overall finish direction you have in mind"
-        }
+        placeholder="For example: 4 bedrooms, 3 full bathrooms, and 1 half bathroom"
         error={validationErrors[firstGroup.id]}
         onChange={(value) => updateAnswer(value, "debounced")}
         onBlur={flushAnswer}
@@ -846,9 +846,16 @@ function renderQuestionPrompt(
         id={question.id}
         legend={firstGroup.label}
         options={firstGroup.options}
-        value={answer as string | null}
+        value={typeof answer === "string" ? answer : null}
         onChange={updateAnswer}
-        columns={question.id === "contact.follow-up" ? 3 : 2}
+        instructions={legacyAnswerNotice ?? undefined}
+        columns={
+          question.id === "contact.follow-up"
+            ? 3
+            : question.id === "home.finish-level"
+              ? 1
+              : 2
+        }
         balancedPhoneGrid={question.id === "contact.follow-up"}
       />
     );
@@ -860,9 +867,10 @@ function renderQuestionPrompt(
         id={question.id}
         legend={firstGroup.label}
         options={firstGroup.options}
-        value={answer as readonly string[]}
+        value={Array.isArray(answer) ? answer : []}
         maxSelections={firstGroup.maxSelections}
         exclusiveOptionSlugs={firstGroup.exclusiveOptionSlugs}
+        instructions={legacyAnswerNotice ?? undefined}
         onChange={updateAnswer}
       />
     );

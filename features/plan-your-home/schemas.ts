@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { planHomeReferenceCollectionSchema } from "./references.ts";
 import {
+  normalizeLegacyPlanHomeFinishAnswer,
   planHomeQuestionIds,
   planHomeZoneIds,
   validatePlanHomeAnswer,
@@ -30,30 +31,39 @@ const normalizedPhoneSchema = z
 export function normalizeLegacyPlanHomeAnswers(
   answers: Readonly<Record<string, unknown>>,
 ): PlanHomeAnswerMap {
+  let normalized: Readonly<Record<string, unknown>> = answers;
   const startingServices = answers["project.starting-services"];
   if (
-    !startingServices ||
-    typeof startingServices !== "object" ||
-    Array.isArray(startingServices) ||
-    !("services" in startingServices) ||
-    !Array.isArray(startingServices.services) ||
-    !startingServices.services.includes("land-development")
+    startingServices &&
+    typeof startingServices === "object" &&
+    !Array.isArray(startingServices) &&
+    "services" in startingServices &&
+    Array.isArray(startingServices.services) &&
+    startingServices.services.includes("land-development")
   ) {
-    return answers as PlanHomeAnswerMap;
+    const supportedServices = startingServices.services.filter(
+      (service) => service !== "land-development",
+    );
+    normalized = {
+      ...normalized,
+      "project.starting-services": {
+        ...startingServices,
+        services:
+          supportedServices.length > 0 ? supportedServices : ["not-sure-yet"],
+      },
+    };
   }
 
-  const supportedServices = startingServices.services.filter(
-    (service) => service !== "land-development",
-  );
+  const finishLevel = normalized["home.finish-level"];
+  const normalizedFinishLevel = normalizeLegacyPlanHomeFinishAnswer(finishLevel);
+  if (normalizedFinishLevel !== finishLevel) {
+    normalized = {
+      ...normalized,
+      "home.finish-level": normalizedFinishLevel,
+    };
+  }
 
-  return {
-    ...answers,
-    "project.starting-services": {
-      ...startingServices,
-      services:
-        supportedServices.length > 0 ? supportedServices : ["not-sure-yet"],
-    },
-  } as PlanHomeAnswerMap;
+  return normalized as PlanHomeAnswerMap;
 }
 
 function addAnswerIssues(
@@ -70,32 +80,40 @@ function addAnswerIssues(
   }
 }
 
-export const partialPlanHomeAnswerMapSchema = z
-  .partialRecord(questionIdSchema, z.unknown())
-  .superRefine(addAnswerIssues);
+function normalizeLegacyAnswerMapInput(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? normalizeLegacyPlanHomeAnswers(value as Readonly<Record<string, unknown>>)
+    : value;
+}
 
-export const completePlanHomeAnswerMapSchema = z
-  .record(questionIdSchema, z.unknown())
-  .superRefine((answers, context) => {
-    addAnswerIssues(answers, context);
+export const partialPlanHomeAnswerMapSchema = z.preprocess(
+  normalizeLegacyAnswerMapInput,
+  z.partialRecord(questionIdSchema, z.unknown()).superRefine(addAnswerIssues),
+);
 
-    for (const id of planHomeQuestionIds) {
-      if (!(id in answers)) {
+export const completePlanHomeAnswerMapSchema = z.preprocess(
+  normalizeLegacyAnswerMapInput,
+  z.record(questionIdSchema, z.unknown()).superRefine((answers, context) => {
+      addAnswerIssues(answers, context);
+
+      for (const id of planHomeQuestionIds) {
+        if (!(id in answers)) {
+          context.addIssue({
+            code: "custom",
+            path: [id],
+            message: "A submitted project brief requires this answer.",
+          });
+        }
+      }
+
+      if (Object.keys(answers).length !== planHomeQuestionIds.length) {
         context.addIssue({
           code: "custom",
-          path: [id],
-          message: "A submitted project brief requires this answer.",
+          message: `A submitted project brief must contain exactly ${planHomeQuestionIds.length} canonical answers.`,
         });
       }
-    }
-
-    if (Object.keys(answers).length !== planHomeQuestionIds.length) {
-      context.addIssue({
-        code: "custom",
-        message: `A submitted project brief must contain exactly ${planHomeQuestionIds.length} canonical answers.`,
-      });
-    }
-  });
+    }),
+);
 
 const completedZoneIdsSchema = z
   .array(zoneIdSchema)
@@ -192,7 +210,11 @@ const derivedSchema = z
       "Derived square-footage band must be canonical.",
     ),
     finishLevel: z.string().refine(
-      (value) => validatePlanHomeAnswer("home.finish-level", value).success,
+      (value) =>
+        validatePlanHomeAnswer(
+          "home.finish-level",
+          normalizeLegacyPlanHomeFinishAnswer(value),
+        ).success,
       "Derived finish level must be canonical.",
     ),
     lastActivityAt: timestampSchema,

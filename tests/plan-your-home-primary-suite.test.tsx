@@ -213,22 +213,11 @@ test("one still primary-suite sketch carries exact prompts and explicit uncertai
       ?.getAttribute("data-active-anchor"),
     "closet",
   );
-  await user.click(
-    query.getByRole("checkbox", { name: "Accessible clearances" }),
-  );
-  await user.click(query.getByRole("checkbox", { name: "None" }));
-  assert.equal(
-    (
-      query.getByRole("checkbox", {
-        name: "Accessible clearances",
-      }) as HTMLInputElement
-    ).checked,
-    false,
-  );
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
+  assert.equal(query.queryByRole("checkbox", { name: "None" }), null);
   assert.equal(
-    (query.getByRole("checkbox", { name: "None" }) as HTMLInputElement).checked,
-    false,
+    query.queryByRole("checkbox", { name: "Accessible clearances" }),
+    null,
   );
 
   assert.equal(view.container.querySelectorAll("fieldset").length, 1);
