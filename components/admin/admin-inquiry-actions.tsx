@@ -47,32 +47,32 @@ export function AdminInquiryActions({
       ) : null}
 
       {status !== "deleting" ? (
-        <form
-          action={statusFormAction}
-          className="flex flex-col gap-3 min-[440px]:flex-row"
-        >
-          <input type="hidden" name="inquiryId" value={inquiryId} />
-          <Button
-            type="submit"
-            name="status"
-            value="reviewed"
-            variant="secondary"
-            disabled={statusPending || status === "reviewed"}
-            className="hh-admin-button hh-admin-button-secondary rounded-[var(--hh-radius-tight)]"
-          >
-            {status === "reviewed" ? "Marked Reviewed" : "Mark Reviewed"}
-          </Button>
-          <Button
-            type="submit"
-            name="status"
-            value="spam"
-            variant="ghost"
-            disabled={statusPending || status === "spam"}
-            className="hh-admin-button hh-admin-button-danger rounded-[var(--hh-radius-tight)]"
-          >
-            {status === "spam" ? "Marked Spam" : "Mark Spam"}
-          </Button>
-        </form>
+        <div className="flex flex-col gap-3 min-[440px]:flex-row">
+          <form action={statusFormAction}>
+            <input type="hidden" name="inquiryId" value={inquiryId} />
+            <input type="hidden" name="status" value="reviewed" />
+            <Button
+              type="submit"
+              variant="secondary"
+              disabled={statusPending || status === "reviewed"}
+              className="hh-admin-button hh-admin-button-secondary w-full rounded-[var(--hh-radius-tight)]"
+            >
+              {status === "reviewed" ? "Marked Reviewed" : "Mark Reviewed"}
+            </Button>
+          </form>
+          <form action={statusFormAction}>
+            <input type="hidden" name="inquiryId" value={inquiryId} />
+            <input type="hidden" name="status" value="spam" />
+            <Button
+              type="submit"
+              variant="ghost"
+              disabled={statusPending || status === "spam"}
+              className="hh-admin-button hh-admin-button-danger w-full rounded-[var(--hh-radius-tight)]"
+            >
+              {status === "spam" ? "Marked Spam" : "Mark Spam"}
+            </Button>
+          </form>
+        </div>
       ) : (
         <AdminNotice tone="info">
           A previous deletion did not finish. Retry deletion to remove the

@@ -337,6 +337,19 @@ test("detail UI exposes safe file/link actions and an accessible destructive con
   );
   const query = within(view.container);
   assert.equal(query.getAllByText(/^Question \d+$/).length, 32);
+  const reviewedForm = query.getByRole("button", { name: "Mark Reviewed" }).closest("form");
+  const spamForm = query.getByRole("button", { name: "Mark Spam" }).closest("form");
+  assert(reviewedForm);
+  assert(spamForm);
+  assert.notEqual(reviewedForm, spamForm);
+  assert.equal(
+    within(reviewedForm).getByDisplayValue("reviewed").getAttribute("name"),
+    "status",
+  );
+  assert.equal(
+    within(spamForm).getByDisplayValue("spam").getAttribute("name"),
+    "status",
+  );
   assert.ok(query.getByRole("button", { name: "Open Private File" }));
   const safeLink = query.getByRole("link", { name: "Open example.com" });
   assert.equal(safeLink.getAttribute("href"), secureLinkReference.url);
