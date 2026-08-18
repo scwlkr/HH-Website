@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import styles from "./scene-families.module.css";
 
 type SceneProps = Readonly<{
@@ -157,14 +159,16 @@ function ProjectBriefReviewTableArtwork() {
   );
 }
 
-function SketchScene({
-  family,
+function SceneFrame({
   activeAnchor,
+  artwork,
+  family,
   variant,
   name,
 }: Readonly<{
-  family: Family;
   activeAnchor?: string;
+  artwork: ReactNode;
+  family: Family;
   variant: string;
   name?: string;
 }>) {
@@ -178,7 +182,7 @@ function SketchScene({
     >
       <svg viewBox="0 0 1200 650" preserveAspectRatio="xMidYMid slice">
         <rect className={styles.paper} width="1200" height="650" />
-        <FamilyArtwork family={family} />
+        {artwork}
       </svg>
       {name !== undefined ? (
         <div className={styles.plaque}>
@@ -187,6 +191,28 @@ function SketchScene({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function SketchScene({
+  family,
+  activeAnchor,
+  variant,
+  name,
+}: Readonly<{
+  family: Family;
+  activeAnchor?: string;
+  variant: string;
+  name?: string;
+}>) {
+  return (
+    <SceneFrame
+      activeAnchor={activeAnchor}
+      artwork={<FamilyArtwork family={family} />}
+      family={family}
+      name={name}
+      variant={variant}
+    />
   );
 }
 
@@ -244,16 +270,10 @@ export function ReviewBriefThresholdScene() {
 
 export function ProjectBriefReviewTableScene() {
   return (
-    <div
-      className={styles.scene}
-      data-scene-family="design-desk-review"
-      data-scene-variant="project-brief-review-table"
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 1200 650" preserveAspectRatio="xMidYMid slice">
-        <rect className={styles.paper} width="1200" height="650" />
-        <ProjectBriefReviewTableArtwork />
-      </svg>
-    </div>
+    <SceneFrame
+      artwork={<ProjectBriefReviewTableArtwork />}
+      family="design-desk-review"
+      variant="project-brief-review-table"
+    />
   );
 }
