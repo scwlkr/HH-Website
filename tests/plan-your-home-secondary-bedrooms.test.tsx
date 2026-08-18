@@ -48,7 +48,7 @@ function answersThrough(questionNumber: number): Record<string, unknown> {
 }
 
 function seedSecondaryStart(bedrooms: "1" | "6-plus" = "1") {
-  const answers = answersThrough(17);
+  const answers = answersThrough(18);
   answers["home.bed-bath-counts"] =
     bedrooms === "1"
       ? "1 bedroom, 1 full bathroom"
@@ -249,7 +249,7 @@ test("Back crosses directly into the Primary Suite and keeps the grouped bedroom
   assert.equal(calls[0].completedZoneId, "primary-suite");
 });
 
-test("question 19 retries one checkpoint, stores canonical summaries, and advances directly to utility", async () => {
+test("question 20 retries one checkpoint, stores canonical summaries, and advances directly to utility", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -293,7 +293,7 @@ test("question 19 retries one checkpoint, stores canonical summaries, and advanc
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 4);
   assert.equal(calls[0].completedZoneId, "bedrooms-and-shared-bathrooms");
-  assert.equal(Object.keys(calls[0].answers).length, 19);
+  assert.equal(Object.keys(calls[0].answers).length, 20);
   assert.equal(
     summarizePlanHomeAnswer(
       "secondary.users-layout",

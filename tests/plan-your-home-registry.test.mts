@@ -26,6 +26,7 @@ const expectedQuestions = [
   ["project.site-context", "What do you know about the site?"],
   ["home.heated-square-feet", "How much space are you considering?"],
   ["home.stories", "How many stories are you considering?"],
+  ["home.ceiling-height", "What ceiling height would you prefer throughout most of your home?"],
   ["home.bed-bath-counts", "How many bedrooms and bathrooms do you expect?"],
   ["home.daily-life", "Which daily routines should the home support?"],
   ["living.relationship", "How should the main living spaces feel?"],
@@ -73,14 +74,14 @@ function withQuestionMutation(
 }
 
 describe("plan-home-v1 registry", () => {
-  it("contains 31 contiguous questions in exactly seven ordered zones", () => {
+  it("contains 32 contiguous questions in exactly seven ordered zones", () => {
     assert.equal(planHomeV1Definition.id, "plan-home-v1");
     assert.deepEqual(planHomeV1Definition.zones.map((zone) => zone.id), expectedZoneIds);
     assert.deepEqual(planHomeV1Definition.zones.map((zone) => zone.order), [1, 2, 3, 4, 5, 6, 7]);
-    assert.equal(planHomeV1Definition.questions.length, 31);
+    assert.equal(planHomeV1Definition.questions.length, 32);
     assert.deepEqual(
       planHomeV1Definition.questions.map((item) => item.number),
-      Array.from({ length: 31 }, (_, index) => index + 1),
+      Array.from({ length: 32 }, (_, index) => index + 1),
     );
     assert.deepEqual(
       planHomeV1Definition.questions.map(({ id, prompt }) => [id, prompt]),
@@ -100,6 +101,28 @@ describe("plan-home-v1 registry", () => {
         ["architectural-design", "Architectural design"],
         ["building", "Building"],
         ["not-sure-yet", "Not sure yet"],
+      ],
+    );
+  });
+
+  it("offers the approved whole-home ceiling-height choices", () => {
+    const ceilingHeight = question("home.ceiling-height");
+
+    assert.equal(
+      ceilingHeight.helper,
+      "Vaulted or taller spaces can be considered separately.",
+    );
+    assert.equal(ceilingHeight.response.kind, "choice");
+    assert.deepEqual(
+      ceilingHeight.response.optionGroups[0].options.map(
+        ({ slug, label, semantic }) => [slug, label, semantic ?? null],
+      ),
+      [
+        ["8-feet", "8′", null],
+        ["9-feet", "9′", null],
+        ["10-feet", "10′", null],
+        ["12-feet-or-taller", "12′ or taller", null],
+        ["not-sure-yet", "Not sure yet", "uncertain"],
       ],
     );
   });
@@ -134,7 +157,7 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "e6a879e024fbabad80343a2a0df5d5745259d50c608490c31ccfe9262af9986f",
+      "87f19118e8c42c7ad022acc793f7587a87529d4c4f2c33b1188cca2b7c6eeee8",
     );
     assert.equal(
       question("home.systems").helper,
@@ -153,12 +176,13 @@ describe("plan-home-v1 registry", () => {
   it("keeps every prompt heading and helper within the concise copy standard", () => {
     for (const item of planHomeV1Definition.questions) {
       const words = item.prompt.replace(/[^\p{L}\p{N}&-]+/gu, " ").trim().split(/\s+/);
+      const approvedCeilingPrompt = item.id === "home.ceiling-height";
       assert.ok(
-        words.length <= 9,
+        words.length <= (approvedCeilingPrompt ? 11 : 9),
         `Q${item.number} heading has ${words.length} words: ${item.prompt}`,
       );
       assert.ok(
-        item.prompt.length <= 56,
+        item.prompt.length <= (approvedCeilingPrompt ? 66 : 56),
         `Q${item.number} heading has ${item.prompt.length} characters: ${item.prompt}`,
       );
       const helper = "helper" in item ? item.helper : undefined;
@@ -174,7 +198,7 @@ describe("plan-home-v1 registry", () => {
   it("keeps IDs, option slugs, scene anchors, camera keys, and defaults valid", () => {
     assert.equal(
       new Set(planHomeV1Definition.questions.map((item) => item.id)).size,
-      31,
+      32,
     );
 
     for (const item of planHomeV1Definition.questions) {

@@ -7,7 +7,7 @@ import {
 } from "../features/plan-your-home/scene-loader.tsx";
 
 test("scene loading keeps the current zone mapped and preloads only its neighbor", async () => {
-  const boundaries = [null, 1, 3, 4, 13, 14, 19, 20, 26, 27, 31];
+  const boundaries = [null, 1, 3, 4, 14, 15, 20, 21, 27, 28, 32];
   const expected = [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4];
   assert.deepEqual(boundaries.map(planHomeSceneIndex), expected);
 

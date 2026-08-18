@@ -66,7 +66,7 @@ function completedReviewState() {
     assert.equal(transition.error, null);
     state = transition.state;
 
-    if (question.number === 6) {
+    if (question.id === "home.bed-bath-counts") {
       transition = reducePlanHomeTour(state, {
         type: "complete-contact-gate",
         contact,
@@ -97,6 +97,7 @@ describe("Plan Your Home local snapshot adapter", () => {
     assert.equal(adapter.save(state), true);
 
     const saved = JSON.parse(storage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "");
+    saved.snapshotVersion = 1;
     saved.answers["project.starting-services"].services = ["land-development"];
     storage.setItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY, JSON.stringify(saved));
 
@@ -108,6 +109,7 @@ describe("Plan Your Home local snapshot adapter", () => {
         services: ["not-sure-yet"],
       },
     );
+    assert.equal(restored?.answers["home.ceiling-height"], "not-sure-yet");
     assert.deepEqual(restored?.location, {
       kind: "question",
       questionId: "project.lot-location",
@@ -379,7 +381,7 @@ describe("Plan Your Home local snapshot adapter", () => {
     let state = namedState();
     state = reducePlanHomeTour(state, { type: "next" }).state;
 
-    for (const question of planHomeQuestions.slice(0, 6)) {
+    for (const question of planHomeQuestions.slice(0, 7)) {
       state = reducePlanHomeTour(state, {
         type: "answer-question",
         questionId: question.id,

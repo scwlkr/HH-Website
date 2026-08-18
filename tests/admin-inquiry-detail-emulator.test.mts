@@ -85,7 +85,7 @@ test(
           phone: "+12145550100",
           manualFollowUpDisclosureAccepted: true,
         },
-        answers: answersThrough(6),
+        answers: answersThrough(7),
         sourcePath: "/plan-your-home",
       },
       sessionHash,
@@ -126,7 +126,7 @@ test(
             phone: "+12145550102",
             manualFollowUpDisclosureAccepted: true,
           },
-          answers: answersThrough(6),
+          answers: answersThrough(7),
           sourcePath: "/plan-your-home",
         },
         sessionHash,
@@ -399,7 +399,7 @@ test(
             expectedRevision: 1,
             idempotencyKey: `checkpoint-${randomUUID()}:project-and-living`,
             completedZoneId: "project-and-living",
-            answers: answersThrough(10),
+            answers: answersThrough(11),
           },
           sessionHash,
         ),
@@ -505,7 +505,7 @@ test(
       );
 
       process.stdout.write(
-        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=31, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, generationBoundDeleteImmediate=true, generationHeaderBound=true, exactUploadSizeBound=true, generationBoundReservationDeleted=true, reservingGenerationPending=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, legacyDeleteImmediate=true, tokenPages=2, objectPages=2, mainDeletedPrefixObjects=208, boundDeletedPrefixObjects=1, unrelatedPreserved=true\n",
+        "HHQ inquiry detail emulator evidence: authorizedRead=true, unauthorizedDenied=true, orderedAnswers=32, canonicalHttpHttpsLinks=2, signedReadTtlMinutes=5, directBrowserDenied=true, statusAuditEntries=2, deletionGuardBlocksDraftResumeReference=true, generationBoundDeleteImmediate=true, generationHeaderBound=true, exactUploadSizeBound=true, generationBoundReservationDeleted=true, reservingGenerationPending=true, futureUploadExpiryPending=true, lateObjectRetryDeleted=true, legacyDeleteImmediate=true, tokenPages=2, objectPages=2, mainDeletedPrefixObjects=208, boundDeletedPrefixObjects=1, unrelatedPreserved=true\n",
       );
     } finally {
       await firestore.recursiveDelete(

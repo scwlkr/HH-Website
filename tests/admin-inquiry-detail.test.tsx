@@ -77,13 +77,13 @@ function completePlanHomeRecord() {
   };
 }
 
-test("detail normalization keeps all 31 Plan Your Home answers in exact tour order", () => {
+test("detail normalization keeps all 32 Plan Your Home answers in exact tour order", () => {
   const detail = mapAdminInquiryDetail(inquiryId, completePlanHomeRecord());
   assert(detail);
   assert.equal(detail.source, "plan-your-home");
   assert.equal(detail.answerSections.length, 7);
   const answers = detail.answerSections.flatMap((section) => section.answers);
-  assert.equal(answers.length, 31);
+  assert.equal(answers.length, 32);
   assert.deepEqual(
     answers.map(({ id }) => id),
     planHomeQuestions.map(({ id }) => id),
@@ -315,7 +315,7 @@ test("detail UI exposes safe file/link actions and an accessible destructive con
     />,
   );
   const query = within(view.container);
-  assert.equal(query.getAllByText(/^Question \d+$/).length, 31);
+  assert.equal(query.getAllByText(/^Question \d+$/).length, 32);
   assert.ok(query.getByRole("button", { name: "Open Private File" }));
   const safeLink = query.getByRole("link", { name: "Open example.com" });
   assert.equal(safeLink.getAttribute("href"), secureLinkReference.url);

@@ -92,7 +92,7 @@ test(
           phone: "+12145550100",
           manualFollowUpDisclosureAccepted: true,
         },
-        answers: answersThrough(6),
+        answers: answersThrough(7),
         sourcePath: "/plan-your-home",
       },
       sessionHash,

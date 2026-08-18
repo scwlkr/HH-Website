@@ -54,7 +54,7 @@ function seedQuestion(questionId: "secondary.bath-sharing" | "utility.laundry") 
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(atUtility ? 19 : 18),
+    answers: answersThrough(atUtility ? 20 : 19),
     location: {
       kind: "question",
       questionId,
@@ -257,7 +257,7 @@ test("the bedroom questions advance directly into utility and Back retains in-zo
   );
 });
 
-test("question 21 retries one revision-safe checkpoint and advances directly to exterior", async () => {
+test("question 22 retries one revision-safe checkpoint and advances directly to exterior", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -303,7 +303,7 @@ test("question 21 retries one revision-safe checkpoint and advances directly to 
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 5);
   assert.equal(calls[0].completedZoneId, "utility-and-systems");
-  assert.equal(Object.keys(calls[0].answers).length, 21);
+  assert.equal(Object.keys(calls[0].answers).length, 22);
   assert.equal(
     summarizePlanHomeAnswer("utility.laundry", calls[0].answers["utility.laundry"]),
     "Near bedrooms, Folding counter",

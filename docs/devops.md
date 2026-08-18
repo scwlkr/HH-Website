@@ -43,7 +43,7 @@ pinned Firebase emulator suite:
 npm run proof:plan-home-final:emulator
 ```
 
-The proof exercises all 31 canonical questions, refresh/resume, the fake local email,
+The proof exercises all 32 canonical questions, refresh/resume, the fake local email,
 private references, review editing, submission, HHQ actions/deletion,
 representative keyboard-only reduced-motion controls at phone and desktop
 widths, 200%-equivalent reflow, and a commercial generic inquiry. It retains its
@@ -141,7 +141,7 @@ Capture one deterministic state with generated `.invalid` fixture data:
 npm run refine:plan-home -- q27
 ```
 
-Named states are `welcome`, `contact`, `q1` through `q31`, `review`, and
+Named states are `welcome`, `contact`, `q1` through `q32`, `review`, and
 `confirmation`. A focused run captures phone and desktop and targets 30
 seconds. Run without a state for the phone-heavy representative board, all
 Welcome/Entry/Living Room states (`q1` through `q11`), and deliberate Entry and
@@ -162,7 +162,7 @@ detectable WCAG violation, unnamed control, target smaller than 44px, an
 interactive control obscured in the viewport, a question action dock outside the
 initial viewport, or broken keyboard-driven Back/Next behavior.
 
-The default matrix includes Q31, review, and confirmation at phone and desktop
+The default matrix includes Q32, review, and confirmation at phone and desktop
 sizes. It also proves Q2, Q6, Q12, Q27, and Q30 on both the walkthrough and
 owner-review routes at 390x844 and the short 375x667 phone viewport. Those
 question captures fail on document scroll, prompt-body scroll, hidden active

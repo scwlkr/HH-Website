@@ -313,7 +313,7 @@ function answerValues(answer) {
 async function answerRegistryQuestion(page, question) {
   await page.getByRole("heading", { name: question.prompt }).waitFor();
   const progress = page.getByRole("progressbar", {
-    name: `Question ${question.number} of 31`,
+    name: `Question ${question.number} of ${planHomeQuestions.length}`,
   });
   await progress.waitFor();
   await waitForSceneReady(page);
@@ -366,7 +366,7 @@ async function answerRegistryQuestion(page, question) {
   }
 }
 
-const roomTransitionQuestions = new Set([10, 13, 17, 19, 21, 26, 30]);
+const roomTransitionQuestions = new Set([11, 14, 18, 20, 22, 27, 31]);
 
 async function assertRoomTransitionMotion(page, fromQuestion) {
   const beat = page.locator("[data-tour-beat]").first();
@@ -498,8 +498,8 @@ async function proveDraftInHq(browser, baseUrl, name) {
   await draftLink.click();
   await page.getByRole("heading", { name }).waitFor();
   await page.getByText("0 of 7 zones saved").waitFor();
-  await page.getByText(`Question 7: ${planHomeQuestions[6].prompt}`).waitFor();
-  await page.getByText("Question 6", { exact: true }).waitFor();
+  await page.getByText(`Question 8: ${planHomeQuestions[7].prompt}`).waitFor();
+  await page.getByText("Question 7", { exact: true }).waitFor();
   await capture(page, "desktop-hhq-draft-detail");
   await context.close();
 }
@@ -551,7 +551,7 @@ async function requestResumeInSeparateContext(browser, baseUrl) {
     sources: true,
   });
   await restoredPage.getByRole("link", { name: "Continue Plan Your Home" }).click();
-  await restoredPage.getByRole("heading", { name: planHomeQuestions[10].prompt }).waitFor();
+  await restoredPage.getByRole("heading", { name: planHomeQuestions[11].prompt }).waitFor();
   assert.equal(
     await restoredPage.locator('[data-reduced-motion="true"]').count() > 0,
     true,
@@ -842,7 +842,7 @@ async function inspectAndDeleteHq(browser, baseUrl, firestore, bucket, draftId) 
   await loginAdmin(page, baseUrl);
   await page.getByRole("link", { name: visitor.name }).click();
   await page.getByRole("heading", { name: visitor.name }).waitFor();
-  assert.equal(await page.getByText(/^Question \d+$/).count(), 31);
+  assert.equal(await page.getByText(/^Question \d+$/).count(), 32);
   assert.equal(await page.getByRole("button", { name: "Open Private File" }).count(), 2);
   const externalLink = page.getByRole("link", { name: "Open example.com" });
   assert.equal((await externalLink.getAttribute("href")).startsWith("https://"), true);
@@ -873,7 +873,7 @@ async function inspectAndDeleteHq(browser, baseUrl, firestore, bucket, draftId) 
     .get();
   assert.equal(tokens.empty, true);
   evidence.hq = {
-    answers: 31,
+    answers: 32,
     files: 2,
     links: 1,
     statuses: ["submitted", "reviewed", "spam"],
@@ -1063,23 +1063,23 @@ async function main() {
         evidence.tenSteps[3] = true;
         continue;
       }
-      if (question.number === 6) {
+      if (question.id === "home.bed-bath-counts") {
         await page.getByRole("button", { name: "Next", exact: true }).click();
         await page.getByRole("heading", { name: "Save your progress and resume later." }).waitFor();
         await page.getByLabel("Email").fill(visitor.email);
         await page.getByLabel("Phone").fill(visitor.phone);
         await activate(page.getByRole("checkbox", { name: /Save my progress/ }));
         await page.getByRole("button", { name: "Save and continue" }).click();
-        await page.getByRole("heading", { name: planHomeQuestions[6].prompt }).waitFor();
-        const draft = await waitForDraft(firestore, visitor.email, 6);
+        await page.getByRole("heading", { name: planHomeQuestions[7].prompt }).waitFor();
+        const draft = await waitForDraft(firestore, visitor.email, 7);
         draftId = draft.id;
         assert.equal(draft.data.status, "draft");
         await proveDraftInHq(browser, baseUrl, visitor.name);
         continue;
       }
       await advanceQuestion(page, question);
-      if (question.number === 10) {
-        const checkpoint = await waitForDraft(firestore, visitor.email, 10);
+      if (question.id === "home.finish-level") {
+        const checkpoint = await waitForDraft(firestore, visitor.email, 11);
         assert(checkpoint.data.progress.completedZoneIds.includes("project-and-living"));
         evidence.tenSteps[4] = true;
         await mainContext.tracing.stop({
@@ -1095,15 +1095,15 @@ async function main() {
       }
     }
 
-    assert.equal(evidence.questionsExercised.length, 31);
-    assert.equal(new Set(evidence.questionsExercised).size, 31);
+    assert.equal(evidence.questionsExercised.length, 32);
+    assert.equal(new Set(evidence.questionsExercised).size, 32);
     assert.deepEqual(evidence.zonesExercised, planHomeZones.map((zone) => zone.id));
     evidence.tenSteps[2] = true;
     proofStage = "review edit and submission";
     await capture(page, "phone-complete-review");
     assert.equal(
       await page.locator('button[aria-label^="Edit Q"]').count(),
-      31,
+      32,
     );
     const reviewPager = page.locator("[data-review-pager]");
     const reviewNext = reviewPager.getByRole("button", { name: "Next", exact: true });
@@ -1182,7 +1182,7 @@ async function main() {
     await capture(page, "desktop-single-submit-confirmation");
     await page.setViewportSize(viewports.phone);
     await capture(page, "phone-single-submit-confirmation");
-    const submitted = await waitForDraft(firestore, visitor.email, 31);
+    const submitted = await waitForDraft(firestore, visitor.email, 32);
     assert.equal(submitted.id, draftId);
     assert.equal(submitted.data.status, "submitted");
     assert.equal(submitted.data.references.length, 3);
@@ -1230,7 +1230,7 @@ async function main() {
     await auditRetainedArtifacts(rawResumeToken);
     await writeReport();
     log(
-      `Plan Home final proof passed: steps=10/10, questions=31, zones=7, screenshots=${evidence.screenshots.length}, browserErrors=0, failedRequests=0, axeFindings=0, undersizedTargets=0, overflow=0, trace=output/playwright/issue-18/final/trace.zip`,
+      `Plan Home final proof passed: steps=10/10, questions=32, zones=7, screenshots=${evidence.screenshots.length}, browserErrors=0, failedRequests=0, axeFindings=0, undersizedTargets=0, overflow=0, trace=output/playwright/issue-18/final/trace.zip`,
     );
   } catch (error) {
     if (mainContext) {

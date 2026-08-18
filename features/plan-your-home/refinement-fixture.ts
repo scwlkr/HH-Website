@@ -73,7 +73,7 @@ function advanceFixtureToQuestion(questionId: PlanHomeQuestionId) {
       answer: fixtureAnswer(question),
     });
     state = applyFixtureCommand(state, { type: "next" });
-    if (question.number === 6) {
+    if (question.id === "home.bed-bath-counts") {
       state = applyFixtureCommand(state, {
         type: "complete-contact-gate",
         contact: fixtureContact,
@@ -92,7 +92,7 @@ function completedFixture() {
       answer: fixtureAnswer(question),
     });
     state = applyFixtureCommand(state, { type: "next" });
-    if (question.number === 6) {
+    if (question.id === "home.bed-bath-counts") {
       state = applyFixtureCommand(state, {
         type: "complete-contact-gate",
         contact: fixtureContact,
@@ -118,7 +118,10 @@ export function createPlanHomeRefinementFixture(
     };
   }
   if (requestedState === "contact") {
-    const question = planHomeQuestions[5];
+    const question = planHomeQuestions.find(
+      (candidate) => candidate.id === "home.bed-bath-counts",
+    );
+    if (!question) throw new Error("The contact checkpoint question is missing.");
     let state = advanceFixtureToQuestion(question.id);
     state = applyFixtureCommand(state, {
       type: "answer-question",

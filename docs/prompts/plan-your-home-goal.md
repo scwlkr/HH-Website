@@ -60,9 +60,9 @@ Minimum review evidence:
 
 Final browser acceptance must exercise, not merely render:
 1. At 390x844, enter a name and see it type onto the house plaque.
-2. Complete all 31 canonical questions across the seven fixed content zones, including the 30-visible-question path when site context is not applicable.
+2. Complete all 32 canonical questions across the seven fixed content zones, including the 31-visible-question path when site context is not applicable.
 3. Refresh mid-zone and resume at the exact prompt.
-4. Confirm the question-6 contact gate creates an HHQ-visible draft and later zones checkpoint.
+4. Confirm the question-7 contact gate creates an HHQ-visible draft and later zones checkpoint.
 5. Request the fake local resume email and continue from a separate browser context.
 6. Add a PDF, image, and HTTPS link with notes; remove and replace one.
 7. Edit an early answer from review without losing later answers.

@@ -47,27 +47,27 @@ const baseMatrix = [
   ["q10", "phone"],
   ["q11", "phone"],
   ["q12", "phone"],
-  ["q14", "phone"],
-  ["q18", "phone"],
-  ["q20", "phone"],
-  ["q23", "phone"],
-  ["q27", "phone"],
+  ["q15", "phone"],
+  ["q19", "phone"],
+  ["q21", "phone"],
+  ["q24", "phone"],
   ["q28", "phone"],
   ["q29", "phone"],
-  ["q31", "phone"],
+  ["q30", "phone"],
+  ["q32", "phone"],
   ["review", "phone"],
   ["confirmation", "phone"],
   ["welcome", "desktop"],
   ["q1", "desktop"],
   ["q4", "desktop"],
-  ["q12", "desktop"],
-  ["q29", "desktop"],
-  ["q31", "desktop"],
+  ["q13", "desktop"],
+  ["q30", "desktop"],
+  ["q32", "desktop"],
   ["review", "desktop"],
   ["confirmation", "desktop"],
 ];
-const noScrollQuestionStates = new Set(["q2", "q6", "q12", "q27", "q30"]);
-const stagedQuestionStates = new Set(["q2", "q12", "q27", "q30"]);
+const noScrollQuestionStates = new Set(["q2", "q7", "q13", "q28", "q31"]);
+const stagedQuestionStates = new Set(["q2", "q13", "q28", "q31"]);
 const noScrollMatrix = [...noScrollQuestionStates].flatMap((state) =>
   Object.keys(routeTargets).flatMap((routeTarget) =>
     ["phone", "short-phone"].map((viewport) => [state, viewport, routeTarget]),
@@ -88,7 +88,7 @@ const defaultMatrix = [
 
 function parseInput() {
   const values = process.argv.slice(2).filter((value) => value !== "--");
-  if (values.length > 1) throw new Error("Use one named state: welcome, contact, q1-q31, review, or confirmation.");
+  if (values.length > 1) throw new Error("Use one named state: welcome, contact, q1-q32, review, or confirmation.");
   if (values.length === 0) return { focused: false, captures: defaultMatrix };
   const state = normalizePlanHomeRefinementState(values[0]);
   if (!state) {
@@ -705,7 +705,7 @@ async function capture(browser, baseUrl, state, viewportName, routeTarget) {
           result.layout.promptSheet?.height >= viewports[viewportName].height * 0.5,
           "phone planning task owns most of the initial viewport",
         );
-        assert.match(result.layout.progress?.label ?? "", /^Question \d+ of 31$/, "progress keeps its accessible count");
+        assert.match(result.layout.progress?.label ?? "", /^Question \d+ of 32$/, "progress keeps its accessible count");
         assert.equal(/Question \d+ of \d+/i.test(result.layout.visibleChrome), false, "question count is not repeated visually");
       } else if (state === "welcome") {
         assert(
@@ -931,11 +931,11 @@ async function captureFallback(
 
 async function captureLargeTextFallback(browser, baseUrl) {
   return captureFallback(browser, baseUrl, {
-    state: "q31",
+    state: "q32",
     viewport: "200%-text",
     layoutContext: "200% text",
     qualityContext: "200% text fallback",
-    screenshot: "q31-200-percent-text.png",
+    screenshot: "q32-200-percent-text.png",
     prepare: async (page) => {
       await page.addStyleTag({ content: ":root { font-size: 200%; }" });
       await page.evaluate(() => document.fonts.ready);
@@ -946,12 +946,12 @@ async function captureLargeTextFallback(browser, baseUrl) {
 
 async function captureReflowFallback(browser, baseUrl) {
   return captureFallback(browser, baseUrl, {
-    state: "q30",
+    state: "q31",
     viewport: "200%-reflow",
     pageViewport: { width: 320, height: 640 },
     layoutContext: "200%-equivalent 320 CSS pixel reflow",
     qualityContext: "200% reflow fallback",
-    screenshot: "q30-200-percent-reflow.png",
+    screenshot: "q31-200-percent-reflow.png",
   });
 }
 

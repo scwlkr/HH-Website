@@ -68,7 +68,7 @@ function advanceTo(questionId: PlanHomeQuestionId) {
     }).state;
     state = apply(state, { type: "next" }).state;
 
-    if (question.number === 6) {
+    if (question.id === "home.bed-bath-counts") {
       assert.deepEqual(state.location, { kind: "contact-gate" });
       state = apply(state, { type: "complete-contact-gate", contact }).state;
     }
@@ -94,7 +94,7 @@ function completeTour() {
     events.push(...nextTransition.events);
     state = nextTransition.state;
 
-    if (question.number === 6) {
+    if (question.id === "home.bed-bath-counts") {
       assert.deepEqual(state.location, { kind: "contact-gate" });
       const contactTransition = apply(state, {
         type: "complete-contact-gate",
@@ -109,7 +109,7 @@ function completeTour() {
 }
 
 describe("Plan Your Home deterministic tour state", () => {
-  it("completes welcome, contact gate, all 31 canonical answers, review, and submission readiness", () => {
+  it("completes welcome, contact gate, all 32 canonical answers, review, and submission readiness", () => {
     const initial = createInitialPlanHomeTourState();
     assert.deepEqual(initial.location, { kind: "welcome" });
     assert.equal(isPlanHomeSubmissionReady(initial), false);
@@ -122,7 +122,7 @@ describe("Plan Your Home deterministic tour state", () => {
 
     assert.equal(state.welcomeName, "Taylor Homeowner");
     assert.deepEqual(state.location, { kind: "review" });
-    assert.equal(Object.keys(state.answers).length, 31);
+    assert.equal(Object.keys(state.answers).length, 32);
     assert.deepEqual(state.contactCheckpoint, {
       email: "taylor@example.com",
       phone: "+12145550100",
@@ -196,6 +196,41 @@ describe("Plan Your Home deterministic tour state", () => {
     });
   });
 
+  it("asks ceiling height after stories and keeps contact after bedroom and bathroom counts", () => {
+    let state = advanceTo("home.stories");
+    state = apply(state, {
+      type: "answer-question",
+      questionId: "home.stories",
+      answer: "one",
+    }).state;
+    state = apply(state, { type: "next" }).state;
+    assert.deepEqual(state.location, {
+      kind: "question",
+      questionId: "home.ceiling-height",
+      editingFromReview: false,
+    });
+
+    state = apply(state, {
+      type: "answer-question",
+      questionId: "home.ceiling-height",
+      answer: "9-feet",
+    }).state;
+    state = apply(state, { type: "next" }).state;
+    assert.deepEqual(state.location, {
+      kind: "question",
+      questionId: "home.bed-bath-counts",
+      editingFromReview: false,
+    });
+
+    state = apply(state, {
+      type: "answer-question",
+      questionId: "home.bed-bath-counts",
+      answer: "4 bedrooms and 3 bathrooms",
+    }).state;
+    state = apply(state, { type: "next" }).state;
+    assert.deepEqual(state.location, { kind: "contact-gate" });
+  });
+
   it("moves Back and Next predictably across the contact gate and zone boundaries", () => {
     let state = advanceTo("home.daily-life");
 
@@ -218,7 +253,7 @@ describe("Plan Your Home deterministic tour state", () => {
       editingFromReview: false,
     });
 
-    for (const question of planHomeQuestions.slice(6, 10)) {
+    for (const question of planHomeQuestions.slice(7, 11)) {
       state = apply(state, {
         type: "answer-question",
         questionId: question.id,
@@ -300,7 +335,9 @@ describe("Plan Your Home deterministic tour state", () => {
     contactState = apply(contactState, {
       type: "answer-question",
       questionId: "home.bed-bath-counts",
-      answer: planHomeQuestions[5].response.exampleAnswer,
+      answer: planHomeQuestions.find(
+        (question) => question.id === "home.bed-bath-counts",
+      )?.response.exampleAnswer,
     }).state;
     contactState = apply(contactState, { type: "next" }).state;
 
@@ -346,7 +383,7 @@ describe("Plan Your Home deterministic tour state", () => {
 
     assert.deepEqual(state.location, { kind: "review" });
     assert.deepEqual(state.answers["project.budget-timing"], laterAnswer);
-    assert.equal(Object.keys(state.answers).length, 31);
+    assert.equal(Object.keys(state.answers).length, 32);
     assert.equal(isPlanHomeSubmissionReady(state), true);
 
     state = apply(state, {

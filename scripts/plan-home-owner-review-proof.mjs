@@ -296,14 +296,14 @@ async function main() {
           page.getByRole("checkbox", { name: "No strong priorities yet" }),
         );
       }
-      if (question.number === 6) {
+      if (question.id === "home.bed-bath-counts") {
         await page.getByRole("button", { name: "Next", exact: true }).click();
         await page
           .getByRole("heading", { name: "Save your progress and resume later." })
           .waitFor();
         await reviewNext.click();
         await page
-          .getByRole("heading", { name: planHomeQuestions[6].prompt })
+          .getByRole("heading", { name: planHomeQuestions[7].prompt })
           .waitFor();
         await reviewBack.click();
         await page
@@ -316,19 +316,19 @@ async function main() {
         );
         await page.getByRole("button", { name: "Save and continue" }).click();
         await page
-          .getByRole("heading", { name: planHomeQuestions[6].prompt })
+          .getByRole("heading", { name: planHomeQuestions[7].prompt })
           .waitFor();
         continue;
       }
       await advanceQuestion(page, question);
     }
 
-    assert.equal(exercisedQuestions.length, 31);
-    assert.equal(new Set(exercisedQuestions).size, 31);
+    assert.equal(exercisedQuestions.length, 32);
+    assert.equal(new Set(exercisedQuestions).size, 32);
     assert.deepEqual([...exercisedZones], planHomeZones.map(({ id }) => id));
     assert.equal(
       await page.locator('button[aria-label^="Edit Q"]').count(),
-      31,
+      32,
     );
     await reviewNext.click();
     await page.getByText(/Review 2 of 10/).waitFor();

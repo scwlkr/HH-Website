@@ -151,6 +151,9 @@ async function createDraftAndProveExactLocalResume(browser, baseUrl, evidence) {
   );
   await page.getByRole("button", { name: "Next", exact: true }).click();
   proofStage = "answering question 6";
+  await activateOption(page.getByRole("radio", { name: "9′" }));
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  proofStage = "answering question 7";
   await activateOption(
     page.getByRole("group", { name: "Bedrooms" }).getByLabel("4"),
   );

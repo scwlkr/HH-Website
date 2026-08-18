@@ -49,7 +49,7 @@ function seedPrimaryStart() {
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(13),
+    answers: answersThrough(14),
     location: {
       kind: "question",
       questionId: "primary.location",
@@ -277,7 +277,7 @@ test("Back crosses the kitchen boundary and returns with the Primary Suite answe
   assert.equal(calls[0].completedZoneId, "kitchen-and-dining");
 });
 
-test("question 17 retries one Primary Suite checkpoint and advances directly to secondary bedrooms", async () => {
+test("question 18 retries one Primary Suite checkpoint and advances directly to secondary bedrooms", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -318,7 +318,7 @@ test("question 17 retries one Primary Suite checkpoint and advances directly to 
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 3);
   assert.equal(calls[0].completedZoneId, "primary-suite");
-  assert.equal(Object.keys(calls[0].answers).length, 17);
+  assert.equal(Object.keys(calls[0].answers).length, 18);
   assert.equal(
     summarizePlanHomeAnswer(
       "primary.location",

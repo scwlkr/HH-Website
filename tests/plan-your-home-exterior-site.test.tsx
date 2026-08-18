@@ -64,7 +64,7 @@ function seedQuestion(questionId: "home.systems" | "exterior.garage") {
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(atExterior ? 21 : 20),
+    answers: answersThrough(atExterior ? 22 : 21),
     location: {
       kind: "question",
       questionId,
@@ -386,7 +386,7 @@ test("site, outdoor, and specialty choices enforce limits and explicit uncertain
   );
 });
 
-test("question 26 retries one canonical checkpoint and advances directly to the design desk", async () => {
+test("question 27 retries one canonical checkpoint and advances directly to the design desk", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -427,7 +427,7 @@ test("question 26 retries one canonical checkpoint and advances directly to the 
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 6);
   assert.equal(calls[0].completedZoneId, "exterior-and-site");
-  assert.equal(Object.keys(calls[0].answers).length, 26);
+  assert.equal(Object.keys(calls[0].answers).length, 27);
   assert.equal(
     summarizePlanHomeAnswer("exterior.garage", calls[0].answers["exterior.garage"]),
     "Garage bays: 2; Needs: Storage, Golf cart parking",

@@ -67,7 +67,7 @@ Marketing content for finish levels, build types, FAQ, legal copy, and route met
 2. The browser runs the fixed `plan-home-v1` registry and pure tour reducer. A
    30-day local snapshot retains the exact active prompt for same-browser
    refresh; the server remains authoritative once a draft exists.
-3. The question-6 contact gate validates contact and answer data, creates an
+3. The question-7 contact gate validates contact and answer data, creates an
    `inquirySubmissions` draft, and sets an HTTP-only, same-site draft-session
    cookie. Transactional, revision-checked checkpoints save completed zone
    boundaries, while final submission validates all answers, references, and

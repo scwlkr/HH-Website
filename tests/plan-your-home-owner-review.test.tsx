@@ -27,7 +27,7 @@ test("review snapshots resume exactly and clear without touching a customer draf
     storage: window.localStorage,
     key: PLAN_HOME_REVIEW_SNAPSHOT_KEY,
   });
-  const reviewState = createPlanHomeRefinementFixture("q9").state;
+  const reviewState = createPlanHomeRefinementFixture("q10").state;
 
   assert.equal(
     customer.save(createPlanHomeRefinementFixture("q1").state),
@@ -64,7 +64,7 @@ test("review mode fake-submits without server, upload, or analytics side effects
     key: PLAN_HOME_REVIEW_SNAPSHOT_KEY,
   });
   assert.equal(
-    review.save(createPlanHomeRefinementFixture("q31").state),
+    review.save(createPlanHomeRefinementFixture("q32").state),
     true,
   );
   const customer = createPlanHomeLocalSnapshotAdapter({

@@ -8,6 +8,7 @@ import { planHomeReferenceCollectionSchema } from "./references.ts";
 import type { PlanHomeReferenceMetadata } from "./references.ts";
 import {
   getPlanHomeLegacyAnswerSignature,
+  getPlanHomeQuestion,
   planHomeQuestions,
   planHomeZoneIds,
   validatePlanHomeAnswer,
@@ -16,7 +17,12 @@ import {
   type PlanHomeZoneId,
 } from "./registry.ts";
 
-const contactGateAnswerCount = 6;
+const contactGateAnswerCount =
+  getPlanHomeQuestion("home.bed-bath-counts")?.number ?? 0;
+
+if (contactGateAnswerCount === 0) {
+  throw new Error("The Plan Your Home contact checkpoint question is missing.");
+}
 const uuidV4Pattern =
   /(?:^|[:_-])[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?=[:_-]|$)/i;
 
@@ -317,7 +323,7 @@ export function parseSubmitPlanHomeDraftInput(
 }
 
 export function createContactGateProgress(): PlanHomeDraftProgress {
-  const nextQuestion = planHomeQuestions[contactGateAnswerCount];
+  const nextQuestion = planHomeQuestions.at(contactGateAnswerCount);
   if (!nextQuestion) {
     throw new Error("A question is required after the contact-gate checkpoint.");
   }

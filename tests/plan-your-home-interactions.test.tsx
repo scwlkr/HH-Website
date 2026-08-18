@@ -467,7 +467,7 @@ test("scene stage moves focus, announces concise progress, and skips delay for r
     "idle",
   );
   assert.equal(
-    query.getByRole("progressbar", { name: "Question 5 of 31" }).getAttribute(
+    query.getByRole("progressbar", { name: "Question 5 of 32" }).getAttribute(
       "value",
     ),
     "5",
@@ -491,7 +491,7 @@ test("scene stage exposes transition lifecycle and associated reducer errors", a
       <SceneStage
         question={question}
         zone={planHomeZones[0]}
-        totalQuestions={31}
+        totalQuestions={planHomeQuestions.length}
         scene={<div>Scene</div>}
         prompt={<button type="button">Prompt control</button>}
         cameraFrame={{ xPercent: 0, yPercent: 0, scale: 1 }}
@@ -536,7 +536,7 @@ test("representative scene stage has no detectable automated accessibility viola
       <SceneStage
         question={question}
         zone={planHomeZones[0]}
-        totalQuestions={31}
+        totalQuestions={planHomeQuestions.length}
         scene={<div>Decorative elevation</div>}
         prompt={
           <ChoicePrompt

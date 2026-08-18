@@ -126,7 +126,7 @@ This is a conversation starter, not an approved flow.
 
 1. **Personalized welcome** — Ask only for the customer's name, then type it onto the illustrated home's address plaque or nameplate so the walkthrough immediately feels like their home.
 2. **Home basics** — Complete the first room's broad home questions without another identity form.
-3. **Save progress** — Ask for email and phone after question 6, explain that they can resume later and H and H may personally follow up about the project, then sync the first backend draft without sending an automatic reminder.
+3. **Save progress** — Ask for email and phone after question 7, explain that they can resume later and H and H may personally follow up about the project, then sync the first backend draft without sending an automatic reminder.
 4. **Walk through the home** — Continue through the fixed illustrated room sequence using visual choices, lists, checkboxes, and short answers, syncing after every room.
 5. **Set priorities and add inspiration** — Separate must-haves from preferences, then upload plans or images and add useful links.
 6. **Review and submit** — See one editable summary, confirm follow-up preferences and consent, and send the project brief to H and H.
@@ -155,7 +155,7 @@ On a phone, the scene automatically frames the current object or area so the ill
 
 ## Research-Informed Draft Question Inventory
 
-This section preserves the original 35-question research inventory for decision history; it is not current public copy. The approved 31-question contract and all available answers now live in [Plan Your Home Product Specification](plan-your-home-product-spec.md), with owner edits tracked in the linked Google Sheet there.
+This section preserves the original 35-question research inventory for decision history; it is not current public copy. The approved 32-question contract and all available answers now live in [Plan Your Home Product Specification](plan-your-home-product-spec.md), with owner edits tracked in the linked Google Sheet there.
 
 Most answers should use visual cards, checkboxes, ranges, or steppers that appear as part of the active room scene. Free text is reserved for details that structured choices cannot capture.
 
@@ -245,7 +245,7 @@ Use this final illustrated zone as the single reference workspace. Accept house-
 
 ### Save-Progress Checkpoint
 
-After question 6, once the customer has established the home's broad size and bedroom/bathroom count, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** Clearly disclose that H and H may personally follow up about the project. When completed, silently sync the customer's name, answers so far, and contact details as the first identifiable backend draft; do not automatically send a reminder. This checkpoint is separate from the current 31 planning decisions.
+After question 7, once the customer has established the home's broad size, ceiling-height preference, and bedroom/bathroom count, ask for email and phone with direct value-based copy such as: **Save your progress and resume later.** Clearly disclose that H and H may personally follow up about the project. When completed, silently sync the customer's name, answers so far, and contact details as the first identifiable backend draft; do not automatically send a reminder. This checkpoint is separate from the current 32 planning decisions.
 
 ### Question-Design Rules
 
@@ -322,7 +322,7 @@ Add a simple inquiry list to HHQ with customer name, contact details, **draft** 
 
 ## Resolved Implementation Planning
 
-The product specification now owns the exact 31-question registry, seven-zone storyboard, five sketch families, hybrid architecture, semantic-control model, CSS/WAAPI motion, upload limits and security, draft retention recommendation, requested resume-email flow, privacy requirements, HHQ contract, and final browser acceptance scenario.
+The product specification now owns the exact 32-question registry, seven-zone storyboard, five sketch families, hybrid architecture, semantic-control model, CSS/WAAPI motion, upload limits and security, draft retention recommendation, requested resume-email flow, privacy requirements, HHQ contract, and final browser acceptance scenario.
 
 ## Decision Log
 
@@ -436,7 +436,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 - Show the unfinished draft, completed rooms, current position, answers so far, and last activity time in the H and H backend.
 - On the same device, resume the exact prompt from local progress; on another device, resume immediately after the last room synced to the server.
 - Keep **draft** and **submitted inquiry** as distinct statuses; completing a room does not imply that the customer submitted the project brief.
-- Create the first identifiable server draft after question 6 when the customer provides email and phone at the save-progress checkpoint.
+- Create the first identifiable server draft after question 7 when the customer provides email and phone at the save-progress checkpoint.
 
 ### 2026-07-13 — Budget is planning context only
 
@@ -452,7 +452,7 @@ The product specification now owns the exact 31-question registry, seven-zone st
 - Ask only for **Customer name** on the welcome screen.
 - Animate the entered name onto the illustrated home's address plaque or nameplate so the home immediately feels personal.
 - Keep progress local while the customer completes the first room.
-- After question 6, ask for email and phone with a clear **Save your progress and resume later** explanation.
+- After question 7, ask for email and phone with a clear **Save your progress and resume later** explanation.
 - Once contact details are provided, sync the name, answers so far, and contact details as the first identifiable backend draft; sync again after each completed zone.
 - Collect the preferred follow-up method and final submission confirmation at the end; separately explain the possibility of manual H and H contact at the save-progress checkpoint.
 

@@ -69,10 +69,12 @@ function localAhead(): PlanHomeTourState {
 describe("Plan Your Home draft resume contract", () => {
   it("migrates the removed land-development service in server progress", () => {
     const trusted = boundary();
+    const legacyAnswers = { ...trusted.answers };
+    delete legacyAnswers["home.ceiling-height"];
     const legacy = {
       ...trusted,
       answers: {
-        ...trusted.answers,
+        ...legacyAnswers,
         "project.starting-services": {
           startingPoint: "fully-custom",
           services: ["architectural-design", "land-development"],
@@ -85,6 +87,7 @@ describe("Plan Your Home draft resume contract", () => {
       startingPoint: "fully-custom",
       services: ["architectural-design"],
     });
+    assert.equal(restored.answers["home.ceiling-height"], "not-sure-yet");
     assert.deepEqual(restored.location, {
       kind: "question",
       questionId: "primary.location",
@@ -160,7 +163,7 @@ describe("Plan Your Home draft resume contract", () => {
       ...localAhead(),
       location: { kind: "contact-gate" as const },
       contactCheckpoint: null,
-      answers: answersThrough(6),
+      answers: answersThrough(7),
       completedZoneIds: [],
       checkpointedZoneIds: [],
     };

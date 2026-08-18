@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import {
+  getPlanHomeQuestion,
   planHomeQuestions,
   planHomeZoneIds,
   type PlanHomeAnswerMap,
@@ -9,7 +10,7 @@ import {
 } from "./registry.ts";
 import type { PlanHomeReferenceMetadata } from "./references.ts";
 import {
-  normalizeLegacyPlanHomeAnswers,
+  normalizeRestoredPlanHomeAnswers,
   type PlanHomeContactCheckpoint,
 } from "./schemas.ts";
 import {
@@ -60,7 +61,7 @@ export function createTourStateFromServerBoundary(
   return {
     definitionId: "plan-home-v1",
     welcomeName: boundary.welcomeName,
-    answers: normalizeLegacyPlanHomeAnswers(boundary.answers),
+    answers: normalizeRestoredPlanHomeAnswers(boundary.answers),
     location: boundaryLocation(boundary.progress.currentPromptId),
     contactCheckpoint: boundary.contact,
     completedZoneIds: boundary.progress.completedZoneIds,
@@ -71,7 +72,9 @@ export function createTourStateFromServerBoundary(
 
 function progressRank(location: PlanHomeTourLocation) {
   if (location.kind === "welcome") return -1;
-  if (location.kind === "contact-gate") return 6;
+  if (location.kind === "contact-gate") {
+    return getPlanHomeQuestion("home.bed-bath-counts")?.number ?? 0;
+  }
   if (location.kind === "review") return planHomeQuestions.length;
   if (location.editingFromReview) return planHomeQuestions.length;
   return planHomeQuestions.findIndex(
@@ -102,7 +105,7 @@ export function reconcilePlanHomeDraft(params: {
   const local = params.local
     ? {
         ...params.local,
-        answers: normalizeLegacyPlanHomeAnswers(params.local.answers),
+        answers: normalizeRestoredPlanHomeAnswers(params.local.answers),
       }
     : null;
   const canKeepExactLocalPrompt = Boolean(

@@ -107,6 +107,22 @@ async function answerThroughContactGate(
   await user.click(query.getByRole("radio", { name: "One" }));
   await user.click(query.getByRole("button", { name: "Next" }));
 
+  assert.ok(
+    query.getByRole("heading", {
+      name: "What ceiling height would you prefer throughout most of your home?",
+    }),
+  );
+  assert.ok(
+    query.getByText("Vaulted or taller spaces can be considered separately."),
+  );
+  const ceilingOptions = ["8′", "9′", "10′", "12′ or taller", "Not sure yet"];
+  assert.equal(query.getAllByRole("radio").length, ceilingOptions.length);
+  for (const option of ceilingOptions) {
+    assert.ok(query.getByRole("radio", { name: option }));
+  }
+  await user.click(query.getByRole("radio", { name: "9′" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
+
   await user.type(
     query.getByRole("textbox", { name: "Your answer" }),
     "4 bedrooms, 3 full bathrooms, and 1 half bathroom",
@@ -321,6 +337,8 @@ test("missing bedroom and bathroom text shows customer-safe guidance and focuses
     await user.click(query.getByRole("button", { name: "Next" }));
     await user.click(query.getByRole("radio", { name: "One" }));
     await user.click(query.getByRole("button", { name: "Next" }));
+    await user.click(query.getByRole("radio", { name: "9′" }));
+    await user.click(query.getByRole("button", { name: "Next" }));
 
     const counts = query.getByRole("textbox", { name: "Your answer" });
     await user.click(query.getByRole("button", { name: "Next" }));
@@ -493,7 +511,7 @@ test("valid text persists after a debounce, on blur, and on navigation", async (
   assert.equal(createCalls.length, 0);
 });
 
-test("no server write occurs before contact and valid contact creates exactly question 1-6", async () => {
+test("no server write occurs before contact and valid contact creates exactly question 1-7", async () => {
   const createCalls: unknown[] = [];
   const user = userEvent.setup({ document: window.document });
   const view = render(
@@ -515,13 +533,14 @@ test("no server write occurs before contact and valid contact creates exactly qu
     contact: Record<string, unknown>;
   };
   assert.equal(input.welcomeName, "Taylor Homeowner");
-  assert.equal(Object.keys(input.answers).length, 6);
+  assert.equal(Object.keys(input.answers).length, 7);
   assert.deepEqual(Object.keys(input.answers), [
     "project.starting-services",
     "project.lot-location",
     "project.site-context",
     "home.heated-square-feet",
     "home.stories",
+    "home.ceiling-height",
     "home.bed-bath-counts",
   ]);
   assert.equal(input.contact.manualFollowUpDisclosureAccepted, true);
@@ -562,7 +581,7 @@ test("contact validation stays customer-safe, retains answers, and retries one s
   const snapshot = JSON.parse(
     window.localStorage.getItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY) ?? "null",
   );
-  assert.equal(Object.keys(snapshot.answers).length, 6);
+  assert.equal(Object.keys(snapshot.answers).length, 7);
   assert.equal(
     (query.getByRole("textbox", { name: "Email" }) as HTMLInputElement).value,
     "taylor@example.com",
@@ -573,7 +592,7 @@ test("contact validation stays customer-safe, retains answers, and retries one s
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
 });
 
-test("refresh restores before and after contact; question 10 checkpoints all first-zone answers", async () => {
+test("refresh restores before and after contact; question 11 checkpoints all first-zone answers", async () => {
   const createCalls: unknown[] = [];
   const checkpointCalls: unknown[] = [];
   const createDraft = successfulCreate(createCalls);
@@ -649,7 +668,7 @@ test("refresh restores before and after contact; question 10 checkpoints all fir
   };
   assert.equal(checkpoint.expectedRevision, 1);
   assert.equal(checkpoint.completedZoneId, "project-and-living");
-  assert.equal(Object.keys(checkpoint.answers).length, 10);
+  assert.equal(Object.keys(checkpoint.answers).length, 11);
 });
 
 test("contact checkpoint has no detectable automated accessibility violations", async () => {

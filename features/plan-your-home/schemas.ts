@@ -66,6 +66,18 @@ export function normalizeLegacyPlanHomeAnswers(
   return normalized as PlanHomeAnswerMap;
 }
 
+export function normalizeRestoredPlanHomeAnswers(
+  answers: Readonly<Record<string, unknown>>,
+): PlanHomeAnswerMap {
+  const normalized = normalizeLegacyPlanHomeAnswers(answers);
+  if ("home.ceiling-height" in normalized) return normalized;
+
+  return {
+    ...normalized,
+    "home.ceiling-height": "not-sure-yet",
+  };
+}
+
 function addAnswerIssues(
   answers: Record<string, unknown>,
   context: z.RefinementCtx,
@@ -158,7 +170,7 @@ export const planHomeContactCheckpointSchema = z
 
 export const localDraftSnapshotSchema = z
   .object({
-    snapshotVersion: z.literal(1),
+    snapshotVersion: z.union([z.literal(1), z.literal(2)]),
     definitionId: z.literal("plan-home-v1"),
     welcomeName: z.string().trim().min(1).max(120),
     answers: partialPlanHomeAnswerMapSchema,

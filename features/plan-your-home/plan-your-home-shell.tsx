@@ -220,6 +220,7 @@ const UTILITY_AND_SYSTEMS_LAST_QUESTION = lastQuestionNumber("utility-and-system
 const EXTERIOR_AND_SITE_LAST_QUESTION = lastQuestionNumber("exterior-and-site");
 const DESIGN_DESK_LAST_QUESTION = getPlanHomeQuestion("project.budget-timing")?.number ?? 0;
 const REFERENCES_QUESTION_NUMBER = getPlanHomeQuestion("design.references")?.number ?? 0;
+const CONTACT_GATE_ANSWER_COUNT = getPlanHomeQuestion("home.bed-bath-counts")?.number ?? 0;
 const PROJECT_AND_LIVING_ZONE = planHomeZones[0];
 const KITCHEN_AND_DINING_ZONE = planHomeZones[1];
 const PRIMARY_SUITE_ZONE = planHomeZones[2];
@@ -245,6 +246,7 @@ const CAMERA_FRAMES: Readonly<Record<string, SceneCameraFrame>> = {
   "entry-landscape": { xPercent: -3.8, yPercent: 0.2, scale: 1.1 },
   "living-floor-plan": { xPercent: 0.5, yPercent: -3.4, scale: 1.14 },
   "living-stair": { xPercent: -3.8, yPercent: 0.4, scale: 1.12 },
+  "living-ceiling": { xPercent: 0, yPercent: 5.8, scale: 1.12 },
   "living-hall": { xPercent: -4.5, yPercent: 1.2, scale: 1.16 },
   "living-family": { xPercent: 0.8, yPercent: 1.2, scale: 1.12 },
   "living-seating": { xPercent: 0.3, yPercent: -0.4, scale: 1.1 },
@@ -2391,7 +2393,7 @@ export function PlanYourHomeShell({
       contact: completed.state.contactCheckpoint,
       answers: Object.fromEntries(
         planHomeQuestions
-          .slice(0, 6)
+          .slice(0, CONTACT_GATE_ANSWER_COUNT)
           .map((question) => [question.id, tourState.answers[question.id]]),
       ),
       sourcePath: "/plan-your-home",
@@ -2597,7 +2599,9 @@ export function PlanYourHomeShell({
     );
     const reviewLocations: PlanHomeTourLocation[] = [{ kind: "welcome" }];
     for (const question of applicableQuestions) {
-      if (question.number === 7) reviewLocations.push({ kind: "contact-gate" });
+      if (question.id === "home.daily-life") {
+        reviewLocations.push({ kind: "contact-gate" });
+      }
       reviewLocations.push({
         kind: "question",
         questionId: question.id,

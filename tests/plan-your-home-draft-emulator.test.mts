@@ -102,7 +102,7 @@ test(
         phone: "+1 (214) 555-0100",
         manualFollowUpDisclosureAccepted: true,
       },
-      answers: answersThrough(6),
+      answers: answersThrough(7),
       sourcePath: "/plan-your-home",
     };
 
@@ -123,7 +123,7 @@ test(
       const incompleteInput = {
         ...createInput,
         idempotencyKey: `invalid-${randomUUID()}`,
-        answers: answersThrough(5),
+        answers: answersThrough(6),
       };
       await assert.rejects(
         repository.createDraft(incompleteInput, sessionTokenHash),
@@ -198,7 +198,7 @@ test(
         expectedRevision: 1,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:project-and-living`,
         completedZoneId: "project-and-living",
-        answers: answersThrough(10),
+        answers: answersThrough(11),
       };
 
       await assert.rejects(
@@ -231,7 +231,7 @@ test(
         applied: false,
       });
 
-      const changedAnswers = answersThrough(10);
+      const changedAnswers = answersThrough(11);
       changedAnswers["home.heated-square-feet"] = "2500-2999";
       const staleCheckpoint = {
         ...zoneCheckpoint,
@@ -264,7 +264,7 @@ test(
         expectedRevision: 2,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:kitchen-and-dining`,
         completedZoneId: "kitchen-and-dining",
-        answers: answersThrough(13),
+        answers: answersThrough(14),
       };
       const kitchenCheckpointResult = await repository.checkpointDraft(
         kitchenCheckpoint,
@@ -282,7 +282,7 @@ test(
         { ...kitchenCheckpointResult, applied: false },
       );
 
-      const conflictingKitchenAnswers = answersThrough(13);
+      const conflictingKitchenAnswers = answersThrough(14);
       conflictingKitchenAnswers["kitchen.use"] = ["large-groups"];
       await assert.rejects(
         repository.checkpointDraft(
@@ -300,7 +300,7 @@ test(
         expectedRevision: 3,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:primary-suite`,
         completedZoneId: "primary-suite",
-        answers: answersThrough(17),
+        answers: answersThrough(18),
       };
       const primarySuiteCheckpointResult = await repository.checkpointDraft(
         primarySuiteCheckpoint,
@@ -325,7 +325,7 @@ test(
         { ...primarySuiteCheckpointResult, applied: false },
       );
 
-      const conflictingPrimaryAnswers = answersThrough(17);
+      const conflictingPrimaryAnswers = answersThrough(18);
       conflictingPrimaryAnswers["primary.location"] = "upper-floor";
       await assert.rejects(
         repository.checkpointDraft(
@@ -343,7 +343,7 @@ test(
         expectedRevision: 4,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:bedrooms-and-shared-bathrooms`,
         completedZoneId: "bedrooms-and-shared-bathrooms",
-        answers: answersThrough(19),
+        answers: answersThrough(20),
       };
       const bedroomsCheckpointResult = await repository.checkpointDraft(
         bedroomsCheckpoint,
@@ -369,7 +369,7 @@ test(
         { ...bedroomsCheckpointResult, applied: false },
       );
 
-      const conflictingBedroomsAnswers = answersThrough(19);
+      const conflictingBedroomsAnswers = answersThrough(20);
       conflictingBedroomsAnswers["secondary.bath-sharing"] = "mixed-approach";
       await assert.rejects(
         repository.checkpointDraft(
@@ -387,7 +387,7 @@ test(
         expectedRevision: 5,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:utility-and-systems`,
         completedZoneId: "utility-and-systems",
-        answers: answersThrough(21),
+        answers: answersThrough(22),
       };
       const utilityCheckpointResult = await repository.checkpointDraft(
         utilityCheckpoint,
@@ -411,7 +411,7 @@ test(
         { ...utilityCheckpointResult, applied: false },
       );
 
-      const conflictingUtilityAnswers = answersThrough(21);
+      const conflictingUtilityAnswers = answersThrough(22);
       conflictingUtilityAnswers["home.systems"] = ["generator"];
       await assert.rejects(
         repository.checkpointDraft(
@@ -429,7 +429,7 @@ test(
         expectedRevision: 6,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:exterior-and-site`,
         completedZoneId: "exterior-and-site",
-        answers: answersThrough(26),
+        answers: answersThrough(27),
       };
       const exteriorCheckpointResult = await repository.checkpointDraft(
         exteriorCheckpoint,
@@ -454,7 +454,7 @@ test(
         { ...exteriorCheckpointResult, applied: false },
       );
 
-      const conflictingExteriorAnswers = answersThrough(26);
+      const conflictingExteriorAnswers = answersThrough(27);
       conflictingExteriorAnswers["home.specialty-spaces"] = ["workshop"];
       await assert.rejects(
         repository.checkpointDraft(
@@ -472,7 +472,7 @@ test(
         expectedRevision: 7,
         idempotencyKey: `local-${randomUUID()}:plan-home-v1:zone:design-desk-and-review`,
         completedZoneId: "design-desk-and-review",
-        answers: answersThrough(30),
+        answers: answersThrough(31),
       };
       const designDeskCheckpointResult = await repository.checkpointDraft(
         designDeskCheckpoint,
@@ -495,7 +495,7 @@ test(
         draftId: created.draftId,
         expectedRevision: 8,
         idempotencyKey: submissionKey,
-        answers: answersThrough(31),
+        answers: answersThrough(32),
         references: [],
         consent: {
           version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
@@ -517,7 +517,7 @@ test(
         repository.submitDraft(
           {
             ...submissionInput,
-            answers: answersThrough(30),
+            answers: answersThrough(31),
           },
           sessionTokenHash,
         ),
@@ -585,7 +585,7 @@ test(
         finalDraft.derived.finishLevel,
         "builder-grade",
       );
-      assert.equal(Object.keys(finalDraft.answers).length, 31);
+      assert.equal(Object.keys(finalDraft.answers).length, 32);
       assert.deepEqual(finalDraft.progress, {
         currentPromptId: "review",
         currentZoneId: "design-desk-and-review",

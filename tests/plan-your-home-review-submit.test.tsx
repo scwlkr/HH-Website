@@ -50,7 +50,7 @@ const references: readonly PlanHomeReferenceMetadata[] = [
 
 function seedFinalQuestion() {
   const answers: Record<string, unknown> = Object.fromEntries(
-    planHomeQuestions.slice(0, 30).map((question) => [
+    planHomeQuestions.slice(0, 31).map((question) => [
       question.id,
       structuredClone(question.response.exampleAnswer),
     ]),
@@ -99,7 +99,7 @@ function seedFinalQuestion() {
   );
 }
 
-test("Q31 leads to a complete grouped review, direct edit-return, consent, and idempotent confirmation", async () => {
+test("Q32 leads to a complete grouped review, direct edit-return, consent, and idempotent confirmation", async () => {
   seedFinalQuestion();
   const submitCalls: unknown[] = [];
   const checkpointCalls: unknown[] = [];
@@ -167,13 +167,13 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
   assert.ok(view.container.querySelector("[data-review-workspace]"));
   assert.equal(
     view.container.querySelectorAll("[data-review-question]").length,
-    31,
+    32,
   );
   assert.equal(view.container.querySelectorAll("[data-review-zone]").length, 7);
   assert.equal(view.container.querySelectorAll("[data-review-sheet]").length, 7);
   assert.equal(
     query.getAllByRole("button", { name: /^Edit Q\d+:/ }).length,
-    31,
+    32,
   );
   assert.ok(query.getByText("taylor@example.com"));
   assert.ok(query.getByText("kitchen-inspiration.pdf"));
@@ -234,7 +234,7 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
     /Already have a plan/,
   );
 
-  await user.click(query.getByRole("button", { name: /^Edit Q10:/ }));
+  await user.click(query.getByRole("button", { name: /^Edit Q11:/ }));
   await waitFor(() =>
     assert.ok(
       query.getByRole("heading", {
@@ -311,7 +311,7 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
     idempotencyKey: string;
   };
   assert.equal(submission.expectedRevision, 8);
-  assert.equal(Object.keys(submission.answers).length, 31);
+  assert.equal(Object.keys(submission.answers).length, 32);
   assert.equal(submission.answers["contact.follow-up"], "phone-call");
   assert.deepEqual(submission.references, references);
   assert.deepEqual(submission.consent, {

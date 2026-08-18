@@ -42,13 +42,13 @@ function validCreateInput() {
       phone: "+1 (214) 555-0100",
       manualFollowUpDisclosureAccepted: true,
     },
-    answers: answersThrough(6),
+    answers: answersThrough(7),
     sourcePath: "/plan-your-home",
   };
 }
 
 describe("Plan Your Home server draft contract", () => {
-  it("rejects pre-contact and incomplete question 1-6 payloads before any repository write", async () => {
+  it("rejects pre-contact and incomplete question 1-7 payloads before any repository write", async () => {
     let transactionCount = 0;
     const database = {
       collection() {
@@ -193,10 +193,10 @@ describe("Plan Your Home server draft contract", () => {
       idempotencyKey:
         "local-39ef1878-bf95-4873-8610-d51d44a96fe0:plan-home-v1:zone:kitchen-and-dining",
       completedZoneId: "kitchen-and-dining",
-      answers: answersThrough(13),
+      answers: answersThrough(14),
     });
 
-    assert.equal(Object.keys(parsed.answers).length, 13);
+    assert.equal(Object.keys(parsed.answers).length, 14);
     assert.equal(parsed.answers["kitchen.use"]?.length, 1);
     assert.deepEqual(createCompletedZoneProgress("kitchen-and-dining"), {
       currentPromptId: "primary.location",
@@ -207,18 +207,18 @@ describe("Plan Your Home server draft contract", () => {
       () =>
         parseCheckpointPlanHomeDraftInput({
           ...parsed,
-          answers: answersThrough(12),
+          answers: answersThrough(13),
         }),
       PlanHomeDraftValidationError,
     );
   });
 
-  it("requires 31 canonical answers, matching references, and the versioned inquiry consent", () => {
+  it("requires 32 canonical answers, matching references, and the versioned inquiry consent", () => {
     const parsed = parseSubmitPlanHomeDraftInput({
       draftId: `draft-${"c".repeat(40)}`,
       expectedRevision: 8,
       idempotencyKey: `local-${localDraftId}:plan-home-v1:submission`,
-      answers: answersThrough(31),
+      answers: answersThrough(32),
       references: [],
       consent: {
         version: PLAN_HOME_INQUIRY_CONSENT_VERSION,
@@ -226,13 +226,13 @@ describe("Plan Your Home server draft contract", () => {
       },
     });
 
-    assert.equal(Object.keys(parsed.answers).length, 31);
+    assert.equal(Object.keys(parsed.answers).length, 32);
     assert.equal(parsed.answers["contact.follow-up"], "email");
     assert.throws(
       () =>
         parseSubmitPlanHomeDraftInput({
           ...parsed,
-          answers: answersThrough(30),
+          answers: answersThrough(31),
         }),
       PlanHomeDraftValidationError,
     );
@@ -250,7 +250,7 @@ describe("Plan Your Home server draft contract", () => {
   });
 
   it("accepts restored legacy answers while rejecting a new free-text finish answer", () => {
-    const answers: Record<string, unknown> = answersThrough(31);
+    const answers: Record<string, unknown> = answersThrough(32);
     answers["project.site-context"] = ["well-or-septic"];
     answers["home.finish-level"] = {
       legacyText: "Warm wood and hand-finished trim",

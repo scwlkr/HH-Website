@@ -93,8 +93,11 @@ export type PlanHomeTourTransition = Readonly<{
 }>;
 
 const firstQuestion = planHomeQuestions[0];
-const contactGateQuestion = planHomeQuestions[5];
-const firstPostContactQuestion = planHomeQuestions[6];
+const contactGateQuestionIndex = planHomeQuestions.findIndex(
+  (question) => question.id === "home.bed-bath-counts",
+);
+const contactGateQuestion = planHomeQuestions[contactGateQuestionIndex];
+const firstPostContactQuestion = planHomeQuestions[contactGateQuestionIndex + 1];
 const lastQuestion = planHomeQuestions.at(-1);
 
 if (!firstQuestion || !contactGateQuestion || !firstPostContactQuestion || !lastQuestion) {
@@ -650,11 +653,14 @@ export function validatePlanHomeTourState(state: PlanHomeTourState) {
       requireAnswersThrough(questionIndex);
     }
 
-    if (questionIndex >= 6 && state.contactCheckpoint === null) {
-      issues.push("Progress after question 6 requires the contact checkpoint.");
+    if (
+      questionIndex > contactGateQuestionIndex &&
+      state.contactCheckpoint === null
+    ) {
+      issues.push("Progress after the bedroom and bathroom prompt requires the contact checkpoint.");
     }
   } else if (state.location.kind === "contact-gate") {
-    requireAnswersThrough(6);
+    requireAnswersThrough(contactGateQuestionIndex + 1);
   } else if (state.location.kind === "review") {
     requireAnswersThrough(planHomeQuestions.length);
     if (state.completedZoneIds.length !== planHomeZoneIds.length) {

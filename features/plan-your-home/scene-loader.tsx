@@ -41,9 +41,9 @@ const sceneLoaders = [
 
 export function planHomeSceneIndex(questionNumber: number | null) {
   if (questionNumber === null || questionNumber <= 3) return 0;
-  if (questionNumber <= 13) return 1;
-  if (questionNumber <= 19) return 2;
-  if (questionNumber <= 26) return 3;
+  if (questionNumber <= 14) return 1;
+  if (questionNumber <= 20) return 2;
+  if (questionNumber <= 27) return 3;
   return 4;
 }
 

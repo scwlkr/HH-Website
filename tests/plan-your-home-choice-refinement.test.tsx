@@ -14,7 +14,7 @@ afterEach(() => {
   window.localStorage.clear();
 });
 
-function renderQuestion(state: "q3" | "q10" | "q13" | "q16" | "q17" | "q29") {
+function renderQuestion(state: "q3" | "q11" | "q14" | "q17" | "q18" | "q30") {
   const view = render(
     <PlanYourHomeShell
       refinementFixture={createPlanHomeRefinementFixture(state)}
@@ -37,8 +37,8 @@ test("Q3 renders independent well and septic choices that may both be selected",
   assert.equal((septic as HTMLInputElement).checked, true);
 });
 
-test("Q10 renders exactly the three approved required finish directions", () => {
-  const { query } = renderQuestion("q10");
+test("Q11 renders exactly the three approved required finish directions", () => {
+  const { query } = renderQuestion("q11");
 
   assert.equal(query.queryByRole("textbox"), null);
   assert.equal(query.queryByText("Not sure yet"), null);
@@ -66,13 +66,13 @@ test("Q10 renders exactly the three approved required finish directions", () => 
   );
 });
 
-test("Q13, Q16, and Q17 render only their revised current choices", () => {
-  let rendered = renderQuestion("q13");
+test("Q14, Q17, and Q18 render only their revised current choices", () => {
+  let rendered = renderQuestion("q14");
   assert.equal(rendered.query.queryByRole("checkbox", { name: "None" }), null);
   assert.ok(rendered.query.getByRole("checkbox", { name: "Not sure yet" }));
   rendered.view.unmount();
 
-  rendered = renderQuestion("q16");
+  rendered = renderQuestion("q17");
   assert.equal(
     rendered.query.queryByRole("checkbox", {
       name: "Curbless or accessible layout",
@@ -81,7 +81,7 @@ test("Q13, Q16, and Q17 render only their revised current choices", () => {
   );
   rendered.view.unmount();
 
-  rendered = renderQuestion("q17");
+  rendered = renderQuestion("q18");
   assert.equal(
     rendered.query.queryByRole("checkbox", { name: "Accessible clearances" }),
     null,
@@ -90,8 +90,8 @@ test("Q13, Q16, and Q17 render only their revised current choices", () => {
   assert.ok(rendered.query.getByRole("checkbox", { name: "Not sure yet" }));
 });
 
-test("Q29 opens Nice-to-haves first and presents every visible priority order consistently", () => {
-  const { query } = renderQuestion("q29");
+test("Q30 opens Nice-to-haves first and presents every visible priority order consistently", () => {
+  const { query } = renderQuestion("q30");
   const categories = within(
     query.getByRole("group", { name: "Priority group to edit" }),
   ).getAllByRole("button");
@@ -139,7 +139,7 @@ test("legacy answers remain reviewable and exact-answer edits replace only their
 
   await user.click(
     query.getByRole("button", {
-      name: "Edit Q10: What finish direction do you have in mind?",
+      name: "Edit Q11: What finish direction do you have in mind?",
     }),
   );
   assert.ok(

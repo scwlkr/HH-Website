@@ -47,7 +47,7 @@ function seedKitchenStart() {
   const state: PlanHomeTourState = {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(10),
+    answers: answersThrough(11),
     location: {
       kind: "question",
       questionId: "kitchen.use",
@@ -276,7 +276,7 @@ test("Back crosses the Living Room boundary without losing the kitchen answer", 
   );
 });
 
-test("question 13 retries one Kitchen and Dining checkpoint and enters the primary hall", async () => {
+test("question 14 retries one Kitchen and Dining checkpoint and enters the primary hall", async () => {
   const calls: Array<{
     expectedRevision: number;
     idempotencyKey: string;
@@ -317,7 +317,7 @@ test("question 13 retries one Kitchen and Dining checkpoint and enters the prima
   assert.equal(calls[0].idempotencyKey, calls[1].idempotencyKey);
   assert.equal(calls[0].expectedRevision, 2);
   assert.equal(calls[0].completedZoneId, "kitchen-and-dining");
-  assert.equal(Object.keys(calls[0].answers).length, 13);
+  assert.equal(Object.keys(calls[0].answers).length, 14);
   assert.equal(
     summarizePlanHomeAnswer("kitchen.arrangement", calls[0].answers["kitchen.arrangement"]),
     "Work center: Single island; Connection: Open",

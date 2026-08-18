@@ -308,6 +308,7 @@ export const planHomeZones = [
       "landscape-window",
       "floor-plan-rug",
       "stair",
+      "ceiling-line",
       "hall-doors",
       "seating",
       "kitchen-opening",
@@ -320,6 +321,7 @@ export const planHomeZones = [
       "entry-landscape",
       "living-floor-plan",
       "living-stair",
+      "living-ceiling",
       "living-hall",
       "living-seating",
       "living-connection",
@@ -514,6 +516,13 @@ const squareFootageOptions = [
 const storyOptions = [
   option("one", "One"),
   option("two", "Two"),
+  uncertain(),
+] as const;
+const ceilingHeightOptions = [
+  option("8-feet", "8′"),
+  option("9-feet", "9′"),
+  option("10-feet", "10′"),
+  option("12-feet-or-taller", "12′ or taller"),
   uncertain(),
 ] as const;
 const bedBathResponse = textResponse(
@@ -1132,6 +1141,16 @@ export const planHomeQuestions = [
   },
   {
     number: 6,
+    id: "home.ceiling-height",
+    zoneId: "project-and-living",
+    prompt: "What ceiling height would you prefer throughout most of your home?",
+    helper: "Vaulted or taller spaces can be considered separately.",
+    sceneAnchor: "ceiling-line",
+    cameraKey: "living-ceiling",
+    response: choiceResponse("ceilingHeight", "Ceiling height", ceilingHeightOptions),
+  },
+  {
+    number: 7,
     id: "home.bed-bath-counts",
     zoneId: "project-and-living",
     prompt: "How many bedrooms and bathrooms do you expect?",
@@ -1140,7 +1159,7 @@ export const planHomeQuestions = [
     response: bedBathResponse,
   },
   {
-    number: 7,
+    number: 8,
     id: "home.daily-life",
     zoneId: "project-and-living",
     prompt: "Which daily routines should the home support?",
@@ -1152,7 +1171,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 8,
+    number: 9,
     id: "living.relationship",
     zoneId: "project-and-living",
     prompt: "How should the main living spaces feel?",
@@ -1161,7 +1180,7 @@ export const planHomeQuestions = [
     response: choiceResponse("relationship", "Living-area relationship", livingRelationshipOptions),
   },
   {
-    number: 9,
+    number: 10,
     id: "living.features",
     zoneId: "project-and-living",
     prompt: "What matters most in the main living area?",
@@ -1173,7 +1192,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 10,
+    number: 11,
     id: "home.finish-level",
     zoneId: "project-and-living",
     prompt: "What finish direction do you have in mind?",
@@ -1183,7 +1202,7 @@ export const planHomeQuestions = [
     response: finishLevelResponse,
   },
   {
-    number: 11,
+    number: 12,
     id: "kitchen.use",
     zoneId: "kitchen-and-dining",
     prompt: "How will you use the kitchen?",
@@ -1195,7 +1214,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 12,
+    number: 13,
     id: "kitchen.arrangement",
     zoneId: "kitchen-and-dining",
     prompt: "How should the kitchen work and feel?",
@@ -1204,7 +1223,7 @@ export const planHomeQuestions = [
     response: kitchenArrangementResponse,
   },
   {
-    number: 13,
+    number: 14,
     id: "kitchen.support",
     zoneId: "kitchen-and-dining",
     prompt: "What pantry or support spaces interest you?",
@@ -1220,7 +1239,7 @@ export const planHomeQuestions = [
     ),
   },
   {
-    number: 14,
+    number: 15,
     id: "primary.location",
     zoneId: "primary-suite",
     prompt: "Where should the primary suite go?",
@@ -1229,7 +1248,7 @@ export const planHomeQuestions = [
     response: choiceResponse("location", "Primary-suite location", primaryLocationOptions),
   },
   {
-    number: 15,
+    number: 16,
     id: "primary.bedroom-features",
     zoneId: "primary-suite",
     prompt: "Which primary-bedroom features matter?",
@@ -1240,7 +1259,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 16,
+    number: 17,
     id: "primary.bath-features",
     zoneId: "primary-suite",
     prompt: "Which primary-bath features matter?",
@@ -1255,7 +1274,7 @@ export const planHomeQuestions = [
     ),
   },
   {
-    number: 17,
+    number: 18,
     id: "primary.closet-access",
     zoneId: "primary-suite",
     prompt: "What should the suite's closet and access support?",
@@ -1270,7 +1289,7 @@ export const planHomeQuestions = [
     ),
   },
   {
-    number: 18,
+    number: 19,
     id: "secondary.users-layout",
     zoneId: "bedrooms-and-shared-bathrooms",
     prompt: "Who will use the secondary bedrooms?",
@@ -1279,7 +1298,7 @@ export const planHomeQuestions = [
     response: secondaryLayoutUsersResponse,
   },
   {
-    number: 19,
+    number: 20,
     id: "secondary.bath-sharing",
     zoneId: "bedrooms-and-shared-bathrooms",
     prompt: "How should secondary bathrooms be shared?",
@@ -1289,7 +1308,7 @@ export const planHomeQuestions = [
     response: choiceResponse("bathSharing", "Bathroom sharing", bathSharingOptions),
   },
   {
-    number: 20,
+    number: 21,
     id: "utility.laundry",
     zoneId: "utility-and-systems",
     prompt: "How should laundry work?",
@@ -1300,7 +1319,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 21,
+    number: 22,
     id: "home.systems",
     zoneId: "utility-and-systems",
     prompt: "Which home comfort and system priorities matter?",
@@ -1313,7 +1332,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 22,
+    number: 23,
     id: "exterior.garage",
     zoneId: "exterior-and-site",
     prompt: "What should the garage handle?",
@@ -1323,7 +1342,7 @@ export const planHomeQuestions = [
     response: garageNeedsResponse,
   },
   {
-    number: 23,
+    number: 24,
     id: "exterior.style",
     zoneId: "exterior-and-site",
     prompt: "Which exterior character feels right?",
@@ -1336,7 +1355,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 24,
+    number: 25,
     id: "site.relationships",
     zoneId: "exterior-and-site",
     prompt: "Which site features matter most?",
@@ -1349,7 +1368,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 25,
+    number: 26,
     id: "exterior.outdoor-living",
     zoneId: "exterior-and-site",
     prompt: "Which outdoor-living features matter?",
@@ -1361,7 +1380,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 26,
+    number: 27,
     id: "home.specialty-spaces",
     zoneId: "exterior-and-site",
     prompt: "Which specialty or future spaces matter?",
@@ -1373,7 +1392,7 @@ export const planHomeQuestions = [
     }),
   },
   {
-    number: 27,
+    number: 28,
     id: "design.feeling",
     zoneId: "design-desk-and-review",
     prompt: "How should your new home feel?",
@@ -1383,7 +1402,7 @@ export const planHomeQuestions = [
     response: feelingResponse,
   },
   {
-    number: 28,
+    number: 29,
     id: "design.references",
     zoneId: "design-desk-and-review",
     prompt: "What references show your direction?",
@@ -1393,7 +1412,7 @@ export const planHomeQuestions = [
     response: referencesResponse,
   },
   {
-    number: 29,
+    number: 30,
     id: "design.priorities",
     zoneId: "design-desk-and-review",
     prompt: "What are your key priorities?",
@@ -1403,7 +1422,7 @@ export const planHomeQuestions = [
     response: prioritiesResponse,
   },
   {
-    number: 30,
+    number: 31,
     id: "project.budget-timing",
     zoneId: "design-desk-and-review",
     prompt: "What are your budget and timing?",
@@ -1413,7 +1432,7 @@ export const planHomeQuestions = [
     response: budgetTimingResponse,
   },
   {
-    number: 31,
+    number: 32,
     id: "contact.follow-up",
     zoneId: "design-desk-and-review",
     prompt: "How should we follow up?",
@@ -1467,8 +1486,8 @@ export function validatePlanHomeDefinition(definition: PlanHomeDefinition) {
   if (definition.zones.length !== 7) {
     issues.push("Registry must contain exactly seven zones.");
   }
-  if (definition.questions.length !== 31) {
-    issues.push("Registry must contain exactly 31 questions.");
+  if (definition.questions.length !== 32) {
+    issues.push("Registry must contain exactly 32 questions.");
   }
 
   const zoneIds = definition.zones.map(({ id }) => id);

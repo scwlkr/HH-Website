@@ -46,7 +46,7 @@ function localIdentifiedState(): PlanHomeTourState {
   return {
     definitionId: "plan-home-v1",
     welcomeName: "Taylor Homeowner",
-    answers: answersThrough(6),
+    answers: answersThrough(7),
     location: {
       kind: "question",
       questionId: "home.daily-life",

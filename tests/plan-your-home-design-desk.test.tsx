@@ -66,7 +66,7 @@ function seedDesignDesk(questionId = "design.feeling") {
   const completedZoneIds = planHomeZones
     .slice(0, 6)
     .map(({ id }) => id) as PlanHomeTourState["completedZoneIds"];
-  const answers = answersThrough(26);
+  const answers = answersThrough(27);
   answers["home.daily-life"] = ["not-sure-yet"];
   answers["living.features"] = ["none"];
   answers["exterior.garage"] = {
@@ -107,7 +107,7 @@ function seedDesignDesk(questionId = "design.feeling") {
   );
 }
 
-test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoints the review threshold", async () => {
+test("the fixed Design Desk runs Q28-31, retries private uploads, and checkpoints the review threshold", async () => {
   seedDesignDesk();
   let revision = 7;
   let uploadAttempts = 0;
@@ -360,7 +360,7 @@ test("the fixed Design Desk runs Q27-30, retries private uploads, and checkpoint
     checkpoint.idempotencyKey,
   );
   assert.equal(checkpoint.completedZoneId, "design-desk-and-review");
-  assert.equal(Object.keys(checkpoint.answers).length, 30);
+  assert.equal(Object.keys(checkpoint.answers).length, 31);
   assert.equal(checkpoint.expectedRevision, 10);
   assert.equal(
     summarizePlanHomeAnswer("design.references", checkpoint.answers["design.references"]),
