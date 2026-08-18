@@ -4,7 +4,9 @@ export type ResponseHeader = Readonly<{
 }>;
 
 export function buildContentSecurityPolicy(options?: Readonly<{
+  allowUnsafeEval?: boolean;
   firebaseAuthEmulatorHost?: string;
+  firebaseStorageEmulatorHost?: string;
 }>): string;
 
 export const publicResponseHeaders: readonly ResponseHeader[];

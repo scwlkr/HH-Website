@@ -58,6 +58,10 @@ test("response policy constrains framing, content, referrers, MIME, and capabili
   const contentSecurityPolicy = buildContentSecurityPolicy({
     firebaseAuthEmulatorHost: "127.0.0.1:9099",
   });
+  const developmentContentSecurityPolicy = buildContentSecurityPolicy({
+    allowUnsafeEval: true,
+    firebaseStorageEmulatorHost: "127.0.0.1:9199",
+  });
 
   assert.equal(publicHeaders.get("x-frame-options"), "DENY");
   assert.equal(publicHeaders.get("x-content-type-options"), "nosniff");
@@ -69,6 +73,10 @@ test("response policy constrains framing, content, referrers, MIME, and capabili
   assert.match(publicHeaders.get("content-security-policy") ?? "", /frame-ancestors 'none'/);
   assert.match(contentSecurityPolicy, /https:\/\/identitytoolkit\.googleapis\.com/);
   assert.match(contentSecurityPolicy, /http:\/\/127\.0\.0\.1:9099/);
+  assert.doesNotMatch(contentSecurityPolicy, /'unsafe-eval'/);
+  assert.match(developmentContentSecurityPolicy, /'unsafe-eval'/);
+  assert.match(developmentContentSecurityPolicy, /http:\/\/127\.0\.0\.1:9199/);
+  assert.doesNotMatch(contentSecurityPolicy, /127\.0\.0\.1:9199/);
   assert.doesNotMatch(contentSecurityPolicy, /default-src \*/);
   assert.equal(adminHeaders.get("cache-control"), "private, no-store, max-age=0");
   assert.equal(adminHeaders.get("x-robots-tag"), "noindex, nofollow, noarchive");
