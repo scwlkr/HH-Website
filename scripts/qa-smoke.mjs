@@ -1830,9 +1830,7 @@ async function verifyAdminAuth(browser, baseUrl, firestore, auth) {
     await page.getByText(smokeAdmin.email).waitFor();
     await page.getByRole("heading", { name: "Project Inquiries" }).waitFor();
 
-    const adminCookies = await context.cookies(
-      `${baseUrl}/admin/inquiries`,
-    );
+    const adminCookies = await context.cookies();
     const sessionCookie = adminCookies.find(
       (cookie) => cookie.name === adminSessionCookieName,
     );
@@ -2102,6 +2100,10 @@ async function verifyAdminAuth(browser, baseUrl, firestore, auth) {
       "Revoking the shared account must invalidate and clear an existing HHQ session.",
     );
     evidence.revocationDenied = true;
+    await writeFile(
+      path.join(inquiryQueueOutputDirectory, "summary.json"),
+      `${JSON.stringify(evidence, null, 2)}\n`,
+    );
   } finally {
     await context.close();
   }

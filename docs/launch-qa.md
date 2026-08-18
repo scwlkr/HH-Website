@@ -94,7 +94,10 @@ Set these on the `scwlkrs-projects/hh-website` Vercel project for both preview a
 - Restrict the Workload Identity provider subject to the intended Vercel project
   and production environment. Confirm the dedicated Google service account has
   only the Firestore, Storage, Auth, token-signing, and impersonation access the
-  server actually uses, and has no user-managed JSON keys.
+  server actually uses, and has no user-managed JSON keys. The HHQ Auth role is
+  the project role `hhWebsiteFirebaseAuthRuntime`, limited to
+  `firebaseauth.users.createSession` and `firebaseauth.users.get`; do not replace
+  it with Firebase Authentication Admin.
 
 Record live provider evidence separately from emulator proof. Before launch and
 after staffing changes, verify the deployed rules, sign-in methods, authorized

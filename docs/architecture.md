@@ -143,6 +143,11 @@ hashed session capability, resume tokens are stored only by hash, upload
 finalization verifies object identity and content, and HHQ operations require the
 shared admin claim. Local development uses Application Default Credentials;
 Vercel uses OIDC and Workload Identity Federation without a service-account key.
+The provider accepts only the `scwlkrs-projects/hh-website` production identity.
+The runtime service account has Firestore user and Storage object permissions,
+a project role limited to `firebaseauth.users.createSession` and
+`firebaseauth.users.get`, and self-scoped token signing for short-lived file
+reads. Development and preview Vercel identities cannot impersonate it.
 
 ## Environment Variables
 

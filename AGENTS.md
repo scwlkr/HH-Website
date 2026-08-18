@@ -16,6 +16,11 @@ never use: H & H, never use the & ampersand symbol in the naming. It is extremly
 Load: `./docs/devops.md `
 Load: `./docs/agents/index.md`
 
+## setup assistance
+
+- if installing a missing tool or configuring a global feature would materially improve the work, ask scwlkr to install or set it up
+- use `$wizard` to guide that setup when the skill is available
+
 ## git
 
 - commit frequently, and verify branches are synced
