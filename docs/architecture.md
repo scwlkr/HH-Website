@@ -11,7 +11,7 @@ This document describes the current Howeth and Harp website system as it exists 
 | Project inquiry paths | `/start`, `/plan-your-home`, `/plan-your-home/resume`; legacy redirect at `/inquire` | General inquiry server action plus the versioned Plan Home registry, reducer, server actions, local snapshot, and secure resume flow. |
 | Projects | `/projects`, `/projects/[projectSlug]` | Firestore project documents with embedded image metadata and Firebase Storage URLs. |
 | HHQ | `/admin`, `/admin/login`, `/admin/inquiries`, `/admin/inquiries/[id]`, `/admin/inquiries/file`, `/admin/projects`, `/admin/projects/new`, `/admin/projects/[id]`, `/admin/settings/pricing` | Firebase Auth, custom-claim role check, inquiry queue/detail/status/file actions, project actions, and Firebase Admin access. |
-| Plan Home handlers | `POST /plan-your-home/resume/consume`, `GET /api/plan-your-home/resume-mail/latest`, `GET|POST /api/internal/plan-your-home/cleanup` | One-time resume-token exchange, emulator-only fake-mailbox drain, and bearer-authorized retention cleanup. |
+| Plan Home handlers | `POST /plan-your-home/resume/consume`, `GET /api/plan-your-home/resume-mail/latest` | One-time resume-token exchange and the emulator-only fake-mailbox drain. |
 | Metadata | `/robots.txt`, `/sitemap.xml`, `/api/og` | App Router metadata helpers and generated route handlers. |
 
 ## Stack
@@ -89,10 +89,9 @@ Marketing content for finish levels, build types, FAQ, legal copy, and route met
    shows the complete answer/reference detail, supports reviewed/spam status
    actions and deletion, and issues short-lived signed reads through the
    authenticated `/admin/inquiries/file` handler.
-7. The bearer-authorized internal cleanup route removes expired Plan Home
-   drafts, resume tokens, upload tickets, and verified orphaned reference
-   objects. Provider scheduling and production retention policy remain launch
-   gates.
+7. Saved drafts remain resumable for 90 days. Saved and submitted inquiries
+   remain private in HHQ until authorized staff permanently deletes the inquiry,
+   its resume material, pending uploads, and private files together.
 
 ### Projects And Pricing
 
@@ -168,7 +167,6 @@ See [.env.example](../.env.example) and the root [README](../README.md). The act
 - `PLAN_HOME_RESUME_MAIL_TRANSPORT`
 - `PLAN_HOME_RESUME_EMAIL_FROM`
 - `RESEND_API_KEY`
-- `PLAN_HOME_CLEANUP_SECRET`
 - `GCP_PROJECT_ID`
 - `GCP_PROJECT_NUMBER`
 - `GCP_SERVICE_ACCOUNT_EMAIL`
@@ -196,6 +194,5 @@ HHQ is intentionally more utilitarian than the public site. It should stay fast,
 - Confirm final public phone and email details.
 - Choose and connect the production analytics destination.
 - Configure the approved production resume-email transport and sending domain.
-- Approve the Plan Home retention policy and configure its external cleanup
-  scheduler.
+- Owner- and counsel-approve the Plan Home privacy and data-lifecycle policy.
 - Owner-approve privacy and terms copy before removing noindex behavior.

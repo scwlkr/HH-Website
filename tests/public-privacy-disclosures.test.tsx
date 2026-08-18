@@ -100,7 +100,7 @@ test("Plan Your Home links to the privacy policy without restating technical ret
   assert.equal(contactLink.getAttribute("href"), "/privacy");
   assert.doesNotMatch(
     contact.container.textContent ?? "",
-    /private server draft|180 days|private references|resume email/i,
+    /private server draft|90 days|private references|resume email/i,
   );
 
   cleanup();
@@ -124,8 +124,8 @@ test("the privacy draft covers every Plan Your Home disclosure without claiming 
     "personally follow up",
     "resume email",
     "30 days",
-    "180 days",
-    "24 months",
+    "90 days",
+    "manually deletes",
     "request deletion",
     "not a design",
   ]) {
@@ -133,4 +133,5 @@ test("the privacy draft covers every Plan Your Home disclosure without claiming 
   }
   assert.match(copy, /pending approval from H and H and its counsel/i);
   assert.doesNotMatch(copy, /counsel approved|approved by counsel/i);
+  assert.doesNotMatch(copy, /scheduled cleanup|24 months|180 days/i);
 });

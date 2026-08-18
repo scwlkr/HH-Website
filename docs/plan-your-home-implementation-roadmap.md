@@ -332,24 +332,24 @@ Every issue created from this roadmap contains:
 
 **Proof:** authorization/action/storage tests; HHQ detail screenshots; file/link/status/delete browser checks; `npm run qa:smoke`; standard gates.
 
-### 17. Route public entry, preserve generic inquiries, and add privacy, analytics, and retention
+### 17. Route public entry, preserve generic inquiries, and add privacy, analytics, and manual deletion
 
-**Outcome:** The site sends new single-family prospects into Plan Your Home while other projects retain a working generic intake, with required disclosure, measurement, and cleanup.
+**Outcome:** The site sends new single-family prospects into Plan Your Home while other projects retain a working generic intake, with required disclosure, measurement, and manual HHQ deletion.
 
 **Scope**
 
 - Add a minimal project-start choice/routing step or equivalent clear entry that distinguishes new single-family from other work.
 - Update relevant CTAs without breaking `/inquire` or generic submission.
 - Add non-PII analytics events from the product spec.
-- Update privacy/submission copy for drafts, local storage, references, manual follow-up, requested resume email, retention, deletion, and non-contract status.
-- Add protected scheduled cleanup for expired drafts, tokens, records, and orphan files plus HHQ manual deletion compatibility.
+- Update privacy/submission copy for drafts, local storage, references, manual follow-up, requested resume email, the 90-day resume window, manual deletion, and non-contract status.
+- Keep HHQ permanent deletion responsible for the inquiry, resume material, pending uploads, and private files together.
 - Document required counsel approval and production environment/provider prerequisites.
 
 **Non-goals:** Deploying publicly, changing DNS, adding automated marketing, obtaining legal approval on behalf of H and H.
 
-**Done bar:** Both public paths are obvious and functional; analytics payload tests exclude PII/answers; cleanup is idempotent and protected; privacy links/copy appear before data collection/submission; generic regression passes.
+**Done bar:** Both public paths are obvious and functional; analytics payload tests exclude PII/answers; permanent deletion removes the complete inquiry scope; privacy links/copy appear before data collection/submission; generic regression passes.
 
-**Proof:** route and form browser tests; analytics inspection; cleanup emulator tests; privacy/entry screenshots; `npm run qa:smoke`; standard gates.
+**Proof:** route and form browser tests; analytics inspection; HHQ deletion emulator tests; privacy/entry screenshots; `npm run qa:smoke`; standard gates.
 
 ### 18. Complete accessibility, performance, full browser QA, and review handoff
 

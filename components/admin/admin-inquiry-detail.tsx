@@ -212,9 +212,11 @@ export function AdminInquiryDetailView({
               <DetailField label="Submitted">
                 {formatTimestamp(inquiry.timestamps.submittedAt)}
               </DetailField>
-              <DetailField label="Retention date">
-                {formatTimestamp(inquiry.timestamps.expiresAt)}
-              </DetailField>
+              {inquiry.status === "draft" ? (
+                <DetailField label="Resume available until">
+                  {formatTimestamp(inquiry.timestamps.expiresAt)}
+                </DetailField>
+              ) : null}
               <DetailField label="Inquiry consent">
                 {inquiry.consentVersion
                   ? `${inquiry.consentVersion} · ${formatTimestamp(inquiry.timestamps.consentAcceptedAt)}`

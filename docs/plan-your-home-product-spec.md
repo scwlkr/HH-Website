@@ -217,14 +217,14 @@ All Firestore and Storage access continues through trusted server code. Do not o
 - The resume link is requested by the customer, not an abandonment reminder. Use a 15-minute, single-use token; store only its hash; keep contact data out of the URL; rotate it after use; and establish an `HttpOnly`, `Secure` in production, `SameSite=Lax` draft session cookie.
 - Rate-limit requests and test with a fake local mail adapter. Production email may use Resend after H and H supplies a verified sending domain and API key.
 
-### Retention Recommendation
+### Data Lifecycle Recommendation
 
 This is a product recommendation to review with counsel before launch:
 
 - Anonymous local snapshots: expire after 30 days.
-- Identified unfinished drafts and their files: delete 180 days after last activity.
-- Submitted briefs and files: retain 24 months after submission unless H and H deliberately retains or deletes them.
-- Provide manual deletion in HHQ and a protected scheduled cleanup route for expired records and orphan objects.
+- Identified unfinished drafts: remain resumable for 90 days after last activity.
+- Saved and submitted briefs and their private files: remain private in HHQ until authorized staff permanently deletes them.
+- Manual HHQ deletion removes the inquiry, resume material, pending uploads, and private files together.
 
 ## HHQ Contract
 

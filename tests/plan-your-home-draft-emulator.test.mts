@@ -29,7 +29,7 @@ import {
 import {
   PlanHomeDraftAuthorizationError,
   PlanHomeDraftConflictError,
-  PLAN_HOME_SUBMITTED_RETENTION_MS,
+  PLAN_HOME_DRAFT_RETENTION_MS,
   createPlanHomeDraftRepository,
 } from "../features/plan-your-home/server-draft-repository.ts";
 import { PLAN_HOME_INQUIRY_CONSENT_VERSION } from "../features/plan-your-home/server-draft-contract.ts";
@@ -186,7 +186,7 @@ test(
       assert.equal(
         createdDocument.expiresAt.toMillis() -
           createdDocument.updatedAt.toMillis(),
-        180 * 24 * 60 * 60 * 1000,
+        PLAN_HOME_DRAFT_RETENTION_MS,
       );
       assert(
         !JSON.stringify(createdDocument).includes(rawSessionSecret),
@@ -528,6 +528,7 @@ test(
         .doc(created.draftId);
       const completedDraft = (await completedDraftReference.get()).data();
       assert(completedDraft, "The completed draft must exist before submission.");
+      const resumeAvailableUntil = completedDraft.expiresAt.toMillis();
       const completeCheckpointIdempotency = completedDraft.checkpointIdempotency;
       const checkpointKeys = Object.keys(completeCheckpointIdempotency);
       assert.equal(checkpointKeys.length, 7);
@@ -617,8 +618,8 @@ test(
         submitted.submittedAt,
       );
       assert.equal(
-        finalDraft.expiresAt.toMillis() - finalDraft.submittedAt.toMillis(),
-        PLAN_HOME_SUBMITTED_RETENTION_MS,
+        finalDraft.expiresAt.toMillis(),
+        resumeAvailableUntil,
       );
       assert.deepEqual(finalDraft.notificationIntents, []);
       assert.equal(

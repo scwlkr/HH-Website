@@ -98,6 +98,27 @@ test("detail normalization keeps all 32 Plan Your Home answers in exact tour ord
   assert.equal(detail.disclosure.startsWith("Accepted:"), true);
 });
 
+test("HHQ labels the 90-day boundary as draft resume access, not retention", () => {
+  const detail = mapAdminInquiryDetail(inquiryId, {
+    ...completePlanHomeRecord(),
+    status: "draft",
+    submittedAt: null,
+  });
+  assert(detail);
+
+  const idleAction = async () => ({ status: "idle" as const });
+  const view = render(
+    <AdminInquiryDetailView
+      inquiry={detail}
+      statusAction={idleAction}
+      deleteAction={idleAction}
+    />,
+  );
+  const query = within(view.container);
+  assert.ok(query.getByText("Resume available until"));
+  assert.equal(query.queryByText("Retention date"), null);
+});
+
 test("malformed answers and references fail closed while legacy records remain readable", () => {
   const malformed = completePlanHomeRecord();
   malformed.answers = {
@@ -238,7 +259,7 @@ test("the short general inquiry remains readable in HHQ", () => {
   assert.ok(query.getByText("Short general inquiry fields are shown exactly as received."));
   assert.equal(query.queryByText("Saved zones"), null);
   assert.equal(query.queryByText("Revision"), null);
-  assert.equal(query.queryByText("Retention date"), null);
+  assert.equal(query.queryByText("Resume available until"), null);
   assert.equal(query.queryByText(/Legacy form fields/), null);
 });
 

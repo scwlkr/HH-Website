@@ -589,17 +589,6 @@ async function verifyRouteStatuses(baseUrl) {
     const response = await fetch(`${baseUrl}${route}`);
     assert(response.status === 404, `Expected ${route} to return 404, received ${response.status}.`);
   }
-
-  for (const method of ["GET", "POST"]) {
-    const response = await fetch(
-      `${baseUrl}/api/internal/plan-your-home/cleanup`,
-      { method },
-    );
-    assert(
-      response.status === 401 && response.headers.get("cache-control") === "no-store",
-      `Expected unauthorized cleanup ${method} to fail closed with an uncached 401.`,
-    );
-  }
 }
 
 async function verifyProjectPublicationBoundary(baseUrl) {

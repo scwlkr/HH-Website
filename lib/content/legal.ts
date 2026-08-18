@@ -88,8 +88,8 @@ export const privacyDocument: LegalDocument = {
     {
       title: "Retention And Security",
       paragraphs: [
-        "Under the proposed Plan Your Home schedule, anonymous local snapshots expire after 30 days, identified unfinished drafts and their private files expire 180 days after last activity, and submitted Plan Your Home briefs and files expire 24 months after submission unless H and H deliberately retains or deletes them sooner.",
-        "Expired records, saved resume tokens, and orphan private files are removed by protected cleanup. Authorized H and H staff can also delete a Plan Your Home inquiry, its private files, and its saved resume tokens from HHQ.",
+        "Under the proposed Plan Your Home data lifecycle, anonymous local snapshots expire after 30 days and an identified unfinished draft can be resumed for 90 days after its last activity.",
+        "A saved or submitted Plan Your Home brief and its private files remain private in HHQ until an authorized H and H staff member manually deletes the inquiry. Permanent deletion also removes its saved resume material and private files.",
         `${legalName} uses reasonable administrative and technical safeguards for the website and project inquiry process, but no internet-based system can guarantee absolute security.`,
       ],
     },

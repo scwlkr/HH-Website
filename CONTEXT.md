@@ -24,6 +24,14 @@ _Avoid_: Contact form, submission
 The short, single-screen request embedded on Project start, primarily for work outside the detached single-family new-home path but available to every visitor. It captures minimal contact information and high-level project context without producing a detailed project brief.
 _Avoid_: General project brief, detailed intake
 
+**Resume link**:
+A customer-requested, one-time email link that continues a saved Plan Your Home project brief on another device. It is not an automatic reminder or project follow-up.
+_Avoid_: Reminder email, automated follow-up
+
+**Resume window**:
+The 90-day period after an identified Plan Your Home draft's last activity when the customer may request a Resume link. After that window, the saved brief remains private in HHQ until staff permanently deletes it.
+_Avoid_: Reminder period, automatic deletion schedule
+
 **Zone**:
 One of the seven fixed areas of the illustrated walkthrough that groups related planning prompts.
 _Avoid_: Step, section, page

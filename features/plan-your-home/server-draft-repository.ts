@@ -18,8 +18,7 @@ import type { PlanHomeReferenceMetadata } from "./references.ts";
 import type { PlanHomeServerBoundary } from "./draft-resume-contract.ts";
 
 const inquirySubmissionsCollection = "inquirySubmissions";
-export const PLAN_HOME_DRAFT_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
-export const PLAN_HOME_SUBMITTED_RETENTION_MS = 730 * 24 * 60 * 60 * 1000;
+export const PLAN_HOME_DRAFT_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 
 type StoredIdempotencyResult = Readonly<{
   requestHash: string;
@@ -629,9 +628,6 @@ export function createPlanHomeDraftRepository(
           acceptedConsentAt: writtenAt,
           submittedAt: writtenAt,
           updatedAt: writtenAt,
-          expiresAt: new Date(
-            writtenAt.getTime() + PLAN_HOME_SUBMITTED_RETENTION_MS,
-          ),
           notificationIntents: [],
           submissionIdempotency: {
             keyHash: idempotencyKeyHash,
