@@ -90,6 +90,9 @@ Set these on the `scwlkrs-projects/hh-website` Vercel project for both preview a
   enumeration protection, and confirm only approved production and local Auth
   domains remain authorized. Creating an ordinary Firebase user must not grant
   HHQ access.
+- Keep the Identity Toolkit API `Queries per minute per project` consumer
+  override at `60` for the single shared HHQ login, and confirm the effective
+  quota has not drifted back to the provider default.
 - Configure Vercel OIDC through the `vercel` Workload Identity pool and provider.
 - Restrict the Workload Identity provider subject to the intended Vercel project
   and production environment. Confirm the dedicated Google service account has
