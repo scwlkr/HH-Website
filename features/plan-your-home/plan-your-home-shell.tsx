@@ -30,6 +30,7 @@ import {
   LivingRoomScene,
   PlanHomeSceneSuspense,
   PrimarySuiteScene,
+  ProjectBriefReviewTableScene,
   ReviewBriefThresholdScene,
   UtilitySystemsScene,
   WelcomeExteriorScene,
@@ -1366,7 +1367,7 @@ function PlanHomeConfirmation({
     <main className={styles.confirmation} data-tour-beat="plan-home-confirmation">
       <div className={styles.confirmationScene} data-confirmation-brief-scene aria-hidden="true">
         <PlanHomeSceneSuspense>
-          <ReviewBriefThresholdScene />
+          <ProjectBriefReviewTableScene />
         </PlanHomeSceneSuspense>
       </div>
       <section className={styles.confirmationSheet}>

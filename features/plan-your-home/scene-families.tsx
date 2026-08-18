@@ -116,6 +116,47 @@ function FamilyArtwork({ family }: Readonly<{ family: Family }>) {
   );
 }
 
+function ProjectBriefReviewTableArtwork() {
+  return (
+    <>
+      <path className={styles.wash} d="M0 455L1200 381V650H0Z" />
+      <g transform="rotate(-2 600 320)">
+        <rect className={styles.warmWash} x="178" y="88" width="840" height="500" />
+        <rect className={styles.paper} x="160" y="70" width="840" height="500" />
+        <g className={styles.ink}>
+          <rect x="160" y="70" width="840" height="500" />
+          <path d="M292 405V261L580 139L865 265V405Z" />
+          <path d="M261 269L579 118L898 273" />
+          <path d="M373 405V301H475V405M523 405V271H642V405M690 405V303H790V405" />
+          <path d="M385 353H463M704 350H777" />
+          <path d="M274 432H884" />
+        </g>
+        <g className={styles.detail}>
+          <path d="M220 111H410M220 129H354M737 111H876" />
+          <path d="M373 327H475M385 301V405M438 301V405" />
+          <path d="M690 328H790M720 303V405M758 303V405" />
+          <path d="M260 466H535M260 484H458M260 502H498" />
+          <path d="M681 466H918M681 484H850M681 502H887" />
+        </g>
+        <g className={styles.detail}>
+          <circle cx="924" cy="126" r="29" />
+          <path d="M910 126L920 137L940 112" />
+        </g>
+        <g className={styles.detail} strokeDasharray="4 7">
+          <path d="M259 176H898M259 163V189M898 163V189" />
+          <path d="M238 439H920M238 426V452M920 426V452" />
+        </g>
+      </g>
+      <g className={styles.ink}>
+        <path d="M68 565L397 521" />
+        <path d="M68 551L395 507M70 579L399 535" />
+      </g>
+      <path className={styles.warmWash} d="M952 602L986 583L1125 198L1096 187Z" />
+      <path className={styles.detail} d="M952 602L986 583L1125 198L1096 187Z" />
+    </>
+  );
+}
+
 function SketchScene({
   family,
   activeAnchor,
@@ -199,4 +240,20 @@ export function DesignDeskScene({ activeAnchor }: SceneProps) {
 
 export function ReviewBriefThresholdScene() {
   return <DesignDeskScene activeAnchor="review-brief" />;
+}
+
+export function ProjectBriefReviewTableScene() {
+  return (
+    <div
+      className={styles.scene}
+      data-scene-family="design-desk-review"
+      data-scene-variant="project-brief-review-table"
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 1200 650" preserveAspectRatio="xMidYMid slice">
+        <rect className={styles.paper} width="1200" height="650" />
+        <ProjectBriefReviewTableArtwork />
+      </svg>
+    </div>
+  );
 }

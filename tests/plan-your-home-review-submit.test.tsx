@@ -320,7 +320,17 @@ test("Q31 leads to a complete grouped review, direct edit-return, consent, and i
   });
   assert.match(submission.idempotencyKey, /plan-home-v1:submission/);
   assert.ok(view.container.querySelector('[data-tour-beat="plan-home-confirmation"]'));
-  assert.ok(view.container.querySelector("[data-confirmation-brief-scene]"));
+  const confirmationScene = view.container.querySelector(
+    "[data-confirmation-brief-scene]",
+  );
+  assert.ok(confirmationScene);
+  await waitFor(() =>
+    assert.ok(
+      confirmationScene.querySelector(
+        '[data-scene-variant="project-brief-review-table"]',
+      ),
+    ),
+  );
   assert.equal(
     view.container.querySelectorAll("[data-confirmation-step]").length,
     3,

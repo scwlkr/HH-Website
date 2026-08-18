@@ -29,6 +29,7 @@ export const ExteriorSiteScene = lazyScene<AnchorProps>("ExteriorSiteScene");
 export const BlueprintDesignDeskThresholdScene = lazyScene<Record<never, never>>("BlueprintDesignDeskThresholdScene");
 export const DesignDeskScene = lazyScene<AnchorProps>("DesignDeskScene");
 export const ReviewBriefThresholdScene = lazyScene<Record<never, never>>("ReviewBriefThresholdScene");
+export const ProjectBriefReviewTableScene = lazyScene<Record<never, never>>("ProjectBriefReviewTableScene");
 
 const sceneLoaders = [
   loadSceneFamilies,
