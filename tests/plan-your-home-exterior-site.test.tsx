@@ -19,6 +19,7 @@ import {
   planHomeQuestions,
   summarizePlanHomeAnswer,
 } from "../features/plan-your-home/registry.ts";
+import { exteriorStyleCatalog } from "../features/plan-your-home/exterior-style-catalog.ts";
 import type { PlanHomeTourState } from "../features/plan-your-home/tour-state.ts";
 
 afterEach(() => {
@@ -134,7 +135,7 @@ async function answerExteriorThroughSpecialty(
   user: ReturnType<typeof userEvent.setup>,
 ) {
   await answerGarage(query, user);
-  await user.click(query.getByRole("checkbox", { name: "Traditional" }));
+  await user.click(query.getByRole("checkbox", { name: "Craftsman" }));
   await user.click(query.getByRole("button", { name: "Next" }));
   await user.click(query.getByRole("checkbox", { name: "Privacy" }));
   await user.click(query.getByRole("button", { name: "Next" }));
@@ -220,26 +221,42 @@ test("garage groups and accessible style cards validate without reconfiguring th
     "xMidYMid slice",
   );
   const fixedSvg = scene.querySelector("svg")?.innerHTML;
-  assert.equal(view.container.querySelectorAll("[data-style-card]").length, 8);
+  assert.equal(view.container.querySelectorAll("[data-style-card]").length, 19);
+  assert.deepEqual(
+    [...view.container.querySelectorAll("[data-style-card]")].map((card) =>
+      card.textContent?.trim(),
+    ),
+    [...exteriorStyleCatalog.map(({ label }) => label), "Not sure yet"],
+  );
+  assert.equal(
+    view.container.querySelectorAll("[data-style-card-art] img").length,
+    18,
+  );
+  for (const image of view.container.querySelectorAll("[data-style-card-art] img")) {
+    assert.equal(image.getAttribute("alt"), "");
+    assert.equal(image.getAttribute("width"), "768");
+    assert.equal(image.getAttribute("height"), "512");
+  }
   assert.match(
     query.getByText(/These directions communicate character/).textContent ?? "",
     /not promised designs/,
   );
 
-  const ranch = query.getByRole("checkbox", {
-    name: "Hill Country or ranch",
+  const acadian = query.getByRole("checkbox", {
+    name: "Acadian",
   }) as HTMLInputElement;
-  ranch.focus();
+  acadian.focus();
   await user.keyboard(" ");
-  assert.equal(ranch.checked, true);
-  await user.click(query.getByRole("checkbox", { name: "Traditional" }));
+  assert.equal(acadian.checked, true);
+  await user.click(query.getByRole("checkbox", { name: "Barndominium" }));
+  await user.click(query.getByRole("checkbox", { name: "Cape Cod" }));
   await user.click(
-    query.getByRole("checkbox", { name: "Modern or contemporary" }),
+    query.getByRole("checkbox", { name: "Contemporary" }),
   );
-  assert.match(query.getByRole("alert").textContent ?? "", /no more than 2/);
+  assert.match(query.getByRole("alert").textContent ?? "", /no more than 3/);
   assert.equal(
     (query.getByRole("checkbox", {
-      name: "Modern or contemporary",
+      name: "Contemporary",
     }) as HTMLInputElement).checked,
     false,
   );
@@ -247,7 +264,7 @@ test("garage groups and accessible style cards validate without reconfiguring th
   assert.equal(scene.querySelectorAll("[data-scene-anchor]").length, 0);
 
   await user.click(query.getByRole("checkbox", { name: "Not sure yet" }));
-  assert.equal(ranch.checked, false);
+  assert.equal(acadian.checked, false);
   assert.equal(
     (query.getByRole("checkbox", { name: "Not sure yet" }) as HTMLInputElement)
       .checked,
@@ -417,7 +434,7 @@ test("question 26 retries one canonical checkpoint and advances directly to the 
   );
   assert.equal(
     summarizePlanHomeAnswer("exterior.style", calls[0].answers["exterior.style"]),
-    "Traditional",
+    "Craftsman",
   );
   assert.equal(
     summarizePlanHomeAnswer("site.relationships", calls[0].answers["site.relationships"]),

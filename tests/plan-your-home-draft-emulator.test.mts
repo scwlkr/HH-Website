@@ -689,7 +689,7 @@ test(
           "exterior.style",
           finalDraft.answers["exterior.style"],
         ),
-        "Hill Country or ranch",
+        "Acadian",
       );
       assert.equal(
         summarizePlanHomeAnswer(

@@ -6,6 +6,7 @@ import {
   exteriorStyleCatalog,
   exteriorStyleImageSrc,
 } from "../features/plan-your-home/exterior-style-catalog.ts";
+import { getPlanHomeQuestion } from "../features/plan-your-home/registry.ts";
 
 const approvedLabels = [
   "Acadian",
@@ -53,6 +54,34 @@ test("exterior elevation catalog keeps the exact approved alphabetical styles an
       assert.ok(cue.trim().length > 0, `${style.label} has every approved cue`);
     }
   }
+});
+
+test("Q23 exposes the approved names only, three selections, and exclusive uncertainty", () => {
+  const question = getPlanHomeQuestion("exterior.style");
+  assert.ok(question);
+  const group = question.response.optionGroups[0];
+
+  assert.deepEqual(
+    group.options.map(({ label }) => label),
+    [...approvedLabels, "Not sure yet"],
+  );
+  assert.equal("maxSelections" in group ? group.maxSelections : undefined, 3);
+  assert.deepEqual(
+    "exclusiveOptionSlugs" in group ? group.exclusiveOptionSlugs : undefined,
+    ["not-sure-yet"],
+  );
+  assert.equal(
+    group.options.some(({ label }) =>
+      [
+        "Hill Country or ranch",
+        "Traditional",
+        "Transitional",
+        "Modern or contemporary",
+        "Spanish or Mediterranean",
+      ].includes(label),
+    ),
+    false,
+  );
 });
 
 test("every approved exterior style has one budgeted 3:2 WebP asset", () => {

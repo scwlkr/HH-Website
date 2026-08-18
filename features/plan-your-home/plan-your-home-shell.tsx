@@ -727,7 +727,7 @@ function renderQuestionPrompt(
           (option) => option.semantic !== "not-applicable",
         )}
         value={answer as readonly string[]}
-        maxSelections={firstGroup.maxSelections ?? 2}
+        maxSelections={firstGroup.maxSelections ?? 3}
         exclusiveOptionSlugs={firstGroup.exclusiveOptionSlugs}
         instructions="Use these only to communicate broad exterior character, not a promised design."
         onChange={updateAnswer}

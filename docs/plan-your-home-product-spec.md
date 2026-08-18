@@ -130,7 +130,7 @@ Stable IDs are permanent persistence keys. Public copy may improve without chang
 | # / ID | Public prompt | Response contract |
 | --- | --- | --- |
 | 22 `exterior.garage` | What should the garage handle? | Bays, one: No garage; 1; 2; 3; 4+; Not sure. Needs, many: Truck or SUV; EV charging; Boat or RV; Workshop; Storage; Attached or detached preference; Other short text. |
-| 23 `exterior.style` | Which exterior character feels right? | Choose up to 2 visual cards: Hill Country or ranch; Modern farmhouse; Traditional; Transitional; Modern or contemporary; Barndominium; Spanish or Mediterranean; Not sure yet. The cards are direction, not promised designs. |
+| 23 `exterior.style` | Which exterior character feels right? | Choose up to 3 visual cards: Acadian; Barndominium; Cape Cod; Colonial Revival; Contemporary; Craftsman; French Country; Greek Revival; Mediterranean; Mid-century modern; Modern; Modern farmhouse; Prairie; Queen Anne; Ranch; Spanish Colonial; Texas Hill Country; Tudor Revival; Not sure yet. The cards are direction, not promised designs. |
 | 24 `site.relationships` | Which site features matter most? | Choose up to 4: Important views; Morning light; Evening light; Privacy; Street presence; Preserve trees; Direct outdoor connection; Future pool or outbuilding; Not sure yet. |
 | 25 `exterior.outdoor-living` | Which outdoor-living features matter? | Many: Covered porch; Screened porch; Patio; Outdoor kitchen; Fireplace or firepit; Pool; Spa; Garden; Play area; Not sure yet. |
 | 26 `home.specialty-spaces` | Which specialty or future spaces matter? | Many: Office; Gym; Media room; Game room; Library; Craft room; Safe or storm room; Guest suite; ADU; Workshop; Home school or music room; None; Not sure yet. |

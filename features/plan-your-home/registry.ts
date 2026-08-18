@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { exteriorStyleCatalog } from "./exterior-style-catalog.ts";
 import {
   PLAN_HOME_REFERENCE_LIMITS,
   planHomeReferenceCollectionSchema,
@@ -815,14 +816,10 @@ const garageNeedsResponse = groupedResponse({
     ]);
   },
 });
+const [firstExteriorStyle, ...remainingExteriorStyles] = exteriorStyleCatalog;
 const exteriorStyleOptions = [
-  option("hill-country-or-ranch", "Hill Country or ranch"),
-  option("modern-farmhouse", "Modern farmhouse"),
-  option("traditional", "Traditional"),
-  option("transitional", "Transitional"),
-  option("modern-or-contemporary", "Modern or contemporary"),
-  option("barndominium", "Barndominium"),
-  option("spanish-or-mediterranean", "Spanish or Mediterranean"),
+  option(firstExteriorStyle.slug, firstExteriorStyle.label),
+  ...remainingExteriorStyles.map(({ slug, label }) => option(slug, label)),
   uncertain(),
 ] as const;
 const siteRelationshipOptions = [
@@ -1334,7 +1331,7 @@ export const planHomeQuestions = [
     sceneAnchor: "elevation-samples",
     cameraKey: "exterior-style",
     response: multiChoiceResponse("style", "Exterior character", exteriorStyleOptions, {
-      maxSelections: 2,
+      maxSelections: 3,
       exclusiveOptionSlugs: ["not-sure-yet"],
     }),
   },

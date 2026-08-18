@@ -134,7 +134,7 @@ describe("plan-home-v1 registry", () => {
 
     assert.equal(
       fingerprint,
-      "14f68fc69c8250d1f7ebedf42705ca856767276469e1754b375000ba02534295",
+      "e6a879e024fbabad80343a2a0df5d5745259d50c608490c31ccfe9262af9986f",
     );
     assert.equal(
       question("home.systems").helper,
@@ -249,7 +249,7 @@ describe("plan-home-v1 registry", () => {
     assert.equal(question("living.features").response.optionGroups[0].maxSelections, 5);
     assert.equal(question("kitchen.use").response.optionGroups[0].maxSelections, 4);
     assert.equal(question("home.systems").response.optionGroups[0].maxSelections, 6);
-    assert.equal(question("exterior.style").response.optionGroups[0].maxSelections, 2);
+    assert.equal(question("exterior.style").response.optionGroups[0].maxSelections, 3);
     assert.equal(question("site.relationships").response.optionGroups[0].maxSelections, 4);
     assert.equal(question("design.feeling").response.optionGroups[0].maxSelections, 3);
     assert.deepEqual(question("design.references").response.limits, {

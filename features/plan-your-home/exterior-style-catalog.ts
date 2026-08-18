@@ -194,6 +194,14 @@ export const exteriorStyleCatalog = [
 
 export type ExteriorStyleSlug = (typeof exteriorStyleCatalog)[number]["slug"];
 
+const exteriorStyleSlugs: ReadonlySet<string> = new Set(
+  exteriorStyleCatalog.map(({ slug }) => slug),
+);
+
+export function isExteriorStyleSlug(value: string): value is ExteriorStyleSlug {
+  return exteriorStyleSlugs.has(value);
+}
+
 export function exteriorStyleImageSrc(slug: ExteriorStyleSlug) {
   return `/images/plan-your-home/exterior-styles/${slug}.webp`;
 }

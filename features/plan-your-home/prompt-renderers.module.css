@@ -168,7 +168,7 @@
 
 .visualCardGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.7rem;
   margin-top: 0.75rem;
 }
@@ -176,7 +176,7 @@
 .visualCard {
   position: relative;
   display: grid;
-  grid-template-rows: 7rem minmax(2.75rem, auto);
+  grid-template-rows: auto minmax(2.75rem, auto);
   overflow: hidden;
   border: 1px solid var(--hh-line-strong);
   border-radius: var(--hh-radius-tight);
@@ -213,121 +213,27 @@
 }
 
 .visualCardArt {
-  position: relative;
   display: block;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   border-bottom: 1px solid var(--hh-line);
-  background:
-    linear-gradient(var(--hh-draft-ink-faint) 1px, transparent 1px),
-    linear-gradient(90deg, var(--hh-draft-ink-faint) 1px, transparent 1px),
-    color-mix(in srgb, var(--hh-paper) 88%, #dce7e1);
-  background-size: 1.35rem 1.35rem;
+  background: #f6f0e2;
 }
 
-.visualCardArt::before,
-.visualCardArt::after {
-  position: absolute;
-  z-index: 1;
-  background: var(--hh-draft-ink-faint);
-  content: "";
-  pointer-events: none;
-}
-
-.visualCardArt::before {
-  top: 0.8rem;
-  bottom: 0.8rem;
-  left: 0.7rem;
-  width: 1px;
-}
-
-.visualCardArt::after {
-  right: 0.7rem;
-  bottom: 0.65rem;
-  left: 0.7rem;
-  height: 1px;
-}
-
-.visualCardArt svg {
-  position: relative;
-  z-index: 2;
+.visualCardImage {
   display: block;
   width: 100%;
   height: 100%;
-  padding: 0.35rem 0.45rem 0.15rem;
-}
-
-.styleGround,
-.styleInk,
-.styleDetail {
-  fill: none;
-  stroke: var(--hh-ink);
-  vector-effect: non-scaling-stroke;
-}
-
-.styleGround {
-  stroke-width: 0.75;
-  opacity: 0.3;
-}
-
-.styleInk {
-  stroke-width: 1.25;
-  stroke-linecap: square;
-  stroke-linejoin: bevel;
-  opacity: 0.82;
-}
-
-.styleDetail {
-  stroke-width: 0.75;
-  stroke-linecap: round;
-  opacity: 0.5;
-}
-
-.stylePaper,
-.styleStone,
-.styleWood,
-.styleGlass,
-.styleGreen {
-  stroke: color-mix(in srgb, var(--hh-ink) 20%, transparent);
-  stroke-width: 0.7;
-  vector-effect: non-scaling-stroke;
-}
-
-.stylePaper {
-  fill: color-mix(in srgb, var(--hh-paper) 74%, white);
-}
-
-.styleStone {
-  fill: color-mix(in srgb, var(--hh-paper) 70%, #c9bba4);
-}
-
-.styleWood {
-  fill: color-mix(in srgb, var(--hh-paper) 70%, #b79267);
-}
-
-.styleGlass {
-  fill: color-mix(in srgb, var(--hh-paper) 55%, #b7d1c6);
-}
-
-.styleGreen {
-  fill: color-mix(in srgb, var(--hh-paper) 72%, var(--hh-accent));
-}
-
-.visualUnknown {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--hh-muted-strong);
-  font-family: var(--font-code), monospace;
-  font-size: 2.6rem;
+  object-fit: cover;
 }
 
 .visualCard:has(.nativeControl:checked) .visualCardArt {
-  background:
-    linear-gradient(var(--hh-draft-ink-faint) 1px, transparent 1px),
-    linear-gradient(90deg, var(--hh-draft-ink-faint) 1px, transparent 1px),
-    color-mix(in srgb, var(--hh-paper) 82%, var(--hh-accent-soft));
-  background-size: 1.35rem 1.35rem;
+  background: color-mix(in srgb, #f6f0e2 86%, var(--hh-accent-soft));
+}
+
+.visualCard[data-style-card="not-sure-yet"] {
+  grid-column: 1 / -1;
+  grid-template-rows: minmax(2.75rem, auto);
 }
 
 .visualCardLabel {
@@ -952,11 +858,7 @@
   }
 
   .visualCardGrid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .visualCard {
-    grid-template-rows: 4rem minmax(2.75rem, auto);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
