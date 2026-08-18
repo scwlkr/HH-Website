@@ -321,10 +321,7 @@ describe("Plan Your Home local snapshot adapter", () => {
     saved.answers["primary.bath-features"] = [
       "curbless-or-accessible-layout",
     ];
-    saved.answers["primary.closet-access"] = [
-      "accessible-clearances",
-      "none",
-    ];
+    saved.answers["primary.closet-access"] = ["accessible-clearances"];
     storage.setItem(PLAN_HOME_LOCAL_SNAPSHOT_KEY, JSON.stringify(saved));
 
     const restored = adapter.load();
@@ -339,7 +336,6 @@ describe("Plan Your Home local snapshot adapter", () => {
     ]);
     assert.deepEqual(restored.answers["primary.closet-access"], [
       "accessible-clearances",
-      "none",
     ]);
     assert.equal(
       restored.answers["home.stories"],

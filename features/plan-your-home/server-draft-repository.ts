@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import type { Firestore } from "firebase-admin/firestore";
 
 import {
+  assertPlanHomeLegacyAnswersMatchStored,
   createCompletedZoneProgress,
   createContactGateProgress,
   createPlanHomeDraftContact,
@@ -314,6 +315,10 @@ export function createPlanHomeDraftRepository(
 
         if (snapshot.exists) {
           const existing = readStoredDraft(snapshot.data());
+          assertPlanHomeLegacyAnswersMatchStored(
+            parsed.answers,
+            existing.answers,
+          );
           if (
             existing.createIdempotency.keyHash !== idempotencyKeyHash ||
             existing.createIdempotency.requestHash !== createRequestHash ||
@@ -414,6 +419,10 @@ export function createPlanHomeDraftRepository(
         const existing = readStoredDraft(snapshot.data());
         const writtenAt = now();
         assertAuthorized(existing, sessionTokenHash, writtenAt);
+        assertPlanHomeLegacyAnswersMatchStored(
+          parsed.answers,
+          existing.answers,
+        );
 
         const idempotentResult =
           existing.checkpointIdempotency[idempotencyKeyHash];
@@ -535,6 +544,10 @@ export function createPlanHomeDraftRepository(
         const existing = readStoredPlanHomeRecord(snapshot.data());
         const writtenAt = now();
         assertAuthorized(existing, sessionTokenHash, writtenAt);
+        assertPlanHomeLegacyAnswersMatchStored(
+          parsed.answers,
+          existing.answers,
+        );
 
         if (existing.status === "submitted") {
           if (

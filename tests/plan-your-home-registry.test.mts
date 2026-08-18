@@ -394,9 +394,31 @@ describe("plan-home-v1 registry", () => {
     assert.equal(
       validatePlanHomeAnswer("primary.closet-access", [
         "accessible-clearances",
-        "none",
       ]).success,
       true,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("primary.closet-access", ["none"]).success,
+      true,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("project.site-context", [
+        "well-or-septic",
+        "not-sure-yet",
+      ]).success,
+      false,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("kitchen.support", ["none", "cabinet-pantry"])
+        .success,
+      false,
+    );
+    assert.equal(
+      validatePlanHomeAnswer("primary.closet-access", [
+        "accessible-clearances",
+        "none",
+      ]).success,
+      false,
     );
   });
 

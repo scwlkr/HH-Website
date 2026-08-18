@@ -216,11 +216,21 @@ function legacyCompatibleMultiChoiceResponse<
     PlanHomeOption,
     ...PlanHomeOption[],
   ];
-  const legacySlugs = new Set(legacyOptions.map(({ slug }) => slug));
-  const legacyAnswerSchema = z
-    .array(optionEnum(allOptions))
-    .min(1)
-    .refine(uniqueValues, "Selections must be unique.")
+  const legacySlugs: ReadonlySet<string> = new Set(
+    legacyOptions.map(({ slug }) => slug),
+  );
+  const legacyExclusiveOptionSlugs = legacyOptions
+    .filter(({ semantic }) => semantic !== undefined)
+    .map(({ slug }) => slug);
+  const legacyAnswerSchema = multiChoiceSchemas(
+    allOptions,
+    settings.maxSelections,
+    [
+      ...(settings.exclusiveOptionSlugs ?? []),
+      ...legacyExclusiveOptionSlugs,
+    ],
+  )
+    .answerSchema
     .refine(
       (values) => values.some((value) => legacySlugs.has(value)),
       "A previous answer must include a retired choice.",
@@ -1570,6 +1580,37 @@ export function normalizeLegacyPlanHomeFinishAnswer(answer: unknown) {
   return parsed.success ? { legacyText: parsed.data } : answer;
 }
 
+function legacyOptionsForQuestion(id: string): readonly PlanHomeOption[] {
+  if (id === "project.site-context") return legacySiteContextOptions;
+  if (id === "kitchen.support") return legacyKitchenSupportOptions;
+  if (id === "primary.bath-features") return legacyPrimaryBathFeatureOptions;
+  if (id === "primary.closet-access") return legacyPrimaryClosetOptions;
+  return [];
+}
+
+export function getPlanHomeLegacyAnswerSignature(id: string, answer: unknown) {
+  if (id === "home.finish-level") {
+    const previous = legacyFinishLevelAnswerSchema.safeParse(
+      normalizeLegacyPlanHomeFinishAnswer(answer),
+    );
+    return previous.success
+      ? JSON.stringify({ legacyText: previous.data.legacyText })
+      : null;
+  }
+
+  const legacyOptions = legacyOptionsForQuestion(id);
+  if (!Array.isArray(answer) || legacyOptions.length === 0) return null;
+  const legacySlugs: ReadonlySet<string> = new Set(
+    legacyOptions.map(({ slug }) => slug),
+  );
+  const selections = answer.filter(
+    (slug): slug is string => typeof slug === "string",
+  );
+  return selections.some((slug) => legacySlugs.has(slug))
+    ? JSON.stringify(selections.sort())
+    : null;
+}
+
 export function getPlanHomeLegacyAnswerNotice(id: string, answer: unknown) {
   if (id === "home.finish-level") {
     const previous = legacyFinishLevelAnswerSchema.safeParse(answer);
@@ -1578,16 +1619,7 @@ export function getPlanHomeLegacyAnswerNotice(id: string, answer: unknown) {
       : null;
   }
 
-  const legacyOptions =
-    id === "project.site-context"
-      ? legacySiteContextOptions
-      : id === "kitchen.support"
-        ? legacyKitchenSupportOptions
-        : id === "primary.bath-features"
-          ? legacyPrimaryBathFeatureOptions
-          : id === "primary.closet-access"
-            ? legacyPrimaryClosetOptions
-            : [];
+  const legacyOptions = legacyOptionsForQuestion(id);
   if (!Array.isArray(answer) || legacyOptions.length === 0) return null;
   const previousLabels: string[] = [];
   for (const slug of answer) {

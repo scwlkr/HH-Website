@@ -108,7 +108,7 @@ test("Q29 opens Nice-to-haves first and presents every visible priority order co
   assert.ok(query.getByText("Choose nice-to-haves"));
 });
 
-test("legacy answers remain reviewable and exact-answer editing replaces only Q10", async () => {
+test("legacy answers remain reviewable and exact-answer edits replace only their question", async () => {
   const user = userEvent.setup({ document: window.document });
   const fixture = createPlanHomeRefinementFixture("review");
   const previousFinish = "Warm natural wood, stone, and hand-finished trim";
@@ -118,7 +118,7 @@ test("legacy answers remain reviewable and exact-answer editing replaces only Q1
     "home.finish-level": previousFinish,
     "kitchen.support": ["none"],
     "primary.bath-features": ["curbless-or-accessible-layout"],
-    "primary.closet-access": ["accessible-clearances", "none"],
+    "primary.closet-access": ["accessible-clearances"],
   });
   const view = render(
     <PlanYourHomeShell
@@ -135,11 +135,7 @@ test("legacy answers remain reviewable and exact-answer editing replaces only Q1
   assert.ok(query.getByText(`Previously saved: ${previousFinish}`));
   assert.ok(query.getByText("None (previous answer)"));
   assert.ok(query.getByText("Curbless or accessible layout (previous answer)"));
-  assert.ok(
-    query.getByText(
-      "Accessible clearances (previous answer), None (previous answer)",
-    ),
-  );
+  assert.ok(query.getByText("Accessible clearances (previous answer)"));
 
   await user.click(
     query.getByRole("button", {
@@ -157,5 +153,28 @@ test("legacy answers remain reviewable and exact-answer editing replaces only Q1
 
   await waitFor(() => assert.ok(query.getByText("Custom")));
   assert.equal(query.queryByText(`Previously saved: ${previousFinish}`), null);
+  assert.ok(query.getByText("One"));
+
+  await user.click(
+    query.getByRole("button", {
+      name: "Edit Q3: What do you know about the site?",
+    }),
+  );
+  assert.ok(
+    query.getByText(
+      "Previously saved: Well or septic (previous answer). Choose current options only if you want to replace them.",
+    ),
+  );
+  assert.equal(
+    (query.getByRole("checkbox", { name: "Wooded" }) as HTMLInputElement)
+      .checked,
+    true,
+  );
+  await user.click(query.getByRole("checkbox", { name: "Well water" }));
+  await user.click(query.getByRole("button", { name: "Next" }));
+
+  await waitFor(() => assert.ok(query.getByText("Wooded, Well water")));
+  assert.equal(query.queryByText(/Well or septic \(previous answer\)/), null);
+  assert.ok(query.getByText("Custom"));
   assert.ok(query.getByText("One"));
 });

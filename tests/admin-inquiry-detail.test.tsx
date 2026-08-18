@@ -170,7 +170,7 @@ test("HHQ preserves former Plan Your Home answers in readable customer language"
     "home.finish-level": "Warm wood and hand-finished trim",
     "kitchen.support": ["none"],
     "primary.bath-features": ["curbless-or-accessible-layout"],
-    "primary.closet-access": ["accessible-clearances", "none"],
+    "primary.closet-access": ["accessible-clearances"],
   };
 
   const detail = mapAdminInquiryDetail(inquiryId, record);

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  assertPlanHomeLegacyAnswersMatchStored,
   PlanHomeDraftValidationError,
   PLAN_HOME_INQUIRY_CONSENT_VERSION,
   createCompletedZoneProgress,
@@ -128,6 +129,42 @@ describe("Plan Your Home server draft contract", () => {
     });
   });
 
+  it("creates the first server draft from a known legacy Q3 browser snapshot", async () => {
+    let createdDocument: Record<string, unknown> | null = null;
+    const database = {
+      collection() {
+        return {
+          doc() {
+            return {};
+          },
+        };
+      },
+      async runTransaction(callback: (transaction: unknown) => Promise<unknown>) {
+        return callback({
+          async get() {
+            return { exists: false };
+          },
+          create(_reference: unknown, document: Record<string, unknown>) {
+            createdDocument = document;
+          },
+        });
+      },
+    };
+    const repository = createPlanHomeDraftRepository(database as never);
+    const input = validCreateInput();
+    input.answers["project.site-context"] = ["well-or-septic"];
+
+    const result = await repository.createDraft(input, sessionHash);
+
+    assert.equal(result.applied, true);
+    assert.deepEqual(
+      (createdDocument as { answers: Record<string, unknown> } | null)?.answers[
+        "project.site-context"
+      ],
+      ["well-or-septic"],
+    );
+  });
+
   it("derives ordered progress for completed-zone checkpoints", () => {
     assert.deepEqual(createCompletedZoneProgress("project-and-living"), {
       currentPromptId: "kitchen.use",
@@ -220,7 +257,7 @@ describe("Plan Your Home server draft contract", () => {
     };
     answers["kitchen.support"] = ["none"];
     answers["primary.bath-features"] = ["curbless-or-accessible-layout"];
-    answers["primary.closet-access"] = ["accessible-clearances", "none"];
+    answers["primary.closet-access"] = ["accessible-clearances"];
     const input = {
       draftId: `draft-${"c".repeat(40)}`,
       expectedRevision: 8,
@@ -234,6 +271,10 @@ describe("Plan Your Home server draft contract", () => {
     };
 
     const parsed = parseSubmitPlanHomeDraftInput(input);
+    assertPlanHomeLegacyAnswersMatchStored(parsed.answers, {
+      ...answers,
+      "home.finish-level": "Warm wood and hand-finished trim",
+    });
     assert.deepEqual(parsed.answers["home.finish-level"], {
       legacyText: "Warm wood and hand-finished trim",
     });
@@ -254,6 +295,38 @@ describe("Plan Your Home server draft contract", () => {
             "home.finish-level": "A new arbitrary free-text answer",
           },
         }),
+      PlanHomeDraftValidationError,
+    );
+    assert.throws(
+      () =>
+        assertPlanHomeLegacyAnswersMatchStored(parsed.answers, {
+          ...answers,
+          "project.site-context": ["well-water"],
+        }),
+      PlanHomeDraftValidationError,
+    );
+    assert.throws(
+      () =>
+        assertPlanHomeLegacyAnswersMatchStored(
+          {
+            ...parsed.answers,
+            "project.site-context": ["well-or-septic", "wooded"],
+          },
+          answers,
+        ),
+      PlanHomeDraftValidationError,
+    );
+    assert.throws(
+      () =>
+        assertPlanHomeLegacyAnswersMatchStored(
+          {
+            ...parsed.answers,
+            "home.finish-level": {
+              legacyText: "A forged former finish answer",
+            },
+          },
+          answers,
+        ),
       PlanHomeDraftValidationError,
     );
   });
