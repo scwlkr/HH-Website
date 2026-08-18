@@ -290,7 +290,7 @@ async function assertNavigation(page, state, viewportName) {
   }
   if (state === "contact") {
     await activateByKeyboard(page, page.getByRole("button", { name: "Back" }));
-    await page.locator('[data-plan-home-refinement-state="q6"]').waitFor();
+    await page.locator('[data-plan-home-refinement-state="q7"]').waitFor();
     await activateByKeyboard(page, page.getByRole("button", { name: "Next", exact: true }));
     await page.locator('[data-plan-home-refinement-state="contact"]').waitFor();
     return;
@@ -309,12 +309,12 @@ async function assertNavigation(page, state, viewportName) {
   const number = Number(state.slice(1));
   const back = page.getByRole("button", { name: "Back" });
   await activateByKeyboard(page, back);
-  const previousState = number === 1 ? "welcome" : number === 7 ? "contact" : `q${number - 1}`;
+  const previousState = number === 1 ? "welcome" : number === 8 ? "contact" : `q${number - 1}`;
   await page.locator(`[data-plan-home-refinement-state="${previousState}"]`).waitFor();
   const forward =
     number === 1
       ? page.getByRole("button", { name: "Open the front door" })
-      : number === 7
+      : number === 8
         ? page.getByRole("button", { name: "Save and continue" })
         : page.getByRole("button", { name: "Next", exact: true });
   await activateByKeyboard(page, forward);

@@ -2430,7 +2430,9 @@ export function PlanYourHomeShell({
     setClientDraft(identifiedDraft);
     setFormError(null);
     commitState(completed.state);
-    trackPlanHomeEvent("contact_checkpoint_saved", { prompt_index: 6 });
+    trackPlanHomeEvent("contact_checkpoint_saved", {
+      prompt_index: CONTACT_GATE_ANSWER_COUNT,
+    });
   }
 
   function backFromContact() {

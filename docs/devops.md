@@ -163,7 +163,7 @@ interactive control obscured in the viewport, a question action dock outside the
 initial viewport, or broken keyboard-driven Back/Next behavior.
 
 The default matrix includes Q32, review, and confirmation at phone and desktop
-sizes. It also proves Q2, Q6, Q12, Q27, and Q30 on both the walkthrough and
+sizes. It also proves Q2, Q7, Q13, Q28, and Q31 on both the walkthrough and
 owner-review routes at 390x844 and the short 375x667 phone viewport. Those
 question captures fail on document scroll, prompt-body scroll, hidden active
 controls, or an action dock outside the visible viewport, including every
