@@ -51,7 +51,8 @@ export async function updateAdminInquiryStatusAction(
       requestedStatus as AdminInquiryMutableStatus,
       { uid: admin.uid },
     );
-  } catch {
+  } catch (error) {
+    console.error("HHQ inquiry status update failed.", error);
     return {
       status: "error",
       message: "The inquiry status could not be changed. Refresh and try again.",
@@ -84,7 +85,8 @@ export async function deleteAdminInquiryAction(
     result = await repository.deleteInquiry(inquiryId, {
       uid: admin.uid,
     });
-  } catch {
+  } catch (error) {
+    console.error("HHQ inquiry deletion failed.", error);
     return {
       status: "error",
       message:
