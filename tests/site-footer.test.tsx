@@ -31,9 +31,9 @@ test("the site footer is a compact branded directory", () => {
     footer.getByRole("navigation", { name: "Agent resources" }),
   );
 
-  for (const label of ["Projects", "Pricing", "FAQ"]) {
-    assert.ok(explore.getByRole("link", { name: label }));
-  }
+  assert.ok(explore.getByRole("link", { name: "FAQ" }));
+  assert.equal(explore.queryByRole("link", { name: "Projects" }), null);
+  assert.equal(explore.queryByRole("link", { name: "Pricing" }), null);
   assert.equal(explore.queryByRole("link", { name: "Home" }), null);
   assert.equal(explore.queryByRole("link", { name: "Start a Project" }), null);
   assert.equal(

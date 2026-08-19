@@ -939,8 +939,6 @@ async function verifyLinkCoverage(page, baseUrl) {
 
   const selectors = [
     'header a[href="/"]',
-    'header a[href="/projects"]',
-    'header a[href="/pricing"]',
     'header a[href="/faq"]',
     'header a[href="/start"]',
     'footer a[href="/privacy"]',
@@ -955,6 +953,17 @@ async function verifyLinkCoverage(page, baseUrl) {
     assert(
       (await page.locator(selector).count()) > 0,
       `Expected to find ${selector} on the home page.`,
+    );
+  }
+
+  for (const href of ["/projects", "/pricing"]) {
+    assert(
+      (await page.locator(`header a[href="${href}"]`).count()) === 0,
+      `${href} should be hidden from the public header.`,
+    );
+    assert(
+      (await page.locator(`footer a[href="${href}"]`).count()) === 0,
+      `${href} should be hidden from the public footer.`,
     );
   }
 
