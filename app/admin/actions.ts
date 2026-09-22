@@ -4,6 +4,8 @@ import { updateTag } from "next/cache";
 import { headers } from "next/headers";
 import type { Route } from "next";
 import { redirect } from "next/navigation";
+import { requireAdminUser, logoutWorkOSAdmin } from "@/lib/admin/auth";
+import { usesWorkOSAuth } from "@/lib/admin/auth-config";
 import { adminLoginFailureMessage } from "@/lib/admin/login-policy";
 import { checkAdminLoginRateLimit } from "@/lib/admin/login-rate-limit";
 import {
@@ -17,7 +19,6 @@ import {
   clearAdminSession,
   createAdminSession,
   isFirebaseAuthConfigured,
-  requireAdminUser,
 } from "@/lib/firebase/auth";
 import {
   createAdminLoginServerErrorState,
@@ -58,7 +59,7 @@ export async function loginAdminAction(
 ): Promise<AdminLoginActionState> {
   void previousState;
 
-  if (!isFirebaseAuthConfigured()) {
+  if (usesWorkOSAuth() || !isFirebaseAuthConfigured()) {
     return createAdminLoginServerErrorState(adminLoginFailureMessage);
   }
 
@@ -88,6 +89,7 @@ export async function loginAdminAction(
 }
 
 export async function logoutAdminAction() {
+  if (usesWorkOSAuth()) return logoutWorkOSAdmin();
   await clearAdminSession();
 
   redirect("/admin/login?signed_out=1" as Route);

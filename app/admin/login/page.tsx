@@ -1,4 +1,9 @@
+import { isWorkOSAuthConfigured, usesWorkOSAuth, normalizeAdminNextPath } from "@/lib/admin/auth-config";
+import { adminLoginFailureMessage } from "@/lib/admin/login-policy";
+import { logoutAdminAction } from "@/app/admin/actions";
 import type { Metadata } from "next";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils/cn";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { AdminNotice } from "@/components/admin/admin-notice";
 import { BrandWordmark } from "@/components/brand/brand-logo";
@@ -18,13 +23,16 @@ type AdminLoginPageProps = {
   searchParams: Promise<{
     next?: string;
     signed_out?: string;
+    error?: string;
   }>;
 };
 
 export default async function AdminLoginPage({
   searchParams,
 }: AdminLoginPageProps) {
-  const { next, signed_out: signedOut } = await searchParams;
+  const { next, signed_out: signedOut, error } = await searchParams;
+  const workos = usesWorkOSAuth();
+  const configured = workos ? isWorkOSAuthConfigured() : isFirebaseAuthConfigured();
 
   return (
     <div className="hh-admin-theme flex min-h-screen items-center py-10 text-foreground">
@@ -51,10 +59,14 @@ export default async function AdminLoginPage({
           </p>
 
           <div className="mt-6 space-y-4">
-            {!isFirebaseAuthConfigured() ? (
+            {!configured ? (
               <AdminNotice tone="error">
                 Staff login is temporarily unavailable.
               </AdminNotice>
+            ) : null}
+
+            {error ? (
+              <AdminNotice tone="error">{adminLoginFailureMessage}</AdminNotice>
             ) : null}
 
             {signedOut ? (
@@ -63,7 +75,28 @@ export default async function AdminLoginPage({
           </div>
 
           <div className="mt-6">
-            <AdminLoginForm nextPath={next ?? "/admin/projects"} />
+            {workos ? (
+              <div className="space-y-4">
+                {configured ? (
+                  <a
+                    className={cn(buttonVariants(), "hh-admin-button w-full rounded-[var(--hh-radius-tight)]")}
+                    href={`/admin/sign-in?next=${encodeURIComponent(normalizeAdminNextPath(next))}`}
+                  >
+                    Continue to sign in
+                  </a>
+                ) : null}
+                <p className="text-sm text-muted">Use Google or a code sent to your email.</p>
+                {error ? (
+                  <form action={logoutAdminAction}>
+                    <button className="text-sm underline" type="submit">
+                      Sign out and try another account
+                    </button>
+                  </form>
+                ) : null}
+              </div>
+            ) : (
+              <AdminLoginForm nextPath={next ?? "/admin/projects"} />
+            )}
           </div>
         </div>
       </Container>

@@ -45,6 +45,7 @@ npm run qa:smoke
 | `npm run lint` | Run ESLint. |
 | `npm run typecheck` | Run TypeScript without emitting files. |
 | `npm run review -- /route` | Capture desktop/mobile local screenshots and a review board. |
+| `npm run proof:hhq-auth` | Exercise the real AuthKit SDK against a local OAuth/API fixture. |
 | `npm run qa:smoke` | Build and smoke-test the production app against local Firebase emulators. |
 
 ## Configuration
@@ -54,12 +55,12 @@ Use `.env.example` for names only. Do not commit real values.
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Canonical site URL for metadata and absolute links. |
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes for HHQ | Browser-safe Firebase web API key. |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Yes for HHQ | Firebase Auth domain. |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Legacy Firebase login | Browser-safe Firebase web API key. |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Legacy Firebase login | Firebase Auth domain. |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Yes | Firebase project ID. |
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Yes | Firebase Storage bucket name. |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Yes for HHQ | Firebase web app sender ID. |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | Yes for HHQ | Firebase web app ID. |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Legacy Firebase login | Firebase web app sender ID. |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Legacy Firebase login | Firebase web app ID. |
 | `FIREBASE_PROJECT_ID` | Yes for server access | Server-side Firebase project ID. |
 | `FIREBASE_STORAGE_BUCKET` | Yes for project images | Server-side Firebase Storage bucket name. |
 | `GCP_PROJECT_ID`, `GCP_PROJECT_NUMBER` | Yes on Vercel | Google Cloud project identity for OIDC. |
@@ -70,7 +71,12 @@ Use `.env.example` for names only. Do not commit real values.
 | `HH_CONTACT_EMAIL` | Optional | Public contact email. Defaults to `hello@howethandharp.com`. |
 | `INQUIRY_NOTIFICATION_EMAIL` | Optional | Reserved future notification target. |
 
-HHQ access requires a Firebase Auth user with the custom claim `role: "admin"`. A valid Firebase session without that claim is not enough.
+HHQ supports individual WorkOS AuthKit accounts with Google/email codes. Set
+`HHQ_AUTH_PROVIDER=workos` plus the WorkOS variables in `.env.example` only after
+completing [the AuthKit runbook](docs/hhq-authkit.md). Staff need an active
+`hhq-staff` membership in the configured organization; sign-in alone is not
+access. The default Firebase provider preserves the existing shared login and
+verified `role: "admin"` claim until live cutover.
 
 Local server access uses Google Application Default Credentials. Run `gcloud auth application-default login`; do not create or upload a service-account key. Production on Vercel uses Workload Identity Federation and Vercel OIDC.
 

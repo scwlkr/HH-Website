@@ -46,11 +46,11 @@ Use this task-based index at the start of repository work. It routes agents to a
 
 **Authoritative sources:** [docs/architecture.md](../architecture.md), [docs/operations-portal.md](../operations-portal.md), [docs/devops.md](../devops.md), Firestore and Storage rules, and the relevant files under `lib/db/`, `lib/firebase/`, `app/admin/`, and `components/admin/`.
 
-**Source ownership:** Public project queries and publication enforcement live in `lib/db/operations.ts`; HHQ routes and actions live under `app/admin/`; authentication and provider adapters live in `lib/firebase/`. Keep authorization at server boundaries.
+**Source ownership:** Public project queries and publication enforcement live in `lib/db/operations.ts`; HHQ routes and actions live under `app/admin/`; staff authorization and AuthKit adapters live in `lib/admin/`; Firebase adapters live in `lib/firebase/`. Keep authorization at server boundaries.
 
 **Safeguards:** Only explicitly published projects may reach public HTML, XML, Markdown discovery, or Markdown twins. Keep draft and legacy records private. Never log or publish secrets, private references, session material, customer details, or admin procedures.
 
-**Verification:** Run affected emulator tests plus `npm test`, lint, and typecheck. Project, HHQ, authentication, publication, or Firebase changes require the complete `npm run qa:smoke` workflow.
+**Verification:** Run affected emulator tests plus `npm test`, lint, and typecheck. Project, HHQ, authentication, publication, or Firebase changes require the complete `npm run qa:smoke` workflow. AuthKit changes also require `npm run proof:hhq-auth` and inspection of its phone/desktop login captures.
 
 ## Testing, screenshots, deployment, and completion
 

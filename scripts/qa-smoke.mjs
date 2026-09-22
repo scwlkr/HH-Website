@@ -693,10 +693,10 @@ async function verifyAgentDiscoveryDocuments(baseUrl) {
   const services = resources.get("/services.md");
   for (const expectedService of [
     "Architectural Design",
-    "Building",
+    "Construction",
     "Remodeling",
     "Land Development",
-    "Builder Grade",
+    "Builder",
     "Builder+",
     "Custom",
   ]) {
@@ -1031,7 +1031,7 @@ async function verifyProjectEntryAndPrivacy(page, baseUrl) {
     { waitUntil: "networkidle" },
   );
   const planHomeLink = page.getByRole("link", {
-    name: "Start Your Home Plan",
+    name: "Start planning",
     exact: true,
   });
   const planHomeTarget = await planHomeLink.boundingBox();
@@ -2122,6 +2122,7 @@ async function main() {
   const unavailableFirestorePort = await getAvailablePort();
   const unavailableAuthPort = await getAvailablePort();
   const qaEnv = {
+    HHQ_AUTH_PROVIDER: "firebase",
     FIREBASE_PROJECT_ID: firebaseEmulators.projectId,
     NEXT_PUBLIC_SITE_URL: `http://127.0.0.1:${appPort}`,
     NEXT_PUBLIC_FIREBASE_API_KEY: "firebase-emulator-api-key",
@@ -2207,7 +2208,7 @@ async function main() {
     await verifyAgentDiscoveryDocuments(nextServer.baseUrl);
     await verifyMarkdownTwins(nextServer.baseUrl);
 
-    browser = await chromium.launch();
+    browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH });
     const page = await browser.newPage();
 
     await verifyLinkCoverage(page, nextServer.baseUrl);

@@ -6,7 +6,7 @@ import {
   getFirebaseStorageBucket,
   isFirebaseAdminConfigured,
 } from "@/lib/db/client";
-import { requireAdminUser } from "@/lib/firebase/auth";
+import { requireAdminUser } from "@/lib/admin/auth";
 
 export async function getAuthorizedAdminInquiryDetailRepository() {
   const admin = await requireAdminUser();

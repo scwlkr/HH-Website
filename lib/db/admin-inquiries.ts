@@ -6,7 +6,7 @@ import {
   isFirebaseAdminConfigured,
 } from "@/lib/db/client";
 import type { AdminInquiryStatusFilter } from "@/features/plan-your-home/admin-inquiry-queue";
-import { requireAdminUser } from "@/lib/firebase/auth";
+import { requireAdminUser } from "@/lib/admin/auth";
 
 export async function getAuthorizedAdminInquiryQueue() {
   await requireAdminUser();

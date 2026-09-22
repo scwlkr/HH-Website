@@ -168,3 +168,11 @@ and remains separate from the retained Playwright proof. Automation is a
 regression gate only; visual approval still comes from inspecting the board.
 The internal `__motion=1` query used by the script enables motion only inside
 this development fixture so the default run can retain a transition sample.
+
+## HHQ AuthKit
+
+Run `npm run proof:hhq-auth` alongside the complete smoke suite for AuthKit
+changes. Inspect its phone/desktop login captures under `output/workos-auth/`.
+Use [the AuthKit runbook](hhq-authkit.md) for environment setup, staff access,
+cutover, domain changes, and rollback. Keep production disabled until real owner
+sign-in and email delivery have been verified.

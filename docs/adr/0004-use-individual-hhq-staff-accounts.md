@@ -1,6 +1,6 @@
 # Use AuthKit for individual HHQ staff accounts with equal access
 
-- Status: Accepted design; implementation pending
+- Status: Accepted; implemented behind a provider switch, live cutover pending
 - Date: 2026-09-22
 - Partially supersedes: [ADR 0002](0002-keep-hhq-in-the-website-with-low-friction-access.md), for Firebase authentication, shared identity, password-only sign-in, and lack of individual attribution
 
@@ -16,6 +16,6 @@ The owner requires $0 spending for this auth integration and will enter any requ
 
 As checked on 2026-09-22, [WorkOS pricing](https://workos.com/pricing) includes social login and Magic Auth in AuthKit's free allowance of up to one million monthly active users. This allowance is not a verified platform-enforced spending cap. [WorkOS email documentation](https://workos.com/docs/custom-domains/email) describes delivery from the default production sender as best-effort; verify receipt during the live sign-in proof and retain Google as an alternative sign-in method.
 
-The application still uses the shared Firebase login until a separately verified migration is implemented. Historical actions performed through that shared identity cannot be attributed to individual staff; individual accounts do not by themselves add an audit-log product or new activity-tracking features.
+The default provider retains the shared Firebase login until WorkOS production configuration and the live owner sign-in proof are complete. Historical actions performed through that shared identity cannot be attributed to individual staff; individual accounts do not by themselves add an audit-log product or new activity-tracking features.
 
-The initial staff identity and final shared understanding remain to be confirmed before implementation.
+The owner confirmed the initial staff account is their existing WorkOS-account email; that one identity is enrolled with HHQ staff access. No other staff are approved initially. Implementation and cutover procedures are in [the AuthKit runbook](../hhq-authkit.md).

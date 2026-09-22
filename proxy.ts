@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/lib/firebase/proxy";
+import { updateSession } from "@/lib/admin/proxy";
 import { isPotentialPublicRoute } from "@/lib/agent-guidance/public-routes";
 import { agentDiscoveryResourceList } from "@/lib/agent-guidance/resources";
 

@@ -10,7 +10,7 @@ This document describes the current Howeth and Harp website system as it exists 
 | Project start | `/start` | Leads with Plan Your Home and embeds a short general project inquiry for every other project type. |
 | Project inquiry paths | `/start`, `/plan-your-home`, `/plan-your-home/resume`; legacy redirect at `/inquire` | General inquiry server action plus the versioned Plan Home registry, reducer, server actions, local snapshot, and secure resume flow. |
 | Projects | `/projects`, `/projects/[projectSlug]` | Firestore project documents with embedded image metadata and Firebase Storage URLs. |
-| HHQ | `/admin`, `/admin/login`, `/admin/inquiries`, `/admin/inquiries/[id]`, `/admin/inquiries/file`, `/admin/projects`, `/admin/projects/new`, `/admin/projects/[id]`, `/admin/settings/pricing` | Firebase Auth, custom-claim role check, inquiry queue/detail/status/file actions, project actions, and Firebase Admin access. |
+| HHQ | `/admin`, `/admin/login`, `/admin/inquiries`, `/admin/inquiries/[id]`, `/admin/inquiries/file`, `/admin/projects`, `/admin/projects/new`, `/admin/projects/[id]`, `/admin/settings/pricing` | AuthKit staff identity and current membership/session checks when enabled; inquiry and project actions use Firebase Admin access. |
 | Plan Home handlers | `POST /plan-your-home/resume/consume`, `GET /api/plan-your-home/resume-mail/latest` | One-time resume-token exchange and the emulator-only fake-mailbox drain. |
 | Metadata | `/robots.txt`, `/sitemap.xml`, `/api/og` | App Router metadata helpers and generated route handlers. |
 
@@ -22,7 +22,7 @@ This document describes the current Howeth and Harp website system as it exists 
 | UI | React 19, TypeScript, Tailwind CSS v4 |
 | Runtime | Node 24.x |
 | Hosting target | Vercel |
-| Database, auth, and files | Cloud Firestore, Firebase Auth, and Firebase Storage |
+| Database, auth, and files | Cloud Firestore and Firebase Storage; WorkOS AuthKit with Firebase Auth retained for rollout/rollback |
 | Validation | Zod |
 | Smoke QA | Playwright through `scripts/qa-smoke.mjs` |
 
@@ -32,7 +32,7 @@ This document describes the current Howeth and Harp website system as it exists 
 app/          Routes, layouts, server actions, metadata, sitemap, robots, and OG endpoint
 components/   Admin, analytics, inquiry, layout, legal, marketing, pricing, projects, and UI primitives
 features/     Versioned Plan Your Home domain, scenes, state, validation, persistence contracts, and HHQ inquiry models
-lib/          Content, database access, Firebase auth, validation, analytics, metadata, and formatting helpers
+lib/          Content, database access, staff auth adapters, validation, analytics, metadata, and formatting helpers
 scripts/      Local QA and demo-content utilities
 firebase.json Firebase Emulator Suite and deploy configuration
 firestore.*   Firestore rules and indexes
@@ -103,20 +103,23 @@ Marketing content for finish levels, build types, FAQ, legal copy, and route met
 
 ### Admin Access
 
-Admin access requires both:
+`lib/admin/auth.ts` selects the configured provider. AuthKit mode requires a
+verified user in the configured organization, current active `hhq-staff`
+membership, and an active matching session. `lib/admin/workos-access.ts` queries
+current WorkOS membership/session state on every protected operation and rejects
+impersonation, provider outages, expired sessions, and sessions older than five
+days. Staff accounts are individual with equal access; public signup is disabled.
 
-1. a valid Firebase session cookie
-2. a verified Firebase custom claim where `role === "admin"`
+The official Next.js SDK owns PKCE, sealed sessions, JWT verification, and token
+refresh. `lib/admin/proxy.ts` strips spoofed SDK headers through the SDK adapter,
+and `lib/admin/auth-cookies.ts` scopes cookies to `/admin` with HttpOnly,
+production-Secure, and SameSite=Lax. Protected layouts, mutations, file handlers,
+and database operations authorize on the server independently of proxy redirects.
 
-The shared rule lives in `lib/firebase/admin-access.ts`. It is used by `lib/firebase/auth.ts`, `lib/firebase/proxy.ts`, and `app/admin/actions.ts`.
-
-The one intended HHQ identity is a shared password-only account with one equal
-access level. Its trusted-device session lasts five days and uses an HttpOnly,
-production-Secure, SameSite=Lax cookie scoped to `/admin`. Protected layouts,
-mutations, private-file handlers, and administrative data operations authorize
-on the server; the proxy redirect is an additional navigation guard. Firebase
-session verification checks revocation and returns no HHQ content when Firebase
-Admin is unavailable.
+Firebase remains the data/files provider. Until live cutover, an omitted
+`HHQ_AUTH_PROVIDER` or explicit `firebase` uses the existing shared Firebase
+login and verified admin claim; explicit `workos` never falls back on failure.
+See [the AuthKit runbook](hhq-authkit.md) for rollout and rollback.
 
 All HTML responses deny framing and MIME sniffing, apply a conservative referrer
 and browser-capability policy, and use a Content Security Policy limited to the

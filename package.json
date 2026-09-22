@@ -23,12 +23,15 @@
     "typecheck": "tsc --noEmit",
     "review": "node scripts/review.mjs",
     "refine:plan-home": "node scripts/plan-home-refinement.mjs",
-    "qa:smoke": "npx -y firebase-tools@15.26.0 emulators:exec --only auth,firestore,storage \"node scripts/qa-smoke.mjs\""
+    "qa:smoke": "npx -y firebase-tools@15.26.0 emulators:exec --only auth,firestore,storage \"node scripts/qa-smoke.mjs\"",
+    "proof:hhq-auth": "node scripts/proof-workos-auth.mjs"
   },
   "dependencies": {
     "@google-cloud/firestore": "^8.6.0",
     "@google-cloud/storage": "^7.21.0",
     "@vercel/oidc": "^3.8.0",
+    "@workos-inc/authkit-nextjs": "^4.3.2",
+    "@workos-inc/node": "^10.13.0",
     "firebase": "^12.16.0",
     "firebase-admin": "^13.10.0",
     "google-auth-library": "^10.9.0",
@@ -47,6 +50,7 @@
     "axe-core": "^4.12.1",
     "eslint": "^9",
     "eslint-config-next": "^16.2.10",
+    "jose": "^6.2.12",
     "jsdom": "^29.1.1",
     "playwright": "^1.58.2",
     "tailwindcss": "^4",

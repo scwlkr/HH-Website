@@ -6,7 +6,7 @@ HHQ is the internal operations workspace for managed website content. It control
 
 | Route | Purpose |
 | --- | --- |
-| `/admin/login` | Firebase email/password login for HHQ. |
+| `/admin/login` | Staff sign-in entry point (AuthKit when enabled). |
 | `/admin/inquiries` | Review saved and submitted customer inquiries. |
 | `/admin/inquiries/[id]` | Review one inquiry, update its status, or permanently delete it. |
 | `/admin/inquiries/file` | Issue a short-lived authorized read for one saved private file. |
@@ -17,44 +17,46 @@ HHQ is the internal operations workspace for managed website content. It control
 
 ## Authorization Rule
 
-HHQ requires both:
+The server boundary is `lib/admin/auth.ts`. With `HHQ_AUTH_PROVIDER=workos`,
+`lib/admin/workos-access.ts` requires a verified individual identity, the configured
+H and H organization, an active organization membership with the `hhq-staff`
+role, and the same active, unexpired WorkOS session. Membership and session
+status are queried on each protected request, so removal and revocation do not
+wait for an old access token to expire. Provider failures deny access.
 
-1. a valid Firebase session cookie
-2. a verified Firebase custom claim where `role === "admin"`
+All approved staff have equal access. Owner administration in the WorkOS
+workspace is separate. Public signup is disabled; Google and emailed one-time
+codes are the chosen sign-in methods. A verified email or an invitation alone
+does not confer HHQ access. No customer accounts or new audit-log product are
+introduced. Firebase still stores the existing records and files.
 
-The shared authorization helper is `lib/firebase/admin-access.ts`. Do not duplicate a separate admin rule in route files, server actions, or components.
+The session has an absolute five-day limit. The sealed session cookie is
+HttpOnly, SameSite=Lax, Secure in production, and limited to `/admin`. Protected
+pages, mutations, private-file actions, and data operations authorize on the
+server; proxy redirects are only a navigation guard. Login uses the SDK's PKCE
+flow and scoped verifier cookie. Tokens and secrets never enter client code.
 
-HHQ uses exactly one shared password-only account and one equal access level.
-It does not provide individual staff identities, role tiers, or multi-factor
-prompts. The owner keeps the unique shared password outside the repository,
-documentation, screenshots, logs, and issue evidence. The application never
-needs the real password for automated verification.
-
-The trusted-device session lasts five days. Its cookie is HttpOnly,
-SameSite=Lax, Secure in production, and limited to `/admin`. Every protected
-page, server mutation, private-file action, and administrative data operation
-rechecks the server-side session and trusted claim. Session verification checks
-Firebase revocation and fails closed when Firebase Admin is unavailable.
-
-To grant access, set the Firebase Auth user's custom claim to `{ "role": "admin" }` with trusted admin tooling. Never accept role data from the browser.
-
-To remove access immediately, remove or change the role and revoke that user's refresh tokens (or disable the user). Session-cookie verification checks revocation. A claim change alone may not take effect until the existing session expires or the user signs in again.
+Until production setup and live owner verification are complete, an omitted
+provider or `HHQ_AUTH_PROVIDER=firebase` retains the existing Firebase shared
+login and verified `role: "admin"` claim. A configured WorkOS failure never falls
+back to Firebase. Unknown nonempty provider values also fail closed.
 
 ## Staffing Change Procedure
 
-1. Change the shared HHQ password through the controlled Firebase account
-   recovery flow. Never paste the password into source, commands, logs, issues,
-   screenshots, or chat.
-2. Revoke every refresh token and session for the shared Firebase user with
-   trusted Firebase Admin tooling. Changing the claim alone is not sufficient.
-3. On a device that still has the old session, open `/admin` and verify it is
-   redirected to `/admin/login` without protected content.
-4. Sign in once with the new password on a retained trusted device and confirm
-   the normal HHQ routes work.
+In WorkOS, select **H and H → Production**:
 
-If the shared mailbox cannot receive the password-reset message, a Firebase
-project owner must recover or replace the single HHQ user, reapply only the
-trusted HHQ claim, revoke the old user, and repeat the old-session proof.
+1. Create a user with the staff member's exact approved email, then add that
+   user to the H and H organization with **HHQ staff** (`hhq-staff`). They can
+   sign in through Google or an email code; no shared password is needed.
+2. To remove access, deactivate/remove their organization membership or remove
+   the HHQ staff role, then revoke their sessions. Leave the default `member`
+   role unprivileged. Do not grant a whole email domain automatic staff access.
+3. Open HHQ on an old signed-in device and verify that protected pages and file
+   reads are denied. Verify the retained owner's account still works.
+
+Initially only the owner's selected WorkOS-account email is approved. Do not
+commit staff email lists or production credentials to the repository. Setup,
+cutover, domain changes, and rollback are in [the AuthKit runbook](hhq-authkit.md).
 
 ## Managed Data
 
@@ -139,17 +141,17 @@ variables are set. Placeholder image files may still be generated locally.
 
 - Keep HHQ functional and dense. It is an internal tool, not a marketing page.
 - Keep admin writes in server actions.
-- Keep authorization centralized in `lib/firebase/admin-access.ts`.
+- Keep authorization centralized in `lib/admin/auth.ts` and `lib/admin/workos-access.ts`.
 - Do not allow "logged in" alone to mean "admin".
 - Do not store admin authority in form data, query params, or client-controlled metadata.
 - Do not expose service-account credentials in UI, docs, or client bundles. Use ADC locally and Vercel OIDC in production.
-- Keep the shared account, password-only access, five-day trusted-device
-  session, and equal access unless a new owner decision replaces ADR 0002.
+- Keep individual Google/email-code sign-in, the five-day trusted-device
+  session, and equal staff access under ADR 0004.
 - Inquiry deletion is permanent. Its confirmation must identify the inquiry,
   resume material, and private files and state that none can be recovered.
 - Do not add backups, exports, trash, soft deletion, undo, restore controls, or
-  individual attribution. The accepted consequence is no recovery and no way
-  to identify which staff member used the shared account.
+  a new audit-log product. The accepted deletion consequence is no recovery;
+  historical actions through the shared account cannot identify an individual.
 - Reopen the architecture decision if staff or customer count grows
   materially, contractors need access, regulation changes, or private-data
   value and sensitivity increase.
