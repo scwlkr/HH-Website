@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-08-17
-- Shared-identity and attribution decisions superseded by [ADR 0004](0004-use-individual-hhq-staff-accounts.md); implementation pending. Other decisions remain in effect.
+- Authentication-provider, shared-identity, password-only sign-in, and attribution decisions superseded by [ADR 0004](0004-use-individual-hhq-staff-accounts.md); implementation pending. Other decisions remain in effect.
 
 ## Context
 
