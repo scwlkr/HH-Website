@@ -116,8 +116,8 @@ and `lib/admin/auth-cookies.ts` scopes cookies to `/admin` with HttpOnly,
 production-Secure, and SameSite=Lax. Protected layouts, mutations, file handlers,
 and database operations authorize on the server independently of proxy redirects.
 
-Firebase remains the data/files provider. Until live cutover, an omitted
-`HHQ_AUTH_PROVIDER` or explicit `firebase` uses the existing shared Firebase
+Firebase remains the data/files provider. Production selects `workos`; an omitted
+`HHQ_AUTH_PROVIDER` or explicit `firebase` uses the retained shared Firebase
 login and verified admin claim; explicit `workos` never falls back on failure.
 See [the AuthKit runbook](hhq-authkit.md) for rollout and rollback.
 

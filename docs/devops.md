@@ -174,5 +174,6 @@ this development fixture so the default run can retain a transition sample.
 Run `npm run proof:hhq-auth` alongside the complete smoke suite for AuthKit
 changes. Inspect its phone/desktop login captures under `output/workos-auth/`.
 Use [the AuthKit runbook](hhq-authkit.md) for environment setup, staff access,
-cutover, domain changes, and rollback. Keep production disabled until real owner
-sign-in and email delivery have been verified.
+cutover, domain changes, and rollback. Production uses AuthKit; real owner Google
+sign-in, email-code delivery/sign-in, logout, and session revocation were verified
+on 2026-09-22. Repeat those checks when moving to the final business domain.
