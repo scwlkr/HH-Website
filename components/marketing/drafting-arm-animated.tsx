@@ -1,37 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-/* ────────────────────────────────────────────────────────── */
-/* House geometry — each segment is a polyline of [x,y]      */
-/* Drawn in architect order: foundation → walls → roof → details */
-/* ────────────────────────────────────────────────────────── */
-const SEGMENTS: [number, number][][] = [
-  // Foundation
-  [[135, 310], [365, 310]],
-  // Left wall
-  [[165, 310], [165, 190]],
-  // Roof left slope
-  [[165, 190], [255, 130]],
-  // Roof right slope
-  [[255, 130], [345, 190]],
-  // Right wall
-  [[345, 190], [345, 310]],
-  // Door
-  [[230, 310], [230, 250], [280, 250], [280, 310]],
-  // Left window
-  [[182, 208], [218, 208], [218, 245], [182, 245], [182, 208]],
-  // Left window cross (vertical)
-  [[200, 208], [200, 245]],
-  // Left window cross (horizontal)
-  [[182, 226], [218, 226]],
-  // Right window
-  [[292, 208], [328, 208], [328, 245], [292, 245], [292, 208]],
-  // Right window cross (vertical)
-  [[310, 208], [310, 245]],
-  // Right window cross (horizontal)
-  [[292, 226], [328, 226]],
-];
+import { draftingElevation as elevation } from "./drafting-elevation";
 
 /* ── Geometry helpers ── */
 
@@ -95,33 +65,28 @@ function solveArm(tipX: number, tipY: number) {
   };
 }
 
-/* ── Pre-compute schedule ── */
-
+// Precompute the pen travel schedule once for this elevation.
+const SEGMENTS = elevation.strokes.map((stroke) => stroke.points);
 const segLens = SEGMENTS.map(polylineLength);
-const totalLen = segLens.reduce((a, b) => a + b, 0);
-const GAP = 0.012;
-const totalGaps = (SEGMENTS.length - 1) * GAP;
-const drawFrac = 1 - totalGaps;
-
-type Sched = { start: number; end: number };
-const schedule: Sched[] = [];
-{
-  let cur = 0;
-  for (let i = 0; i < SEGMENTS.length; i++) {
-    const fraction = (segLens[i] / totalLen) * drawFrac;
-    schedule.push({ start: cur, end: cur + fraction });
-    cur += fraction + (i < SEGMENTS.length - 1 ? GAP : 0);
-  }
+const totalLength = segLens.reduce((sum, length) => sum + length, 0);
+const gap = 88 / elevation.drawMs;
+const available = 1 - (SEGMENTS.length - 1) * gap;
+const schedule: { start: number; end: number }[] = [];
+let cursor = 0;
+for (const length of segLens) {
+  const start = cursor;
+  const end = start + length / totalLength * available;
+  cursor = end + gap;
+  schedule.push({ start, end });
 }
 
-/* ────────────────────────────────────────────────────────── */
-/* Component                                                  */
-/* ────────────────────────────────────────────────────────── */
-
 export function DraftingArmAnimated() {
+  const washRefs = useRef<(SVGPathElement | null)[]>([]);
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
   const armRefs = useRef<Record<string, SVGElement | null>>({});
   const houseRef = useRef<SVGGElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<SVGGElement>(null);
   const rafRef = useRef<number>(0);
 
   const setArmRef = (key: string) => (el: SVGElement | null) => {
@@ -129,28 +94,32 @@ export function DraftingArmAnimated() {
   };
 
   useEffect(() => {
-    const shouldShowStaticDrawing =
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      window.matchMedia("(max-width: 63.999rem)").matches;
+    const frame = frameRef.current;
+    const scene = sceneRef.current;
+    const maxScale = elevation.sceneScale;
+    if (!frame || !scene || !maxScale) return;
 
-    if (shouldShowStaticDrawing) {
-      pathRefs.current.forEach((p) => {
-        if (p) p.style.strokeDashoffset = "0";
-      });
-      if (houseRef.current) houseRef.current.style.opacity = "1";
-      return;
-    }
+    const fitScene = () => {
+      const { width, height } = frame.getBoundingClientRect();
+      if (!width || !height) return;
+      // The SVG fills its panel with `slice`. Fit the arm and complete facade
+      // within the visible portion, including on narrower or taller desktops.
+      const visibleWidth = Math.min(420, 520 * width / height);
+      const scale = Math.min(maxScale, (visibleWidth - 16) / 260);
+      scene.setAttribute("transform", `translate(210 260) scale(${scale}) translate(-210 -260)`);
+    };
 
-    // Init dashoffsets
-    pathRefs.current.forEach((p) => {
-      if (p) {
-        const len = p.getTotalLength();
-        p.style.strokeDasharray = `${len}`;
-        p.style.strokeDashoffset = `${len}`;
-      }
-    });
+    fitScene();
+    const observer = new ResizeObserver(fitScene);
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
 
-    const DRAW_MS = 11000;
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const smallScreen = window.matchMedia("(max-width: 63.999rem)");
+
+    const DRAW_MS = elevation.drawMs;
     const HOLD_MS = 2500;
     const FADE_MS = 1400;
     const RESET_MS = 1200;
@@ -202,6 +171,12 @@ export function DraftingArmAnimated() {
       if (!start) start = ts;
       const elapsed = (ts - start) % CYCLE;
 
+      // A wash develops only after its enclosing path has been traced by the pen.
+      elevation.washes.forEach((wash, i) => {
+        const path = washRefs.current[i];
+        if (path) path.style.opacity = `${Math.max(0, Math.min(1, (elapsed - schedule[wash.after].end * DRAW_MS) / 450))}`;
+      });
+
       if (elapsed < DRAW_MS) {
         /* ── drawing ── */
         const progress = elapsed / DRAW_MS;
@@ -213,7 +188,7 @@ export function DraftingArmAnimated() {
           const p = pathRefs.current[i];
 
           if (progress < s.start) {
-            if (p) p.style.strokeDashoffset = `${p.getTotalLength()}`;
+            if (p) p.style.strokeDashoffset = `${segLens[i]}`;
             if (!found) {
               found = true;
               const prevEnd = i > 0 ? SEGMENTS[i - 1][SEGMENTS[i - 1].length - 1] : SEGMENTS[0][0];
@@ -229,7 +204,7 @@ export function DraftingArmAnimated() {
           } else {
             found = true;
             const sp = easeInOutCubic((progress - s.start) / (s.end - s.start));
-            if (p) p.style.strokeDashoffset = `${p.getTotalLength() * (1 - sp)}`;
+            if (p) p.style.strokeDashoffset = `${segLens[i] * (1 - sp)}`;
             const pos = pointAtFraction(SEGMENTS[i], sp);
             tipX = pos[0]; tipY = pos[1];
           }
@@ -258,8 +233,8 @@ export function DraftingArmAnimated() {
         /* ── reset ── */
         const r = easeInOutCubic((elapsed - DRAW_MS - HOLD_MS - FADE_MS) / RESET_MS);
         if (houseRef.current) houseRef.current.style.opacity = "0";
-        pathRefs.current.forEach((p) => {
-          if (p) p.style.strokeDashoffset = `${p.getTotalLength()}`;
+        pathRefs.current.forEach((p, i) => {
+          if (p) p.style.strokeDashoffset = `${segLens[i]}`;
         });
         const fp = SEGMENTS[0][0];
         updateArm(restTip.x + (fp[0] - restTip.x) * r, restTip.y + (fp[1] - restTip.y) * r);
@@ -268,13 +243,36 @@ export function DraftingArmAnimated() {
       rafRef.current = requestAnimationFrame(tick);
     }
 
-    rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    function syncMotion() {
+      cancelAnimationFrame(rafRef.current);
+      const showStatic = reducedMotion.matches || smallScreen.matches;
+      pathRefs.current.forEach((path, i) => {
+        if (!path) return;
+        path.style.strokeDasharray = `${segLens[i]}`;
+        path.style.strokeDashoffset = showStatic ? "0" : `${segLens[i]}`;
+      });
+      washRefs.current.forEach((wash) => {
+        if (wash) wash.style.opacity = showStatic ? "1" : "0";
+      });
+      if (houseRef.current) houseRef.current.style.opacity = showStatic ? "1" : "0";
+      if (showStatic) return;
+      start = null;
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    syncMotion();
+    reducedMotion.addEventListener("change", syncMotion);
+    smallScreen.addEventListener("change", syncMotion);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      reducedMotion.removeEventListener("change", syncMotion);
+      smallScreen.removeEventListener("change", syncMotion);
+    };
   }, []);
 
   /* ── Render ── */
   return (
-    <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div ref={frameRef} className="absolute inset-0 overflow-hidden" aria-hidden="true" data-drafting-animation>
       <svg
         viewBox="0 0 420 520"
         fill="none"
@@ -308,65 +306,71 @@ export function DraftingArmAnimated() {
         <rect width="420" height="520" fill="url(#fine-grid)" mask="url(#grid-fade)" opacity="0.7" />
         <rect width="420" height="520" fill="url(#room-grid)" mask="url(#grid-fade)" opacity="0.5" />
 
-        {/* ── Vertical rail ── */}
-        <line x1="88" y1="0" x2="88" y2="520" stroke="rgba(35,45,63,0.12)" strokeWidth="1" />
-        {[40,80,120,160,200,240,280,320,360,400,440,480].map((y) => (
-          <line key={y} x1="84" y1={y} x2="92" y2={y} stroke="rgba(35,45,63,0.18)" strokeWidth="0.8" />
-        ))}
-        {[60,100,140,180,220,260,300,340,380,420,460].map((y) => (
-          <line key={`h-${y}`} x1="86" y1={y} x2="90" y2={y} stroke="rgba(35,45,63,0.1)" strokeWidth="0.6" />
-        ))}
-
-        {/* ── Construction guide remains visible while the final line is drawn ── */}
-        <g opacity="0.22">
-          {SEGMENTS.map((seg, i) => (
-            <path
-              key={`guide-${i}`}
-              d={toPathD(seg)}
-              stroke="rgba(35,45,63,0.22)"
-              strokeWidth="0.75"
-              strokeDasharray="2 3"
-              fill="none"
-            />
+        <g ref={sceneRef} data-drafting-scene>
+          {/* ── Vertical rail ── */}
+          <line x1="88" y1="0" x2="88" y2="520" stroke="rgba(35,45,63,0.12)" strokeWidth="1" />
+          {[40,80,120,160,200,240,280,320,360,400,440,480].map((y) => (
+            <line key={y} x1="84" y1={y} x2="92" y2={y} stroke="rgba(35,45,63,0.18)" strokeWidth="0.8" />
           ))}
-        </g>
-
-        {/* ── House drawing (animated paths) ── */}
-        <g ref={houseRef} style={{ opacity: 0 }}>
-          {SEGMENTS.map((seg, i) => (
-            <path
-              key={i}
-              ref={(el) => { pathRefs.current[i] = el; }}
-              d={toPathD(seg)}
-              stroke="rgba(35,45,63,0.46)"
-              strokeWidth="1.3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
+          {[60,100,140,180,220,260,300,340,380,420,460].map((y) => (
+            <line key={`h-${y}`} x1="86" y1={y} x2="90" y2={y} stroke="rgba(35,45,63,0.1)" strokeWidth="0.6" />
           ))}
+
+          {/* ── Construction guide remains visible while the final line is drawn ── */}
+          <g opacity="0.22">
+            {SEGMENTS.map((seg, i) => (
+              <path
+                key={`guide-${i}`}
+                d={toPathD(seg)}
+                stroke="rgba(35,45,63,0.22)"
+                strokeWidth="0.75"
+                strokeDasharray="2 3"
+                fill="none"
+              />
+            ))}
+          </g>
+
+          {/* ── House drawing (animated paths) ── */}
+          <g ref={houseRef} style={{ opacity: 0 }} data-drafting-drawing>
+            {elevation.washes.map((wash, i) => (
+              <path key={`wash-${i}`} ref={(el) => { washRefs.current[i] = el; }} d={wash.d} fill={wash.fill} style={{ opacity: 0 }} data-drafting-wash />
+            ))}
+            {SEGMENTS.map((seg, i) => (
+              <path
+                key={i}
+                ref={(el) => { pathRefs.current[i] = el; }}
+                data-drafting-stroke={i}
+                d={toPathD(seg)}
+                stroke="rgba(35,45,63,0.46)"
+                strokeWidth={elevation.strokes[i].weight}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            ))}
+          </g>
+
+          {/* ── Arm assembly ── */}
+          {/* Pivot on rail */}
+          <circle ref={setArmRef("pivot")} cx="88" cy="280" r="6" fill="white" stroke="rgba(35,45,63,0.28)" strokeWidth="0.8" />
+          <circle ref={setArmRef("pivotDot")} cx="88" cy="280" r="2" fill="rgba(35,45,63,0.22)" />
+
+          {/* Primary arm + edges */}
+          <line ref={setArmRef("arm1e1")} x1="90" y1="285" x2="250" y2="200" stroke="rgba(35,45,63,0.07)" strokeWidth="0.7" />
+          <line ref={setArmRef("arm1e2")} x1="86" y1="275" x2="246" y2="190" stroke="rgba(35,45,63,0.07)" strokeWidth="0.7" />
+          <line ref={setArmRef("arm1")} x1="88" y1="280" x2="248" y2="195" stroke="rgba(35,45,63,0.22)" strokeWidth="1.4" strokeLinecap="round" />
+
+          {/* Elbow joint */}
+          <circle ref={setArmRef("elbow")} cx="248" cy="195" r="7" fill="white" stroke="rgba(35,45,63,0.28)" strokeWidth="0.8" />
+          <circle ref={setArmRef("elbowDot")} cx="248" cy="195" r="2.5" fill="rgba(0,91,65,0.35)" />
+
+          {/* Secondary arm */}
+          <line ref={setArmRef("arm2")} x1="248" y1="195" x2="280" y2="290" stroke="rgba(35,45,63,0.15)" strokeWidth="1.1" strokeLinecap="round" />
+
+          {/* Pen tip */}
+          <circle ref={setArmRef("tip")} cx="280" cy="290" r="5" fill="white" stroke="rgba(35,45,63,0.2)" strokeWidth="0.8" />
+          <circle data-drafting-tip ref={setArmRef("tipDot")} cx="280" cy="290" r="1.8" fill="rgba(35,45,63,0.2)" />
         </g>
-
-        {/* ── Arm assembly ── */}
-        {/* Pivot on rail */}
-        <circle ref={setArmRef("pivot")} cx="88" cy="280" r="6" fill="white" stroke="rgba(35,45,63,0.28)" strokeWidth="0.8" />
-        <circle ref={setArmRef("pivotDot")} cx="88" cy="280" r="2" fill="rgba(35,45,63,0.22)" />
-
-        {/* Primary arm + edges */}
-        <line ref={setArmRef("arm1e1")} x1="90" y1="285" x2="250" y2="200" stroke="rgba(35,45,63,0.07)" strokeWidth="0.7" />
-        <line ref={setArmRef("arm1e2")} x1="86" y1="275" x2="246" y2="190" stroke="rgba(35,45,63,0.07)" strokeWidth="0.7" />
-        <line ref={setArmRef("arm1")} x1="88" y1="280" x2="248" y2="195" stroke="rgba(35,45,63,0.22)" strokeWidth="1.4" strokeLinecap="round" />
-
-        {/* Elbow joint */}
-        <circle ref={setArmRef("elbow")} cx="248" cy="195" r="7" fill="white" stroke="rgba(35,45,63,0.28)" strokeWidth="0.8" />
-        <circle ref={setArmRef("elbowDot")} cx="248" cy="195" r="2.5" fill="rgba(0,91,65,0.35)" />
-
-        {/* Secondary arm */}
-        <line ref={setArmRef("arm2")} x1="248" y1="195" x2="280" y2="290" stroke="rgba(35,45,63,0.15)" strokeWidth="1.1" strokeLinecap="round" />
-
-        {/* Pen tip */}
-        <circle ref={setArmRef("tip")} cx="280" cy="290" r="5" fill="white" stroke="rgba(35,45,63,0.2)" strokeWidth="0.8" />
-        <circle ref={setArmRef("tipDot")} cx="280" cy="290" r="1.8" fill="rgba(35,45,63,0.2)" />
 
         {/* ── Corner margin marks ── */}
         <path d="M 14 0 L 14 14 L 0 14" stroke="rgba(35,45,63,0.2)" strokeWidth="0.8" fill="none" />
