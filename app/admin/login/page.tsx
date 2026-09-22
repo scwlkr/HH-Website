@@ -6,9 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { AdminLoginForm } from "@/components/admin/admin-login-form";
 import { AdminNotice } from "@/components/admin/admin-notice";
-import { BrandWordmark } from "@/components/brand/brand-logo";
-import { Container } from "@/components/layout/container";
-import { adminBrand, formatAdminPageTitle } from "@/lib/admin/branding";
+import { formatAdminPageTitle } from "@/lib/admin/branding";
 import { isFirebaseAuthConfigured } from "@/lib/firebase/auth";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -35,27 +33,13 @@ export default async function AdminLoginPage({
   const configured = workos ? isWorkOSAuthConfigured() : isFirebaseAuthConfigured();
 
   return (
-    <div className="hh-admin-theme flex min-h-screen items-center py-10 text-foreground">
-      <Container size="narrow">
-        <div className="hh-admin-panel rounded-[var(--hh-radius-panel)] px-6 py-8 sm:px-8">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-[var(--hh-radius-tight)] border border-line-strong bg-background/80 px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
-              {adminBrand.name}
-            </span>
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted">
-              {adminBrand.descriptor}
-            </p>
-          </div>
-
-          <BrandWordmark
-            tone="reversed"
-            sizes="(max-width: 640px) 10.5rem, 12rem"
-            className="mt-6 h-7 w-[10.5rem] sm:h-8 sm:w-[12rem]"
-          />
-
-          <h1 className="mt-6 text-4xl">Staff Login</h1>
+    <div className="hhq-login">
+      <div>
+        <div className="hhq-card hhq-login-card">
+          <div className="hhq-wordmark">HHQ<span className="hhq-brand-dot" /></div>
+          <h1>Staff Login</h1>
           <p className="mt-3 text-base leading-7 text-muted">
-            Authorized staff only.
+            Welcome back. Your H and H workspace is ready.
           </p>
 
           <div className="mt-6 space-y-4">
@@ -80,7 +64,7 @@ export default async function AdminLoginPage({
                 {configured ? (
                   <a
                     className={cn(buttonVariants(), "hh-admin-button w-full rounded-[var(--hh-radius-tight)]")}
-                    href={`/admin/sign-in?next=${encodeURIComponent(normalizeAdminNextPath(next))}`}
+                    href={`/admin/sign-in?next=${encodeURIComponent(normalizeAdminNextPath(next ?? "/admin"))}`}
                   >
                     Continue to sign in
                   </a>
@@ -95,11 +79,12 @@ export default async function AdminLoginPage({
                 ) : null}
               </div>
             ) : (
-              <AdminLoginForm nextPath={next ?? "/admin/projects"} />
+              <AdminLoginForm nextPath={next ?? "/admin"} />
             )}
           </div>
         </div>
-      </Container>
+        <p className="hhq-login-footer">H and H · Authorized staff only</p>
+      </div>
     </div>
   );
 }

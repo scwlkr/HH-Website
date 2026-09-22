@@ -189,7 +189,12 @@ See [.env.example](../.env.example) and the root [README](../README.md). The act
 
 The public site uses a restrained drafting-board system: black linework, measured spacing, hard-working grids, crisp dividers, and limited green accent color. The repo's current brand source is [BRAND/BRAND.md](../BRAND/BRAND.md).
 
-HHQ is intentionally more utilitarian than the public site. It should stay fast, dense, and operational.
+HHQ uses the approved light slate workspace with Inter, a persistent sidebar,
+blue actions, green positive states, and compact white cards. Its visual system
+is scoped to `app/admin/hhq.css`. The dashboard reads existing project and
+inquiry records; future task, team, and reporting features are labeled previews.
+See [Operations Portal](operations-portal.md) for the complete route inventory
+and connected-versus-preview behavior.
 
 ## Known Launch Gaps
 

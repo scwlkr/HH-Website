@@ -8,6 +8,7 @@ import { deleteApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { chromium } from "playwright";
+import { verifyHHQInterface } from "./hhq-interface-proof.mjs";
 
 const require = createRequire(import.meta.url);
 const axePath = require.resolve("axe-core/axe.min.js");
@@ -1832,7 +1833,9 @@ async function verifyAdminAuth(browser, baseUrl, firestore, auth) {
     await page.getByLabel("Password").fill(smokeAdmin.password);
     await page.getByRole("button", { name: "Sign In" }).click();
     await page.waitForURL(`${baseUrl}/admin/inquiries`);
+    await page.getByRole("button", { name: "Your account" }).click();
     await page.getByText(smokeAdmin.email).waitFor();
+    await page.keyboard.press("Escape");
     await page.getByRole("heading", { name: "Project Inquiries" }).waitFor();
 
     const adminCookies = await context.cookies();
@@ -1857,6 +1860,7 @@ async function verifyAdminAuth(browser, baseUrl, firestore, auth) {
       "The HHQ cookie must be HttpOnly, production Secure, SameSite=Lax, five days, and scoped to /admin.",
     );
     evidence.cookiePolicy = true;
+    await verifyHHQInterface({ page, baseUrl, axePath });
 
     const queueRows = page.getByRole("list", { name: "Inquiries" }).getByRole("listitem");
     const queueNames = await queueRows.evaluateAll((rows) =>
@@ -2074,6 +2078,7 @@ async function verifyAdminAuth(browser, baseUrl, firestore, auth) {
       );
     }
 
+    await page.getByRole("button", { name: "Your account" }).click();
     await page.getByRole("button", { name: "Sign Out" }).click();
     await page.waitForURL(`${baseUrl}/admin/login?signed_out=1`);
     await page.getByText("You have been signed out.").waitFor();

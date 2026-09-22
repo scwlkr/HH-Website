@@ -121,7 +121,7 @@ export default async function AdminProjectsPage({
                           className={cn(
                             "inline-flex rounded-[var(--hh-radius-tight)] border px-2 py-1 font-mono text-[0.68rem] uppercase tracking-[0.18em]",
                             project.published
-                              ? "border-accent/40 bg-accent/10 text-accent"
+                              ? "border-emerald-500/20 bg-emerald-50 text-emerald-700"
                               : "border-line-strong bg-background/70 text-muted-strong",
                           )}
                         >

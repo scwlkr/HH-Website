@@ -184,6 +184,7 @@ try {
   assert.equal(new URL(page.url()).pathname, "/admin/login");
   providerAvailable = true;
   await page.goto(`${origin}/admin/projects`);
+  await page.getByRole("button", { name: "Your account" }).click();
   await page.getByRole("button", { name: "Sign Out" }).click();
   await page.waitForURL(`${origin}/admin/login?signed_out=1`);
   assert.equal((await context.cookies()).some((c) => c.name === "wos-session"), false, `Session cookie remains at ${page.url()}`);

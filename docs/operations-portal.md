@@ -6,6 +6,16 @@ HHQ is the internal operations workspace for managed website content. It control
 
 | Route | Purpose |
 | --- | --- |
+| `/admin` | Dashboard with live inquiry/project totals, recent record updates, and a labeled task-chart preview. |
+| `/admin/search` | Search private project and inquiry names and locations. |
+| `/admin/activity` | Latest update per project/inquiry; not a staff audit log. |
+| `/admin/tasks` | Interactive sample task board; no task persistence. |
+| `/admin/people` | Current staff account and future directory presentation. |
+| `/admin/systems` | Current authorized session and project/inquiry read results; unmonitored services are labeled. |
+| `/admin/reports` | Live inquiry status counts and a sample task-activity chart. |
+| `/admin/integrations` | Existing connection information and future integration cards. |
+| `/admin/settings` | Pricing/account entry points and future notification preferences. |
+| `/admin/help` | Workspace guidance. |
 | `/admin/login` | Staff sign-in entry point (AuthKit when enabled). |
 | `/admin/inquiries` | Review saved and submitted customer inquiries. |
 | `/admin/inquiries/[id]` | Review one inquiry, update its status, or permanently delete it. |
@@ -155,3 +165,34 @@ variables are set. Placeholder image files may still be generated locally.
 - Reopen the architecture decision if staff or customer count grows
   materially, contractors need access, regulation changes, or private-data
   value and sensitivity increase.
+
+## HHQ Interface
+
+The approved September 2026 interface uses a light slate workspace, Inter,
+a persistent sidebar, blue actions, green positive states, and compact white
+cards. The supplied design-system strip is a style reference, not application
+chrome. Styling is scoped to `app/admin/hhq.css`; public website styling remains
+independent. Inter is served locally with its SIL Open Font License.
+
+The dashboard adapts the supplied design to the records available today: total
+inquiries, published projects, reviewed inquiries, and saved drafts. The date
+range filters records by their latest update, not their original creation or
+review date. Unavailable reads display an error and unavailable totals, never
+fabricated successes. Task charts and the task board use visibly labeled sample
+data. There are no invented staff, due dates, cycle-time metrics, progress
+percentages on real projects, or uptime guarantees.
+
+Search runs within the existing protected staff boundary. The search dialog
+supports Command/Ctrl+K, and phone navigation uses a modal drawer. Existing
+project publication, image management, inquiry review/deletion, private file
+access, pricing saves, and sign-out retain their server actions and authorization.
+Staff management, persistent tasks, alerts, calendars, scheduled reports, and
+continuous system monitoring remain integration work.
+
+`npm run qa:smoke` includes the HHQ interface scenario in
+`scripts/hhq-interface-proof.mjs`. It exercises authenticated navigation,
+record search, dashboard filters, sample-task controls, and phone navigation,
+and captures desktop/tablet/phone/reflow screenshots with accessibility and
+overflow checks in `output/playwright/hhq-redesign/`. Screenshots contain only
+isolated emulator fixtures. Run `npm run proof:hhq-auth` to verify the sign-in
+presentation and account-menu sign-out through the AuthKit fixture as well.
