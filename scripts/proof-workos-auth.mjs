@@ -151,7 +151,13 @@ try {
     await page.goto(`${origin}/admin/login`);
     nextSignInEmail = approved ? "staff@fixture.invalid" : "unapproved@fixture.invalid";
     await page.getByRole("link", { name: "Continue to sign in" }).click();
-    await page.waitForURL(approved ? `${origin}/admin/projects` : `${origin}/admin/login?error=1`);
+    await page.waitForURL(approved ? `${origin}/admin` : `${origin}/admin/login?error=1`);
+    if (approved) {
+      await page.getByRole("heading", { name: /Good (morning|afternoon|evening), team/ }).waitFor();
+      await page.getByRole("alert").filter({ hasText: "Some workspace data couldn’t be loaded." }).waitFor();
+      assert.equal(await page.locator(".hhq-stat strong").allTextContents().then((values) => values.every((value) => value === "—")), true, "Unavailable sources must not show fabricated zero totals");
+      await page.goto(`${origin}/admin/projects`);
+    }
   };
   await signin(false);
   assert.equal((await context.cookies()).some((c) => c.name === "wos-session"), false, `Session cookie remains at ${page.url()}`);
@@ -193,7 +199,7 @@ try {
   assert.equal((await context.cookies()).some((c) => c.name === "wos-session"), false, `Session cookie remains at ${page.url()}`);
   assert.deepEqual(failures, []);
   const result = { provider: "local OAuth/API fixture; real AuthKit SDK", productionBuild: true,
-    approvedSignIn: true, unauthorizedSignInDenied: true, spoofedHeadersDenied: true,
+    approvedSignIn: true, dashboardLanding: true, unavailableDashboard: true, unauthorizedSignInDenied: true, spoofedHeadersDenied: true,
     sessionCookieScope: "/admin", tokenRefresh: true, removedStaffDenied: true,
     revokedSessionDenied: true, privateFileDenied: true, outageDenied: true,
     logout: true, forgedCallbackDenied: true, browserErrors: failures };

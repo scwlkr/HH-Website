@@ -11,8 +11,11 @@ export async function getHHQOverview(): Promise<HHQOverview> {
   const queue = await getAuthorizedAdminInquiryQueue();
   const configured = isFirebaseAdminConfigured();
   const [projects, inquiries] = await Promise.allSettled([
-    configured ? listAdminProjects() : Promise.reject(new Error("Unavailable")),
-    queue.list("all"),
+    Promise.resolve().then(() => {
+      if (!configured) throw new Error("Unavailable");
+      return listAdminProjects();
+    }),
+    Promise.resolve().then(() => queue.list("all")),
   ]);
   return {
     asOf: new Date().toISOString(),
