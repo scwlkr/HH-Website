@@ -32,7 +32,7 @@ export function Input({
   return (
     <label className="flex flex-col gap-2">
       {label ? (
-        <span className="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted">
+        <span className="font-mono text-[0.8125rem] uppercase tracking-[0.12em] text-muted">
           {label}
         </span>
       ) : null}
@@ -41,17 +41,17 @@ export function Input({
         aria-describedby={combinedDescribedBy}
         aria-invalid={Boolean(error)}
         className={cn(
-          "min-h-12 rounded-[var(--hh-radius-input)] border border-line-strong bg-surface-raised px-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent-soft",
+          "min-h-12 rounded-[var(--hh-radius-input)] border border-muted bg-surface-raised px-4 text-base text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent",
           className,
         )}
         {...props}
       />
       {error ? (
-        <span id={describedById} className="text-xs text-accent-strong">
+        <span id={describedById} className="text-sm text-accent-strong">
           {error}
         </span>
       ) : helperText ? (
-        <span id={describedById} className="text-xs text-muted">
+        <span id={describedById} className="text-sm text-muted">
           {helperText}
         </span>
       ) : null}

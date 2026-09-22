@@ -28,7 +28,7 @@ export function Textarea({
   return (
     <label className="flex flex-col gap-2">
       {label ? (
-        <span className="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted">
+        <span className="font-mono text-[0.8125rem] uppercase tracking-[0.12em] text-muted">
           {label}
         </span>
       ) : null}
@@ -37,17 +37,17 @@ export function Textarea({
         aria-describedby={describedById}
         aria-invalid={Boolean(error)}
         className={cn(
-          "min-h-32 rounded-[var(--hh-radius-input)] border border-line-strong bg-surface-raised px-4 py-3 text-sm leading-7 text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent-soft",
+          "min-h-32 rounded-[var(--hh-radius-input)] border border-muted bg-surface-raised px-4 py-3 text-base leading-7 text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent",
           className,
         )}
         {...props}
       />
       {error ? (
-        <span id={describedById} className="text-xs text-accent-strong">
+        <span id={describedById} className="text-sm text-accent-strong">
           {error}
         </span>
       ) : helperText ? (
-        <span id={describedById} className="text-xs text-muted">
+        <span id={describedById} className="text-sm text-muted">
           {helperText}
         </span>
       ) : null}

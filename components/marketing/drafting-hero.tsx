@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { Container } from "@/components/layout/container";
 import { DividerFrame } from "@/components/ui/divider-frame";
+import { buttonVariants } from "@/components/ui/button";
 import { getCtaAnalyticsAttributes } from "@/lib/analytics/events";
 import { siteConfig } from "@/lib/site-config";
 import { DraftingArmAnimated } from "@/components/marketing/drafting-arm-animated";
@@ -20,28 +21,25 @@ export function DraftingHero({
   primaryCta,
 }: DraftingHeroProps) {
   return (
-    <section className="hh-home-hero min-h-[calc(100svh-5rem)] border-b border-line-strong lg:flex">
+    <section className="hh-home-hero border-b border-line-strong lg:flex lg:min-h-[calc(88svh-5rem)]">
       <Container size="wide" className="flex flex-col lg:flex-1">
         <div className="grid flex-1 lg:grid-cols-[minmax(0,1.15fr)_minmax(24rem,0.85fr)] xl:grid-cols-2">
-          <div className="flex min-h-[34rem] flex-col py-10 sm:py-14 lg:min-h-[38rem] lg:pr-12 lg:py-16 xl:pr-16">
-            <DividerFrame
-              label={siteConfig.name}
-              detail={siteConfig.shortName}
-            />
+          <div className="flex flex-col py-8 sm:py-10 lg:min-h-[38rem] lg:pr-12 lg:py-12 xl:pr-16">
+            <DividerFrame label={siteConfig.name} />
 
-            <div className="flex flex-1 flex-col justify-center py-12 sm:py-14">
+            <div className="flex flex-1 flex-col justify-center py-9 sm:py-10">
               <h1 className="max-w-[13ch] text-4xl font-semibold leading-[1.03] tracking-[-0.025em] sm:text-[3.25rem] lg:text-[4.6rem] lg:leading-[0.98] xl:text-[5.1rem]">
                 {headline}
               </h1>
 
-              <p className="mt-8 max-w-xl text-base leading-[1.78] text-muted sm:text-lg">
+              <p className="mt-6 max-w-xl text-base leading-[1.78] text-muted sm:text-lg">
                 {subhead}
               </p>
 
-              <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <Link
                   href={primaryCta.href}
-                  className="hh-home-hero-action group"
+                  className={buttonVariants({ size: "lg" })}
                   {...getCtaAnalyticsAttributes({
                     label: primaryCta.label,
                     destination: primaryCta.href,
@@ -51,7 +49,7 @@ export function DraftingHero({
                   <span>{primaryCta.label}</span>
                   <span
                     aria-hidden="true"
-                    className="text-base transition-transform duration-200 group-hover:translate-x-1"
+                    className="text-base"
                   >
                     →
                   </span>
@@ -81,11 +79,8 @@ export function DraftingHero({
         >
           <div className="flex items-center justify-between gap-6 py-5 lg:pr-8">
             <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-accent">
-              Primary Scope
+              Services
             </p>
-            <span className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">
-              {capabilities.length.toString().padStart(2, "0")} Disciplines
-            </span>
           </div>
           <ul className="grid border-t border-line sm:grid-cols-3 lg:border-l lg:border-t-0">
             {capabilities.map((cap) => (

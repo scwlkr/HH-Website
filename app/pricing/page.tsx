@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = createPageMetadata({
   title: "Finish Levels",
   description:
-    "Review Howeth and Harp finish levels and compare Builder Grade, Builder+, and Custom before starting a project inquiry.",
+    "Review Howeth and Harp finish levels and compare Builder, Builder+, and Custom before starting a project inquiry.",
   path: "/pricing",
   eyebrow: "Finish Levels",
 });

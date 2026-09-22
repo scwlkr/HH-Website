@@ -247,7 +247,7 @@ export function GET(request: Request) {
                   lineHeight: 1.4,
                 }}
               >
-                Architectural design, building, and land development.
+                {siteConfig.descriptor}
               </div>
             </div>
 

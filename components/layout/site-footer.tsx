@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site-config";
 
 function FooterHeading({ label }: { label: string }) {
   return (
-    <p className="font-mono text-[0.72rem] uppercase tracking-[0.24em] text-muted-strong">
+    <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted-strong">
       {label}
     </p>
   );
@@ -39,6 +39,9 @@ export function SiteFooter() {
             <p className="mt-2 text-[0.95rem] font-medium tracking-[0.02em] text-muted-strong">
               {siteConfig.tagline}
             </p>
+            <p className="mt-2 max-w-xs text-sm leading-6 text-muted">
+              {siteConfig.serviceArea}
+            </p>
             <Link
               href={siteConfig.primaryCta.href}
               className="hh-link hh-touch-target mt-1 w-fit whitespace-nowrap text-sm font-medium leading-6 text-accent"
@@ -50,32 +53,13 @@ export function SiteFooter() {
             </Link>
           </div>
 
-          <div className="border-t border-line lg:grid lg:grid-cols-[minmax(10rem,0.9fr)_minmax(15rem,1.35fr)_minmax(7rem,0.65fr)] lg:items-start lg:gap-x-14 lg:border-t-0">
-            <nav
-              aria-label="Explore"
-              className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 border-b border-line py-2 lg:block lg:border-b-0 lg:py-0"
-            >
-              <FooterHeading label="Explore" />
-              <ul className="-my-1 flex flex-wrap gap-x-5 lg:mt-3 lg:grid lg:grid-cols-[max-content_minmax(0,1fr)] lg:gap-x-5">
-                {pageLinks.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href as Route}
-                      className="hh-link hh-touch-target whitespace-nowrap text-sm leading-6 text-muted"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
+          <div className="grid gap-5 border-t border-line pt-5 sm:grid-cols-2 lg:gap-8 lg:border-t-0 lg:pt-0">
             <nav
               aria-label="Contact"
-              className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 border-b border-line py-2 lg:block lg:border-b-0 lg:py-0"
+              className="min-w-0"
             >
               <FooterHeading label="Contact" />
-              <ul className="-my-1 lg:mt-3">
+              <ul className="mt-2">
                 <li>
                   <a
                     href={siteConfig.contact.email.href}
@@ -89,11 +73,11 @@ export function SiteFooter() {
 
             <nav
               aria-label="Information"
-              className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-4 py-2 lg:block lg:py-0"
+              className="min-w-0"
             >
               <FooterHeading label="Information" />
-              <ul className="-my-1 flex flex-wrap gap-x-5 lg:mt-3 lg:block">
-                {siteConfig.legalNav.map((item) => (
+              <ul className="mt-2 flex flex-wrap gap-x-5">
+                {[...pageLinks, ...siteConfig.legalNav].map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href as Route}
@@ -110,11 +94,11 @@ export function SiteFooter() {
 
         <div className="flex flex-col pt-2 text-xs text-muted sm:min-h-14 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:pt-0">
           <nav
-            aria-label="Agent resources"
+            aria-label="AI agent resources"
             className="flex flex-col sm:flex-row sm:items-center sm:gap-4"
           >
-            <span className="font-mono text-[0.66rem] uppercase tracking-[0.18em] text-muted-strong">
-              For agents:
+            <span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-strong">
+              For AI agents:
             </span>
             <ul className="flex flex-wrap gap-x-5">
               {agentLinks.map((item) => (

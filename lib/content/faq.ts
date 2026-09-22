@@ -2,7 +2,6 @@ import { createSlugLookup } from "@/lib/content/slug-helpers";
 import { siteConfig } from "@/lib/site-config";
 import type { FAQGroup, FAQGroupSlug, FAQItem } from "@/types/content";
 
-const publicName = siteConfig.name;
 const shortName = siteConfig.shortName;
 
 export const faqGroups = [
@@ -39,28 +38,28 @@ export const faqItems = [
     group: "process",
     question: "Do you handle both design and construction?",
     answer:
-      `${publicName} provides architectural design, building, and land development. Depending on the project, H and H can provide one service or coordinate several.`,
+      "Yes. We can coordinate design and construction or provide a single service, depending on your project.",
   },
   {
     id: "process-land-first",
     group: "process",
     question: "Can I start an inquiry if I only have land or a target area?",
     answer:
-      "Yes. You can begin with a lot you own, a site you are evaluating, or simply a target area. Share what you know, and H and H can help determine the next useful step.",
+      "Yes. You can begin with a lot you own, a site you are evaluating, or simply a target area. Share what you know, and we can help determine the next useful step.",
   },
   {
     id: "pricing-finish-levels",
     group: "pricing",
-    question: "Are the finish levels fixed price packages?",
+    question: "Are the finish levels fixed-price packages?",
     answer:
       "No. The finish levels and any published square-foot benchmarks are meant to clarify direction, not promise a fixed contract number. Final pricing still depends on scope, site conditions, systems, and the degree of customization involved.",
   },
   {
     id: "pricing-upgrade-path",
     group: "pricing",
-    question: "How should I choose between Builder Grade, Builder+, and Custom?",
+    question: "How should I choose between Builder, Builder+, and Custom?",
     answer:
-      "The right finish level depends on how much customization the project needs, how visible the finish decisions are to the overall experience, and where you want to place the budget emphasis. If you are unsure, choose the closest direction and H and H can help refine it around your priorities and budget.",
+      "Builder: Budget-conscious finishes selected from a fixed standard palette. Prioritizes dependable, affordable materials with no fixture, finish, or trim customization.\n\nBuilder+: Mid-grade finishes balancing affordability with greater choice. Offers upgraded materials and more flexibility to modify fixtures, finishes, and trim.\n\nCustom: Premium, fully personalized finish direction. Supports top-tier materials, custom fixtures, millwork, trim, and one-of-a-kind details.",
   },
   {
     id: "project-types-residential",
@@ -74,7 +73,7 @@ export const faqItems = [
     group: "project-types",
     question: "Can different project types use different finish levels?",
     answer:
-      "Yes. Finish level and build type are related but not locked together. A single-family residence might be Builder Grade or Custom, and a commercial project might lean Builder+ or Custom depending on its goals.",
+      "Yes. Finish level and build type are related but not locked together. A single-family residence might be Builder or Custom, and a commercial project might lean Builder+ or Custom depending on its goals.",
   },
   {
     id: "timeline-start-window",

@@ -33,16 +33,17 @@ test("project start leads with Plan Your Home and keeps the short inquiry subord
   assert.ok(
     query.getByRole("heading", {
       level: 1,
-      name: "Plan your new home, one space at a time.",
+      name: "Your new home. One space at a time.",
     }),
   );
   const planHomeAction = query.getByRole("link", {
-    name: "Start Your Home Plan",
+    name: "Start planning",
   });
   assert.equal(planHomeAction.getAttribute("href"), "/plan-your-home");
   assert.match(planHomeAction.className, /\bmin-h-16\b/);
-  assert.match(planHomeAction.className, /sm:min-w-\[20rem\]/);
+  assert.match(planHomeAction.className, /sm:min-w-\[18rem\]/);
   assert.equal(query.queryByRole("link", { name: /Resume a saved plan/i }), null);
+  assert.equal(query.getByRole("link", { name: "Send an inquiry." }).getAttribute("href"), "#general-inquiry");
   assert.ok(
     query.getByRole("heading", { level: 2, name: "Have something else in mind?" }),
   );

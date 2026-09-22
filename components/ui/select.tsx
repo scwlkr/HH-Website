@@ -24,6 +24,7 @@ export function Select({
   placeholder,
   value,
   defaultValue = "",
+  "aria-describedby": externalDescribedBy,
   ...props
 }: SelectProps) {
   const fieldId =
@@ -35,11 +36,14 @@ export function Select({
     : helperText
       ? `${fieldId}-help`
       : undefined;
+  const combinedDescribedBy = [externalDescribedBy, describedById]
+    .filter(Boolean)
+    .join(" ") || undefined;
 
   return (
     <label className="flex flex-col gap-2">
       {label ? (
-        <span className="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted">
+        <span className="font-mono text-[0.8125rem] uppercase tracking-[0.12em] text-muted">
           {label}
         </span>
       ) : null}
@@ -47,10 +51,10 @@ export function Select({
         <select
           id={fieldId}
           {...(value === undefined ? { defaultValue } : { value })}
-          aria-describedby={describedById}
+          aria-describedby={combinedDescribedBy}
           aria-invalid={Boolean(error)}
           className={cn(
-            "min-h-12 w-full appearance-none rounded-[var(--hh-radius-input)] border border-line-strong bg-surface-raised px-4 pr-12 text-sm text-foreground outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent-soft",
+            "min-h-12 w-full appearance-none rounded-[var(--hh-radius-input)] border border-muted bg-surface-raised px-4 pr-12 text-base text-foreground outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent",
             className,
           )}
           {...props}
@@ -74,11 +78,11 @@ export function Select({
         </span>
       </div>
       {error ? (
-        <span id={describedById} className="text-xs text-accent-strong">
+        <span id={describedById} className="text-sm text-accent-strong">
           {error}
         </span>
       ) : helperText ? (
-        <span id={describedById} className="text-xs text-muted">
+        <span id={describedById} className="text-sm text-muted">
           {helperText}
         </span>
       ) : null}

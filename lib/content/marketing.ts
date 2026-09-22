@@ -9,23 +9,23 @@ export const marketingPageContent = {
       eyebrow: publicName,
       title: "Design. Build. Develop.",
       description:
-        `${publicName} aligns project type, finish strategy, and site realities early so the work starts from a clear brief instead of a scatter of disconnected decisions.`,
+        "Architectural design, construction, and land development—from early planning to the finishing details.",
     },
     capabilities: [
       {
         title: "Architectural Design",
         description:
-          "Planning, massing, circulation, and finish direction are shaped as one system before the project gets expensive to correct.",
+          "Bring the layout, exterior design, and finishes together in a clear plan before construction begins.",
       },
       {
-        title: "Building",
+        title: "Construction",
         description:
-          "Construction delivery stays tied to the original logic of the work, with enough discipline to keep the project coherent in the field.",
+          "Carry the design through construction with careful attention to workmanship and detail.",
       },
       {
         title: "Land Development",
         description:
-          "Lot evaluation, site fit, and early development thinking can enter the conversation before scope hardens around the wrong assumptions.",
+          "Evaluate the land and its fit for your project before making major design decisions.",
       },
     ],
     inquirySteps: [
@@ -73,7 +73,7 @@ export const marketingPageContent = {
     lede:
       "Planning discipline, finish clarity, and credible execution across four project types.",
     description:
-      `From single-family homes to commercial work, each category pairs its priorities with the appropriate design, building, and development approach.`,
+      `From single-family homes to commercial work, each category pairs its priorities with the appropriate design, construction, and development approach.`,
     detail:
       "Finish direction depends on use, budget, durability, market position, and design ambition—not project type alone.",
     cta: {

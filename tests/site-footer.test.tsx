@@ -17,25 +17,26 @@ test("the site footer is a compact branded directory", () => {
     "/",
   );
   assert.ok(footer.getByText("Design. Build. Develop."));
+  assert.ok(footer.getByText("Serving the greater Dallas–Fort Worth area."));
   assert.equal(
     footer.getByRole("link", { name: "Start a Project" }).getAttribute("href"),
     "/start",
   );
 
-  const explore = within(footer.getByRole("navigation", { name: "Explore" }));
+  assert.equal(footer.queryByRole("navigation", { name: "Explore" }), null);
   const contact = within(footer.getByRole("navigation", { name: "Contact" }));
   const information = within(
     footer.getByRole("navigation", { name: "Information" }),
   );
   const agents = within(
-    footer.getByRole("navigation", { name: "Agent resources" }),
+    footer.getByRole("navigation", { name: "AI agent resources" }),
   );
 
-  assert.ok(explore.getByRole("link", { name: "FAQ" }));
-  assert.equal(explore.queryByRole("link", { name: "Projects" }), null);
-  assert.equal(explore.queryByRole("link", { name: "Pricing" }), null);
-  assert.equal(explore.queryByRole("link", { name: "Home" }), null);
-  assert.equal(explore.queryByRole("link", { name: "Start a Project" }), null);
+  assert.ok(information.getByRole("link", { name: "FAQ" }));
+  assert.equal(information.queryByRole("link", { name: "Projects" }), null);
+  assert.equal(information.queryByRole("link", { name: "Pricing" }), null);
+  assert.equal(information.queryByRole("link", { name: "Home" }), null);
+  assert.equal(information.queryByRole("link", { name: "Start a Project" }), null);
   assert.equal(
     contact.getByRole("link", { name: "hello@howethandharp.com" }).getAttribute(
       "href",
@@ -47,7 +48,7 @@ test("the site footer is a compact branded directory", () => {
   assert.ok(agents.getByRole("link", { name: "Markdown Sitemap" }));
   assert.ok(agents.getByRole("link", { name: "Agent Guide" }));
   assert.ok(agents.getByRole("link", { name: "Services Guide" }));
-  assert.ok(footer.getByText("For agents:"));
+  assert.ok(footer.getByText("For AI agents:"));
 
   assert.equal(footer.queryByText("Blake"), null);
   assert.equal(

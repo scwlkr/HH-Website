@@ -123,7 +123,9 @@ export const generalInquiryFormSchema = z
     email: optionalEmailSchema,
     projectType: z.preprocess(
       normalizeEnumValue,
-      z.enum(generalInquiryProjectTypeValues),
+      z.enum(generalInquiryProjectTypeValues, {
+        error: "Choose the project type that best fits.",
+      }),
     ),
     projectLocation: projectLocationSchema,
     projectDescription: projectDescriptionSchema,

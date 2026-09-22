@@ -10,7 +10,7 @@ const builderGradeGallery = [
     collection: "finishes",
     slug: "builder-grade",
     fileName: "street-elevation.jpg",
-    alt: "Builder Grade single-family exterior with disciplined massing and restrained exterior materials.",
+    alt: "Builder single-family exterior with disciplined massing and restrained exterior materials.",
     width: 1600,
     height: 1100,
     caption: "Efficient exterior palette with clean linework and repeatable detailing.",
@@ -19,7 +19,7 @@ const builderGradeGallery = [
     collection: "finishes",
     slug: "builder-grade",
     fileName: "kitchen-core-palette.jpg",
-    alt: "Builder Grade kitchen with practical cabinet layout, durable finishes, and standard fixture package.",
+    alt: "Builder kitchen with practical cabinet layout, durable finishes, and standard fixture package.",
     width: 1600,
     height: 1100,
     caption: "Durable baseline interior selections focused on consistency and value.",
@@ -28,7 +28,7 @@ const builderGradeGallery = [
     collection: "finishes",
     slug: "builder-grade",
     fileName: "bath-standard-fixtures.jpg",
-    alt: "Builder Grade bath with straightforward tile layout and standard plumbing fixtures.",
+    alt: "Builder bath with straightforward tile layout and standard plumbing fixtures.",
     width: 1600,
     height: 1100,
     caption: "Streamlined fixture and surface package suited to cost-aware delivery.",
@@ -98,13 +98,13 @@ const customGallery = [
 export const finishLevels = [
   {
     slug: "builder-grade",
-    title: "Builder Grade",
-    shortTitle: "Builder Grade",
+    title: "Builder",
+    shortTitle: "Builder",
     tagline: "Disciplined baseline specification for cost-aware delivery.",
     cardSummary:
       "A streamlined finish package built around durability, repeatability, and a clean architectural baseline.",
     detailSummary:
-      `Builder Grade is suited to projects that need ${shortName} planning discipline and a credible finished result without drifting into custom specification work. It prioritizes durable materials, efficient detailing, and controlled upgrade decisions.`,
+      `Builder is suited to projects that need ${shortName} planning discipline and a credible finished result without drifting into custom specification work. It prioritizes durable materials, efficient detailing, and controlled upgrade decisions.`,
     differentiators: [
       "Focused material palette with dependable, readily available selections.",
       "Repeatable trim, cabinet, and hardware strategies that support efficient construction.",

@@ -4,7 +4,6 @@ import { useActionState } from "react";
 
 import { InquiryPrivacyNotice } from "@/components/inquiry/inquiry-privacy-notice";
 import { Button } from "@/components/ui/button";
-import { CardShell } from "@/components/ui/card-shell";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,11 +33,12 @@ export function GeneralInquiryForm({
   const displayedValues = state.values ?? initialValues;
 
   return (
-    <CardShell className="px-5 py-5 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
+    <div className="relative rounded-[var(--hh-radius-panel)] border border-line-strong bg-white px-5 py-5 sm:px-7 sm:py-7">
       <form
         key={state.attempt}
         action={formAction}
         aria-label="General project inquiry"
+        aria-describedby="general-inquiry-required-help"
         noValidate
       >
         <input type="hidden" name="sourcePage" value={displayedValues.sourcePage} />
@@ -71,6 +71,11 @@ export function GeneralInquiryForm({
           </p>
         ) : null}
 
+        <p id="general-inquiry-required-help" className="mb-6 text-sm leading-6 text-muted">
+          Name, project type, and project description are required. Email or
+          phone—one is enough. Location is optional.
+        </p>
+
         <div className="grid gap-5 md:grid-cols-2">
           <Input
             name="name"
@@ -85,17 +90,22 @@ export function GeneralInquiryForm({
             label="Project type"
             options={generalInquiryProjectTypeOptions}
             placeholder="Choose the closest fit"
+            aria-describedby="general-inquiry-project-type-help"
             defaultValue={displayedValues.projectType}
             error={state.fieldErrors.projectType}
             required
           />
         </div>
+        <p id="general-inquiry-project-type-help" className="mt-3 text-sm leading-6 text-muted">
+          For architectural design only, choose your project type and mention
+          design in your description.
+        </p>
 
         <fieldset className="mt-5">
-          <legend className="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-muted">
+          <legend className="font-mono text-[0.8125rem] uppercase tracking-[0.12em] text-muted">
             Contact information
           </legend>
-          <p id="general-inquiry-contact-help" className="mt-2 text-xs text-muted">
+          <p id="general-inquiry-contact-help" className="mt-2 text-sm text-muted">
             Share an email address or phone number. One is enough.
           </p>
           <div
@@ -157,6 +167,6 @@ export function GeneralInquiryForm({
           </Button>
         </div>
       </form>
-    </CardShell>
+    </div>
   );
 }

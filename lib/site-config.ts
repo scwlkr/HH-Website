@@ -11,8 +11,9 @@ export const siteConfig = {
   shortName: "H and H",
   legalName: "H and H Advancement LLC",
   legalShortName: "H and H",
-  description: "Architectural design, building, and land development.",
-  descriptor: "Architectural design, building, and land development.",
+  description: "Architectural design, construction, and land development.",
+  descriptor: "Architectural design, construction, and land development.",
+  serviceArea: "Serving the greater Dallas–Fort Worth area.",
   tagline: "Design. Build. Develop.",
   primaryCta: {
     href: "/start" as Route,

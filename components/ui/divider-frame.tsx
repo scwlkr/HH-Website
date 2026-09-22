@@ -14,13 +14,13 @@ export function DividerFrame({
   return (
     <div
       className={cn(
-        "hh-drafted-rule flex items-center gap-4 font-mono text-[0.7rem] uppercase tracking-[0.26em] text-muted",
+        "hh-drafted-rule flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs uppercase tracking-[0.18em] text-muted",
         className,
       )}
     >
-      <span className="shrink-0 text-accent">{label}</span>
-      <span className="hh-drafted-rule-line h-px flex-1" />
-      {detail ? <span className="shrink-0">{detail}</span> : null}
+      <span className="min-w-0 break-words text-accent">{label}</span>
+      <span aria-hidden="true" className="hh-drafted-rule-line h-px min-w-8 flex-1" />
+      {detail ? <span className="min-w-0 break-words">{detail}</span> : null}
     </div>
   );
 }

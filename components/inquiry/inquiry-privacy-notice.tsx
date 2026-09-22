@@ -1,11 +1,11 @@
 export function InquiryPrivacyNotice() {
   return (
     <p className="text-sm leading-6 text-muted">
-      Sending permits project-related follow-up under the{" "}
-      <a className="hh-link hh-touch-target text-foreground" href="/privacy">
-        privacy policy
+      Sending this inquiry allows us to follow up about your project. It does
+      not create a contract or sign you up for marketing.{" "}
+      <a className="hh-link hh-touch-target text-accent underline underline-offset-4" href="/privacy">
+        Privacy policy
       </a>
-      ; it is not marketing consent or a contract.
     </p>
   );
 }

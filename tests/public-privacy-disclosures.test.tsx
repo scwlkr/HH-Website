@@ -75,11 +75,11 @@ test("the general inquiry keeps concise privacy copy beside the send action", ()
     />,
   );
   const link = rendered.getByRole("link", {
-    name: "privacy policy",
+    name: "Privacy policy",
   });
   const submit = rendered.getByRole("button", { name: "Send Inquiry" });
   assert.equal(link.getAttribute("href"), "/privacy");
-  assert.match(rendered.container.textContent ?? "", /not marketing consent or a contract/i);
+  assert.match(rendered.container.textContent ?? "", /does not create a contract or sign you up for marketing/i);
   assert.equal(
     link.closest("div")?.contains(submit),
     true,

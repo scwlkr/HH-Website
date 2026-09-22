@@ -109,4 +109,8 @@ test("a short general inquiry requires name, project type, and a short descripti
     new Set(result.error.issues.map((issue) => issue.path[0])),
     new Set(["name", "projectType", "projectDescription"]),
   );
+  assert.equal(
+    result.error.issues.find((issue) => issue.path[0] === "projectType")?.message,
+    "Choose the project type that best fits.",
+  );
 });

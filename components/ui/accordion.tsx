@@ -24,24 +24,26 @@ export function Accordion({ items, className }: AccordionProps) {
           <details
             key={item.id}
             open={item.defaultOpen}
-            className="group border-b border-line py-4 last:border-b-0"
+            className="group border-b border-line last:border-b-0"
           >
             <summary
               id={summaryId}
-              className="flex min-h-11 cursor-pointer items-start justify-between gap-4 rounded-[var(--hh-radius-tight)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              aria-controls={panelId}
+              className="flex min-h-16 cursor-pointer items-start justify-between gap-4 rounded-[var(--hh-radius-tight)] py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <span className="text-left text-base font-medium leading-7 text-foreground">
                 {item.title}
               </span>
-              <span className="mt-1 font-mono text-xs uppercase tracking-[0.12em] text-accent transition-transform group-open:rotate-45">
-                +
+              <span aria-hidden="true" className="shrink-0 font-mono text-2xl leading-7 text-accent">
+                <span className="group-open:hidden">+</span>
+                <span className="hidden group-open:inline">−</span>
               </span>
             </summary>
             <div
               id={panelId}
               role="region"
               aria-labelledby={summaryId}
-              className="pt-4 text-sm leading-7 text-muted"
+              className="whitespace-pre-line pb-5 text-base leading-7 text-muted"
             >
               {item.content}
             </div>

@@ -60,7 +60,7 @@ export function renderServicesMarkdown() {
         `### ${capability.title}\n\n${capability.description}`,
     )
     .join("\n\n");
-  const remodeling = `### Remodeling\n\nRemodels and additions use the general project inquiry. Depending on the scope, the service mix may include architectural design, building, and site or development coordination.`;
+  const remodeling = `### Remodeling\n\nRemodels and additions use the general project inquiry. Depending on the scope, the service mix may include architectural design, construction, and site or development coordination.`;
   const projectCategories = buildTypes
     .map(
       (buildType) =>

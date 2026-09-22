@@ -59,7 +59,7 @@ export default async function ProjectsPage() {
             <DividerFrame label="Project Focus" detail="Built around scope" />
             <ul className="space-y-3 text-sm leading-7 text-muted">
               <li>Residential and commercial work.</li>
-              <li>Architectural design, building, and land development.</li>
+              <li>Architectural design, construction, and land development.</li>
               <li>Finish direction matched to use, budget, and long-term value.</li>
             </ul>
           </div>
