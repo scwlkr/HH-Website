@@ -1,6 +1,6 @@
 # Website maintenance plan
 
-**Status:** Implementation in progress under [issue #46](https://github.com/scwlkr/HH-Website/issues/46). The activation and proof checklist below remains the completion gate. Use the [maintenance runbook](maintenance-runbook.md) for configured schedules and failure response.
+**Status:** Active on `main` since [PR #47](https://github.com/scwlkr/HH-Website/pull/47) merged on 2026-09-23. First grouped routine Dependabot and monthly audit evidence is still pending under [issue #46](https://github.com/scwlkr/HH-Website/issues/46). Use the [maintenance runbook](maintenance-runbook.md) for configured schedules, evidence, and failure response.
 
 ## Scope and outcomes
 
@@ -12,7 +12,7 @@ Use automated lab checks only. Do not add visitor analytics, Vercel Speed Insigh
 
 The repo requires Node 24. `npm test`, `npm run lint`, and `npm run typecheck` cover code quality. `npm run qa:smoke` builds the production app and tests routes and user flows against isolated Firebase emulators with fake data. `npm run review -- <routes>` captures phone and desktop pages and checks HTTP errors, browser errors, and horizontal overflow. Plan Your Home also has a 24 KiB shared-scene budget and a layout-shift assertion in its final browser proof. See [Fast local review](devops.md) for current commands and change-specific gates.
 
-## Proposed automation
+## Automation
 
 | When | Check | Result |
 | --- | --- | --- |
@@ -32,12 +32,12 @@ Make small, behavior-preserving cleanup in code already being changed, with focu
 
 ## Activation and proof checklist
 
-1. Add the PR workflow, Lighthouse configuration, weekly check, and Dependabot configuration. Enable the repository's dependency graph, Dependabot alerts, and security updates. Keep workflow permissions minimal and use emulator fixtures rather than production credentials.
-2. Run the workflow on a PR under Node 24. Confirm all core checks pass and Lighthouse reports are available without uploading them to Lighthouse CI's temporary public storage.
-3. Add branch protection requiring the successful core status check. Verify a failing check blocks a test PR and an advisory Lighthouse result does not.
-4. Trigger the weekly check manually once, confirm it targets the current production URL, and verify failure notification delivery.
-5. Start the monthly Codex audit only after the CI evidence exists. Confirm its first report cites actual runs and says when evidence is missing.
-6. Update [Fast local review](devops.md) and this plan to reflect the actual commands, schedules, and owners after activation.
+1. **Verified 2026-09-23:** PR and Lighthouse workflows, weekly check, Dependabot configuration, dependency graph, alerts, and security-update proposals are active. CI uses emulator fixtures and no production credentials.
+2. **Verified 2026-09-23:** [PR #47](https://github.com/scwlkr/HH-Website/pull/47) passed Node 24 core checks and retained seven-day GitHub Actions Lighthouse artifacts for all five routes.
+3. **Verified 2026-09-23:** `main` requires **Core quality**; deliberately failing [PR #48](https://github.com/scwlkr/HH-Website/pull/48) was blocked and closed. Lighthouse scores remain advisory.
+4. **Verified 2026-09-23:** The [manual production run](https://github.com/scwlkr/HH-Website/actions/runs/35883279211) passed, and the [controlled failure run](https://github.com/scwlkr/HH-Website/actions/runs/35883464699) produced a GitHub inbox notification. The first scheduled weekly run remains pending.
+5. **Scheduled:** The monthly Codex audit is active for the first Wednesday at 10:17 America/Chicago. Confirm its first report cites actual runs and says when evidence is missing.
+6. **Documented:** [Fast local review](devops.md) links to the [runbook](maintenance-runbook.md), which records commands, schedules, ownership, costs, evidence, and failure response. Confirm the first grouped routine Dependabot proposal and monthly audit before closing issue #46.
 
 ## Cost and limits
 
