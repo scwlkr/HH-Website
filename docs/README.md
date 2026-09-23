@@ -14,6 +14,7 @@ This is the canonical manual path for the Howeth and Harp website repo. Start he
 | Run the owner screenshot-to-issue loop | [Owner feedback loop](owner-feedback-loop.md) |
 | Work on HHQ or managed public data | [Operations portal](operations-portal.md) |
 | Review local UI changes quickly | [Fast local review](devops.md) |
+| Plan recurring quality checks and maintenance | [Website maintenance plan](website-maintenance-plan.md) |
 | Prepare preview or production | [Launch QA](launch-qa.md) |
 | Choose project language | [Glossary](glossary.md) |
 | Edit docs safely | [Style guide](style-guide.md) |
