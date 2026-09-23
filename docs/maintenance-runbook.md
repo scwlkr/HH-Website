@@ -1,6 +1,6 @@
 # Website maintenance runbook
 
-This runbook covers the automation in [the maintenance plan](website-maintenance-plan.md). H and H retains owner review and manual merge. GitHub Actions and Dependabot do not serve the public website and are not required for the deployed site to run.
+This runbook covers the automation in [the maintenance plan](website-maintenance-plan.md). Howeth and Harp retains owner review and manual merge. GitHub Actions and Dependabot do not serve the public website and are not required for the deployed site to run.
 
 ## Rollout state and ownership
 
