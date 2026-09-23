@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { deleteApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
@@ -460,9 +461,14 @@ async function waitForServer(baseUrl, childProcess) {
 }
 
 async function startNextServer({ port, env }) {
-  const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-  const serverProcess = spawn(npmCommand, ["run", "start", "--", "--port", `${port}`], {
+  const serverProcess = spawn(process.execPath, [
+    require.resolve("next/dist/bin/next"),
+    "start",
+    "--port",
+    `${port}`,
+  ], {
     cwd: process.cwd(),
+    detached: process.platform !== "win32",
     env: {
       ...process.env,
       ...env,
@@ -480,6 +486,7 @@ async function startNextServer({ port, env }) {
   serverProcess.stderr.on("data", (chunk) => {
     stderr += chunk.toString();
   });
+  const closed = new Promise((resolve) => serverProcess.once("close", resolve));
 
   const baseUrl = `http://127.0.0.1:${port}`;
   await waitForServer(baseUrl, serverProcess);
@@ -491,12 +498,33 @@ async function startNextServer({ port, env }) {
       return { stdout, stderr };
     },
     async close() {
-      if (serverProcess.exitCode !== null) {
+      const stop = (signal) => {
+        try {
+          if (process.platform !== "win32" && serverProcess.pid) {
+            process.kill(-serverProcess.pid, signal);
+          } else {
+            serverProcess.kill(signal);
+          }
+        } catch (error) {
+          if (error?.code !== "ESRCH") throw error;
+        }
+      };
+
+      if (serverProcess.exitCode === null && serverProcess.signalCode === null) {
+        stop("SIGTERM");
+      }
+      const exited = closed.then(() => true);
+      if (await Promise.race([exited, delay(5_000, false, { ref: false })])) {
         return;
       }
 
-      serverProcess.kill("SIGINT");
-      await once(serverProcess, "exit");
+      stop("SIGKILL");
+      if (!(await Promise.race([exited, delay(5_000, false, { ref: false })]))) {
+        serverProcess.stdout.destroy();
+        serverProcess.stderr.destroy();
+        serverProcess.unref();
+        throw new Error(`Next server on port ${port} did not stop after SIGKILL.`);
+      }
     },
   };
 }
@@ -2290,22 +2318,27 @@ async function main() {
     throw error;
   } finally {
     if (browser) {
+      log("Closing QA browser...");
       await browser.close();
     }
 
     if (nextServer) {
+      log("Stopping primary QA app server...");
       await nextServer.close();
     }
 
     if (failureServer) {
+      log("Stopping Firestore failure QA app server...");
       await failureServer.close();
     }
 
     if (authFailureServer) {
+      log("Stopping Auth failure QA app server...");
       await authFailureServer.close();
     }
 
     if (adminApp) {
+      log("Closing Firebase Admin test app...");
       await deleteApp(adminApp);
     }
   }
