@@ -2,6 +2,8 @@
 
 Use this loop for UI work. It is intentionally smaller than launch QA.
 
+For pull request checks, the weekly deployed-site check, dependency updates, and failure response, see the [website maintenance runbook](maintenance-runbook.md).
+
 ## Once Per Machine
 
 ```bash

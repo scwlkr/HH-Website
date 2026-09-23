@@ -1,0 +1,30 @@
+name: Weekly live spot check
+
+on:
+  schedule:
+    - cron: '17 9 * * 2'
+      timezone: America/Chicago
+  workflow_dispatch:
+    inputs:
+      site_origin:
+        description: HTTPS site origin; leave blank for the current production site
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  live-spot-check:
+    name: Public entry points
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check deployed pages
+        env:
+          LIVE_SITE_ORIGIN: ${{ inputs.site_origin || 'https://hh-website-pi.vercel.app' }}
+        run: node scripts/live-spot-check.mjs
