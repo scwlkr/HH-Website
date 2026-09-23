@@ -1,6 +1,6 @@
 # Website maintenance plan
 
-**Status:** Agreed plan, not implemented. As of 2026-09-23, this repository has no CI workflow, Lighthouse run, Dependabot configuration, scheduled live check, or monthly Codex audit. This document does not enable any of them.
+**Status:** Implementation in progress under [issue #46](https://github.com/scwlkr/HH-Website/issues/46). The activation and proof checklist below remains the completion gate.
 
 ## Scope and outcomes
 
