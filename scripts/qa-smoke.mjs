@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { setTimeout as delay } from "node:timers/promises";
 import { deleteApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
@@ -460,9 +461,14 @@ async function waitForServer(baseUrl, childProcess) {
 }
 
 async function startNextServer({ port, env }) {
-  const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-  const serverProcess = spawn(npmCommand, ["run", "start", "--", "--port", `${port}`], {
+  const serverProcess = spawn(process.execPath, [
+    require.resolve("next/dist/bin/next"),
+    "start",
+    "--port",
+    `${port}`,
+  ], {
     cwd: process.cwd(),
+    detached: process.platform !== "win32",
     env: {
       ...process.env,
       ...env,
@@ -480,25 +486,54 @@ async function startNextServer({ port, env }) {
   serverProcess.stderr.on("data", (chunk) => {
     stderr += chunk.toString();
   });
+  const closed = new Promise((resolve) => serverProcess.once("close", resolve));
 
   const baseUrl = `http://127.0.0.1:${port}`;
-  await waitForServer(baseUrl, serverProcess);
-
-  return {
+  const server = {
     baseUrl,
     process: serverProcess,
     getLogs() {
       return { stdout, stderr };
     },
     async close() {
-      if (serverProcess.exitCode !== null) {
+      const stop = (signal) => {
+        try {
+          if (process.platform !== "win32" && serverProcess.pid) {
+            process.kill(-serverProcess.pid, signal);
+          } else {
+            serverProcess.kill(signal);
+          }
+        } catch (error) {
+          if (error?.code !== "ESRCH") throw error;
+        }
+      };
+
+      if (serverProcess.exitCode === null && serverProcess.signalCode === null) {
+        stop("SIGTERM");
+      }
+      const exited = closed.then(() => true);
+      if (await Promise.race([exited, delay(5_000, false, { ref: false })])) {
         return;
       }
 
-      serverProcess.kill("SIGINT");
-      await once(serverProcess, "exit");
+      stop("SIGKILL");
+      if (!(await Promise.race([exited, delay(5_000, false, { ref: false })]))) {
+        serverProcess.stdout.destroy();
+        serverProcess.stderr.destroy();
+        serverProcess.unref();
+        throw new Error(`Next server on port ${port} did not stop after SIGKILL.`);
+      }
     },
   };
+
+  try {
+    await waitForServer(baseUrl, serverProcess);
+  } catch (error) {
+    await server.close();
+    throw error;
+  }
+
+  return server;
 }
 
 async function runNpmScript({ script, args = [], env }) {
@@ -2151,6 +2186,7 @@ async function main() {
   let authFailureServer;
   let browser;
   let adminApp;
+  let runFailed = false;
 
   try {
     adminApp = await seedAdminUsers(firebaseEmulators.projectId);
@@ -2258,6 +2294,7 @@ async function main() {
 
     log("Firebase emulator smoke QA passed.");
   } catch (error) {
+    runFailed = true;
     if (
       error instanceof Error &&
       error.message.includes("Executable doesn't exist")
@@ -2289,24 +2326,26 @@ async function main() {
 
     throw error;
   } finally {
-    if (browser) {
-      await browser.close();
+    const cleanupErrors = [];
+    for (const [resource, label, close] of [
+      [browser, "QA browser", () => browser.close()],
+      [nextServer, "primary QA app server", () => nextServer.close()],
+      [failureServer, "Firestore failure QA app server", () => failureServer.close()],
+      [authFailureServer, "Auth failure QA app server", () => authFailureServer.close()],
+      [adminApp, "Firebase Admin test app", () => deleteApp(adminApp)],
+    ]) {
+      if (!resource) continue;
+      log(`Closing ${label}...`);
+      try {
+        await close();
+      } catch (error) {
+        cleanupErrors.push(error);
+        console.error(`Failed to close ${label}:`, error);
+      }
     }
 
-    if (nextServer) {
-      await nextServer.close();
-    }
-
-    if (failureServer) {
-      await failureServer.close();
-    }
-
-    if (authFailureServer) {
-      await authFailureServer.close();
-    }
-
-    if (adminApp) {
-      await deleteApp(adminApp);
+    if (cleanupErrors.length && !runFailed) {
+      throw new AggregateError(cleanupErrors, "QA cleanup failed.");
     }
   }
 }

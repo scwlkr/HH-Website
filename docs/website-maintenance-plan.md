@@ -1,6 +1,6 @@
 # Website maintenance plan
 
-**Status:** Agreed plan, not implemented. As of 2026-09-23, this repository has no CI workflow, Lighthouse run, Dependabot configuration, scheduled live check, or monthly Codex audit. This document does not enable any of them.
+**Status:** Implementation in progress under [issue #46](https://github.com/scwlkr/HH-Website/issues/46). The activation and proof checklist below remains the completion gate. Use the [maintenance runbook](maintenance-runbook.md) for configured schedules and failure response.
 
 ## Scope and outcomes
 
@@ -18,11 +18,11 @@ The repo requires Node 24. `npm test`, `npm run lint`, and `npm run typecheck` c
 | --- | --- | --- |
 | Every pull request | On a standard GitHub-hosted runner, use Node 24, `npm ci`, Playwright Chromium, `npm test`, lint, typecheck, and `npm run qa:smoke`. The smoke command includes a production build. | Required status check on `main`; failed checks block merging. Keep owner review and manual merging. |
 | Every pull request | Run Lighthouse CI three times per public route against a locally served production build, using mobile settings. Retain reports as short-lived GitHub artifacts. | Advisory performance results at first. Collect a stable baseline before choosing numeric merge-blocking budgets; do not gate on a single variable score. |
-| Weekly | Request the deployed `/` and `/start` pages, assert successful responses and recognizable page content, and report a failed workflow through GitHub. | A weekly spot check of the deployed site, not continuous monitoring. `https://hh-website-pi.vercel.app` is the current candidate origin; confirm it when enabling the check and update it after a domain change. |
-| Weekly and on security alerts | Let Dependabot propose grouped minor/patch npm and GitHub Actions updates, with a small open-PR limit. Keep major updates separate. | Reviewable PRs with the same CI checks; no automatic merge. |
+| Tuesday 09:17 America/Chicago | Request the deployed `/` and `/start` pages, assert successful HTML responses and recognizable page content, and report a failed workflow through GitHub. | A weekly spot check of the deployed site, not continuous monitoring. `https://hh-website-pi.vercel.app` returned the expected pages on 2026-09-23; update it after a domain change. |
+| Mondays 08:17 (npm) and 08:47 (GitHub Actions), America/Chicago; plus security alerts | Let Dependabot propose grouped minor/patch npm and GitHub Actions version updates, with three and two open version-PR limits respectively. Keep major updates separate. | Reviewable PRs with the same CI checks; no automatic merge. Security proposals require repository settings to be enabled and verified. |
 | Monthly | A scheduled Codex audit reads recent CI/Lighthouse evidence, reruns focused checks where needed, and reports slow pages, repeated failures, outdated dependencies, and small refactoring candidates. | Short owner-facing summary. It may propose bounded GitHub issues, but does not edit code, create issues, or merge without a further request. |
 
-The weekly check should run at a non-round minute to reduce the chance of GitHub schedule delays. Set the exact weekly and monthly times when enabling the schedules. GitHub workflow failure notifications require the owner's GitHub notification settings to be configured and checked during setup.
+The weekly check runs at a non-round minute to reduce the chance of GitHub schedule delays. The initial monthly Codex audit time is the first Wednesday at 10:17 America/Chicago, after CI evidence exists. GitHub workflow failure notifications require the owner's GitHub notification settings to be configured and checked during setup.
 
 ## Performance and refactoring policy
 

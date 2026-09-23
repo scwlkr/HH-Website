@@ -22,6 +22,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "review": "node scripts/review.mjs",
+    "lighthouse:ci": "lhci autorun",
     "refine:plan-home": "node scripts/plan-home-refinement.mjs",
     "qa:smoke": "npx -y firebase-tools@15.26.0 emulators:exec --only auth,firestore,storage \"node scripts/qa-smoke.mjs\"",
     "proof:hhq-auth": "node scripts/proof-workos-auth.mjs"
@@ -41,6 +42,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@lhci/cli": "0.15.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

@@ -1,0 +1,42 @@
+name: Mobile Lighthouse (advisory)
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-lighthouse:
+    name: Mobile Lighthouse reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Use the installed Chromium
+        run: echo "CHROME_PATH=$(node -p "require('playwright').chromium.executablePath()")" >> "$GITHUB_ENV"
+      - name: Build with local public fallback data
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3100
+      - name: Collect three mobile reports per route
+        run: npm run lighthouse:ci
+        env:
+          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3100
+      - name: Summarize advisory results
+        run: node scripts/lighthouse-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+      - name: Retain reports for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-lighthouse-reports
+          path: output/lighthouse/
+          if-no-files-found: warn
+          retention-days: 7

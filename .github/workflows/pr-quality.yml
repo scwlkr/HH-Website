@@ -1,0 +1,49 @@
+name: PR quality
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core-quality:
+    name: Core quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Set up Java for the Firestore emulator
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium and system libraries
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run production smoke suite with isolated Firebase emulators
+        run: npm run qa:smoke -- --project demo-hh-website
