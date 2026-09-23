@@ -2186,6 +2186,7 @@ async function main() {
   let authFailureServer;
   let browser;
   let adminApp;
+  let runFailed = false;
 
   try {
     adminApp = await seedAdminUsers(firebaseEmulators.projectId);
@@ -2293,6 +2294,7 @@ async function main() {
 
     log("Firebase emulator smoke QA passed.");
   } catch (error) {
+    runFailed = true;
     if (
       error instanceof Error &&
       error.message.includes("Executable doesn't exist")
@@ -2324,29 +2326,26 @@ async function main() {
 
     throw error;
   } finally {
-    if (browser) {
-      log("Closing QA browser...");
-      await browser.close();
+    const cleanupErrors = [];
+    for (const [resource, label, close] of [
+      [browser, "QA browser", () => browser.close()],
+      [nextServer, "primary QA app server", () => nextServer.close()],
+      [failureServer, "Firestore failure QA app server", () => failureServer.close()],
+      [authFailureServer, "Auth failure QA app server", () => authFailureServer.close()],
+      [adminApp, "Firebase Admin test app", () => deleteApp(adminApp)],
+    ]) {
+      if (!resource) continue;
+      log(`Closing ${label}...`);
+      try {
+        await close();
+      } catch (error) {
+        cleanupErrors.push(error);
+        console.error(`Failed to close ${label}:`, error);
+      }
     }
 
-    if (nextServer) {
-      log("Stopping primary QA app server...");
-      await nextServer.close();
-    }
-
-    if (failureServer) {
-      log("Stopping Firestore failure QA app server...");
-      await failureServer.close();
-    }
-
-    if (authFailureServer) {
-      log("Stopping Auth failure QA app server...");
-      await authFailureServer.close();
-    }
-
-    if (adminApp) {
-      log("Closing Firebase Admin test app...");
-      await deleteApp(adminApp);
+    if (cleanupErrors.length && !runFailed) {
+      throw new AggregateError(cleanupErrors, "QA cleanup failed.");
     }
   }
 }
