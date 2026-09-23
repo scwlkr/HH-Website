@@ -489,9 +489,7 @@ async function startNextServer({ port, env }) {
   const closed = new Promise((resolve) => serverProcess.once("close", resolve));
 
   const baseUrl = `http://127.0.0.1:${port}`;
-  await waitForServer(baseUrl, serverProcess);
-
-  return {
+  const server = {
     baseUrl,
     process: serverProcess,
     getLogs() {
@@ -527,6 +525,15 @@ async function startNextServer({ port, env }) {
       }
     },
   };
+
+  try {
+    await waitForServer(baseUrl, serverProcess);
+  } catch (error) {
+    await server.close();
+    throw error;
+  }
+
+  return server;
 }
 
 async function runNpmScript({ script, args = [], env }) {
