@@ -1,4 +1,8 @@
-# Fast Local Review
+> **VOID — historical instructions.** This checkout is retired. Use
+> [handh-dev/handh-website](https://github.com/handh-dev/handh-website) at
+> `/Users/shanewalker/handh-dev/handh-website`. See [VOID.md](../VOID.md).
+
+# Historical Fast Local Review
 
 Use this loop for UI work. It is intentionally smaller than launch QA.
 
