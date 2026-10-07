@@ -1,4 +1,14 @@
-# H and H Advancement LLC (H and H / Howeth and Harp) Website
+# VOID — retired checkout
+
+This directory is retired. Read [VOID.md](VOID.md) for the retirement record.
+Website work belongs in [handh-dev/handh-website](https://github.com/handh-dev/handh-website)
+at `/Users/shanewalker/handh-dev/handh-website`; read that checkout's current
+`AGENTS.md`. Do not run maintenance, dependency upgrades, or deployments here,
+or reactivate its schedules. Preserve local files and branches.
+
+The instructions below are historical context only.
+
+# Historical H and H Advancement LLC website instructions
 
 ## purpose 
 

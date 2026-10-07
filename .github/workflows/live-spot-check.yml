@@ -1,9 +1,6 @@
 name: Weekly live spot check
 
 on:
-  schedule:
-    - cron: '17 9 * * 2'
-      timezone: America/Chicago
   workflow_dispatch:
     inputs:
       site_origin:

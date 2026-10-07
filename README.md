@@ -1,4 +1,12 @@
-# Howeth and Harp Website
+# VOID — retired H and H website repository
+
+**Use [handh-dev/handh-website](https://github.com/handh-dev/handh-website).**
+The active local checkout is `/Users/shanewalker/handh-dev/handh-website` and the
+live site is [howethandharp.com](https://howethandharp.com).
+This directory is retained for history and local-file recovery only.
+Schedules and maintenance are disabled; see [VOID.md](VOID.md).
+
+## Historical project documentation
 
 > Drafting-board public site, project inquiry paths, and HHQ operations workspace for Howeth and Harp.
 

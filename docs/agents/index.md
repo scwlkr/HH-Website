@@ -1,4 +1,8 @@
-# Internal Agent Index
+> **VOID — historical instructions.** This checkout is retired. Use
+> [handh-dev/handh-website](https://github.com/handh-dev/handh-website) at
+> `/Users/shanewalker/handh-dev/handh-website`. See [VOID.md](../../VOID.md).
+
+# Historical Internal Agent Index
 
 Use this task-based index at the start of repository work. It routes agents to authoritative documentation and source ownership; it does not replace those sources. Shared public-safe terminology lives in [docs/agent-guidance/CONTEXT.md](../agent-guidance/CONTEXT.md). Repository operations remain internal and must never be copied into public agent artifacts.
 
